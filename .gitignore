@@ -1,13 +1,9 @@
-# Large binary data & caches (tracked via SHA-256 manifests instead)
-*.parquet
-*.pkl
-*.tar.gz
-data/raw/*.csv
-data/raw/*.json
-!data/raw/live_nov2026_agmarknet_snapshot.json
-!data/raw/official_govt_survey_parameters.json
-data/raw/govt_surveys/
-data/interim/
+# Large rebuildable candidate caches (> 50 MB) — rebuild cleanly via build_dispatch_episodes.py & extract_decade_2017_2023.py
+data/processed/candidates_6state.parquet
+data/interim/candidates_2017_2023.parquet
+data/interim/colab_stage/
+data/interim/nasa_power_2017_2023_cache.parquet
+mandiguard_colab_work/
 
 # Python / Jupyter temporary artifacts
 __pycache__/

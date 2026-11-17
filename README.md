@@ -22,17 +22,19 @@
 
 ## Repository Map
 
-* **`configs/`**: Master pipeline settings ([config.json](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/configs/config.json)) and `Val_2025H1`-frozen safety margin ([frozen_calibration.json](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/configs/frozen_calibration.json)).
-* **`data/manifests/`**: SHA-256 provenance records for 2024–2026 & 2017–2026 AGMARKNET (`42.72M` streamed rows), OSRM roads, ERA5/NWP & NASA POWER (`291,384` rows) climate, GoI surveys, and compiled episode panels.
-* **`data/processed/state_apmc_and_loss_parameters.csv`**: Audited 6-state $\times$ 4-crop table combining NABCONS (2022) market losses, GoI APMC F&V fee rules (`PIB relid=154554`), Nov-2023 MoFPI cold-storage capacity, Oct-2024 e-NAM integration, and NSO NSS Report No. 587 metrics.
+* **`configs/`**: Master pipeline settings ([config.json](configs/config.json)) and `Val_2025H1`-frozen safety margin ([frozen_calibration.json](configs/frozen_calibration.json)).
+* **`data/`**: Self-contained verified public datasets (`<= 4.82 MB` per file) including AGMARKNET 2017–2026 (`agmarknet_6state_decade_2017_2026.parquet`), HP graded apples, `8,147` OSRM highway corridors, ERA5/NWP & NASA POWER climate grids, 8 official GoI PIB survey files, SHA-256 manifests (`data/manifests/`), and [state_apmc_and_loss_parameters.csv](data/processed/state_apmc_and_loss_parameters.csv).
 * **`src/`**: Modular extraction (`src/data/`), sequential & ZeroCloud agent (`src/agents/`), baselines `B1`–`B6` (`src/baselines/`), causal/ACI conformal & modern forecasters (`src/models/`), two-way bootstrap, decade, ZeroCloud & FPO runners (`src/evaluation/`), and publication plotting (`src/visualization/`).
-* **`results/` & `figures/`**: Complete confirmatory and exploratory CSV/JSON tables (`exp1`–`exp13b`), `<=160`-char real farmer SMS advisory cards, `250` JSONL execution traces, and eight 300-DPI PNG figures.
+* **`results/` & `figures/`**: Complete confirmatory and exploratory CSV/JSON tables (`exp1`–`exp13b`), `<=160`-char real farmer SMS advisory cards, `250` JSONL execution traces, and eight 300-DPI PNG figures (`fig1`–`fig8`).
 * **`notebooks/`**: Ten executed sequential notebooks (`00`–`09`) plus clean-room verified `<3 min` **`colab_standalone_reproduction.ipynb`** paired with `<5 MB` (`4.82 MB`) `data/processed/colab_data_pack.tar.gz`.
-* **`paper/` & `viva/`**: Plain-English M.Tech manuscript ([manuscript.md](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/paper/manuscript.md)), verified bibliography ([references.bib](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/paper/references.bib)), plain-English viva guide, 35 examiner Q&As, and `1m/5m/15m` defense scripts.
+* **`paper/` & `viva/`**:
+  * **Thesis Paper (Class-12 Clear + Full Rigor):** [manuscript.md](paper/manuscript.md) & verified BibTeX [references.bib](paper/references.bib) (`31/31` cited).
+  * **12th-Class Easy Reading Companion Edition:** [12th_class_easy_reading_edition.md](paper/12th_class_easy_reading_edition.md) (everyday analogies, worked truck math, visual guide to all 8 figures, mini-dictionary).
+  * **Career & M.Tech Viva Defense Suite:** [00_career_defense_master_sheet.md](viva/00_career_defense_master_sheet.md) *(2-page exam-room master sheet + 15 toughest examiner questions)*, [01_plain_english_complete_guide.md](viva/01_plain_english_complete_guide.md), [02_35_viva_questions_and_answers.md](viva/02_35_viva_questions_and_answers.md) (`40` Q&As), and [03_spoken_pitches_1m_5m_15m.md](viva/03_spoken_pitches_1m_5m_15m.md).
 
-## Quick Verification
+## Quick Clone-and-Run Verification
 
 ```bash
 PYTHONPATH=. python3 -m pytest -v tests
 ```
-See [REPRODUCIBILITY.md](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/REPRODUCIBILITY.md) for step-by-step full pipeline execution and Google Colab setup.
+All compact datasets (`<= 4.82 MB` each), `forecaster_2024.pkl`, `colab_data_pack.tar.gz`, and manifests are included directly in this repository for zero-friction offline testing (`18 passed`). See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for rebuilding the large raw candidate caches (`77 MB` / `126 MB`) from included parquets or running on Google Colab.

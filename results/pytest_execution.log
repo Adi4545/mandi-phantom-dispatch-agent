@@ -24,4 +24,4 @@ tests/test_payoff_and_bootstrap.py::test_realized_outcome_open_vs_closed_trap PA
 tests/test_payoff_and_bootstrap.py::test_bootstrap_and_holm PASSED       [ 94%]
 tests/test_payoff_and_bootstrap.py::test_temporal_firewall_guard PASSED  [100%]
 
-============================== 18 passed in 2.64s ==============================
+============================== 18 passed in 3.12s ==============================

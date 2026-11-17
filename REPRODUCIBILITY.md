@@ -21,5 +21,6 @@
    * `src/evaluation/run_creative_decade_and_modern_experiments.py`: Evaluates `Exp 10` (6 macro regimes `2017H2–2026`, `661,192` eps), `Exp 10b` (`1-Yr / 3-Yr / 8-Yr` scaling), `Exp 11` (Modern AI & NeurIPS'21 `ACI`), `Exp 12` (`ZeroCloud` & Val-calibrated satisficing edge agent), and `Exp 13/13b` (`FPO 90-qtl` pooling, `Split Top-2` portfolio, Biological Spoilage Clock & `160`-char SMS cards).
    * `src/visualization/make_figures.py`: Generates 8 300-DPI PNG figures (`fig1`–`fig8`) in `figures/`.
 4. **Tests & Notebooks:**
-   * `PYTHONPATH=. python3 -m pytest -v tests`: Runs all `18` automated anti-leakage, manifest SHA-256, survey parameter, ZeroCloud/ACI, and result integrity tests.
+   * `PYTHONPATH=. python3 -m pytest -v tests`: Runs all `18` automated anti-leakage, manifest SHA-256, survey parameter, ZeroCloud/ACI, and result integrity tests (`100%` self-contained in a fresh clone!).
    * `src/utils/build_notebooks.py` + `jupyter nbconvert --execute`: Builds & executes sequential notebooks `00`–`09` plus standalone Google Colab bundle (`notebooks/colab_standalone_reproduction.ipynb` + `data/processed/colab_data_pack.tar.gz`, `4.82 MB < 10 MB`, `<3 min`).
+   * **Reading & Viva Guides:** Start with [paper/12th_class_easy_reading_edition.md](paper/12th_class_easy_reading_edition.md), the full thesis manuscript [paper/manuscript.md](paper/manuscript.md), and the exam-room defense sheet [viva/00_career_defense_master_sheet.md](viva/00_career_defense_master_sheet.md).

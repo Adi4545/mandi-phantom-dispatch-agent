@@ -1,0 +1,2095 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head id="Head1"><title>
+	Press Release Page | Press Information Bureau
+</title><link href="css/style.css?v=1" rel="stylesheet" type="text/css" /><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="alternate stylesheet" href="css/change.css?v=1" media="screen" title="change" /><link rel="alternate stylesheet" href="css/green.css?v=1" media="screen" title="green" /><link rel="alternate stylesheet" href="css/yellow.css" media="screen" title="yellow" /><link rel="stylesheet" type="text/css" href="css/prtint.css" media="print" /><link rel="stylesheet" href="css/style3.1.css" type="text/css" /><link id="pibA11yCss" rel="stylesheet" href="/css/accessibility.css?v=7" type="text/css" />
+    <script type="text/javascript">
+        (function (d) {
+            var t = "";
+            try {
+                t = window.localStorage.getItem("pibStyle") || "";
+            } catch (e) {
+                t = "";
+            }
+            if (t === "orange") {
+                t = "yellow";
+            }
+            var c = t === "change" ? " pib-hc"
+                : t === "green" ? " pib-theme-green"
+                : t === "yellow" ? " pib-theme-yellow" : "";
+            d.documentElement.className += c + " pib-a11y-content";
+        }(document));
+    </script>
+
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/accessibility.js?v=7"></script>
+
+    <script type="text/javascript">
+            $(document).ready(function () {
+                  function getParameterByName(name) {
+                        var url = window.location.href;
+                        name = name.replace(/[\[\]]/g, '\\$&');
+                        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                              results = regex.exec(url);
+                        if (!results) return null;
+                        if (!results[2]) return '';
+                        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+                  }
+                  let prid = parseInt(getParameterByName('PRID'), 10);
+
+                  if (!isNaN(prid) && prid > 0) {
+                        $.ajax({
+                              type: "POST",
+                              url: "AjaxMethod.aspx/UpdatePRHitCount",
+                              async: false,
+                              data: JSON.stringify({ 'PermId': prid }),
+                              contentType: "application/json; charset=utf-8",
+                              dataType: "json",
+                              success: function (response) {
+                                    console.log(response);
+                              },
+                              error: function (error) {
+                                    console.log("Error in AJAX request", error);
+                              }
+                        });
+                  } else {
+                        console.log("Invalid parameters:", prid);
+                  }
+            });
+    </script>
+    <style type="text/css">
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #000;
+            color: #fff;
+            padding: 20px;
+        }
+
+        full-width {
+            width: 100%;
+        }
+
+        .logo-left, .logo-center, .countdown {
+            display: flex;
+            align-items: center;
+        }
+
+            .logo-left img, .logo-center img {
+                height: 70px;
+            }
+
+        .countdown {
+            text-align: center;
+            background-color: var(--dbim-text, #150202);
+            border-radius: 10px;
+            padding: 10px;
+            border: 2px solid grey;
+        }
+
+        .firstnumber {
+            color: #000000;
+            position: absolute;
+            top: 50px;
+            right: 90px;
+            font-size: 30px;
+        }
+
+        .secondnumber {
+            position: absolute;
+            color: #000000;
+            right: 45px;
+            top: 50px;
+            font-size: 30px;
+        }
+
+        .countdown .days {
+            font-size: 35px;
+            color: gold;
+        }
+
+        .countdown p {
+            margin: 0;
+        }
+
+        .countdown .text {
+            font-size: 16px;
+        }
+
+        a {
+            word-break: break-all;
+        }
+
+        iframe, img {
+            max-width: 100%;
+        }
+        .innner-page-main-about-us-content-right-part ul > li, .content-area ul > li {
+  list-style: none !important;
+}
+        /* === DBIM 3.0 Option 4 Separator Line & Reading Meta Styling === */
+        .pr-share--footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-top: 1px solid var(--dbim-border, #d1d5db);
+            padding-top: 16px;
+            margin-top: 24px;
+        }
+
+        .pr-share__left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pr-reading-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--dbim-text-secondary, #475569);
+            font-weight: 500;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .pr-reading-meta__item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pr-reading-meta__divider {
+            color: var(--dbim-border, #cbd5e1);
+            font-weight: 300;
+        }
+
+        .pib-hc .pr-reading-meta,
+        .pib-hc .pr-reading-meta svg {
+            color: currentColor !important;
+        }
+
+        @media (max-width: 680px) {
+            .pr-share--footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .pr-reading-meta {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media(max-width:1199px) {
+            .firstnumber {
+                top: 40px;
+                right: 72px;
+                font-size: 30px;
+            }
+
+            .secondnumber {
+                right: 35px;
+                top: 40px;
+                font-size: 30px;
+            }
+        }
+
+        @media(max-width:990px) {
+            .firstnumber {
+                top: 25px;
+                right: 54px;
+                font-size: 30px;
+            }
+
+            .secondnumber {
+                right: 25px;
+                top: 25px;
+                font-size: 30px;
+            }
+        }
+
+        @media(max-width:768px) {
+            .countdown, .days {
+                font-size: 12px !important;
+            }
+
+            .firstnumber {
+                top: 25%;
+                right: 8%;
+                font-size: 30px;
+            }
+
+            .secondnumber {
+                right: 4.5%;
+                top: 25%;
+                font-size: 30px;
+            }
+        }
+
+        @media(max-width:475px) {
+            .countdown, .days {
+                font-size: 10px !important;
+                top: 20%;
+            }
+
+            .bannerimgdiv {
+                padding: 0 !important;
+            }
+
+            .bannerimg {
+                width: 108% !important;
+            }
+        }
+    </style>
+    <script type="text/javascript">
+$(function () {
+    $("[id*=printPDF]").click(function () {
+        $("[id*=hfGridHtml]").val($("#PdfDiv").html());
+    });
+});
+$(function () {
+    $("[id*=printPDFEvent]").click(function () {
+        $("[id*=hfGridHtml]").val($("#PdfDiv").html());
+    });
+});
+</script>
+
+    <link id="pibConsentCss" href="/css/consent.css?v=8" rel="stylesheet" type="text/css" /><link id="pibFontsCss" href="/css/fonts-noto.css?v=6" rel="stylesheet" type="text/css" /><link id="pibDbimCss" href="/css/dbim.css?v=1120" rel="stylesheet" type="text/css" /><meta property="og:title" content="Implementing of National Agriculture Market (e-NAM) Platform " /><meta property="og:url" content="https://pib.gov.in/PressReleasePage.aspx?PRID=2086484" /><meta property="og:description" content="Government is implementing National Agriculture Market (e-NAM) scheme wherein online trading of Agriculture and Horticulture commodities is done for transparent price discovery for farmers for their p" /><meta property="og:image" content="https://static.pib.gov.in/WriteReadData/specificdocs/photo/2026/sep/ph_9780_20260902_18024501.png" /><meta property="og:type" content="article" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:image" content="https://static.pib.gov.in/WriteReadData/specificdocs/photo/2026/sep/ph_9780_20260902_18024501.png" />
+                                <script>!function(e){var n="https://s.go-mpulse.net/boomerang/";if("False"=="True")e.BOOMR_config=e.BOOMR_config||{},e.BOOMR_config.PageParams=e.BOOMR_config.PageParams||{},e.BOOMR_config.PageParams.pci=!0,n="https://s2.go-mpulse.net/boomerang/";if(window.BOOMR_API_key="C4E7H-KSCMC-422L4-W3EM5-U36MF",function(){function e(){if(!i){var e=document.createElement("script");e.id="boomr-scr-as",e.src=window.BOOMR.url,e.async=!0,o.parentNode.appendChild(e),i=!0}}function t(e){i=!0;var n,t,a,r,d=document,O=window;if(window.BOOMR.snippetMethod=e?"if":"i",t=function(e,n){var t=d.createElement("script");t.id=n||"boomr-if-as",t.src=window.BOOMR.url,BOOMR_lstart=(new Date).getTime(),e=e||d.body,e.appendChild(t)},!window.addEventListener&&window.attachEvent&&navigator.userAgent.match(/MSIE [67]\./))return window.BOOMR.snippetMethod="s",void t(o.parentNode,"boomr-async");a=document.createElement("IFRAME"),a.src="about:blank",a.title="",a.role="presentation",a.loading="eager",r=(a.frameElement||a).style,r.width=0,r.height=0,r.border=0,r.display="none",o.parentNode.appendChild(a);try{O=a.contentWindow,d=O.document.open()}catch(_){n=document.domain,a.src="javascript:var d=document.open();d.domain='"+n+"';void(0);",O=a.contentWindow,d=O.document.open()}if(n)d._boomrl=function(){this.domain=n,t()},d.write("<bo"+"dy onload='document._boomrl();'>");else if(O._boomrl=function(){t()},O.addEventListener)O.addEventListener("load",O._boomrl,!1);else if(O.attachEvent)O.attachEvent("onload",O._boomrl);d.close()}function a(e){window.BOOMR_onload=e&&e.timeStamp||(new Date).getTime()}if(!window.BOOMR||!window.BOOMR.version&&!window.BOOMR.snippetExecuted){window.BOOMR=window.BOOMR||{},window.BOOMR.snippetStart=(new Date).getTime(),window.BOOMR.snippetExecuted=!0,window.BOOMR.snippetVersion=12,window.BOOMR.url=n+"C4E7H-KSCMC-422L4-W3EM5-U36MF";var o=document.currentScript||document.getElementsByTagName("script")[0],i=!1,r=document.createElement("link");if(r.relList&&"function"==typeof r.relList.supports&&r.relList.supports("preload")&&"as"in r)window.BOOMR.snippetMethod="p",r.href=window.BOOMR.url,r.rel="preload",r.as="script",r.addEventListener("load",e),r.addEventListener("error",function(){t(!0)}),setTimeout(function(){if(!i)t(!0)},3e3),BOOMR_lstart=(new Date).getTime(),o.parentNode.appendChild(r);else t(!1);if(window.addEventListener)window.addEventListener("load",a,!1);else if(window.attachEvent)window.attachEvent("onload",a)}}(),"".length>0)if(e&&"performance"in e&&e.performance&&"function"==typeof e.performance.setResourceTimingBufferSize)e.performance.setResourceTimingBufferSize();!function(){if(BOOMR=e.BOOMR||{},BOOMR.plugins=BOOMR.plugins||{},!BOOMR.plugins.AK){var n=""=="true"?1:0,t="",a="opy3kizrfszyq2x4cfya-f-62d6cb06f-clientnsv4-s.akamaihd.net",o="false"=="true"?2:1,i={"ak.v":"41","ak.cp":"1825201","ak.ai":parseInt("1215205",10),"ak.ol":"0","ak.cr":36,"ak.ipv":4,"ak.proto":"http/1.1","ak.rid":"f02b2bcb","ak.r":32708,"ak.a2":n,"ak.m":"dscb","ak.n":"ff","ak.cport":33420,"ak.gh":"49.44.179.134","ak.quicv":"","ak.tlsv":"tls1.3","ak.0rtt":"","ak.0rtt.ed":"","ak.csrc":"-","ak.acc":"bbr","ak.t":"1794904432","ak.ak":"hOBiQwZUYzCg5VSAfCLimQ==jdzsObD86S1O6aCglTZ8/TA3kN6RHtQVygbdhmqLaaiSGfkT6GfeXeNO9TSeYEye1J/1QjsjNVS6kV71IneE3T0nhg1GHk9M5bVc0s0A3bXAwCZgqIG5CiVcKQbL8kFNEoLDsBIAcZiFqGhWkbVxud6m54IY3hv9J0/7Kep0n7kVDtPTXxYwL3wSJFNrIqdB6LKpHatJYwl0GeAbkf70EXX45nLsZW/sSDplKI5+8zvbPtrCKPR1kfPD20ddCL8AErtRky7ac4EnckeqDd1rCUqw79zVyBuEEUylCs11k/VLIxpKGMaSoyReVUn3seZadaRqND2dT2jj+kq/YPHjNsAXT6Hlvy28iGKyoDxlpet74vFzZo7n+DSJh6TeC4MH19iKIwqBMeVTYshjGZcslqmYMQxUcZ9kXK9QjTqw4BY=","ak.pv":"9","ak.dpoabenc":"","ak.tf":o};if(""!==t)i["ak.ruds"]=t;var r={i:!1,av:function(n){var t="http.initiator";if(n&&(!n[t]||"spa_hard"===n[t]))i["ak.feo"]=void 0!==e.aFeoApplied?1:0,BOOMR.addVar(i)},rv:function(){var e=["ak.cport","ak.cr","ak.csrc","ak.gh","ak.ipv","ak.m","ak.n","ak.ol","ak.proto","ak.quicv","ak.tlsv","ak.0rtt","ak.0rtt.ed","ak.r","ak.acc","ak.t","ak.tf"];BOOMR.removeVar(e)}};BOOMR.plugins.AK={akVars:i,akDNSPreFetchDomain:a,init:function(){if(!r.i){var e=BOOMR.subscribe;e("before_beacon",r.av,null,null),e("onbeacon",r.rv,null,null),r.i=!0}return this},is_complete:function(){return!0}}}}()}(window);</script></head>
+<body>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"
+     style="position:absolute;width:0;height:0;overflow:hidden" id="dbim-icon-sprite">
+    <defs>
+        <symbol id="icon-angle-double-left" viewBox="0 0 24 24"><path d="M11.6 4.6 4.2 12l7.4 7.4 2.2-2.2L8.6 12l5.2-5.2z"/><path d="M19 4.6 11.6 12 19 19.4l2.2-2.2L16 12l5.2-5.2z"/></symbol>
+        <symbol id="icon-angle-double-right" viewBox="0 0 24 24"><path d="M12.4 4.6 10.2 6.8 15.4 12l-5.2 5.2 2.2 2.2L19.8 12z"/><path d="M5 4.6 2.8 6.8 8 12l-5.2 5.2L5 19.4 12.4 12z"/></symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M20.8 10.6H9.6v2.8h11.2z"/><path d="M10.8 5.6 3.2 12l7.6 6.4z"/></symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M3.2 10.6h11.2v2.8H3.2z"/><path d="M13.2 5.6 20.8 12l-7.6 6.4z"/></symbol>
+        <symbol id="icon-blogger" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M6.4 2.4h11.2a4 4 0 0 1 4 4v11.2a4 4 0 0 1-4 4H6.4a4 4 0 0 1-4-4V6.4a4 4 0 0 1 4-4zm2.8 5.2a2 2 0 0 0 0 4h2.4a2 2 0 0 0 0-4zm0 5.6a2 2 0 0 0 0 4h5.6a2 2 0 0 0 0-4z"/></symbol>
+        <symbol id="icon-calendar" viewBox="0 0 24 24"><path d="M7.6 2.4H10v2.4H7.6z"/><path d="M14 2.4h2.4v2.4H14z"/><path fill-rule="evenodd" d="M4 4.8h16a1.6 1.6 0 0 1 1.6 1.6v13.2a1.6 1.6 0 0 1-1.6 1.6H4a1.6 1.6 0 0 1-1.6-1.6V6.4A1.6 1.6 0 0 1 4 4.8zm.4 5.6v8.4h15.2v-8.4z"/><path d="M6.4 12.4h3.2v3.2H6.4z"/></symbol>
+        <symbol id="icon-chevron-left" viewBox="0 0 24 24"><path d="M15.4 4.6 8 12l7.4 7.4 2.2-2.2L12.4 12l5.2-5.2z"/></symbol>
+        <symbol id="icon-chevron-right" viewBox="0 0 24 24"><path d="M8.6 4.6 6.4 6.8 11.6 12l-5.2 5.2 2.2 2.2L16 12z"/></symbol>
+        <symbol id="icon-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></symbol>
+        <symbol id="icon-download" viewBox="0 0 24 24"><path d="M10.8 3h2.4v7.6h3.4L12 16.6l-4.6-6h3.4z"/><path d="M4 17.2h2.4v2.4h11.2v-2.4H20v3.2a1.4 1.4 0 0 1-1.4 1.4H5.4A1.4 1.4 0 0 1 4 20.4z"/></symbol>
+        <symbol id="icon-facebook" viewBox="0 0 24 24"><path d="M13.6 21.6v-8.4h2.8l.42-3.3h-3.22V7.8c0-.95.27-1.6 1.64-1.6h1.74V3.26a23 23 0 0 0-2.54-.13c-2.5 0-4.22 1.53-4.22 4.34v2.43H7.4v3.3h2.82v8.4z"/></symbol>
+        <symbol id="icon-fact-check" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.4 3.6 5.6v6.2c0 4.6 3.4 8.6 8.4 9.8 5-1.2 8.4-5.2 8.4-9.8V5.6zm-1 13.2-3.6-3.6 1.7-1.7 1.9 1.9 4.5-4.5 1.7 1.7z"/></symbol>
+        <symbol id="icon-hashtag" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M8.8 3h2.4l-1 6h3.2l1-6h2.4l-1 6h3.4v2.4h-3.8l-.6 3.2h3.6V17h-4l-1 5h-2.4l1-5h-3.2l-1 5H5.4l1-5H3V14.6h3.8l.6-3.2H3.8V9h4zm.6 8.4-.6 3.2h3.2l.6-3.2z"/></symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24"><path d="M12 3.4 2.8 11.6h2.4v8.4a1 1 0 0 0 1 1h3.3v-5.4h5v5.4h3.3a1 1 0 0 0 1-1v-8.4h2.4z"/></symbol>
+        <symbol id="icon-instagram" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M7.6 2.4h8.8a5.2 5.2 0 0 1 5.2 5.2v8.8a5.2 5.2 0 0 1-5.2 5.2H7.6a5.2 5.2 0 0 1-5.2-5.2V7.6a5.2 5.2 0 0 1 5.2-5.2zm0 2.4a2.8 2.8 0 0 0-2.8 2.8v8.8a2.8 2.8 0 0 0 2.8 2.8h8.8a2.8 2.8 0 0 0 2.8-2.8V7.6a2.8 2.8 0 0 0-2.8-2.8z"/><path fill-rule="evenodd" d="M12 6.8a5.2 5.2 0 1 0 0 10.4 5.2 5.2 0 0 0 0-10.4zm0 2.4a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6z"/><circle cx="17.3" cy="6.7" r="1.3"/></symbol>
+        <symbol id="icon-linkedin" viewBox="0 0 24 24"><path d="M4.8 8.8h3.6v12H4.8z"/><circle cx="6.6" cy="5.4" r="2.1"/><path d="M10.8 8.8h3.45v1.65h.05c.48-.9 1.65-1.85 3.4-1.85 3.63 0 4.3 2.35 4.3 5.4v6.6h-3.6v-5.85c0-1.4-.03-3.2-1.95-3.2-1.95 0-2.25 1.52-2.25 3.1v5.95h-3.6z"/></symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24"><path d="M2.4 7.6v9.2a1.6 1.6 0 0 0 1.6 1.6h16a1.6 1.6 0 0 0 1.6-1.6V7.6L12 14z"/><path d="M21.2 5.4H2.8L12 11.8z"/></symbol>
+        <symbol id="icon-mail-open" viewBox="0 0 24 24"><path d="M2.4 9.8h19.2v9.6A1.6 1.6 0 0 1 20 21H4a1.6 1.6 0 0 1-1.6-1.6z"/><path d="M12 2.6 21.6 9.2h-3.8L12 5.3 6.2 9.2H2.4z"/><path d="m3.9 11.2 8.1 5.4 8.1-5.4 1.5 1.3-9.6 6.4-9.6-6.4z"/></symbol>
+        <symbol id="icon-map-marker" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.4a7 7 0 0 0-7 7c0 5.2 7 12.2 7 12.2s7-7 7-12.2a7 7 0 0 0-7-7zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2z"/></symbol>
+        <symbol id="icon-newspaper" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2.8 4.4h14.8v15.2H2.8zm2 2v11.2h10.8V6.4z"/><path d="M6 7.6h8.4v1.6H6z"/><path d="M6 10.8h8.4v1.6H6z"/><path d="M6 14h5.2v1.6H6z"/><path d="M18.4 8.4h2.8v9.6a1.4 1.4 0 0 1-2.8 0z"/></symbol>
+        <symbol id="icon-pause" viewBox="0 0 24 24"><rect x="7.4" y="4" width="3.6" height="16" rx="0.9"/><rect x="13" y="4" width="3.6" height="16" rx="0.9"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M8 4.5v15l12-7.5z"/></symbol>
+        <symbol id="icon-picture" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2.4 5.2h19.2v13.6H2.4zm2 2v9.6h15.2V7.2z"/><path d="M5.6 16.4 10 11l2.6 3 2-2.2 4 4.6z"/><circle cx="8" cy="10.4" r="1.5"/></symbol>
+        <symbol id="icon-press-conference" viewBox="0 0 24 24"><circle cx="12" cy="5.2" r="2.6"/><path d="M7.6 12.2a4.4 4.4 0 0 1 8.8 0z"/><circle cx="4.9" cy="9.6" r="2.2"/><path d="M1.8 15.2a3.1 3.1 0 0 1 6.2 0z"/><circle cx="19.1" cy="9.6" r="2.2"/><path d="M16 15.2a3.1 3.1 0 0 1 6.2 0z"/><path d="M6.6 13.6h10.8l2.2 7.8H4.4z"/></symbol>
+        <symbol id="icon-print" viewBox="0 0 24 24"><path d="M6.4 2.8h11.2v4.4H6.4z"/><path d="M4 8.4h16a1.6 1.6 0 0 1 1.6 1.6v5.6a1.6 1.6 0 0 1-1.6 1.6h-1.6v-2.8H6v2.8H4a1.6 1.6 0 0 1-1.6-1.6V10A1.6 1.6 0 0 1 4 8.4z"/><path d="M7.2 15.6h9.6v5.6H7.2z"/></symbol>
+        <symbol id="icon-rss" viewBox="0 0 24 24"><circle cx="4.8" cy="19.2" r="2.4"/><path d="M2.4 11.2v3.2a6.4 6.4 0 0 1 6.4 6.4H12A9.6 9.6 0 0 0 2.4 11.2z"/><path d="M2.4 4.8V8A13.6 13.6 0 0 1 16 21.6h3.2A16.8 16.8 0 0 0 2.4 4.8z"/></symbol>
+        <symbol id="icon-search-plus" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M10 2.8a7.2 7.2 0 1 0 0 14.4 7.2 7.2 0 0 0 0-14.4zm0 2.4a4.8 4.8 0 1 1 0 9.6 4.8 4.8 0 0 1 0-9.6z"/><path d="M15.3 14.6 21.2 20.5l-1.5 1.5-5.9-5.9z"/><path d="M9.2 6.8h1.6v2.4h2.4v1.6h-2.4v2.4H9.2v-2.4H6.8V9.2h2.4z"/></symbol>
+        <symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5.6" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="18.4" r="3"/><path d="M8.3 10.9 15.7 7.2l.9 1.8-7.4 3.7z"/><path d="M9.2 13.1 16.6 16.8l-.9 1.8-7.4-3.7z"/></symbol>
+        <symbol id="icon-twitter" viewBox="0 0 24 24"><path d="M4.2 3h4.3l11.3 18h-4.3z"/><path d="M19.3 3h-2.6L4.2 21h2.6z"/></symbol>
+        <symbol id="icon-university" viewBox="0 0 24 24"><path d="M12 2.4 21.6 7.2v1.6H2.4V7.2z"/><path d="M4.8 10.4h2.4v8H4.8z"/><path d="M9.2 10.4h2.4v8H9.2z"/><path d="M13.4 10.4h2.4v8h-2.4z"/><path d="M17.6 10.4H20v8h-2.4z"/><path d="M3.2 19.8h17.6v1.8H3.2z"/></symbol>
+        <symbol id="icon-volume-up" viewBox="0 0 24 24"><path d="M3.2 9.2h3.3l5-4.2v14l-5-4.2H3.2z"/><path d="M14.6 8.4a5 5 0 0 1 0 7.2l1.6 1.6a7.2 7.2 0 0 0 0-10.4z"/><path d="M17.4 5.6a8.8 8.8 0 0 1 0 12.8l1.5 1.5a10.9 10.9 0 0 0 0-15.8z"/></symbol>
+        <symbol id="icon-whatsapp" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.4a9.5 9.5 0 0 0-8.1 14.5L2.4 21.6l4.8-1.4A9.5 9.5 0 1 0 12 2.4zm0 2.2a7.3 7.3 0 1 1-3.8 13.5l-.4-.2-2.6.7.7-2.5-.3-.4A7.3 7.3 0 0 1 12 4.6z"/><path d="M9.4 7.8c-.2-.5-.4-.5-.6-.5h-.5a1 1 0 0 0-.7.3c-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3-1.6-.8c-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6 6 0 0 1-1.8-1.1 6.6 6.6 0 0 1-1.2-1.6c-.1-.2 0-.4.1-.5l.4-.5.3-.5v-.5z"/></symbol>
+        <symbol id="icon-youtube" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M21.6 7.2a2.8 2.8 0 0 0-2-2C17.9 4.8 12 4.8 12 4.8s-5.9 0-7.6.4a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.7.4 7.6.4 7.6.4s5.9 0 7.6-.4a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8zM10.2 15.1V8.9l5.1 3.1z"/></symbol>
+    </defs>
+</svg>
+
+    <form method="post" action="./PressReleasePage.aspx?PRID=2086484&amp;utm_m&amp;reg=48&amp;lang=2" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="sc_HiddenField" id="sc_HiddenField" value="" />
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form1'];
+if (!theForm) {
+    theForm = document.form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZPQet1wIx1Q48y3xJY2k25Y7qxH5RrQ9qQcN-OiTC9guZtri9w2&amp;t=639191042600000000" type="text/javascript"></script>
+
+
+<script src="/ScriptResource.axd?d=x6wALODbMJK5e0eRC_p1LdIxBJXt0U_WW5GWfJqHAqo6frgCmGRfEywglicTersO2OKrFhK1gAIp0Wk2al2YrpdR3uWqH6f4nfjBsCyRUfTUUVmb0&amp;t=ffffffffecf8d3f2" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=P5lTttoqSeZXoYRLQMIScH645UK3RD852IErF2548Wz9Ssv0rLjB4fhVKnHcMpqkaMHpNAGOeWY02Lf4aBYN9-dVBme_SNK5KJwmFQNpMixYDZ7M0&amp;t=ffffffffecf8d3f2" type="text/javascript"></script>
+<script src="/PressReleasePage.aspx?_TSM_HiddenField_=sc_HiddenField&amp;_TSM_CombinedScripts_=%3b%3bAjaxControlToolkit%2c+Version%3d3.5.7.123%2c+Culture%3dneutral%2c+PublicKeyToken%3d28f01b0e84b6d53e%3aen-US%3a5a4df314-b4a2-4da2-a207-9284f1b1e96c%3ade1feab2%3af2c8e708%3a8613aea7%3af9cec9bc%3a3202a5a2%3aab09e3fe%3a87104b7c%3a720a52bf%3a589eaa30%3aa67c2700%3abe6fb298" type="text/javascript"></script>
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="59B53027" />
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="s6uFQIHHEPunRFW5huSVBc0o/0krXwptNgz9qX3nkKSekZyMaB2z+DXQb/WEFAOeNKl+6hw5T8VAQW1YvpKTFKbmxb2Bn+J0b8X+zSN2acEnTPmgZLX2lfYi9a8N8iWQjEcXC84xdH5cbD/u1hqCEG4iZrigYze6vJgNmZSdhHCuzNCd/fW3dWMTGevDUSTODTYbJIBN3Kfql+IsV1GBtts58AQ0lDwfvDVAStdZyVNuxKt+LWuIVifSESmgW3meLRyhhyxiJM5C0O/xifbD4yptVsU=" />
+</div>
+        
+        <div id="templateCss"></div>
+        <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('sc', 'form1', ['tupdate12','update12'], [], [], 90, '');
+//]]>
+</script>
+
+        <input type="hidden" name="hfGridHtml" id="hfGridHtml" />
+        <div class="container" style='margin-bottom: 50px;'>
+            <div id="accessories">
+                
+                <div class="pull-right" style="display: flex">
+                    <div id="voll"></div>
+                    <div id="vollDT"></div>
+                    
+
+<span class="print-icons">
+<input type="image" name="Print1$print" id="Print1_print" aria-label="Print" src="images/printer_icon.png" alt="print page button" style="padding: 5px 10px 5px 10px;" />
+</span>
+                </div>
+            </div>
+            <input type="hidden" name="hydpermid" id="hydpermid" value="2086484" />
+            
+
+            <div class="innner-page-main-about-us-content-right-part">
+                <div id="MinistryName" class="MinistryNameSubhead text-center">
+                    Ministry of Agriculture &
+Farmers Welfare
+                </div>
+                <div id="lg_g"><div class='log_oo'>  <img src='https://static.pib.gov.in/WriteReadData/specificdocs/photo/2026/sep/ph_9768_20260902_10000501.png' alt='azadi ka amrit mahotsav' /> </div></div>
+
+                <div class="text-center event-heading-background">
+                    
+                    <h1 id="Titleh2">
+                        Implementing of National Agriculture Market (e-NAM) Platform 
+                    </h1>
+                    <h3 id="Subtitleh3">
+                        <span id="ltrSubtitle"></span>
+                    </h3>
+                    
+                    
+                </div>
+
+                
+                
+
+                <div id="PrDateTime" class="ReleaseDateSubHeaddateTime text-center pt20">
+                    Posted On:
+                              20 DEC 2024 4:11PM by PIB Delhi
+                </div>
+                
+                <div class='pt20'>
+                </div>
+                <input type="hidden" name="hydphotoUrl" id="hydphotoUrl" />
+                
+
+                <!-- Release content wrapper for client-side zero-reflow word count -->
+                <div id="pibReleaseBody">
+                    <p style="text-align:justify"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><span style="background-color:white">Government is implementing National Agriculture Market (e-NAM) scheme wherein online trading of Agriculture and Horticulture commodities is done for transparent price discovery for farmers for their produce through competitive online bidding system.</span> </span></span></p>
+
+<p style="margin-left:4.5pt; text-align:justify"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><span style="background-color:white">As on 31.10.2024, 1389 mandis of 23 States and 04 Union Territories (UTs) have been integrated with e-NAM platform. State-wise number of mandis integrated with e-NAM platform is given below. So far, 1.78 crore farmers, 2.62 lakhs traders and more than 4250 Farmer Producer Organizations (FPOs) are registered on e-NAM. The agricultural produce trades with a value of Rs.3.79 lakh crore have been recorded on e-NAM platform. </span></span></span></p>
+
+<p style="text-align:justify"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><span style="background-color:white">e-NAM is a demand-driven scheme. The integration of mandis under the e-NAM platform is based on proposals received from State Governments/Union Territories, reflecting their demand and readiness. Mandis are integrated into the platform upon fulfilling the necessary infrastructure and technical requirements as per the e-NAM operational guidelines. </span></span></span></p>
+
+<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">State-wise number of mandis integrated with e-NAM platform (as on 31.10.2024)</span></span></p>
+
+<table align="center" border="1" bordercolor="#ccc" cellpadding="5" cellspacing="0" class="Table" style="border-collapse:collapse">
+	<tbody>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>S. No.</strong></span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt; text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>States</strong></span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>Number of mandis integrated with e-NAM platform</strong></span></span></p>
+
+			<p style="text-align:center">&nbsp;</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Andhra Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">33</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">2</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Assam</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">3</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">3</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Bihar</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">4</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Chhattisgarh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">5</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Gujarat</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">144</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">6</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Goa</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">7</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">7</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Haryana</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">108</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">8</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Himachal Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">38</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">9</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Jharkhand</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">19</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">10</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Karnataka</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">5</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">11</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Kerala</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">6</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">12</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Madhya Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">139</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">13</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Maharashtra</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">133</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">14</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Nagaland</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">19</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">15</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Odisha</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">66</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">16</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Punjab</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">79</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">17</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Rajasthan</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">145</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">18</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Tamil Nadu</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">157</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">19</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Telangana</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">57</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Tripura</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">7</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">21</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Uttar Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">125</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">22</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Uttarakhand</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">23</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">West Bengal</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">18</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="width:483.95pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>Union Territories</strong></span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Andaman and Nicobar Islands</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">2</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Chandigarh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">3</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Jammu &amp; Kashmir</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">17</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">4</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Puducherry</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">2</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center">&nbsp;</p>
+			</td>
+			<td style="width:159.5pt">
+			<p><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>Total</strong></span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>1389</strong></span></span></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin-left:4.5pt; margin-right:6.7pt; text-align:center">&nbsp;</p>
+
+<p><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">This information was given by the Minister of State for Agriculture &amp; Farmers&rsquo; Welfare, Shri Ram Nath Thakur in a written reply in Rajya Sabha today.</span></span></p>
+
+<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">*****</span></span></p>
+
+<p>&nbsp;</p>
+
+<p><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>SS/2901</strong></span></span></p>
+
+                </div>
+
+                <div id="reel_pic">
+                </div>
+
+                <br />
+                <span id="ReleaseId">(Release ID: 2086484)</span>
+                <span id="lblViews">Visitor Counter : 5646</span>
+                <div>
+                    
+                </div>
+                
+
+                <span id="lblRefPhoto"></span>
+
+                <div class="BackgroundRelease">
+                    
+                </div>
+                <div>
+                    
+                </div>
+                <div class="ReleaseLang">Read this release in: 
+                
+                        <a href='https://pib.gov.in/PressReleasePage.aspx?PRID=2086510' target="_blank">
+                            Urdu </a>
+                    
+                        ,
+                    
+                        <a href='https://pib.gov.in/PressReleasePage.aspx?PRID=2086572' target="_blank">
+                            हिन्दी </a>
+                    
+                        ,
+                    
+                        <a href='https://pib.gov.in/PressReleasePage.aspx?PRID=2086525' target="_blank">
+                            Manipuri </a>
+                    
+                </div>
+
+                
+                
+
+                <div class="RelTag">
+                    <ul>
+                        
+                    </ul>
+                </div>
+                <div class="clear">
+                </div>
+
+                <!-- DBIM 3.0 Option 4: Separator Line with Left Share Rail & Right Reading Metrics -->
+                <div class="pr-share pr-share--footer" role="region" aria-label="Share and reading details">
+                    <div class="pr-share__left">
+                        <span class="pr-share__label" aria-hidden="true">Share</span>
+                        <ul class="pr-share__list">
+                            <li><a class="pr-share__btn pr-share__btn--facebook"
+                                href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fpib.gov.in%2fPressReleasePage.aspx%3fPRID%3d2086484"
+                                target="_blank" rel="noopener noreferrer"
+                                aria-label="Share on Facebook">
+                                <svg class="dbim-icon dbim-icon-24" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false">
+                                    <use href="#icon-facebook" xlink:href="#icon-facebook"></use>
+                                </svg>
+                            </a></li>
+                            <li><a class="pr-share__btn pr-share__btn--twitter"
+                                href="https://twitter.com/intent/tweet?url=https%3a%2f%2fpib.gov.in%2fPressReleasePage.aspx%3fPRID%3d2086484"
+                                target="_blank" rel="noopener noreferrer"
+                                aria-label="Share on X">
+                                <svg class="dbim-icon dbim-icon-24" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false">
+                                    <use href="#icon-twitter" xlink:href="#icon-twitter"></use>
+                                </svg>
+                            </a></li>
+                            <li><a class="pr-share__btn pr-share__btn--whatsapp"
+                                href="https://api.whatsapp.com/send?text=https%3a%2f%2fpib.gov.in%2fPressReleasePage.aspx%3fPRID%3d2086484"
+                                target="_blank" rel="noopener noreferrer"
+                                aria-label="Share on WhatsApp">
+                                <svg class="dbim-icon dbim-icon-24" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false">
+                                    <use href="#icon-whatsapp" xlink:href="#icon-whatsapp"></use>
+                                </svg>
+                            </a></li>
+                            <li><a class="pr-share__btn pr-share__btn--linkedin"
+                                href="https://www.linkedin.com/sharing/share-offsite/?url=https%3a%2f%2fpib.gov.in%2fPressReleasePage.aspx%3fPRID%3d2086484"
+                                target="_blank" rel="noopener noreferrer"
+                                aria-label="Share on LinkedIn">
+                                <svg class="dbim-icon dbim-icon-24" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false">
+                                    <use href="#icon-linkedin" xlink:href="#icon-linkedin"></use>
+                                </svg>
+                            </a></li>
+                            <li><a class="pr-share__btn pr-share__btn--mail"
+                                href="mailto:?subject=Press+release+from+PIB&amp;body=https%3a%2f%2fpib.gov.in%2fPressReleasePage.aspx%3fPRID%3d2086484"
+                                aria-label="Share by email">
+                                <svg class="dbim-icon dbim-icon-24" width="24" height="24" fill="currentColor" aria-hidden="true" focusable="false">
+                                    <use href="#icon-mail" xlink:href="#icon-mail"></use>
+                                </svg>
+                            </a></li>
+                        </ul>
+                    </div>
+                    <div class="pr-reading-meta" id="prReadingMeta" aria-label="Reading statistics">
+                        <span class="pr-reading-meta__item">
+                            <!-- Modern Document / Word Count Icon -->
+                            <svg class="pr-reading-meta__icon" width="18" height="18" viewbox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+                                <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
+                                <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" />
+                            </svg>
+                            <span id="prWordCount">-- words</span>
+                        </span>
+
+                        <span class="pr-reading-meta__divider" aria-hidden="true">|</span>
+
+                        <span class="pr-reading-meta__item">
+                            <!-- Modern Precision Clock / Read Time Icon -->
+                            <svg class="pr-reading-meta__icon" width="18" height="18" viewbox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false">
+                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+                            </svg>
+                            <span id="prReadTime">-- min read</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="RelLink" class="RelLink">
+                    <ul>
+                        
+                    </ul>
+                </div>
+                <center>
+                    
+                </center>
+            </div>
+
+            <div id="update12">
+	
+                    
+                    <input type="hidden" name="Hidden" id="Hidden" />
+                    <div id="P_CategoryManagement" class="ModalWindow" style="border-width:0px;height:60%;width:60%;overflow:auto;display: none">
+		
+                        <div>
+                            <input type="image" name="btnClose" id="btnClose" src="images/close_flat_icon.png" />
+                        </div>
+                        <div id="description">
+                        </div>
+                        <div class="text-center">
+                            <h2>
+                                
+                                <br>
+                                
+                            </h2>
+                        </div>
+                        <br />
+                        <div class="clear">
+                        </div>
+                        
+                    
+	</div>
+                
+</div>
+        </div>
+
+        <div id="PdfDiv" style="display: none;">
+            <table width="100%">
+                <tr>
+                    <td style="font-weight: 200; text-align: center">
+                        Ministry of Agriculture &
+Farmers Welfare
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                        <div style="font-weight: 200; text-align: center; font-size: 30px;">
+                            Implementing of National Agriculture Market (e-NAM) Platform 
+                        </div>
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                        <div style="font-weight: 200; text-align: center; font-size: 30px;">
+                            
+                        </div>
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                        <div style="text-align: center; font-size: 14px;">
+                            Posted On:
+                                          20 DEC 2024 4:11PM by PIB Delhi
+                        </div>
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                        <div style="font-weight: 200; text-align: left; font-size: 16px;">
+                            <p style="text-align:justify"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><span style="background-color:white">Government is implementing National Agriculture Market (e-NAM) scheme wherein online trading of Agriculture and Horticulture commodities is done for transparent price discovery for farmers for their produce through competitive online bidding system.</span> </span></span></p>
+
+<p style="margin-left:4.5pt; text-align:justify"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><span style="background-color:white">As on 31.10.2024, 1389 mandis of 23 States and 04 Union Territories (UTs) have been integrated with e-NAM platform. State-wise number of mandis integrated with e-NAM platform is given below. So far, 1.78 crore farmers, 2.62 lakhs traders and more than 4250 Farmer Producer Organizations (FPOs) are registered on e-NAM. The agricultural produce trades with a value of Rs.3.79 lakh crore have been recorded on e-NAM platform. </span></span></span></p>
+
+<p style="text-align:justify"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><span style="background-color:white">e-NAM is a demand-driven scheme. The integration of mandis under the e-NAM platform is based on proposals received from State Governments/Union Territories, reflecting their demand and readiness. Mandis are integrated into the platform upon fulfilling the necessary infrastructure and technical requirements as per the e-NAM operational guidelines. </span></span></span></p>
+
+<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">State-wise number of mandis integrated with e-NAM platform (as on 31.10.2024)</span></span></p>
+
+<table align="center" border="1" bordercolor="#ccc" cellpadding="5" cellspacing="0" class="Table" style="border-collapse:collapse">
+	<tbody>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>S. No.</strong></span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt; text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>States</strong></span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>Number of mandis integrated with e-NAM platform</strong></span></span></p>
+
+			<p style="text-align:center">&nbsp;</p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Andhra Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">33</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">2</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Assam</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">3</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">3</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Bihar</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">4</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Chhattisgarh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">5</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Gujarat</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">144</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">6</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Goa</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">7</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">7</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Haryana</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">108</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">8</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Himachal Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">38</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">9</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Jharkhand</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">19</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">10</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Karnataka</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">5</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">11</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Kerala</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">6</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">12</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Madhya Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">139</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">13</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Maharashtra</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">133</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">14</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Nagaland</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">19</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">15</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Odisha</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">66</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">16</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Punjab</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">79</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">17</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Rajasthan</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">145</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">18</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Tamil Nadu</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">157</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">19</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Telangana</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">57</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Tripura</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">7</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">21</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Uttar Pradesh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">125</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">22</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Uttarakhand</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">20</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">23</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">West Bengal</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">18</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="width:483.95pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>Union Territories</strong></span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Andaman and Nicobar Islands</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">2</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Chandigarh</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">1</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">3</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Jammu &amp; Kashmir</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">17</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">4</span></span></p>
+			</td>
+			<td style="width:159.5pt">
+			<p style="margin-left:4.7pt"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">Puducherry</span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">2</span></span></p>
+			</td>
+		</tr>
+		<tr>
+			<td style="width:47.05pt">
+			<p style="text-align:center">&nbsp;</p>
+			</td>
+			<td style="width:159.5pt">
+			<p><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>Total</strong></span></span></p>
+			</td>
+			<td style="width:277.4pt">
+			<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>1389</strong></span></span></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<p style="margin-left:4.5pt; margin-right:6.7pt; text-align:center">&nbsp;</p>
+
+<p><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">This information was given by the Minister of State for Agriculture &amp; Farmers&rsquo; Welfare, Shri Ram Nath Thakur in a written reply in Rajya Sabha today.</span></span></p>
+
+<p style="text-align:center"><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px">*****</span></span></p>
+
+<p>&nbsp;</p>
+
+<p><span style="font-family:Times New Roman,Times,serif"><span style="font-size:16px"><strong>SS/2901</strong></span></span></p>
+
+                        </div>
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                        <div style="font-weight: 100; text-align: left; font-size: 16px;">
+                            (Release ID: 2086484)
+                        </div>
+                        <div style="height: 30px; width: 100%;">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 200; text-align: center; font-size: 24px;"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="clearfix">
+        </div>
+
+        <div class="section1">
+            <div id="frst_t">
+                <div id="arr_rm"><div class='sticky-social_mb'><ul class='social_mb'><a href='http://www.facebook.com/share.php?u=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484' target='_blank'><li class='fb_b'   ></li></a><a href='https://twitter.com/intent/tweet?url=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484&text=Implementing of National Agriculture Market (e-NAM) Platform ' target='_blank'><li class='twitter_r'  > </li></a><a href='https://api.whatsapp.com/send?text=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484' target='_blank'><li class='whatsapp_r'  ></li></a><a href='https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su=Implementing of National Agriculture Market (e-NAM) Platform &body=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484&ui=2&tf=1&pli=1' title='Share by Email' target='_blank'><li class='fa-envelope_r' ></li></a><a href='https://www.linkedin.com/shareArticle?mini=true&url=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484&title=Implementing of National Agriculture Market (e-NAM) Platform &summary=My%20favorite%20developer%20program&source=LinkedIn' target='_blank'><li class='fa-linkedin_r'  ></li></a></ul></div></div>
+            </div>
+            <div id="second_t">
+                <div id="sndr_rm"><div class='sticky-social'><ul class='social'><a href='http://www.facebook.com/share.php?u=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484' target='_blank'><li class='fb_b'   ></li></a><a href='https://twitter.com/intent/tweet?url=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484&text=Implementing of National Agriculture Market (e-NAM) Platform ' target='_blank'><li class='twitter_r'  > </li></a><a href='https://api.whatsapp.com/send?text=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484' target='_blank'><li class='whatsapp_r'  ></li></a><a href='https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su=Implementing of National Agriculture Market (e-NAM) Platform &body=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484&ui=2&tf=1&pli=1' title='Share by Email' target='_blank'><li class='fa-envelope_r' ></li></a><a href='https://www.linkedin.com/shareArticle?mini=true&url=https://pib.gov.in/PressReleasePage.aspx?PRID=2086484&title=Implementing of National Agriculture Market (e-NAM) Platform &summary=My%20favorite%20developer%20program&source=LinkedIn' target='_blank'><li class='fa-linkedin_r'  ></li></a></ul></div></div>
+            </div>
+        </div>
+        <input type="hidden" name="ltrTitlee" id="ltrTitlee" value="Implementing of National Agriculture Market (e-NAM) Platform " />
+        <input type="hidden" name="ltrSubtitlee" id="ltrSubtitlee" />
+        <input type="hidden" name="ltrDescriptionn" id="ltrDescriptionn" value="&lt;p style=&quot;text-align:justify&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;span style=&quot;background-color:white&quot;>Government is implementing National Agriculture Market (e-NAM) scheme wherein online trading of Agriculture and Horticulture commodities is done for transparent price discovery for farmers for their produce through competitive online bidding system.&lt;/span> &lt;/span>&lt;/span>&lt;/p>
+
+&lt;p style=&quot;margin-left:4.5pt; text-align:justify&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;span style=&quot;background-color:white&quot;>As on 31.10.2024, 1389 mandis of 23 States and 04 Union Territories (UTs) have been integrated with e-NAM platform. State-wise number of mandis integrated with e-NAM platform is given below. So far, 1.78 crore farmers, 2.62 lakhs traders and more than 4250 Farmer Producer Organizations (FPOs) are registered on e-NAM. The agricultural produce trades with a value of Rs.3.79 lakh crore have been recorded on e-NAM platform. &lt;/span>&lt;/span>&lt;/span>&lt;/p>
+
+&lt;p style=&quot;text-align:justify&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;span style=&quot;background-color:white&quot;>e-NAM is a demand-driven scheme. The integration of mandis under the e-NAM platform is based on proposals received from State Governments/Union Territories, reflecting their demand and readiness. Mandis are integrated into the platform upon fulfilling the necessary infrastructure and technical requirements as per the e-NAM operational guidelines. &lt;/span>&lt;/span>&lt;/span>&lt;/p>
+
+&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>State-wise number of mandis integrated with e-NAM platform (as on 31.10.2024)&lt;/span>&lt;/span>&lt;/p>
+
+&lt;table align=&quot;center&quot; border=&quot;1&quot; bordercolor=&quot;#ccc&quot; cellpadding=&quot;5&quot; cellspacing=&quot;0&quot; class=&quot;Table&quot; style=&quot;border-collapse:collapse&quot;>
+	&lt;tbody>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>S. No.&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt; text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>States&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>Number of mandis integrated with e-NAM platform&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+
+			&lt;p style=&quot;text-align:center&quot;>&amp;nbsp;&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>1&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Andhra Pradesh&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>33&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>2&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Assam&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>3&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>3&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Bihar&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>20&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>4&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Chhattisgarh&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>20&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>5&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Gujarat&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>144&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>6&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Goa&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>7&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>7&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Haryana&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>108&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>8&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Himachal Pradesh&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>38&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>9&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Jharkhand&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>19&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>10&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Karnataka&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>5&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>11&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Kerala&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>6&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>12&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Madhya Pradesh&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>139&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>13&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Maharashtra&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>133&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>14&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Nagaland&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>19&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>15&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Odisha&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>66&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>16&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Punjab&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>79&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>17&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Rajasthan&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>145&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>18&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Tamil Nadu&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>157&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>19&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Telangana&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>57&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>20&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Tripura&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>7&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>21&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Uttar Pradesh&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>125&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>22&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Uttarakhand&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>20&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>23&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>West Bengal&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>18&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td colspan=&quot;3&quot; style=&quot;width:483.95pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>Union Territories&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>1&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Andaman and Nicobar Islands&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>1&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>2&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Chandigarh&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>1&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>3&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Jammu &amp;amp; Kashmir&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>17&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>4&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p style=&quot;margin-left:4.7pt&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>Puducherry&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>2&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+		&lt;tr>
+			&lt;td style=&quot;width:47.05pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&amp;nbsp;&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:159.5pt&quot;>
+			&lt;p>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>Total&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+			&lt;td style=&quot;width:277.4pt&quot;>
+			&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>1389&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+			&lt;/td>
+		&lt;/tr>
+	&lt;/tbody>
+&lt;/table>
+
+&lt;p style=&quot;margin-left:4.5pt; margin-right:6.7pt; text-align:center&quot;>&amp;nbsp;&lt;/p>
+
+&lt;p>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>This information was given by the Minister of State for Agriculture &amp;amp; Farmers&amp;rsquo; Welfare, Shri Ram Nath Thakur in a written reply in Rajya Sabha today.&lt;/span>&lt;/span>&lt;/p>
+
+&lt;p style=&quot;text-align:center&quot;>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>*****&lt;/span>&lt;/span>&lt;/p>
+
+&lt;p>&amp;nbsp;&lt;/p>
+
+&lt;p>&lt;span style=&quot;font-family:Times New Roman,Times,serif&quot;>&lt;span style=&quot;font-size:16px&quot;>&lt;strong>SS/2901&lt;/strong>&lt;/span>&lt;/span>&lt;/p>
+" />
+        <script type="text/javascript">
+                  var mPlayer = document.getElementById("background_music");
+                  var mPlayAction = document.getElementById("playbutton");
+                  var isPlaying = false;
+
+                  function playAudio() {
+                        mPlayer.play();
+                        isPlaying = true;
+                        document.getElementById('stopA').style.display = "block";
+                        document.getElementById('playA').style.display = "none";
+                  }
+
+                  function pauseAudio() {
+                        mPlayer.pause();
+                        isPlaying = false;
+                        document.getElementById('playA').style.display = "block";
+                        document.getElementById('stopA').style.display = "none";
+                  }
+        </script>
+        <script type="text/javascript">
+                  var synth = window.speechSynthesis;
+
+                  function CleanHtml(html) {
+                        html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+                        return html;
+                  }
+                  function stripHtml(html) {
+                        let tmp = document.createElement("DIV");
+                        tmp.innerHTML = CleanHtml(html);
+                        return tmp.textContent || tmp.innerText || "";
+                  }
+        </script>
+        <script type="text/javascript">
+                  $(document).ready(function () {
+                        $("table").each(function () {
+                              if (!$(this).closest(".table-responsive").length) {
+                                    $(this).wrap("<div class='table-responsive'></div>");
+                              }
+                        });
+
+                        var width = $(window).width();
+                        if (width < 768) {
+                              document.getElementById('frst_t').style.display = "block";
+                              document.getElementById('second_t').style.display = "none";
+                        } else if (width < 991) {
+                              document.getElementById('frst_t').style.display = "block";
+                              document.getElementById('second_t').style.display = "none";
+                        } else if (width < 1199) {
+                              document.getElementById('frst_t').style.display = "none";
+                              document.getElementById('second_t').style.display = "block";
+                        } else {
+                              document.getElementById('frst_t').style.display = "none";
+                              document.getElementById('second_t').style.display = "block";
+                        }
+                  });
+        </script>
+        <style type="text/css">
+            @media print {
+                .sticky-social, .sticky-social_mb, .pull-right, #printPDF {
+                    display: none !important;
+                }
+            }
+
+            .f_vl {
+                padding-right: 30px;
+                font-size: 17px;
+                cursor: pointer;
+            }
+
+            .log_oo {
+                display: flex;
+                justify-content: space-between;
+            }
+
+                .log_oo img {
+                    width: 150px;
+                }
+
+            .sticky-social_mb {
+                position: fixed;
+                bottom: 0px;
+                padding: 0px;
+                margin: 0px;
+                width: 100%;
+            }
+
+            .social_mb {
+                list-style: none;
+                display: flex;
+                width: 100%;
+                margin-bottom: -8px;
+            }
+
+                .social_mb a {
+                    padding: 8px 0px;
+                    font-size: 30px;
+                    transition: all 0.8s ease-in-out;
+                    width: 20% !important;
+                    text-align: center;
+                }
+        </style>
+        <style type="text/css">
+            .section1 {
+                position: relative;
+                padding: 10px 0px;
+                width: 100%;
+            }
+
+            .sticky-social {
+                position: fixed;
+                top: 20px;
+                left: 0px;
+                padding: 0px;
+                margin: 0px;
+            }
+
+            .social {
+                list-style: none;
+            }
+
+                .social a li {
+                    padding: 8px 12px;
+                    font-size: 25px;
+                    transition: all 0.8s ease-in-out;
+                }
+
+                    .social a li:hover {
+                        margin-right: -30px;
+                        box-shadow: 2px 5px 10px grey;
+                    }
+
+                        .social a li:hover .fa {
+                            margin-left: 20px;
+                        }
+
+            .fb_b {
+                background-color: var(--dbim-key, #0F5757);
+            }
+
+            .twitter_r {
+                background-color: var(--dbim-key, #0F5757);
+            }
+
+            .whatsapp_r {
+                background-color: var(--dbim-key, #0F5757);
+            }
+
+            .fa-envelope_r {
+                background-color: var(--dbim-key, #0F5757);
+            }
+
+            .fa-linkedin_r {
+                background-color: var(--dbim-key, #0F5757);
+            }
+        </style>
+        <style type="text/css">
+            @media only screen and (max-device-width: 767px) {
+                p span img {
+                    max-width: 90% !important;
+                    height: auto !important;
+                }
+
+                p img {
+                    max-width: 90% !important;
+                    height: auto !important;
+                }
+
+                h2 {
+                    font-size: var(--dbim-h2, 20px);
+                    font-weight: 600 !important;
+                }
+
+                h3 {
+                    font-size: var(--dbim-h3, 16px);
+                    font-weight: 600 !important;
+                }
+            }
+        </style>
+        <style type="text/css">
+            .film-roll-badge {
+                position: absolute;
+                top: 82%;
+                right: 20px;
+                width: 230px;
+                height: 70px;
+                background: repeating-linear-gradient( to right, var(--dbim-green-key, #0F5757) 0px, var(--dbim-green-key, #0F5757) 18px, var(--dbim-text, #150202) 18px, var(--dbim-text, #150202) 36px );
+                border-top: 8px solid var(--dbim-green-key, #0F5757);
+                border-bottom: 8px solid var(--dbim-green-key, #0F5757);
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+                animation: moveFilm 8s linear infinite;
+                z-index: 10;
+            }
+
+                .film-roll-badge::before,
+                .film-roll-badge::after {
+                    content: "";
+                    position: absolute;
+                    width: 100%;
+                    height: 10px;
+                    background: repeating-linear-gradient( to right, var(--dbim-green-key, #0F5757) 0px, var(--dbim-green-key, #0F5757) 10px, #fff 10px, #fff 20px );
+                    left: 0;
+                    z-index: 2;
+                }
+
+                .film-roll-badge::before {
+                    top: -4px;
+                }
+
+                .film-roll-badge::after {
+                    bottom: -4px;
+                }
+
+            .film-roll-inner {
+                position: relative;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: flicker 2s infinite ease-in-out;
+            }
+
+            .countdown-text {
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #fff;
+                text-shadow: 0 0 6px rgba(255, 255, 255, 0.4), 0 0 10px #000;
+                white-space: nowrap;
+            }
+
+            @keyframes moveFilm {
+                0% {
+                    background-position: 0 0;
+                }
+
+                100% {
+                    background-position: 120px 0;
+                }
+            }
+
+            @keyframes flicker {
+                0%, 100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.9;
+                }
+
+                25% {
+                    opacity: 0.95;
+                }
+
+                75% {
+                    opacity: 0.85;
+                }
+            }
+
+            @media (max-width: 1500px) {
+                .film-roll-badge {
+                    top: 68%;
+                    right: 18px;
+                    height: 65px;
+                    font-size: 0.85rem;
+                }
+
+                .press-section {
+                    margin-top: 35px;
+                }
+            }
+
+            @media (max-width: 992px) {
+                .film-roll-badge {
+                    top: 52%;
+                    right: 10px;
+                    width: 200px;
+                    height: 60px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .film-roll-badge {
+                    top: 56%;
+                    right: 10px;
+                    width: 124px;
+                    height: 55px;
+                }
+
+                .countdown-text {
+                    font-size: 0.9rem;
+                }
+            }
+
+            @media (max-width: 576px) {
+                .film-roll-badge {
+                    top: 59%;
+                    right: 5px;
+                    height: 50px;
+                }
+
+                .countdown-text {
+                    font-size: 0.85rem;
+                }
+            }
+        </style>
+        <script type="text/javascript">
+                  const festivalStart = new Date("2025-11-20T00:00:00").getTime();
+                  const festivalEnd = new Date("2025-11-28T23:59:59").getTime();
+                  const countdownElement = document.getElementById("countdown");
+
+                  if (countdownElement) {
+                        const interval = setInterval(() => {
+                              const now = new Date().getTime();
+
+                              if (now < festivalStart) {
+                                    const diff = festivalStart - now;
+                                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+                                    countdownElement.innerHTML = `${days} Day${days !== 1 ? 's' : ''} ${hours} Hour${hours !== 1 ? 's' : ''} to go`;
+                              } else if (now >= festivalStart && now <= festivalEnd) {
+                                    const dayNumber = Math.floor((now - festivalStart) / (1000 * 60 * 60 * 24)) + 1;
+                                    countdownElement.innerHTML = `56th IFFI - Day ${dayNumber}`;
+                              } else {
+                                    countdownElement.innerHTML = `✨ IFFI closes but never ends…`;
+                                    const elements = document.querySelectorAll('.film-roll-badge');
+                                    elements.forEach(el => el.style.width = "350px");
+                                    clearInterval(interval);
+                              }
+                        }, 1000);
+                  }
+        </script>
+        <script type="text/javascript">
+                  const miffStart = new Date("2026-06-15T00:00:00").getTime();
+                  const miffEnd = new Date("2026-06-15T23:59:59").getTime();
+                  const miffElement = document.getElementById("miff");
+
+                  if (miffElement) {
+                        const miffInterval = setInterval(() => {
+                              const now = new Date().getTime();
+
+                              if (now < miffStart) {
+                                    const diff = miffStart - now;
+                                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                    miffElement.innerHTML = `${days} Day${days === 1 ? '' : 's'} to MIFF ...`;
+                              } else if (now >= miffStart && now <= miffEnd) {
+                                    const dayNumber = Math.floor((now - miffStart) / (1000 * 60 * 60 * 24)) + 1;
+                                    miffElement.innerHTML = `19th MIFF - Day ${dayNumber}`;
+                              } else {
+                                    miffElement.innerHTML = `✨ MIFF concludes, cinema lives on...`;
+                                    document.querySelectorAll('.film-roll-badge').forEach(el => el.style.width = "350px");
+                                    clearInterval(miffInterval);
+                              }
+                        }, 1000);
+                  }
+        </script>
+    
+
+<script type="text/javascript">
+//<![CDATA[
+(function() {var fn = function() {$get("sc_HiddenField").value = '';Sys.Application.remove_init(fn);};Sys.Application.add_init(fn);})();Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"modalBackground","PopupControlID":"P_CategoryManagement","dynamicServicePath":"/PressReleasePage.aspx","id":"mpe"}, null, null, $get("Hidden"));
+});
+//]]>
+</script>
+<input type="hidden" name="__ncforminfo" value="WTbqIlsg0V7lMxyU7jqcFWEPgaHf_hvKpBWmtUt7DQVoI5Mj42Yu31Dav6sBF7t2I4Fgwk6eiUDtJksnYVgQkAy7JKT72AZL4JvnXxGDt1E="/></form>
+    
+
+<script type="application/json" id="pibConsentConfig">{"ga4Id":"G-Q414Y0X6EE,G-QJJ6LZ8LHV","policyUrl":"/CookiePolicy.aspx","text":{"bannerLabel":"Cookie consent","title":"Cookies on this website","body":"We use essential cookies to make this website work. We also set analytics cookies when you arrive, so we can see how the site is used and improve it - you can switch these off below or at any time from the Cookie Policy page. Cookies from embedded social media content are set only if you allow them.","policyLink":"Read our Cookie Policy","accept":"Accept all","reject":"Reject optional","customize":"Customise","prefsTitle":"Cookie preferences","prefsIntro":"Choose which cookies this website may set. Essential cookies cannot be switched off because the site does not work without them. Analytics cookies are on unless you turn them off. Social media cookies stay off until you allow them. You can change these choices at any time from the Cookie Policy page.","essentialName":"Essential cookies","essentialDesc":"Needed for the site to function. These remember your session, your language and region, your text size and colour theme, and verify the security check on forms. They are always on.","analyticsName":"Analytics cookies","analyticsDesc":"Help us understand how visitors use the site - which pages are read and how long people stay - so it can be improved. The information is collected in a form that does not directly identify you. These are on when you arrive; switching them off here stops them and deletes the ones already set.","socialName":"Social media cookies","socialDesc":"Set by content embedded from X, Facebook and YouTube, such as timelines and videos. These platforms may use them to track you across websites. They stay off until you allow them.","save":"Save preferences","cancel":"Cancel"}}</script>
+<script type="text/javascript" src='/js/consent.js?v=10'></script>
+
+<script type="text/javascript" src='/js/consent-embeds.js?v=10'></script>
+
+
+    <!-- Minimal O(N) Time and O(1) Auxiliary Space Word Count & Read Time Calculation -->
+    <script type="text/javascript">
+            (function () {
+                  function calculateReadingStats() {
+                        var bodyEl = document.getElementById("pibReleaseBody");
+                        if (!bodyEl) return;
+
+                        // textContent extracts text without triggering expensive layout/reflow computations
+                        var text = bodyEl.textContent || "";
+                        var words = 0;
+                        var inWord = false;
+
+                        // O(N) single pass character code scan: achieves O(1) space with zero array allocations
+                        for (var i = 0, len = text.length; i < len; i++) {
+                              var code = text.charCodeAt(i);
+                              // Delimits on ASCII whitespace, control characters, tabs, newlines, and non-breaking spaces (160)
+                              if (code <= 32 || code === 160) {
+                                    inWord = false;
+                              } else if (!inWord) {
+                                    inWord = true;
+                                    words++;
+                              }
+                        }
+
+                        // Standard 250 WPM reading speed (e.g., 612 words yields 2 min read)
+                        var minutes = Math.max(1, Math.round(words / 250));
+
+                        var elWords = document.getElementById("prWordCount");
+                        var elTime = document.getElementById("prReadTime");
+
+                        if (elWords) elWords.textContent = words + (words === 1 ? " word" : " words");
+                        if (elTime) elTime.textContent = minutes + " min read";
+                  }
+
+                  if (document.readyState === "loading") {
+                        document.addEventListener("DOMContentLoaded", calculateReadingStats);
+                  } else {
+                        calculateReadingStats();
+                  }
+            })();
+    </script>
+
+    <script type="text/javascript">
+(function () {
+    try {
+        if (window.self === window.top) { return; }
+    } catch (e) { return; }
+    var s = document.createElement("style");
+    s.textContent = ".sticky-social, .sticky-social_mb { display: none !important; }";
+    (document.head || document.documentElement).appendChild(s);
+}());
+    </script>
+</body>
+</html>
