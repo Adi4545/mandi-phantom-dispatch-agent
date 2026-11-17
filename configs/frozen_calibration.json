@@ -1,0 +1,47 @@
+{
+  "train_rows": 701932,
+  "val_rows": 280697,
+  "val_conformal_lcb_empirical_coverage_pct": 78.85,
+  "val_b1_mean_dnet": 255.28,
+  "val_b1_plr_pct": 38.99,
+  "val_b2_mean_dnet": 330.28,
+  "val_b2_plr_pct": 16.77,
+  "safety_margin_sweep": [
+    {
+      "safety_margin_inr": 50.0,
+      "dispatch_pct": 52.94,
+      "mean_delta_net_inr": 351.36,
+      "phantom_loss_rate_pct": 9.68,
+      "avg_tool_calls": 9.1
+    },
+    {
+      "safety_margin_inr": 100.0,
+      "dispatch_pct": 48.55,
+      "mean_delta_net_inr": 345.63,
+      "phantom_loss_rate_pct": 8.88,
+      "avg_tool_calls": 9.1
+    },
+    {
+      "safety_margin_inr": 150.0,
+      "dispatch_pct": 44.38,
+      "mean_delta_net_inr": 337.9,
+      "phantom_loss_rate_pct": 8.32,
+      "avg_tool_calls": 9.1
+    },
+    {
+      "safety_margin_inr": 200.0,
+      "dispatch_pct": 40.58,
+      "mean_delta_net_inr": 328.75,
+      "phantom_loss_rate_pct": 7.99,
+      "avg_tool_calls": 9.1
+    },
+    {
+      "safety_margin_inr": 250.0,
+      "dispatch_pct": 37.01,
+      "mean_delta_net_inr": 318.92,
+      "phantom_loss_rate_pct": 7.7,
+      "avg_tool_calls": 9.1
+    }
+  ],
+  "frozen_safety_margin_inr": 50.0
+}

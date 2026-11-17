@@ -1,0 +1,147 @@
+{
+  "created_utc": "2026-11-17T08:33:53.105563+00:00",
+  "nabcons_2022_post_harvest_losses": {
+    "Onion": {
+      "farm_ops_loss_pct": 5.31,
+      "market_level_loss_pct": 1.96,
+      "sum_stage_loss_pct": 7.27
+    },
+    "Potato": {
+      "farm_ops_loss_pct": 5.1,
+      "market_level_loss_pct": 0.86,
+      "sum_stage_loss_pct": 5.96
+    },
+    "Tomato": {
+      "farm_ops_loss_pct": 8.37,
+      "market_level_loss_pct": 3.25,
+      "sum_stage_loss_pct": 11.62
+    },
+    "Apple": {
+      "farm_ops_loss_pct": 7.87,
+      "market_level_loss_pct": 1.64,
+      "sum_stage_loss_pct": 9.51
+    }
+  },
+  "state_cold_storage_nov2023": {
+    "Maharashtra": {
+      "cold_storage_units_nov2023": 656,
+      "cold_storage_capacity_mt_nov2023": 1176499
+    },
+    "Uttar Pradesh": {
+      "cold_storage_units_nov2023": 2472,
+      "cold_storage_capacity_mt_nov2023": 15045874
+    },
+    "Karnataka": {
+      "cold_storage_units_nov2023": 250,
+      "cold_storage_capacity_mt_nov2023": 838940
+    },
+    "Madhya Pradesh": {
+      "cold_storage_units_nov2023": 315,
+      "cold_storage_capacity_mt_nov2023": 1364003
+    },
+    "Gujarat": {
+      "cold_storage_units_nov2023": 1014,
+      "cold_storage_capacity_mt_nov2023": 3974593
+    },
+    "Himachal Pradesh": {
+      "cold_storage_units_nov2023": 89,
+      "cold_storage_capacity_mt_nov2023": 174072
+    },
+    "All_India": {
+      "cold_storage_units_nov2023": 8653,
+      "cold_storage_capacity_mt_nov2023": 39417231
+    }
+  },
+  "state_enam_mandis_oct2024": {
+    "Maharashtra": 133,
+    "Uttar Pradesh": 125,
+    "Karnataka": 5,
+    "Madhya Pradesh": 139,
+    "Gujarat": 144,
+    "Himachal Pradesh": 38
+  },
+  "state_apmc_regulatory_regimes": {
+    "Karnataka": {
+      "apmc_fv_status": "Market fee exempted; yard user charges permitted (Jan 2014 APMC Amendment)",
+      "seller_fee_default": 0.005,
+      "seller_fee_by_comm": {
+        "Onion": 0.005,
+        "Potato": 0.005,
+        "Tomato": 0.005,
+        "Apple": 0.005
+      }
+    },
+    "Gujarat": {
+      "apmc_fv_status": "Market fee exempted on F&V; user charges permitted (PIB relid=154554)",
+      "seller_fee_default": 0.005,
+      "seller_fee_by_comm": {
+        "Onion": 0.005,
+        "Potato": 0.005,
+        "Tomato": 0.005,
+        "Apple": 0.005
+      }
+    },
+    "Himachal Pradesh": {
+      "apmc_fv_status": "Market fee exempted on F&V EXCEPT Apple; service charge on others (PIB relid=154554)",
+      "seller_fee_default": 0.005,
+      "seller_fee_by_comm": {
+        "Onion": 0.005,
+        "Potato": 0.005,
+        "Tomato": 0.005,
+        "Apple": 0.01
+      }
+    },
+    "Maharashtra": {
+      "apmc_fv_status": "Deregulated outside notified yards (Jul 2016 Ordinance); regulated yard supervision/weighment inside APMC",
+      "seller_fee_default": 0.01,
+      "seller_fee_by_comm": {
+        "Onion": 0.01,
+        "Potato": 0.01,
+        "Tomato": 0.01,
+        "Apple": 0.01
+      }
+    },
+    "Madhya Pradesh": {
+      "apmc_fv_status": "Exempted outside notified yards (except banana); regulated inside notified yards (PIB relid=154554)",
+      "seller_fee_default": 0.015,
+      "seller_fee_by_comm": {
+        "Onion": 0.015,
+        "Potato": 0.015,
+        "Tomato": 0.015,
+        "Apple": 0.015
+      }
+    },
+    "Uttar Pradesh": {
+      "apmc_fv_status": "Regulated under UP Krishi Utpadan Mandi Adhiniyam (standard yard fee/user friction)",
+      "seller_fee_default": 0.015,
+      "seller_fee_by_comm": {
+        "Onion": 0.015,
+        "Potato": 0.015,
+        "Tomato": 0.015,
+        "Apple": 0.015
+      }
+    }
+  },
+  "nss_77th_round_report_587": {
+    "avg_monthly_total_income_paidout_inr": 10218,
+    "avg_monthly_net_crop_receipt_inr": 3798,
+    "indebted_agri_households_pct": 50.2,
+    "avg_outstanding_loan_inr": 74121,
+    "jan_jun_2019_potato_harvest_kg_per_hh": 2933,
+    "jan_jun_2019_onion_harvest_kg_per_hh": 3873,
+    "smallholder_truckload_benchmark_qtl": 30.0
+  },
+  "hp_economic_survey_2025_26": {
+    "source_pdf": "/Users/adityasharma/himachal_agri_fetch/raw/hp_des/en-economic_survey_2025-26.pdf",
+    "sha256": "35c2394d0e12f5e570163996633a721c3bde213c4464a8b46897446a00bd5f92",
+    "small_marginal_farmers_pct": 88.86,
+    "avg_landholding_ha": 0.95,
+    "apmc_fruits_arrivals_qtl_upto_dec2025": 4920099,
+    "apmc_vegetables_arrivals_qtl_upto_dec2025": 1581192,
+    "apmc_total_fv_arrivals_qtl_upto_dec2025": 6501291,
+    "apple_production_2025_26_thousand_mt": 646.998,
+    "single_lane_motorable_roads_km": 39465,
+    "total_motorable_roads_km": 43091,
+    "single_lane_share_pct": 91.59
+  }
+}

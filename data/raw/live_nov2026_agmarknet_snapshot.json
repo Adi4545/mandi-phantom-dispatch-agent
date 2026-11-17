@@ -1,0 +1,1422 @@
+{
+  "retrieved_utc": "2026-11-17T07:40:51.261602+00:00",
+  "filters_url": "https://api.agmarknet.gov.in/v1/dashboard-filters/?dashboard_name=cumm_faq",
+  "lastweek_url": "https://api.agmarknet.gov.in/v1/prices-and-arrivals/commodity-price/lastweek",
+  "n_states_catalog": 38,
+  "n_markets_catalog": 4177,
+  "n_commodities_catalog": 610,
+  "target_state_ids": {
+    "20": "Maharashtra",
+    "34": "Uttar Pradesh",
+    "16": "Karnataka",
+    "19": "Madhya Pradesh",
+    "11": "Gujarat",
+    "13": "Himachal Pradesh"
+  },
+  "target_commodity_ids": {
+    "23": "Onion",
+    "24": "Potato",
+    "65": "Tomato",
+    "17": "Apple"
+  },
+  "queries_executed": 22,
+  "records": [
+    {
+      "state": "Maharashtra",
+      "state_id": 20,
+      "market": "Lasalgaon(Niphad)",
+      "market_id": 2139,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Lasalgaon(Niphad) , State/UT: Maharashtra",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Maharashtra",
+      "state_id": 20,
+      "market": "Bhokardan(Pimpalgaon Renu)",
+      "market_id": 2154,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Bhokardan(Pimpalgaon Renu) , State/UT: Maharashtra",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Maharashtra",
+      "state_id": 20,
+      "market": "APMC Talegaon Dabhade Tal Mawal Dist Pune",
+      "market_id": 1900,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: APMC Talegaon Dabhade Tal Mawal Dist Pune, State/UT: Maharashtra",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Maharashtra",
+      "state_id": 20,
+      "market": "APMC Solapur",
+      "market_id": 168,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: APMC Solapur , State/UT: Maharashtra",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Onion - Red",
+          "2026-11-15": "NR",
+          "2026-11-14": 3050.0,
+          "2026-11-13": 3000.0,
+          "2026-11-12": 3100.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Maharashtra",
+      "state_id": 20,
+      "market": "APMC Mumbai",
+      "market_id": 154,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: APMC Mumbai , State/UT: Maharashtra",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Uttar Pradesh",
+      "state_id": 34,
+      "market": "Prayagraj APMC",
+      "market_id": 298,
+      "commodity": "Potato",
+      "commodity_id": 24,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Prayagraj APMC, State/UT: Uttar Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Potato - Other",
+          "2026-11-15": 700.0,
+          "2026-11-14": 700.0,
+          "2026-11-13": 700.0,
+          "2026-11-12": 735.27,
+          "2026-11-11": 700.0,
+          "2026-11-10": 700.0,
+          "2026-11-09": 700.0,
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Uttar Pradesh",
+      "state_id": 34,
+      "market": "Kanpur(Grain) APMC",
+      "market_id": 311,
+      "commodity": "Potato",
+      "commodity_id": 24,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Kanpur(Grain) APMC, State/UT: Uttar Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Potato - Other",
+          "2026-11-15": "NR",
+          "2026-11-14": 550.0,
+          "2026-11-13": 550.0,
+          "2026-11-12": 550.0,
+          "2026-11-11": 550.0,
+          "2026-11-10": 550.0,
+          "2026-11-09": 550.0,
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Uttar Pradesh",
+      "state_id": 34,
+      "market": "Lucknow APMC",
+      "market_id": 315,
+      "commodity": "Potato",
+      "commodity_id": 24,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Lucknow APMC, State/UT: Uttar Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Potato - Other",
+          "2026-11-15": "NR",
+          "2026-11-14": 700.0,
+          "2026-11-13": 700.0,
+          "2026-11-12": 700.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": 700.0,
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Karnataka",
+      "state_id": 16,
+      "market": "Kolar APMC",
+      "market_id": 112,
+      "commodity": "Tomato",
+      "commodity_id": 65,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Kolar APMC, State/UT: Karnataka",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Tomato - Tomato",
+          "2026-11-15": 1200.0,
+          "2026-11-14": 1060.0,
+          "2026-11-13": 1000.0,
+          "2026-11-12": 1000.0,
+          "2026-11-11": 1060.0,
+          "2026-11-10": 1000.0,
+          "2026-11-09": 1060.0,
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Karnataka",
+      "state_id": 16,
+      "market": "Bengaluru APMC",
+      "market_id": 99,
+      "commodity": "Tomato",
+      "commodity_id": 65,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Bengaluru APMC, State/UT: Karnataka",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Karnataka",
+      "state_id": 16,
+      "market": "Mysuru APMC",
+      "market_id": 115,
+      "commodity": "Tomato",
+      "commodity_id": 65,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Mysuru APMC, State/UT: Karnataka",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Tomato - Tomato",
+          "2026-11-15": 2600.0,
+          "2026-11-14": "NR",
+          "2026-11-13": 2200.0,
+          "2026-11-12": 2200.0,
+          "2026-11-11": 2200.0,
+          "2026-11-10": 2200.0,
+          "2026-11-09": 2000.0,
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Karnataka",
+      "state_id": 16,
+      "market": "Ramanagara APMC",
+      "market_id": 745,
+      "commodity": "Tomato",
+      "commodity_id": 65,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Ramanagara APMC, State/UT: Karnataka",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Tomato - Tomato",
+          "2026-11-15": 2500.0,
+          "2026-11-14": 2400.0,
+          "2026-11-13": 2000.0,
+          "2026-11-12": 2000.0,
+          "2026-11-11": 2000.0,
+          "2026-11-10": 1500.0,
+          "2026-11-09": 1600.0,
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Madhya Pradesh",
+      "state_id": 19,
+      "market": "Indore(F&V) APMC",
+      "market_id": 179,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Indore(F&V) APMC, State/UT: Madhya Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Onion - Onion",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": 3461.0,
+          "2026-11-12": 3486.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Madhya Pradesh",
+      "state_id": 19,
+      "market": "Ujjain(F&V) APMC",
+      "market_id": 3053,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Ujjain(F&V) APMC, State/UT: Madhya Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Madhya Pradesh",
+      "state_id": 19,
+      "market": "Ratlam APMC",
+      "market_id": 527,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Ratlam APMC, State/UT: Madhya Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Madhya Pradesh",
+      "state_id": 19,
+      "market": "Shajapur APMC",
+      "market_id": 2097,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Shajapur APMC, State/UT: Madhya Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Onion - Medium",
+          "2026-11-15": "NR",
+          "2026-11-14": 3740.0,
+          "2026-11-13": 3801.0,
+          "2026-11-12": 3623.17,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        },
+        {
+          "variety": "Onion - Onion",
+          "2026-11-15": "NR",
+          "2026-11-14": 3300.0,
+          "2026-11-13": 4060.0,
+          "2026-11-12": 4636.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Gujarat",
+      "state_id": 11,
+      "market": "Mahuva APMC",
+      "market_id": 1546,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Mahuva APMC, State/UT: Gujarat",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Gujarat",
+      "state_id": 11,
+      "market": "Rajkot APMC",
+      "market_id": 60,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Rajkot APMC, State/UT: Gujarat",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Gujarat",
+      "state_id": 11,
+      "market": "Gondal(Veg.market Gondal) APMC",
+      "market_id": 2546,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Gondal(Veg.market Gondal) APMC, State/UT: Gujarat",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Gujarat",
+      "state_id": 11,
+      "market": "Bhavnagar APMC",
+      "market_id": 433,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Bhavnagar APMC, State/UT: Gujarat",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Unknown",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "NR"
+        }
+      ]
+    },
+    {
+      "state": "Gujarat",
+      "state_id": 11,
+      "market": "Ahmedabad(Chimanbhai Patal Market Vasana) APMC",
+      "market_id": 2543,
+      "commodity": "Onion",
+      "commodity_id": 23,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: Ahmedabad(Chimanbhai Patal Market Vasana) APMC, State/UT: Gujarat",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Onion - Local",
+          "2026-11-15": "NR",
+          "2026-11-14": 4550.0,
+          "2026-11-13": 4250.0,
+          "2026-11-12": 4250.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        },
+        {
+          "variety": "Onion - Nasik",
+          "2026-11-15": "NR",
+          "2026-11-14": 4950.0,
+          "2026-11-13": 4750.0,
+          "2026-11-12": 4750.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        },
+        {
+          "variety": "Onion - Other",
+          "2026-11-15": "NR",
+          "2026-11-14": 4300.0,
+          "2026-11-13": 4250.0,
+          "2026-11-12": 4250.0,
+          "2026-11-11": "NR",
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    },
+    {
+      "state": "Himachal Pradesh",
+      "state_id": 13,
+      "market": "PMY Dhalli Shimla",
+      "market_id": 467,
+      "commodity": "Apple",
+      "commodity_id": 17,
+      "http_status": 200,
+      "success": true,
+      "title": "Commodity Prices During Last Week Market: PMY Dhalli Shimla, State/UT: Himachal Pradesh",
+      "columns": [
+        {
+          "key": "variety",
+          "title": "Commodity - Variety"
+        },
+        {
+          "key": "2026-11-15",
+          "title": "15-11-2026"
+        },
+        {
+          "key": "2026-11-14",
+          "title": "14-11-2026"
+        },
+        {
+          "key": "2026-11-13",
+          "title": "13-11-2026"
+        },
+        {
+          "key": "2026-11-12",
+          "title": "12-11-2026"
+        },
+        {
+          "key": "2026-11-11",
+          "title": "11-11-2026"
+        },
+        {
+          "key": "2026-11-10",
+          "title": "10-11-2026"
+        },
+        {
+          "key": "2026-11-09",
+          "title": "09-11-2026"
+        },
+        {
+          "key": "unitOfPrice",
+          "title": "Unit of Price"
+        }
+      ],
+      "data": [
+        {
+          "variety": "Apple - Delicious",
+          "2026-11-15": "NR",
+          "2026-11-14": "NR",
+          "2026-11-13": "NR",
+          "2026-11-12": "NR",
+          "2026-11-11": 12000.0,
+          "2026-11-10": "NR",
+          "2026-11-09": "NR",
+          "unitOfPrice": "Rs./Quintal"
+        }
+      ]
+    }
+  ]
+}

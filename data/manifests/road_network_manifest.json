@@ -1,0 +1,32 @@
+{
+  "created_utc": "2026-11-17T07:48:37.185933+00:00",
+  "n_markets_geocoded": 220,
+  "precision_counts": {
+    "market_exact": 150,
+    "district_centroid": 70
+  },
+  "n_corridors_15_500km": 8147,
+  "corridors_by_state": {
+    "Gujarat": 817,
+    "Himachal Pradesh": 4420,
+    "Karnataka": 682,
+    "Madhya Pradesh": 750,
+    "Maharashtra": 689,
+    "Uttar Pradesh": 789
+  },
+  "lag_days_distribution": {
+    "1": 3810,
+    "2": 3942,
+    "3": 395
+  },
+  "outputs": {
+    "mandi_coordinates": {
+      "path": "data/processed/mandi_coordinates.parquet",
+      "sha256": "9b099ccfc71602c5d9318d84a291158a4ba5609cd1372e5269c81813cf574781"
+    },
+    "osrm_corridor_matrix": {
+      "path": "data/processed/osrm_corridor_matrix.parquet",
+      "sha256": "3284dec2aa8c8684bcd3aa815895981a2b0dabf1934349faded7a7238f19f757"
+    }
+  }
+}

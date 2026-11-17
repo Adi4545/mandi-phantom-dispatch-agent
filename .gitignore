@@ -1,0 +1,17 @@
+# Large binary data & caches (tracked via SHA-256 manifests instead)
+*.parquet
+*.pkl
+*.tar.gz
+data/raw/*.csv
+data/raw/*.json
+!data/raw/live_nov2026_agmarknet_snapshot.json
+!data/raw/official_govt_survey_parameters.json
+data/raw/govt_surveys/
+data/interim/
+
+# Python / Jupyter temporary artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store

@@ -1,0 +1,92 @@
+{
+  "created_utc": "2026-11-17T08:33:53.106208+00:00",
+  "sources_archived": {
+    "PIB_2151371_NABCONS_2022": {
+      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2151371",
+      "final_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2151371&reg=48&lang=2",
+      "http_status": 200,
+      "bytes": 1097901,
+      "sha256": "7654ece906ba86aa89cea46625e87a8d3dd124e72450825f51bbbe8d6032a688",
+      "local_archive_path": "data/raw/govt_surveys/PIB_2151371_NABCONS_2022.html"
+    },
+    "PIB_2198688_CIPHET_vs_NABCONS": {
+      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2198688&reg=3&lang=1",
+      "final_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2198688&reg=3&lang=1",
+      "http_status": 200,
+      "bytes": 148358,
+      "sha256": "feb3e95efe804a339eed0099d803ce5f3e6e8f34b4601d4b7ffb09daf9181f6e",
+      "local_archive_path": "data/raw/govt_surveys/PIB_2198688_CIPHET_vs_NABCONS.html"
+    },
+    "PIB_154554_APMC_Deregulation": {
+      "url": "https://www.pib.gov.in/newsite/PrintRelease.aspx?relid=154554",
+      "final_url": "https://www.pib.gov.in/newsite/PrintRelease.aspx?relid=154554&reg=48&lang=2",
+      "http_status": 200,
+      "bytes": 59418,
+      "sha256": "06afe79718c05d7ff89aec0530925228a29fa3e2b4eb14bea08b64afa97a36bf",
+      "local_archive_path": "data/raw/govt_surveys/PIB_154554_APMC_Deregulation.html"
+    },
+    "PIB_1753856_NSS77_Report587": {
+      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=1753856",
+      "final_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=1753856&reg=48&lang=2",
+      "http_status": 200,
+      "bytes": 535778,
+      "sha256": "7f311f9782ebfad3386b24d34ac7043522d4ef31fc11a5e340a1c25cd6403c02",
+      "local_archive_path": "data/raw/govt_surveys/PIB_1753856_NSS77_Report587.html"
+    },
+    "PIB_168990_ColdStorage_Baseline": {
+      "url": "https://www.pib.gov.in/newsite/printrelease.aspx?relid=168990",
+      "final_url": "https://www.pib.gov.in/newsite/printrelease.aspx?relid=168990&reg=48&lang=2",
+      "http_status": 200,
+      "bytes": 495568,
+      "sha256": "e3f32c653c015271c8da7177905b523b1470d59508e7c94c36de7844fa3cc212",
+      "local_archive_path": "data/raw/govt_surveys/PIB_168990_ColdStorage_Baseline.html"
+    },
+    "PIB_2023_ColdStorage_PDF": {
+      "url": "https://static.pib.gov.in/WriteReadData/specificdocs/documents/2023/dec/doc20231219291701.pdf",
+      "final_url": "https://static.pib.gov.in/WriteReadData/specificdocs/documents/2023/dec/doc20231219291701.pdf",
+      "http_status": 200,
+      "bytes": 201765,
+      "sha256": "3f26854a52abf730cafc9019089c44aff8e16d43a3446efc95190e3368c787e6",
+      "local_archive_path": "data/raw/govt_surveys/PIB_2023_ColdStorage_PDF.pdf"
+    },
+    "PIB_2086484_eNAM_States": {
+      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2086484&utm_m&reg=48&lang=2",
+      "final_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2086484&utm_m&reg=48&lang=2",
+      "http_status": 200,
+      "bytes": 180388,
+      "sha256": "96bb3a8872f88467a23009cac9ba69a3b4e4dbe368eb7a4d5a4c53edcba4dc2d",
+      "local_archive_path": "data/raw/govt_surveys/PIB_2086484_eNAM_States.html"
+    },
+    "PIB_2248987_Agri_Hort_2024_25": {
+      "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248987&reg=3&lang=1",
+      "final_url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248987&reg=3&lang=1",
+      "http_status": 200,
+      "bytes": 352957,
+      "sha256": "6119a7eaa67d761e34ebbd2bb171f2e94d7aa64dbf2ce9cce0002daa0b495973",
+      "local_archive_path": "data/raw/govt_surveys/PIB_2248987_Agri_Hort_2024_25.html"
+    }
+  },
+  "hp_economic_survey_verified": {
+    "source_pdf": "/Users/adityasharma/himachal_agri_fetch/raw/hp_des/en-economic_survey_2025-26.pdf",
+    "sha256": "35c2394d0e12f5e570163996633a721c3bde213c4464a8b46897446a00bd5f92",
+    "small_marginal_farmers_pct": 88.86,
+    "avg_landholding_ha": 0.95,
+    "apmc_fruits_arrivals_qtl_upto_dec2025": 4920099,
+    "apmc_vegetables_arrivals_qtl_upto_dec2025": 1581192,
+    "apmc_total_fv_arrivals_qtl_upto_dec2025": 6501291,
+    "apple_production_2025_26_thousand_mt": 646.998,
+    "single_lane_motorable_roads_km": 39465,
+    "total_motorable_roads_km": 43091,
+    "single_lane_share_pct": 91.59
+  },
+  "outputs": {
+    "official_govt_survey_parameters_json": {
+      "path": "data/raw/official_govt_survey_parameters.json",
+      "sha256": "5931fd28edb02cf2f6e6cc3d7aa5c9cc5a20cac25db45fdad2899c5f8d2af8c8"
+    },
+    "state_apmc_and_loss_parameters_csv": {
+      "path": "data/processed/state_apmc_and_loss_parameters.csv",
+      "sha256": "77281ad096170c6bf7a61638d69a1e097c164230f488415f667a2b5f8994d048"
+    }
+  }
+}

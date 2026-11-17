@@ -1,0 +1,52 @@
+{
+  "created_utc": "2026-11-17T08:31:20.334890+00:00",
+  "era5_url": "https://archive-api.open-meteo.com/v1/archive",
+  "historical_forecast_url": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+  "n_rows": 141955,
+  "n_grid_cells": 145,
+  "n_era5_realized_cells": 145,
+  "n_nwp_forecast_cells": 102,
+  "n_causal_era5_nowcast_cells": 43,
+  "causal_nowcaster_train_window": "2024-01-01..2024-12-31",
+  "causal_nowcaster_val_2025H1_metrics": {
+    "fc_tmax": {
+      "val_2025H1_mae": 1.047,
+      "val_2025H1_corr": 0.9655
+    },
+    "fc_tmin": {
+      "val_2025H1_mae": 1.028,
+      "val_2025H1_corr": 0.9663
+    },
+    "fc_rain_mm": {
+      "val_2025H1_mae": 0.001,
+      "val_2025H1_corr": 1.0
+    },
+    "fc_rh_mean": {
+      "val_2025H1_mae": 0.284,
+      "val_2025H1_corr": 0.998
+    }
+  },
+  "date_min": "2024-01-01",
+  "date_max": "2026-09-05",
+  "null_rates_raw": {
+    "era5_tmax": 0.0,
+    "era5_tmin": 0.0,
+    "era5_rain_mm": 0.0,
+    "era5_rh_mean": 0.0,
+    "fc_tmax": 0.0,
+    "fc_tmin": 0.0,
+    "fc_rain_mm": 0.0,
+    "fc_rh_mean": 0.0
+  },
+  "null_rates_after_causal_ffill": {
+    "era5_tmax": 0.0,
+    "era5_tmin": 0.0,
+    "era5_rain_mm": 0.0,
+    "era5_rh_mean": 0.0,
+    "fc_tmax": 0.0,
+    "fc_tmin": 0.0,
+    "fc_rain_mm": 0.0,
+    "fc_rh_mean": 0.0
+  },
+  "sha256": "3acbc6a7d1888426b5e3d9b0e9247509f160cac5bc7361bcc7c454b9e7df44b7"
+}

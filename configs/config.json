@@ -1,0 +1,77 @@
+{
+  "project": "MandiGuard: Phantom Spatial Arbitrage in Indian Mandis",
+  "master_seed": 20261117,
+  "states": [
+    "Maharashtra",
+    "Uttar Pradesh",
+    "Karnataka",
+    "Madhya Pradesh",
+    "Gujarat",
+    "Himachal Pradesh"
+  ],
+  "commodities": ["Onion", "Potato", "Tomato", "Apple"],
+  "temporal_splits": {
+    "train_start": "2024-01-01",
+    "train_end": "2024-12-31",
+    "val_start": "2025-01-01",
+    "val_end": "2025-05-31",
+    "test_start": "2025-06-01",
+    "test_end": "2026-04-13",
+    "apple_warmup_start": "2025-11-07",
+    "apple_warmup_end": "2026-05-31",
+    "apple_test_start": "2026-06-01",
+    "apple_test_end": "2026-09-01"
+  },
+  "corridor": {
+    "min_road_km": 15.0,
+    "max_road_km": 500.0,
+    "truck_speed_mult": 1.35,
+    "hp_mountain_speed_mult": 1.25,
+    "loading_auction_buffer_hours": 4.0
+  },
+  "payoff_model": {
+    "freight_base_inr_qtl": 35.0,
+    "freight_rate_inr_qtl_km": 0.45,
+    "hp_freight_km_mult": 1.45,
+    "out_of_district_fee_pct": 0.015,
+    "use_state_statutory_fees": true,
+    "state_statutory_seller_fees": {
+      "Karnataka": {"default": 0.005},
+      "Gujarat": {"default": 0.005},
+      "Himachal Pradesh": {"default": 0.005, "Apple": 0.010},
+      "Maharashtra": {"default": 0.010},
+      "Madhya Pradesh": {"default": 0.015},
+      "Uttar Pradesh": {"default": 0.015}
+    },
+    "detention_inr_qtl_per_wait_day": 25.0,
+    "no_trade_diversion_freight_mult": 1.5,
+    "other_variety_distress_discount": 0.10,
+    "base_spoilage_per_24h_20c": {
+      "Tomato": 0.0325,
+      "Onion": 0.0196,
+      "Apple": 0.0164,
+      "Potato": 0.0086
+    },
+    "q10_base": 2.0,
+    "ref_temp_c": 20.0,
+    "rh_threshold": 70.0,
+    "rh_excess_coeff": 0.25,
+    "heavy_rain_mm": 35.0,
+    "heavy_rain_extra_spoilage": 0.02,
+    "heavy_rain_min_price_blend": 0.50
+  },
+  "agent_defaults": {
+    "screen_stale_lookback_days": 7,
+    "screen_hurdle_inr_qtl": 100.0,
+    "k_max_candidates": 5,
+    "t1_min_open_prob_14d": 0.50,
+    "t1_min_arrival_dow_open_rate": 0.35,
+    "lcb_alpha_target": 0.20,
+    "default_safety_margin_inr_qtl": 150.0
+  },
+  "evaluation": {
+    "bootstrap_reps": 5000,
+    "holm_m": 4,
+    "alpha_fwer": 0.05
+  }
+}

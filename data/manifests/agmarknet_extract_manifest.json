@@ -1,0 +1,89 @@
+{
+  "created_utc": "2026-11-17T07:44:22.742900+00:00",
+  "sources": [
+    {
+      "tag": "2024",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2024.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 566027437,
+      "sha256_raw_csv": "4d2c7a0aaf67cca50f17c5811b2f3db21cdbd2058750d922ce80b9ab82aa6c9b",
+      "total_csv_data_rows": 5531214,
+      "filtered_6state_4crop_rows": 296390,
+      "download_seconds": 93.25,
+      "retrieved_utc": "2026-11-17T07:40:57.558323+00:00"
+    },
+    {
+      "tag": "2025",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2025.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 683077881,
+      "sha256_raw_csv": "daf30dd2897e183cc9f4bbf4a12b66f597361b410279301a047c36dfb2116b18",
+      "total_csv_data_rows": 6922877,
+      "filtered_6state_4crop_rows": 329475,
+      "download_seconds": 93.68,
+      "retrieved_utc": "2026-11-17T07:42:31.709027+00:00"
+    },
+    {
+      "tag": "2026_jan_apr",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2026%20Jan_April_13.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 210523088,
+      "sha256_raw_csv": "56779ad85eacc98b93cab3d0b5a21d0efe022b1f9fca2d9e912c7689bfcd926c",
+      "total_csv_data_rows": 1989679,
+      "filtered_6state_4crop_rows": 55393,
+      "download_seconds": 96.58,
+      "retrieved_utc": "2026-11-17T07:44:08.593368+00:00"
+    }
+  ],
+  "cleaning_stats": {
+    "rows_filtered_raw": 681258,
+    "dropped_bad_date": 0,
+    "dropped_invalid_or_outlier_price": 284,
+    "dropped_exact_duplicates": 7003,
+    "rows_clean_total": 673971,
+    "date_min": "2024-01-01",
+    "date_max": "2026-04-13",
+    "n_states": 6,
+    "n_markets": 699,
+    "n_commodities": 4
+  },
+  "retained_panel_stats": {
+    "eligible_markets_ge80d_ge20d2024": 469,
+    "retained_markets_capped30_per_state": 178,
+    "retained_by_state": {
+      "Gujarat": 30,
+      "Himachal Pradesh": 28,
+      "Karnataka": 30,
+      "Madhya Pradesh": 30,
+      "Maharashtra": 30,
+      "Uttar Pradesh": 30
+    },
+    "panel_rows": 260043,
+    "panel_rows_by_state": {
+      "Gujarat": 45298,
+      "Himachal Pradesh": 37671,
+      "Karnataka": 24672,
+      "Madhya Pradesh": 25041,
+      "Maharashtra": 46380,
+      "Uttar Pradesh": 80981
+    },
+    "panel_rows_by_commodity": {
+      "Apple": 28345,
+      "Onion": 89161,
+      "Potato": 69296,
+      "Tomato": 73241
+    }
+  },
+  "outputs": {
+    "all_clean_parquet": {
+      "path": "data/raw/agmarknet_6state_top_apple_2024_2026_all.parquet",
+      "sha256": "558aa02e3e6843836a33cc88d130fd5cbd4d584edc5b80fdea48ac5b1366c118",
+      "bytes": 3527601
+    },
+    "retained_panel_parquet": {
+      "path": "data/raw/agmarknet_6state_top_apple_2024_2026.parquet",
+      "sha256": "5cf2f0c9c1056ce1b8bf0e1776af61d1f3714918f5870efca984c1a024fe7515",
+      "bytes": 1303135
+    }
+  }
+}

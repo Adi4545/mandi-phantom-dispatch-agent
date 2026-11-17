@@ -1,0 +1,15 @@
+{
+  "created_utc": "2026-11-17T08:37:28.707982+00:00",
+  "6state_episodes": 239809,
+  "6state_shortlisted_episodes": 209450,
+  "6state_candidate_rows": 1457515,
+  "hp_apple_episodes": 4129,
+  "hp_apple_shortlisted_episodes": 3923,
+  "hp_apple_candidate_rows": 33090,
+  "sha256": {
+    "episodes_6state": "45a82b87c763f64e1dc30fd1921734539b46ab0af36c4460e920429622ac6101",
+    "candidates_6state": "ea5ac38a90bb764aa659565935085c56aacab4302c2d67a8f053618fd0377aa2",
+    "episodes_hp_apple": "9dbf1cabbae72f6977db0d85c952e6ae7de027ad03bd0afa41e83801d9ad17f9",
+    "candidates_hp_apple_grade": "e3483e11670717e651302c0f91356bc2eac30243027143b12b7506723473844a"
+  }
+}
