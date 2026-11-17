@@ -191,8 +191,29 @@ def test_official_datagov_parity_and_open_yard_sensitivity() -> None:
     assert exp14["modal_price_exact_parity_pct"].iloc[0] >= 99.0
 
     exp15 = pd.read_csv(root / "results/exp15_missing_data_open_yard_sensitivity.csv")
-    assert len(exp15) == 20
+    assert len(exp15) == 28
     assert not exp15.isna().any().any()
-    mg_rows = exp15[exp15["policy"] == "MandiGuard"]
-    assert (mg_rows["mg_minus_b1_inr_qtl"] > 70.0).all()
+
+    # Fair matched complete-observation cohorts must evaluate identical episodes across all 4 policies
+    sub_d0 = exp15[exp15["regime"] == "6_Fair_Matched_AllTopK_Observed_d0"]
+    assert len(sub_d0) == 4
+    assert (sub_d0["n_count"] == 10162).all()
+    mg_d0 = sub_d0[sub_d0["policy"] == "MandiGuard"].iloc[0]
+    assert mg_d0["mg_minus_b1_inr_qtl"] > 30.0
+    assert mg_d0["mg_minus_b2_inr_qtl"] > 30.0
+
+    sub_3d = exp15[exp15["regime"] == "7_Fair_Matched_AllTopK_Observed_3d"]
+    assert len(sub_3d) == 4
+    assert (sub_3d["n_count"] == 16849).all()
+
+    # Trap-penalty crossover curve: MandiGuard leads through 0.5x/5% and crosses at 0.0x/0% while keeping low LTR
+    mg_idx = exp15[exp15["policy"] == "MandiGuard"].set_index("regime")
+    for reg_name in [
+        "1_Baseline_Div1.5x_Disc10pct",
+        "2_OneWayDiv_Div1.0x_Disc10pct",
+        "3_HalfDiv_Div0.5x_Disc5pct",
+    ]:
+        assert mg_idx.loc[reg_name, "mg_minus_b1_inr_qtl"] > 40.0
+    assert mg_idx.loc["4_ZeroDiv_Div0.0x_Disc0pct", "mg_minus_b1_inr_qtl"] < 0.0
+    assert mg_idx.loc["4_ZeroDiv_Div0.0x_Disc0pct", "loss_trip_rate_pct"] < 10.0
 

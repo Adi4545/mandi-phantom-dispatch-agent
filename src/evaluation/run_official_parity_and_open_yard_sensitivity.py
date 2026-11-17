@@ -1,11 +1,13 @@
-"""Official data.gov.in Parity Audit (Exp 14) & Missing-Entry / Open-Yard Sensitivity Proof (Exp 15).
+"""Official data.gov.in Parity Audit (Exp 14) & Trap-Penalty / Fair-Matched Sensitivity Proof (Exp 15).
 
-1. Downloads the official data.gov.in Resource `9ef84268-d588-465a-a308-a864a43d0070` daily XML feed
-   (`Date-Wise-Prices-all-Commodity.xml`), saves SHA-256 provenance, and cross-verifies exact
-   Min_Price, Max_Price, and Modal_Price parity against the multi-year AGMARKNET archive panel.
-   (Also probes api.data.gov.in if DATA_GOV_IN_API_KEY env var is set, logging gateway status.)
-2. Evaluates MandiGuard vs B1/B2/B3 across five missing-data / clerk-upload-lag assumptions
-   on Holdout_2025_2026 (`Exp 15`), including 100%-observed arrival-day dispatches (`d0`).
+1. Loads cached official data.gov.in Resource `9ef84268-d588-465a-a308-a864a43d0070` daily XML feed
+   (`Date-Wise-Prices-all-Commodity.xml`, downloading only if not already cached locally), verifies SHA-256
+   provenance, and cross-verifies exact Min_Price, Max_Price, and Modal_Price parity against the multi-year
+   AGMARKNET archive panel. (Also probes api.data.gov.in if DATA_GOV_IN_API_KEY env var is set.)
+2. Evaluates MandiGuard vs B1/B2/B3 across 7 clean sensitivity regimes on Holdout_2025_2026 (`Exp 15`):
+   - Regimes 1-5: Trap-penalty crossover curve across all 69,526 shortlisted episodes.
+   - Regimes 6-7: Fair matched complete-observation cohorts (`Matched_AllTopK_Observed_d0` and
+     `Matched_AllTopK_Observed_3d`) with an identical episode set across all 4 policies.
 """
 
 from __future__ import annotations
@@ -30,7 +32,6 @@ from src.baselines.dispatch_baselines import (
     eval_b3_ml_point_dispatch,
 )
 from src.data.extract_agmarknet_multistate import parse_and_clean
-from src.evaluation.payoff_model import PayoffParams, compute_freight_inr, compute_spoilage_fraction
 from src.utils.leakage import load_config
 
 OFFICIAL_DATAGOV_XML_URL = (
@@ -47,12 +48,18 @@ def run_exp14_official_parity(root: Path) -> Dict:
     res_dir.mkdir(parents=True, exist_ok=True)
     xml_out = root / "data/raw/official_datagov_datewise_prices.xml"
     manifest_out = root / "data/manifests/official_datagov_parity_manifest.json"
+    manifest_out.parent.mkdir(parents=True, exist_ok=True)
 
     headers = {"User-Agent": "Mozilla/5.0"}
-    resp = requests.get(OFFICIAL_DATAGOV_XML_URL, headers=headers, timeout=25)
-    resp.raise_for_status()
-    xml_bytes = resp.content
-    xml_out.write_bytes(xml_bytes)
+    if xml_out.exists():
+        xml_bytes = xml_out.read_bytes()
+    else:
+        resp = requests.get(OFFICIAL_DATAGOV_XML_URL, headers=headers, timeout=25)
+        resp.raise_for_status()
+        xml_bytes = resp.content
+        xml_out.parent.mkdir(parents=True, exist_ok=True)
+        xml_out.write_bytes(xml_bytes)
+    xml_text = xml_bytes.decode("utf-8", errors="replace")
     xml_sha = hashlib.sha256(xml_bytes).hexdigest()
 
     # Optional non-secret gateway health probe if user supplies env var DATA_GOV_IN_API_KEY
@@ -70,7 +77,7 @@ def run_exp14_official_parity(root: Path) -> Dict:
         except Exception as exc:
             api_probe_status = f"timeout_or_err:{type(exc).__name__}"
 
-    et_root = ET.fromstring(resp.text)
+    et_root = ET.fromstring(xml_text)
     rows = [{c.tag.replace("_x0020_", "_"): (c.text or "").strip() for c in t} for t in et_root.findall(".//Table")]
     df_gov = pd.DataFrame(rows)
     clean_gov, _ = parse_and_clean(df_gov, min_date="2017-01-01", max_date="2026-04-13")
@@ -99,6 +106,7 @@ def run_exp14_official_parity(root: Path) -> Dict:
         ).sum()
     )
 
+    audit_scope_note = "Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)"
     audit_df = pd.DataFrame(
         [
             {
@@ -113,6 +121,7 @@ def run_exp14_official_parity(root: Path) -> Dict:
                 "max_price_exact_parity_pct": round(max_parity, 2),
                 "modal_price_exact_parity_pct": round(mod_parity, 2),
                 "exact_full_row_rate_pct": round(exact_10col / max(1, len(gov_in_core)) * 100.0, 2),
+                "audit_scope_note": audit_scope_note,
             }
         ]
     )
@@ -123,6 +132,7 @@ def run_exp14_official_parity(root: Path) -> Dict:
         "resource_page_url": OFFICIAL_DATAGOV_RESOURCE_URL,
         "datafile_url": OFFICIAL_DATAGOV_XML_URL,
         "api_gateway_probe": api_probe_status,
+        "audit_scope_note": audit_scope_note,
         "xml_file": {
             "path": str(xml_out.relative_to(root)),
             "bytes": int(len(xml_bytes)),
@@ -134,6 +144,15 @@ def run_exp14_official_parity(root: Path) -> Dict:
     print("=== EXP 14: OFFICIAL DATA.GOV.IN PARITY AUDIT ===", flush=True)
     print(audit_df.to_string(index=False), flush=True)
     return manifest
+
+
+def _cvar10(vals: np.ndarray) -> float:
+    arr = vals[np.isfinite(vals)]
+    if len(arr) == 0:
+        return 0.0
+    q10 = np.quantile(arr, 0.10)
+    tail = arr[arr <= q10]
+    return float(tail.mean()) if len(tail) > 0 else float(q10)
 
 
 def run_exp15_open_yard_sensitivity(root: Path) -> pd.DataFrame:
@@ -154,105 +173,93 @@ def run_exp15_open_yard_sensitivity(root: Path) -> pd.DataFrame:
     c2526["pred_ret"], c2526["lcb_ret"] = pr, lr
     hold = c2526[(c2526["date_dt"] >= splits["test_start"]) & (c2526["arr_dt"] <= splits["test_end"])].copy()
 
-    pp = PayoffParams()
-    fr = np.array(
-        [
-            compute_freight_inr(str(s), float(d), bool(sd), float(lp), pp, commodity=str(c))
-            for s, d, sd, lp, c in zip(
-                hold["State"], hold["road_km"], hold["same_district"], hold["local_price"], hold["Commodity"]
-            )
-        ]
-    )
-    sp = np.array(
-        [
-            compute_spoilage_fraction(str(c), float(h), float(tm), float(rh), float(rn), 0, pp)
-            for c, h, tm, rh, rn in zip(
-                hold["Commodity"], hold["truck_hours"], hold["route_era5_tmax"], hold["route_era5_rh"], hold["route_era5_rain"]
-            )
-        ]
-    )
-    divert_mask = (
-        (~np.isfinite(hold["dest_modal_d0"]))
-        & (~np.isfinite(hold["dest_modal_d1"]))
-        & (~np.isfinite(hold["dest_modal_d2"]))
-        & (~(np.isfinite(hold["dest_any_var_min_d0"]) & (hold["dest_any_var_min_d0"] > 0)))
-    ).to_numpy()
-
     base_dnet = hold["real_delta_net_inr"].to_numpy(dtype=np.float64)
-    local_p = hold["local_price"].to_numpy(dtype=np.float64)
-    oneway_only_dnet = -1.0 * fr - local_p * sp
-    cf_p = np.where(np.isfinite(hold["dest_ref_price"]), hold["dest_ref_price"] * 0.90, local_p)
-    open_cf_dnet = cf_p * (1.0 - sp) - fr - local_p
-    local_parity_dnet = -0.5 * fr  # 50% one-way freight parity friction if market matched home price net of spoilage
+    fr = hold["real_freight_inr"].to_numpy(dtype=np.float64)
+    sp = hold["real_spoil_frac"].to_numpy(dtype=np.float64)
+    lp = hold["local_price"].to_numpy(dtype=np.float64)
+    any_min = hold["dest_any_var_min_d0"].to_numpy(dtype=np.float64)
+    out_type = hold["real_outcome_type"].to_numpy(dtype=str)
+    is_div = np.isin(out_type, ["closed_yard_divert", "no_commodity_divert"])
+    is_oth = (out_type == "other_variety_distress")
+    is_trap3d = hold["real_no_exact_variety_3d"].to_numpy(dtype=bool)
 
-    rows: List[Dict[str, object]] = []
-    scenarios = [
-        ("1_Baseline_Physical_1.5x_Diversion", base_dnet),
-        ("2_No_Return_Haul_1.0x_OneWay_Only", np.where(divert_mask, oneway_only_dnet, base_dnet)),
-        ("3_50pct_Clerk_Upload_Lag_OpenAtRef90", np.where(divert_mask, 0.5 * base_dnet + 0.5 * open_cf_dnet, base_dnet)),
-        ("4_100pct_Clerk_Upload_Lag_LocalParity", np.where(divert_mask, local_parity_dnet, base_dnet)),
-    ]
-
-    b1_base = b2_base = b3_base = mg_base = None
-    for idx, (label, new_vals) in enumerate(scenarios):
-        h_mod = hold.copy()
-        h_mod["real_delta_net_inr"] = new_vals
-        b1 = eval_b1_naive_screen_greedy(h_mod, hurdle_inr=hurdle)
-        b2 = eval_b2_fresh_road_greedy(h_mod, hurdle_inr=hurdle)
-        b3 = eval_b3_ml_point_dispatch(h_mod, safety_margin_inr=margin)
+    def _eval_4_policies(sub_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+        b1 = eval_b1_naive_screen_greedy(sub_df, hurdle_inr=hurdle)
+        b2 = eval_b2_fresh_road_greedy(sub_df, hurdle_inr=hurdle)
+        b3 = eval_b3_ml_point_dispatch(sub_df, safety_margin_inr=margin)
         mg, _ = evaluate_mandiguard_vectorized(
-            h_mod, AgentConfig(screen_hurdle_inr=hurdle, k_max=k_max, safety_margin_inr=margin)
+            sub_df, AgentConfig(screen_hurdle_inr=hurdle, k_max=k_max, safety_margin_inr=margin)
         )
-        if idx == 0:
-            b1_base, b2_base, b3_base, mg_base = b1, b2, b3, mg
+        return {
+            "B1_NaiveScreen": b1,
+            "B2_FreshRoad": b2,
+            "B3_MLPoint": b3,
+            "MandiGuard": mg,
+        }
 
-        b1_mean = float(b1["delta_net_inr"].mean())
-        for pname, dfp in [("B1_NaiveScreen", b1), ("B2_FreshRoad", b2), ("B3_MLPoint", b3), ("MandiGuard", mg)]:
+    def _record_regime(
+        rows: List[Dict[str, object]],
+        regime: str,
+        evaluation_scope: str,
+        pol_dfs: Dict[str, pd.DataFrame],
+    ) -> None:
+        means = {pname: float(dfp["delta_net_inr"].mean()) for pname, dfp in pol_dfs.items()}
+        mg_mean = means["MandiGuard"]
+        for pname in ["B1_NaiveScreen", "B2_FreshRoad", "B3_MLPoint", "MandiGuard"]:
+            dfp = pol_dfs[pname]
             disp = dfp["is_dispatch"].to_numpy(dtype=bool)
             dnet = dfp["delta_net_inr"].to_numpy(dtype=np.float64)
+            is_mg = pname == "MandiGuard"
             rows.append(
                 {
-                    "regime": label,
+                    "regime": regime,
                     "policy": pname,
-                    "evaluation_scope": "All_Shortlisted_Episodes",
+                    "evaluation_scope": evaluation_scope,
                     "n_count": int(len(dfp)),
-                    "mean_net_gain_inr_qtl": round(float(dnet.mean()), 2),
+                    "dispatch_rate_pct": round(float(disp.mean() * 100.0), 2),
+                    "mean_net_gain_inr_qtl": round(means[pname], 2),
                     "loss_trip_rate_pct": round(float((dnet[disp] < 0.0).mean() * 100.0), 2) if disp.any() else 0.0,
-                    "mg_minus_b1_inr_qtl": round(float(dnet.mean() - b1_mean), 2) if pname == "MandiGuard" else 0.0,
+                    "cvar_10_inr_qtl": round(_cvar10(dnet), 2),
+                    "mg_minus_b1_inr_qtl": round(mg_mean - means["B1_NaiveScreen"], 2) if is_mg else 0.0,
+                    "mg_minus_b2_inr_qtl": round(mg_mean - means["B2_FreshRoad"], 2) if is_mg else 0.0,
+                    "mg_minus_b3_inr_qtl": round(mg_mean - means["B3_MLPoint"], 2) if is_mg else 0.0,
                 }
             )
 
-    # Regime 5: Pure 100%-observed arrival-day d0 dispatches (zero missing data, zero closed-yard inference!)
-    obs_means = {}
-    obs_rows_tmp = {}
-    for pname, dfp in [("B1_NaiveScreen", b1_base), ("B2_FreshRoad", b2_base), ("B3_MLPoint", b3_base), ("MandiGuard", mg_base)]:
-        m = dfp.merge(
-            hold[["episode_id", "dest_market", "dest_modal_d0"]].drop_duplicates(["episode_id", "dest_market"]),
-            left_on=["episode_id", "chosen_dest"],
-            right_on=["episode_id", "dest_market"],
-            how="left",
-        )
-        obs = m[m["is_dispatch"] & m["dest_modal_d0"].notna()]
-        obs_means[pname] = float(obs["delta_net_inr"].mean())
-        obs_rows_tmp[pname] = obs
+    def _trap_counterfactual(div_m: float, disc: float) -> np.ndarray:
+        dn_div = (-float(div_m) * fr - lp * sp) if div_m > 0 else np.zeros_like(fr)
+        dn_oth = any_min * (1.0 - disc) * (1.0 - sp) - fr - lp
+        return np.where(is_div, dn_div, np.where(is_oth, dn_oth, base_dnet))
 
-    for pname in ["B1_NaiveScreen", "B2_FreshRoad", "B3_MLPoint", "MandiGuard"]:
-        obs = obs_rows_tmp[pname]
-        rows.append(
-            {
-                "regime": "5_Observed_Arrival_Day_d0_Only_ZeroMissing",
-                "policy": pname,
-                "evaluation_scope": "Dispatched_With_Observed_d0_Price",
-                "n_count": int(len(obs)),
-                "mean_net_gain_inr_qtl": round(obs_means[pname], 2),
-                "loss_trip_rate_pct": round(float((obs["delta_net_inr"] < 0.0).mean() * 100.0), 2),
-                "mg_minus_b1_inr_qtl": round(obs_means["MandiGuard"] - obs_means["B1_NaiveScreen"], 2) if pname == "MandiGuard" else 0.0,
-            }
-        )
+    rows: List[Dict[str, object]] = []
+    # Regimes 1-5: Trap-Penalty Crossover Curve across All_Shortlisted_Episodes (N = 69,526)
+    crossover_scenarios = [
+        ("1_Baseline_Div1.5x_Disc10pct", base_dnet),
+        ("2_OneWayDiv_Div1.0x_Disc10pct", _trap_counterfactual(1.0, 0.10)),
+        ("3_HalfDiv_Div0.5x_Disc5pct", _trap_counterfactual(0.5, 0.05)),
+        ("4_ZeroDiv_Div0.0x_Disc0pct", _trap_counterfactual(0.0, 0.00)),
+        ("5_ZeroTrap_BreakEven0_Missing3d", np.where(is_trap3d, 0.0, base_dnet)),
+    ]
+    for label, new_vals in crossover_scenarios:
+        h_mod = hold.copy()
+        h_mod["real_delta_net_inr"] = new_vals
+        _record_regime(rows, label, "All_Shortlisted_Episodes", _eval_4_policies(h_mod))
+
+    # Regimes 6-7: Fair Matched Complete-Observation Cohorts (identical episode set for ALL 4 policies)
+    hold_sorted = hold.sort_values(["episode_id", "screen_spread", "dest_market"], ascending=[True, False, True])
+    top_k = hold_sorted[hold_sorted["screen_spread"] > hurdle].groupby("episode_id").head(k_max).copy()
+    ep_all_d0 = top_k.groupby("episode_id")["dest_modal_d0"].apply(lambda s: s.notna().all())
+    hold_matched_d0 = hold[hold["episode_id"].isin(set(ep_all_d0[ep_all_d0].index))].copy()
+    top_k["has_3d"] = top_k["dest_modal_d0"].notna() | top_k["dest_modal_d1"].notna() | top_k["dest_modal_d2"].notna()
+    ep_all_3d = top_k.groupby("episode_id")["has_3d"].all()
+    hold_matched_3d = hold[hold["episode_id"].isin(set(ep_all_3d[ep_all_3d].index))].copy()
+
+    _record_regime(rows, "6_Fair_Matched_AllTopK_Observed_d0", "Matched_AllTopK_Observed_d0", _eval_4_policies(hold_matched_d0))
+    _record_regime(rows, "7_Fair_Matched_AllTopK_Observed_3d", "Matched_AllTopK_Observed_3d", _eval_4_policies(hold_matched_3d))
 
     out_df = pd.DataFrame(rows)
     out_df.to_csv(root / "results/exp15_missing_data_open_yard_sensitivity.csv", index=False)
-    print("\n=== EXP 15: MISSING-DATA / CLERK-UPLOAD-LAG SENSITIVITY ===", flush=True)
+    print("\n=== EXP 15: TRAP-PENALTY CROSSOVER & FAIR MATCHED SENSITIVITY ===", flush=True)
     print(out_df.to_string(index=False), flush=True)
     return out_df
 

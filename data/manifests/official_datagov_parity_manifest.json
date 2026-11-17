@@ -1,8 +1,9 @@
 {
-  "created_utc": "2026-11-17T12:26:25.842612+00:00",
+  "created_utc": "2026-11-17T13:14:26.379042+00:00",
   "resource_page_url": "https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi",
   "datafile_url": "https://www.data.gov.in/files/ogd20/ogdpv2dms/s3fs-public/Date-Wise-Prices-all-Commodity.xml",
-  "api_gateway_probe": "timeout_or_err:ConnectTimeout",
+  "api_gateway_probe": "skipped_no_env_key",
+  "audit_scope_note": "Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)",
   "xml_file": {
     "path": "data/raw/official_datagov_datewise_prices.xml",
     "bytes": 2439430,
@@ -19,6 +20,7 @@
     "min_price_exact_parity_pct": 100.0,
     "max_price_exact_parity_pct": 100.0,
     "modal_price_exact_parity_pct": 99.42,
-    "exact_full_row_rate_pct": 94.48
+    "exact_full_row_rate_pct": 94.48,
+    "audit_scope_note": "Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)"
   }
 }
