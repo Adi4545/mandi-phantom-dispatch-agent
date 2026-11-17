@@ -1,0 +1,17 @@
+{
+  "created_utc": "2026-11-17T09:11:35.766155+00:00",
+  "url": "https://power.larc.nasa.gov/api/temporal/daily/point",
+  "community": "AG",
+  "grid_resolution_deg": 0.5,
+  "n_grid_cells": 114,
+  "n_rows": 291384,
+  "date_min": "2017-01-01",
+  "date_max": "2023-12-31",
+  "raw_null_rates": {
+    "era5_tmax": 0.0,
+    "era5_tmin": 0.0,
+    "era5_rain_mm": 0.0,
+    "era5_rh_mean": 0.0
+  },
+  "sha256": "b021f0aecbe48e7ac9aa82f7a5c61a57105b091ef045c00edb5adc7ed3092ca9"
+}

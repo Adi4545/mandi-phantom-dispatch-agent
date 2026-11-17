@@ -1,0 +1,185 @@
+{
+  "retrieved_utc": "2026-11-17T07:40:51.261602+00:00",
+  "queries_executed": 22,
+  "active_series_count": 11,
+  "full_week_non_reporting_count": 11,
+  "non_reporting_rate_pct": 50.0,
+  "market_details": [
+    {
+      "state": "Maharashtra",
+      "market": "Lasalgaon(Niphad)",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Maharashtra",
+      "market": "Bhokardan(Pimpalgaon Renu)",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Maharashtra",
+      "market": "APMC Talegaon Dabhade Tal Mawal Dist Pune",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Maharashtra",
+      "market": "APMC Solapur",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 3,
+      "latest_price_inr_qtl": 3050.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Maharashtra",
+      "market": "APMC Mumbai",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Uttar Pradesh",
+      "market": "Prayagraj APMC",
+      "commodity": "Potato",
+      "n_active_days_lastweek": 7,
+      "latest_price_inr_qtl": 700.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Uttar Pradesh",
+      "market": "Kanpur(Grain) APMC",
+      "commodity": "Potato",
+      "n_active_days_lastweek": 6,
+      "latest_price_inr_qtl": 550.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Uttar Pradesh",
+      "market": "Lucknow APMC",
+      "commodity": "Potato",
+      "n_active_days_lastweek": 4,
+      "latest_price_inr_qtl": 700.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Karnataka",
+      "market": "Kolar APMC",
+      "commodity": "Tomato",
+      "n_active_days_lastweek": 7,
+      "latest_price_inr_qtl": 1200.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Karnataka",
+      "market": "Bengaluru APMC",
+      "commodity": "Tomato",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Karnataka",
+      "market": "Mysuru APMC",
+      "commodity": "Tomato",
+      "n_active_days_lastweek": 6,
+      "latest_price_inr_qtl": 2600.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Karnataka",
+      "market": "Ramanagara APMC",
+      "commodity": "Tomato",
+      "n_active_days_lastweek": 7,
+      "latest_price_inr_qtl": 2500.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Madhya Pradesh",
+      "market": "Indore(F&V) APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 2,
+      "latest_price_inr_qtl": 3461.0,
+      "t1_status": "WATCH_SPARSE"
+    },
+    {
+      "state": "Madhya Pradesh",
+      "market": "Ujjain(F&V) APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Madhya Pradesh",
+      "market": "Ratlam APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Madhya Pradesh",
+      "market": "Shajapur APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 6,
+      "latest_price_inr_qtl": 3740.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Gujarat",
+      "market": "Mahuva APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Gujarat",
+      "market": "Rajkot APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Gujarat",
+      "market": "Gondal(Veg.market Gondal) APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Gujarat",
+      "market": "Bhavnagar APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 0,
+      "latest_price_inr_qtl": null,
+      "t1_status": "PRUNE_NON_REPORTING_7D"
+    },
+    {
+      "state": "Gujarat",
+      "market": "Ahmedabad(Chimanbhai Patal Market Vasana) APMC",
+      "commodity": "Onion",
+      "n_active_days_lastweek": 9,
+      "latest_price_inr_qtl": 4550.0,
+      "t1_status": "PASS_ACTIVE"
+    },
+    {
+      "state": "Himachal Pradesh",
+      "market": "PMY Dhalli Shimla",
+      "commodity": "Apple",
+      "n_active_days_lastweek": 1,
+      "latest_price_inr_qtl": 12000.0,
+      "t1_status": "WATCH_SPARSE"
+    }
+  ]
+}

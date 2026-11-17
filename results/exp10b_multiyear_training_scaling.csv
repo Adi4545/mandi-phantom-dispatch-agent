@@ -1,0 +1,4 @@
+policy,n_episodes,dispatch_rate_pct,mean_net_gain_inr_qtl,lot_30qtl_gain_inr,loss_trip_rate_pct,closed_trap_rate_pct,worst_10pct_loss_inr_qtl,live_api_calls_per_query,train_rows
+MandiGuard_1Yr (2024 only),69526,48.66,452.79,13583.6,9.97,16.17,-37.89,8.75,701932
+MandiGuard_3Yr (2022-2024),69526,49.04,454.74,13642.3,10.02,15.87,-37.02,8.75,1668451
+MandiGuard_8Yr (2017-2024),69526,49.07,454.94,13648.2,9.98,15.92,-37.09,8.75,3437098

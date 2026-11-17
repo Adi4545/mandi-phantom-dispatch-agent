@@ -1,0 +1,5 @@
+hypothesis,estimand,direction,estimate,ci95_low,ci95_high,p_raw,n_episodes,n_origin_mandis,n_2week_blocks,p_holm,status
+H1,MG - B1 Mean dNet (INR/qtl),greater,102.7823,48.6649,153.4512,0.0006,69526,174,23,0.0012,SUPPORTED
+H2,MG - B2 Mean dNet (INR/qtl),greater,6.1303,-17.0161,25.0171,0.269946,69526,174,23,0.269946,NOT_SUPPORTED
+H3,MG - B3 Ep Phantom Incidence (prob),less,-0.3729,-0.4019,-0.3424,0.0002,69526,174,23,0.0008,SUPPORTED
+H4,MG Calls - 0.75*B4 Calls,less,-3.0548,-3.4408,-2.6906,0.0002,69526,174,23,0.0008,SUPPORTED

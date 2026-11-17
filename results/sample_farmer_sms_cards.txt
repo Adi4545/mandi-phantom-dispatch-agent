@@ -1,0 +1,4 @@
+[MandiGuard DISPATCH] MH Onion: Amrawati->Kamthi (170km/3.3h). LCB +Rs154, Real +Rs268/qtl!
+[MandiGuard STOP] MP Onion at Mandsaur: SKIP Sanawad (+Rs1047 screen). VARIETY_OR_STALE. Sell local!
+[MandiGuard RAIN STOP] KA Tomato at Udupi: SKIP Chikkamagalo. Rain 123mm -> spoil risk. Sell local!
+[MandiGuard FPO POOL] 90qtl shared FPO truck (0.70x freight) raises mean net gain +Rs24.5/qtl over 30qtl solo (Rs477.3/qtl vs Rs452.8)!

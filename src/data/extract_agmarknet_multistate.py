@@ -224,7 +224,7 @@ def stream_filter_csv(
     return df, meta
 
 
-def parse_and_clean(raw_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
+def parse_and_clean(raw_df: pd.DataFrame, min_date: str = "2024-01-01", max_date: str = "2026-04-13") -> Tuple[pd.DataFrame, Dict]:
     """Parse mixed dates, normalize market/district strings, drop invalid prices & exact duplicates."""
     df = raw_df.copy()
     n_start = len(df)
@@ -260,8 +260,8 @@ def parse_and_clean(raw_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
     df = df.loc[valid_price].copy()
     n_bad_price = n_before_price - len(df)
 
-    # Bound strictly to 2024-01-01 .. 2026-04-13
-    df = df[(df["Arrival_Date"] >= "2024-01-01") & (df["Arrival_Date"] <= "2026-04-13")].copy()
+    # Bound strictly to [min_date, max_date]
+    df = df[(df["Arrival_Date"] >= min_date) & (df["Arrival_Date"] <= max_date)].copy()
 
     n_before_dedup = len(df)
     df = df.drop_duplicates(

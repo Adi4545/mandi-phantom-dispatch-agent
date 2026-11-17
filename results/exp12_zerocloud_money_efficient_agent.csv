@@ -1,0 +1,6 @@
+policy,n_episodes,dispatch_rate_pct,mean_net_gain_inr_qtl,lot_30qtl_gain_inr,loss_trip_rate_pct,closed_trap_rate_pct,worst_10pct_loss_inr_qtl,live_api_calls_per_query,cpu_ms_per_query,api_cost_per_10k_queries_inr,val_sat_hurdle_inr,architecture_note
+B4_UpfrontAllTools,69526,48.66,452.79,13583.6,9.97,16.17,-37.89,15.74,0.115,7868.0,,All external APIs upfront
+B5_MultiAgentCoordinator,69526,41.59,437.39,13121.7,9.38,16.57,-31.77,8.76,0.093,4379.0,,3 LLM/Agent roles over quantized bus
+MandiGuard_Standard,69526,48.66,452.79,13583.6,9.97,16.17,-37.89,8.75,0.093,4374.0,,Full sequential cascade (live T1..T4)
+MandiGuard_ZeroCloud_Full,69526,48.89,455.33,13659.8,9.89,16.17,-37.83,5.53,0.099,2764.0,,Cached T2 OSRM + Edge CPU T4 (only live T1+T3)
+MandiGuard_ZeroCloud_Satisficing,69526,48.89,440.48,13214.5,10.3,16.36,-38.97,3.84,0.075,1922.0,250.0,Cached T2 + Edge T4 + Val early-exit >= Rs 250

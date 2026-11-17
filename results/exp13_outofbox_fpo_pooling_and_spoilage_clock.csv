@@ -1,0 +1,8 @@
+policy,n_episodes,dispatch_rate_pct,mean_net_gain_inr_qtl,lot_30qtl_gain_inr,loss_trip_rate_pct,closed_trap_rate_pct,worst_10pct_loss_inr_qtl,live_api_calls_per_query,experiment
+B1_Marginal_Solo_10qtl_1.60xFreight,69526,84.38,288.43,8652.8,42.32,59.38,-1130.13,0.0,Truck_Pooling_Scale
+MandiGuard_Marginal_Solo_10qtl_1.60xFreight,69526,43.08,409.53,12286.0,10.59,16.29,-37.46,8.38,Truck_Pooling_Scale
+B1_Standard_MiniTruck_30qtl_1.00xFreight,69526,90.67,350.01,10500.2,40.46,58.94,-1062.66,0.0,Truck_Pooling_Scale
+MandiGuard_Standard_MiniTruck_30qtl_1.00xFreight,69526,48.66,452.79,13583.6,9.97,16.17,-37.89,8.75,Truck_Pooling_Scale
+B1_Cooperative_FPO_90qtl_0.70xFreight,69526,93.59,386.52,11595.6,38.96,58.57,-1028.95,0.0,Truck_Pooling_Scale
+MandiGuard_Cooperative_FPO_90qtl_0.70xFreight,69526,51.73,477.28,14318.5,9.51,16.03,-37.44,8.93,Truck_Pooling_Scale
+Split_Top2_Portfolio_StandardFreight,69526,48.66,394.82,11844.6,8.09,9.85,-26.4,8.75,Split_Lot_Diversification

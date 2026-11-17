@@ -1,0 +1,13 @@
+policy,n_episodes,dispatch_rate_pct,mean_net_gain_inr_qtl,lot_30qtl_gain_inr,loss_trip_rate_pct,closed_trap_rate_pct,worst_10pct_loss_inr_qtl,live_api_calls_per_query,benchmark
+MandiGuard_Standard,69526,48.66,452.79,13583.6,9.97,16.17,-37.89,8.75,Holdout_6State_2025_2026
+MandiGuard_ACI_NeurIPS21,69526,46.17,437.9,13137.0,10.22,16.37,-33.71,8.75,Holdout_6State_2025_2026
+Contextual_UCB_Bandit,69526,39.61,406.47,12194.2,10.93,16.95,-31.92,8.75,Holdout_6State_2025_2026
+MandiGuard_Standard,1537,18.67,605.06,18151.8,21.25,13.24,-102.76,5.41,HP_Apple_Grade_2026
+MandiGuard_ACI_NeurIPS21,1537,17.18,598.54,17956.1,20.08,13.26,-74.42,5.41,HP_Apple_Grade_2026
+Contextual_UCB_Bandit,1537,17.89,615.04,18451.2,20.73,13.09,-79.2,5.41,HP_Apple_Grade_2026
+Direct_Quantile_GBDT_Q20,69526,51.02,459.02,13770.7,9.4,15.66,-32.28,8.75,Holdout_6State_2025_2026
+Direct_Quantile_GBDT_Q20,1537,18.48,605.07,18152.2,20.07,14.44,-95.35,5.41,HP_Apple_Grade_2026
+Deep_MLP_Conformal,69526,47.08,435.38,13061.5,10.69,16.49,-35.93,8.75,Holdout_6State_2025_2026
+Deep_MLP_Conformal,1537,17.57,615.34,18460.1,18.15,13.7,-75.5,5.41,HP_Apple_Grade_2026
+ExtraTrees_Conformal,69526,49.02,453.3,13599.0,10.25,16.06,-38.94,8.75,Holdout_6State_2025_2026
+ExtraTrees_Conformal,1537,19.0,593.49,17804.6,22.6,14.38,-111.75,5.41,HP_Apple_Grade_2026

@@ -33,6 +33,8 @@ class AgentConfig:
     use_t2_osrm: bool = True
     use_t3_weather: bool = True
     use_t4_lcb: bool = True
+    zerocloud_mode: bool = False  # Memoizes static T2 OSRM road+APMC cost & runs T4 locally on edge CPU
+    early_exit_satisficing_inr: Optional[float] = None  # Herbert Simon satisficing stop hurdle
     log_traces: bool = False
     trace_limit: int = 400
 
@@ -45,13 +47,27 @@ def evaluate_mandiguard_vectorized(
     """Execute MandiGuard sequentially over pre-joined episode-candidate table.
 
     Note: Each row in `cand_df` is an (episode_id, dest_market) candidate generated at Step 0
-    where `screen_spread = screen_dest_price - local_price > hurdle`. Tool call counters
-    strictly mirror row-by-row sequential execution with optional per-episode tool budget.
+    where `screen_spread = screen_dest_price - local_price > hurdle`. In `zerocloud_mode`,
+    static highway freight (`T2`) is pre-cached locally (`0` live API calls), candidates are
+    pre-sorted by freight-adjusted screen spread, `T4` runs on edge CPU (`0` API calls), and
+    search stops early if `est_net_lcb >= early_exit_satisficing_inr`.
     """
     df = cand_df.copy()
-    # Sort within each episode by preliminary screen_spread descending (deterministic dest_market tie-break)
+    if cfg.zerocloud_mode:
+        cached_f = np.array(
+            [
+                compute_freight_inr(str(s), float(d), bool(sd), float(lp), payoff_params, commodity=str(c))
+                for s, d, sd, lp, c in zip(df["State"], df["road_km"], df["same_district"], df["local_price"], df["Commodity"])
+            ],
+            dtype=np.float64,
+        )
+        df["_sort_key"] = df["screen_spread"].to_numpy(dtype=np.float64) - cached_f
+    else:
+        df["_sort_key"] = df["screen_spread"].to_numpy(dtype=np.float64)
+
+    # Sort within each episode by preliminary priority descending (deterministic dest_market tie-break)
     df = df.sort_values(
-        ["episode_id", "screen_spread", "dest_market"], ascending=[True, False, True]
+        ["episode_id", "_sort_key", "dest_market"], ascending=[True, False, True]
     ).reset_index(drop=True)
 
     # Keep top k_max candidates per episode from Step 0 screen
@@ -138,13 +154,14 @@ def evaluate_mandiguard_vectorized(
                     rejection_reasons.append("NO_PRICE")
                     continue
 
-            # Tool T2: OSRM Highway Freight (or Euclidean ablation if use_t2_osrm=False)
+            # Tool T2: OSRM Highway Freight (0 live calls in zerocloud_mode; or Euclidean ablation if use_t2_osrm=False)
             if cfg.use_t2_osrm:
-                if budget is not None and calls_used >= budget:
-                    rejection_reasons.append("BUDGET_EXHAUSTED")
-                    break
-                calls_used += 1
-                t2_calls += 1
+                if not cfg.zerocloud_mode:
+                    if budget is not None and calls_used >= budget:
+                        rejection_reasons.append("BUDGET_EXHAUSTED")
+                        break
+                    calls_used += 1
+                    t2_calls += 1
                 dist_used = road_km[r]
                 hrs_used = truck_hrs[r]
             else:
@@ -186,13 +203,14 @@ def evaluate_mandiguard_vectorized(
                     cand_trace.append({"dest": str(dest_mkts[r]), "T1": "PASS", "T2": "PASS", "T3": "PRUNE", "spoil_pct": round(spoil_hat * 100, 1)})
                 continue
 
-            # Tool T4: Arrival-Day Forecast & Conformal 80% LCB
+            # Tool T4: Arrival-Day Forecast & Conformal 80% LCB (runs locally on edge CPU in zerocloud_mode -> 0 live API calls)
             if cfg.use_t4_lcb:
-                if budget is not None and calls_used >= budget:
-                    rejection_reasons.append("BUDGET_EXHAUSTED")
-                    break
-                calls_used += 1
-                t4_calls += 1
+                if not cfg.zerocloud_mode:
+                    if budget is not None and calls_used >= budget:
+                        rejection_reasons.append("BUDGET_EXHAUSTED")
+                        break
+                    calls_used += 1
+                    t4_calls += 1
                 p_arr_lcb = p_fresh * (1.0 + lcb_ret[r])
                 est_net_lcb = p_arr_lcb * (1.0 - spoil_hat) - rain_pen - freight_hat - local_p[r]
             else:
@@ -203,7 +221,7 @@ def evaluate_mandiguard_vectorized(
                     {
                         "dest": str(dest_mkts[r]),
                         "T1": "PASS",
-                        "T2": "PASS",
+                        "T2": "PASS" if not cfg.zerocloud_mode else "CACHED_LOCAL",
                         "T3": "PASS" if cfg.use_t3_weather else "SKIP",
                         "T4_lcb_net": round(float(est_net_lcb), 1),
                     }
@@ -211,6 +229,8 @@ def evaluate_mandiguard_vectorized(
             if est_net_lcb > best_score:
                 best_score = est_net_lcb
                 best_j_idx = r
+            if cfg.early_exit_satisficing_inr is not None and est_net_lcb >= cfg.early_exit_satisficing_inr:
+                break
 
         if best_j_idx >= 0 and best_score > cfg.safety_margin_inr:
             action = "DISPATCH"

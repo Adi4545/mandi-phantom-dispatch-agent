@@ -1,0 +1,152 @@
+{
+  "created_utc": "2026-11-17T09:26:26.113972+00:00",
+  "sources_2017_2023": [
+    {
+      "tag": "2017",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2017.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 344171434,
+      "sha256_raw_csv": "e9ad6db27244c414c32abc1fda1931d7868b36aac38b22735c9d52ca2b5b0982",
+      "total_csv_data_rows": 4089863,
+      "filtered_6state_4crop_rows": 223996,
+      "download_seconds": 55.32,
+      "retrieved_utc": "2026-11-17T09:12:31.474885+00:00"
+    },
+    {
+      "tag": "2018",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2018.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 361437148,
+      "sha256_raw_csv": "144af01f4d8324c2c36b3238818640cc7ad651334c3b74b37a7f2bf9ea861fb6",
+      "total_csv_data_rows": 4285294,
+      "filtered_6state_4crop_rows": 286569,
+      "download_seconds": 140.81,
+      "retrieved_utc": "2026-11-17T09:14:52.661705+00:00"
+    },
+    {
+      "tag": "2019",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2019.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 395020868,
+      "sha256_raw_csv": "3d152be08462cda6f91300b880f3e3ec72b52bbf42a1879470ad5add2e958d23",
+      "total_csv_data_rows": 4319450,
+      "filtered_6state_4crop_rows": 301356,
+      "download_seconds": 82.72,
+      "retrieved_utc": "2026-11-17T09:16:24.545722+00:00"
+    },
+    {
+      "tag": "2020",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2020.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 263100846,
+      "sha256_raw_csv": "e091d4d38b0d603dcb9e6b226103a11758b3bda26a2957d42232f166b318e99e",
+      "total_csv_data_rows": 2878346,
+      "filtered_6state_4crop_rows": 229101,
+      "download_seconds": 40.76,
+      "retrieved_utc": "2026-11-17T09:17:05.805532+00:00"
+    },
+    {
+      "tag": "2021",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2021.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 349157458,
+      "sha256_raw_csv": "6f5cdd5a244680dcdeb8d6fa15d815bcad6a8e7fe424b4f2844795f3146347c1",
+      "total_csv_data_rows": 3815906,
+      "filtered_6state_4crop_rows": 301665,
+      "download_seconds": 82.78,
+      "retrieved_utc": "2026-11-17T09:18:29.001970+00:00"
+    },
+    {
+      "tag": "2022",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2022.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 411075171,
+      "sha256_raw_csv": "74e10194973584b7aed6445b8dec2d51c4c0fb5b8ead6dcdfa6bebc7321b0cb3",
+      "total_csv_data_rows": 4476958,
+      "filtered_6state_4crop_rows": 323777,
+      "download_seconds": 87.64,
+      "retrieved_utc": "2026-11-17T09:19:57.155744+00:00"
+    },
+    {
+      "tag": "2023",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2023.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 431243784,
+      "sha256_raw_csv": "273571594b3658871ec6efa8b04c0e22776e57f7908250ed8e326b0f9a5d8489",
+      "total_csv_data_rows": 4412600,
+      "filtered_6state_4crop_rows": 318658,
+      "download_seconds": 196.21,
+      "retrieved_utc": "2026-11-17T09:23:13.911213+00:00"
+    }
+  ],
+  "sources_2024_2026_ref": [
+    {
+      "tag": "2024",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2024.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 566027437,
+      "sha256_raw_csv": "4d2c7a0aaf67cca50f17c5811b2f3db21cdbd2058750d922ce80b9ab82aa6c9b",
+      "total_csv_data_rows": 5531214,
+      "filtered_6state_4crop_rows": 296390,
+      "download_seconds": 93.25,
+      "retrieved_utc": "2026-11-17T07:40:57.558323+00:00"
+    },
+    {
+      "tag": "2025",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2025.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 683077881,
+      "sha256_raw_csv": "daf30dd2897e183cc9f4bbf4a12b66f597361b410279301a047c36dfb2116b18",
+      "total_csv_data_rows": 6922877,
+      "filtered_6state_4crop_rows": 329475,
+      "download_seconds": 93.68,
+      "retrieved_utc": "2026-11-17T07:42:31.709027+00:00"
+    },
+    {
+      "tag": "2026_jan_apr",
+      "url": "https://huggingface.co/datasets/Arunvithyasegar/AGMARK_Commodity_Pricing_Variety_Wise_Daily_Market_Prices_Data_Commodity_2022_2025/resolve/main/2026%20Jan_April_13.csv",
+      "final_url_host": "us.aws.cdn.hf.co",
+      "content_length_bytes": 210523088,
+      "sha256_raw_csv": "56779ad85eacc98b93cab3d0b5a21d0efe022b1f9fca2d9e912c7689bfcd926c",
+      "total_csv_data_rows": 1989679,
+      "filtered_6state_4crop_rows": 55393,
+      "download_seconds": 96.58,
+      "retrieved_utc": "2026-11-17T07:44:08.593368+00:00"
+    }
+  ],
+  "total_raw_csv_rows_streamed_2017_2026": 42722187,
+  "clean_2017_2023_stats": {
+    "rows_filtered_raw": 1985122,
+    "dropped_bad_date": 0,
+    "dropped_invalid_or_outlier_price": 34645,
+    "dropped_exact_duplicates": 0,
+    "rows_clean_total": 1950477,
+    "date_min": "2017-01-01",
+    "date_max": "2023-12-31",
+    "n_states": 6,
+    "n_markets": 647,
+    "n_commodities": 4
+  },
+  "panel_178mkts_2017_2023_rows": 623363,
+  "panel_178mkts_2024_2026_rows": 260043,
+  "decade_panel_rows": 883406,
+  "decade_date_min": "2017-01-01",
+  "decade_date_max": "2026-04-13",
+  "decade_rows_by_year": {
+    "2017": 68986,
+    "2018": 85091,
+    "2019": 89373,
+    "2020": 69645,
+    "2021": 95619,
+    "2022": 105819,
+    "2023": 108830,
+    "2024": 117873,
+    "2025": 121449,
+    "2026": 20721
+  },
+  "output_parquet": {
+    "path": "data/raw/agmarknet_6state_decade_2017_2026.parquet",
+    "sha256": "d7b90cf7cf6f230d73e37ccc26f127f1afb085a78f2bb3083d81f4304cd4c928",
+    "bytes": 3447054
+  }
+}
