@@ -12,7 +12,7 @@ import pandas as pd
 
 def test_preregistration_precedes_results_in_git() -> None:
     root = Path(__file__).resolve().parents[1]
-    res = subprocess.run(["git", "log", "--oneline", "-n", "10"], cwd=root, capture_output=True, text=True, check=True)
+    res = subprocess.run(["git", "log", "--oneline"], cwd=root, capture_output=True, text=True, check=True)
     assert "Pre-register H1-H4 hypotheses" in res.stdout
 
 

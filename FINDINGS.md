@@ -42,7 +42,7 @@ Evaluated via paired **Two-Way Origin-Mandi $\times$ 2-Week-Block Cluster Bootst
 
 ---
 
-## 4. Nearly 10-Year Robustness (`2017–2026`), Modern AI / ACI, `ZeroCloud`, FPO Pooling & Spoilage Clock (`Exp 10`–`Exp 13b`)
+## 4. Nearly 10-Year Robustness (`2017–2026`) & Training-Window Scaling (`Exp 10`, `Exp 10b`)
 
 Expanded across **`42,722,187` raw streamed official AGMARKNET records (`2017-01-01`..`2026-04-13`)** (`883,406` rows across our `178`-mandi panel) paired with **`291,384` NASA POWER daily agroclimatology rows (`2017–2023`, `114` `0.5°` cells, `0.0%` missing)**:
 
@@ -50,14 +50,6 @@ Expanded across **`42,722,187` raw streamed official AGMARKNET records (`2017-01
    * Naive screen chasing `B1` suffers **`39.18%–44.29%` Loss-Trip Rates** and catastrophic **`Worst-10% Loss` of `-₹786.52` to `-₹1,289.28/qtl`** across every single macro era (`2017H2 GST`, `2018–19 Pre-COVID`, `2020–21 COVID`, `2022–23 Inflation/Export Curbs`, `2024 El-Niño Heatwave`, `2025–26 Holdout`).
    * Causally expanding `MandiGuard` cuts `Loss-Trip Rate` to **`8.78%–12.03%`** and bounds `Worst-10% Loss` to **`-₹20.93` to `-₹37.89/qtl`** (`28x–38x` tail-risk collapse), reaching **`+₹165.14/qtl`** higher net gain over `B1` during the `2024 El-Niño Heatwave` (`₹387.91` vs `₹222.77/qtl`, `N = 96,468`).
 2. **Diminishing Returns of Multi-Year Volume (`Exp 10b`):** On `Holdout_2025_2026`, scaling training data from **`1-Yr` (`2024`, `701,932` rows: `₹452.79/qtl`) -> `3-Yr` (`2022–2024`, `1,668,451` rows: `₹454.74/qtl`) -> `8-Yr` (`2017–2024`, `3,437,098` rows: `₹454.94/qtl`)** adds only `+₹2.15/qtl`, proving that recent regime fit + causal conformal bounds matter far more than brute-force historical volume.
-3. **Modern AI & Adaptive Conformal Showdown (`Exp 11`):**
-   * On `Holdout_6State_2025_2026` (`N = 69,526`), **`Direct_Quantile_GBDT_Q20`** leads at **`₹459.02/qtl`** (`9.40%` LTR, `-₹32.28/qtl` `CVaR_10%`), followed by `ExtraTrees_Conformal` (`₹453.30`), `MandiGuard_Standard` (`₹452.79`), `MandiGuard_ACI_NeurIPS21` (`₹437.90`, adapting Tomato $\alpha \to 0.038$), `Deep_MLP_Conformal` (`₹435.38`), and `Contextual_UCB_Bandit` (`₹406.47`).
-   * On `HP_Apple_Grade_2026` (`N = 1,537` under grade shift), **`Deep_MLP_Conformal`** leads mean (`₹615.34/qtl`, `18.15%` LTR), while **`MandiGuard_ACI`** adapts Apple $\alpha$ from `0.200 -> 0.164`, slashing `Worst-10% Loss` **`27.6%`** (`-₹102.76 -> -₹74.42/qtl`).
-4. **`MandiGuard-ZeroCloud` & Satisficing Edge-AI (`Exp 12`):** Offloading static OSRM road tables and CPU ML scoring locally (`ZeroCloud_Full`) achieves **`₹455.33/qtl`** (`₹13,659.8` 30-qtl load) using only **`5.53` live calls/query** (`₹2,764` per `10,000` queries vs `₹7,868` for `B4`, **`-64.9%` API spend**). Adding `Val_2025H1`-calibrated satisficing early-exit (`>= ₹250/qtl`, `ZeroCloud_Satisficing`) cuts calls further to **`3.84` calls/query** (**`₹1,922` per `10k` queries = `-75.6%` cost** at `0.075 ms/query` CPU) while keeping `97.3%` of standard net gain (`₹440.48/qtl`).
-5. **Cooperative FPO Pooling, Split Portfolio & Biological Spoilage Clock (`Exp 13`, `Exp 13b`):**
-   * Pooling into **`90-qtl` FPO trucks (`0.70x` freight)** elevates net gain to **`₹477.28/qtl`** (`₹14,318.5` per 30-qtl equivalent share)—**`+₹24.49/qtl`** above standard `30-qtl` solo (`₹452.79/qtl`) and **`+₹67.75/qtl`** above marginal `10-qtl` farmers (`1.60x` freight: `₹409.53/qtl`).
-   * Splitting 50/50 across top-2 verified yards (`Split_Top2_Portfolio`) cuts `Closed Trap Rate` **`39%` relative (`16.17% -> 9.85%`)** and `Loss-Trip Rate` to `8.09%` (`₹394.82/qtl`).
-   * The **$Q_{10}$ Biological Spoilage Clock** shows safe transit windows before `15%` thermal shrinkage compress from **`110.8h` (`20°C` winter) to `24.1h` (`42°C` summer)** on Tomato (`Potato`: `418.6h -> 91.1h`), directly driving real `<= 160`-char farmer SMS advisories.
 
 ---
 
@@ -66,3 +58,18 @@ Expanded across **`42,722,187` raw streamed official AGMARKNET records (`2017-01
 2. **Missing-Data / Clerk-Upload-Lag Sensitivity (`Exp 15`):**
    * Across four missing-entry assumptions on all `69,526` holdout episodes: baseline `1.5x` diversion (`+₹102.78/qtl`), `1.0x` no-return haul (`+₹91.66/qtl`: `₹454.27` vs `₹362.61`), `50%` clerk lag open carry-forward (`+₹83.61/qtl`: `₹465.35` vs `₹381.74`, LTR `7.09% vs 36.12%`), and `100%` clerk lag local parity (`+₹77.34/qtl`: `₹456.19` vs `₹378.85` `B1` & `₹452.78` `B2`).
    * On **100%-observed arrival-day (`d0`) dispatches (zero missing data, zero closed-yard inference)**: `MandiGuard` (`28,359` dispatches) earns **`₹1,035.32/qtl` (`4.98%` LTR)** vs `B1` (`25,882`: `₹856.86`, `12.32%` LTR), `B2` (`32,679`: `₹833.73`, `10.32%` LTR), and `B3` (`22,224`: `₹1,009.17`, `9.00%` LTR)—beating `B1` by **`+₹178.46/qtl`** and `B2` by **`+₹201.59/qtl`**.
+
+---
+
+## Appendix Illustrations — Exploratory Model, Edge-Caching & Cooperative Scenarios (`Exp 11`–`Exp 13b`, Not Main Contributions)
+
+*Scope note: Items 1–3 below are exploratory Appendix illustrations using un-preregistered forecaster variants and stylized deployment cost parameters (`₹0.05/call` API rate, `0.70x` FPO freight, `50/50` split lots), not core thesis contributions.*
+
+1. **Modern AI & Adaptive Conformal Showdown (`Exp 11`):**
+   * On `Holdout_6State_2025_2026` (`N = 69,526`), **`Direct_Quantile_GBDT_Q20`** leads at **`₹459.02/qtl`** (`9.40%` LTR, `-₹32.28/qtl` `CVaR_10%`), followed by `ExtraTrees_Conformal` (`₹453.30`), `MandiGuard_Standard` (`₹452.79`), `MandiGuard_ACI_NeurIPS21` (`₹437.90`, adapting Tomato $\alpha \to 0.038$), `Deep_MLP_Conformal` (`₹435.38`), and `Contextual_UCB_Bandit` (`₹406.47`).
+   * On `HP_Apple_Grade_2026` (`N = 1,537` under grade shift), **`Deep_MLP_Conformal`** leads mean (`₹615.34/qtl`, `18.15%` LTR), while **`MandiGuard_ACI`** adapts Apple $\alpha$ from `0.200 -> 0.164`, slashing `Worst-10% Loss` **`27.6%`** (`-₹102.76 -> -₹74.42/qtl`).
+2. **`MandiGuard-ZeroCloud` & Satisficing Edge-AI (`Exp 12`):** Offloading static OSRM road tables and CPU ML scoring locally (`ZeroCloud_Full`) achieves **`₹455.33/qtl`** (`₹13,659.8` 30-qtl load) using only **`5.53` live calls/query** (`₹2,764` per `10,000` queries vs `₹7,868` for `B4`, **`-64.9%` API spend**). Adding `Val_2025H1`-calibrated satisficing early-exit (`>= ₹250/qtl`, `ZeroCloud_Satisficing`) cuts calls further to **`3.84` calls/query** (**`₹1,922` per `10k` queries = `-75.6%` cost** at `0.075 ms/query` CPU) while keeping `97.3%` of standard net gain (`₹440.48/qtl`).
+3. **Cooperative FPO Pooling, Split Portfolio & Biological Spoilage Clock (`Exp 13`, `Exp 13b`):**
+   * Pooling into **`90-qtl` FPO trucks (`0.70x` freight)** elevates net gain to **`₹477.28/qtl`** (`₹14,318.5` per 30-qtl equivalent share)—**`+₹24.49/qtl`** above standard `30-qtl` solo (`₹452.79/qtl`) and **`+₹67.75/qtl`** above marginal `10-qtl` farmers (`1.60x` freight: `₹409.53/qtl`).
+   * Splitting 50/50 across top-2 verified yards (`Split_Top2_Portfolio`) cuts `Closed Trap Rate` **`39%` relative (`16.17% -> 9.85%`)** and `Loss-Trip Rate` to `8.09%` (`₹394.82/qtl`).
+   * The **$Q_{10}$ Biological Spoilage Clock** shows safe transit windows before `15%` thermal shrinkage compress from **`110.8h` (`20°C` winter) to `24.1h` (`42°C` summer)** on Tomato (`Potato`: `418.6h -> 91.1h`), directly formatting illustrative `<= 160`-char farmer SMS cards.

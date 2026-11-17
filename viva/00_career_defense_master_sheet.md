@@ -4,17 +4,19 @@
 ---
 
 ## 1. Your 30-Second Core Story (Memorize Word-for-Word)
-> *"Sir/Ma'am, most mandi AI papers only predict prices and get farmers hurt when distant yards are closed, lack their exact crop variety, or rot their vegetables in summer heat. Across `69,526` real holdout opportunities and `661,192` trips spanning nearly 10 years (`2017–2026`), naive price-board chasing loses money `40.46%` of the time and standard point-ML loses `45.28%`! So I built **`MandiGuard`**: a cheapest-first four-step verification agent (`Market Vitality -> OSRM Road & GoI Fee -> Q10 Weather Spoilage -> 80% Conformal Safety Cushion`) with an explicit Stay-Home refusal option. It beats naive chasing by **`+₹102.78/qtl` (`+₹3,083.5` per `30-qtl` smallholder truck = `81.2%` of monthly household crop income)**, shrinks tail crashes `11.5×`, and cuts paid live API bills up to **`75.6%`** (`3.84` calls/query) in our offline **`ZeroCloud`** design."*
+> *"Sir/Ma'am, most mandi AI papers only predict prices and get farmers hurt when distant yards are closed, lack their exact crop variety, or rot their vegetables in summer heat. Across `69,526` real holdout opportunities and `661,192` trips spanning nearly 10 years (`2017–2026`), naive price-board chasing loses money `40.46%` of the time and standard point-ML loses `45.28%`! So I built **`MandiGuard`**: a cheapest-first four-step verification agent (`Market Vitality -> OSRM Road & GoI Fee -> Q10 Weather Spoilage -> 80% Conformal Safety Cushion`) with an explicit Stay-Home refusal option. It beats naive chasing by **`+₹102.78/qtl` (`+₹3,083.5` per `30-qtl` smallholder truck = `81.2%` of monthly household crop income)**, shrinks tail crashes `11.5×`, matches unconstrained all-tool profit using **`44.4%` fewer online lookups (`8.75` vs `15.74` calls, $p_{\text{Holm}} = 0.0008$)**, and beats naive chasing by **`+₹178.46/qtl` even on strictly observed zero-missing arrival days (`Exp 15`)**."*
 
 ---
 
 ## 2. The 4 Minimal Numbers to Keep on Your Fingertips
-| Minimal Metric (`Holdout N = 69,526`) | Naive `B1` | Fresh+Road `B2` | Point ML `B3` | `MandiGuard` (Ours) | `ZeroCloud` / `FPO 90qtl` |
+| Minimal Metric (`Holdout N = 69,526`) | Naive `B1` | Fresh+Road `B2` | Point ML `B3` | Upfront `B4` | `MandiGuard` (Ours) |
 |:---|---:|---:|---:|---:|---:|
-| **1. Mean Net Gain (`₹/qtl`)** | `₹350.01` | `₹446.66` | `₹330.85` | **`₹452.79`** (`+₹102.78` vs `B1`) | `₹455.33` / **`₹477.28`** |
-| **2. Loss-Trip Rate (`%`)** | `40.46%` | `18.11%` | `45.28%` | **`9.97%`** | `9.89%` / `9.51%` |
-| **3. Worst-10% Loss (`₹/qtl`)** | `-₹1,062.66` | `-₹436.67` | `-₹1,097.80` | **`-₹37.89`** (`11.5×` safer vs `B2`) | `-₹37.83` / `-₹37.44` |
-| **4. Live API Calls / Query** | `0` *(blind)* | `7.87` | `7.87` | **`8.75`** (`-44.4%` vs `B4` `15.74`) | **`3.84`** (`-75.6%` API spend) |
+| **1. Mean Net Gain (`₹/qtl`)** | `₹350.01` | `₹446.66` | `₹330.85` | `₹452.79` | **`₹452.79`** (`+₹102.78` vs `B1`) |
+| **2. Loss-Trip Rate (`%`)** | `40.46%` | `18.11%` | `45.28%` | `9.97%` | **`9.97%`** |
+| **3. Worst-10% Loss (`₹/qtl`)** | `-₹1,062.66` | `-₹436.67` | `-₹1,097.80` | `-₹37.89` | **`-₹37.89`** (`11.5×` safer vs `B2`) |
+| **4. Live API Calls / Query** | `0` *(blind)* | `7.87` | `7.87` | `15.74` | **`8.75`** (`-44.4%` vs `B4`) |
+
+*(Exploratory Appendix Illustrations `Exp 11`–`Exp 13b`—not main contributions—separately illustrate `ACI`, `ZeroCloud` [`3.84`–`5.53` calls], and `90-qtl` `FPO` pooling [`₹477.28/qtl`].)*
 
 ---
 
@@ -34,7 +36,7 @@
    **A:** `MandiGuard` deliberately declines borderline high-variance lotteries (`48.66%` vs `62.11%` dispatch), trading a small `+₹6.13/qtl` average gap for **nearly halving loss trips (`9.97%` vs `18.11%`) and shrinking worst-10% tail losses `11.5×` (`-₹37.89` vs `-₹436.67/qtl`)**. Across the `42,766` episodes in the 4 states with `100%` archived NWP forecasts (`Exp 2b`), `MandiGuard` beats `B2` cleanly by **`+₹31.82/qtl`**.
 
 2. **Q: On HP Graded Apples (`Exp 3`), why does `MandiGuard` earn `₹605.06/qtl` while `B2` earns `₹1,150.83` (`Grade A` only `5.39%` dispatch)?**  
-   **A:** Our `2024` model had no `Grade A` tags, so high `2026` `Grade A` prices widened the frozen conformal penalty and made the agent over-cautious (`5.39%` dispatch). Still, it cut physical traps **7-fold (`94.14% -> 13.24%`)**, flipped `Grade B` from **`-₹427.54` to `+₹833.70/qtl`**, and Adaptive Conformal (`MandiGuard_ACI`) fixes tail risk **`-27.6%` (`-₹102.76 -> -₹74.42/qtl`)**.
+   **A:** Our `2024` model had no `Grade A` tags, so high `2026` `Grade A` prices widened the frozen conformal penalty and made the agent over-cautious (`5.39%` dispatch). Still, it cut physical traps **7-fold (`94.14% -> 13.24%`)**, flipped `Grade B` from **`-₹427.54` to `+₹833.70/qtl`**, and our exploratory Appendix illustration `MandiGuard_ACI` (`Exp 11`) shows tail risk drops **`-27.6%` (`-₹102.76 -> -₹74.42/qtl`)**.
 
 3. **Q: Why does removing Weather `T3` slightly raise unconditional profit by `₹2.46/qtl` (`₹455.25` vs `₹452.79`)?**  
    **A:** Dropping `T3` admits `1.52%` extra hot/rainy trips (`50.18%` vs `48.66%`) where a few spot spikes absorbed spoilage. Keeping `T3` buys perishable safety on `21,656` extreme heat/rain trips, cutting heat/rain loss rate (`11.39% -> 10.10%`) and improving tail risk (`-₹67.49 -> -₹57.11/qtl`).
@@ -49,13 +51,13 @@
    **A:** Weights trained strictly on `2024` (`701,932` rows), scalar `₹50/qtl` froze on `Jan–May 2025` (`Val_2025H1`, `280,697` rows), hypotheses `H1`–`H4` locked in Git commit `e421d15` before holdout ran, conformal errors update only once `arrival_date <= decision_date`, and all **`19/19` automated leakage, `.gov.in` parity, & integrity tests** pass.
 
 7. **Q: Why didn't you run GPT-4, LSTMs, or Deep RL at runtime?**  
-   **A:** In `Exp 11` inside the same `T1–T4` funnel, `Deep_MLP_Conformal` (`₹435.38/qtl`) and `Contextual_UCB_Bandit` (`₹406.47/qtl`) trailed `MandiGuard_Standard` (`₹452.79/qtl`) on 6-state holdout, while tabular trees run locally in **`0.075–0.099 ms/query`** with zero LLM API bills or hallucinations.
+   **A:** Even when evaluated as an exploratory Appendix illustration (`Exp 11`) inside the same `T1–T4` funnel, `Deep_MLP_Conformal` (`₹435.38/qtl`) and `Contextual_UCB_Bandit` (`₹406.47/qtl`) trailed `MandiGuard_Standard` (`₹452.79/qtl`) on 6-state holdout, while tabular trees run locally in **`0.075–0.099 ms/query`** with zero LLM API bills or hallucinations.
 
 8. **Q: Explain "80% Conformal LCB" and "Two-Way Cluster Bootstrap" in 2 sentences each.**  
    **A:** **80% Conformal LCB:** Subtract the 80th-percentile worst recent forecast mistake so actual arrival prices equal or beat our floor roughly 80% of the time (`78.85%` Val, `79.07%` Holdout). **Two-Way Cluster Bootstrap:** Resample whole origin mandis (`174`) and whole 2-week blocks (`23`) together `5,000` times so correlated days never produce fake narrow confidence intervals.
 
-9. **Q: How can `ZeroCloud_Full` earn `+₹2.54/qtl` MORE than Standard (`₹455.33` vs `₹452.79`) with fewer calls?**  
-   **A:** Standard sorts Step-0 candidates by raw portal spread before checking roads (`T2`), letting distant high-freight traps crowd the top 5; `ZeroCloud_Full` has `T2` cached locally for free, so it pre-ranks Step-0 options by *freight-adjusted spread* first, promoting profitable nearby mandis into the top-5 shortlist!
+9. **Q: (`Exp 12` Appendix Illustration) How can `ZeroCloud_Full` earn `+₹2.54/qtl` MORE than Standard (`₹455.33` vs `₹452.79`) with fewer calls?**  
+   **A:** *(Presented strictly as an Appendix illustration, not a main contribution:)* Standard sorts Step-0 candidates by raw portal spread before checking roads (`T2`), letting distant high-freight traps crowd the top 5; caching `T2` locally for free lets `ZeroCloud_Full` pre-rank Step-0 options by *freight-adjusted spread* first, promoting profitable nearby mandis into the top-5 shortlist.
 
 10. **Q: What about the `43` Open-Meteo grid cells that hit API rate limits?**  
     **A:** Physical weather hitting trucks (`ERA5` `2024–2026`, `NASA POWER` `2017–2023`) is **100% real (`0.0%` missing)**, the 43-cell backup nowcaster trained strictly on `2024 <= t` data (`1.047°C` MAE), and `Exp 2b` isolates the `42,766` episodes in the 4 states with `100%` native archived NWP forecasts—where `MandiGuard` wins by `+₹59.53/qtl` vs `B1` and `+₹31.82/qtl` vs `B2`.
@@ -69,11 +71,11 @@
 13. **Q: Why did the 3-bot multi-agent `B5` lose `-₹15.40/qtl` vs single-agent `MandiGuard`?**  
     **A:** Splitting into `Scout -> Weather -> RiskGate` communicating over discrete `₹150` profit buckets rounds off borderline winners near the threshold, cutting dispatch rate (`41.59%` vs `48.66%`) while spending the exact same live calls (`8.76` vs `8.75`).
 
-14. **Q: How does `MandiGuard_ACI` fix HP Apple tail risk without retraining?**  
-    **A:** When realized arrivals break `20%` errors, online Gibbs–Candès ACI lowers $\alpha_{\text{Apple}}$ (`0.200 -> 0.164`, and 6-state Tomato to `0.038`), trimming `1.49 pp` of risky trips and slashing HP Apple `Worst-10% Loss` by **`27.6%` (`-₹102.76 -> -₹74.42/qtl`)**.
+14. **Q: (`Exp 11` Appendix Illustration) How does `MandiGuard_ACI` reduce HP Apple tail risk without retraining?**  
+    **A:** *(Shown in Appendix A.1 as an exploratory extension:)* When realized arrivals break `20%` errors, online Gibbs–Candès ACI lowers $\alpha_{\text{Apple}}$ (`0.200 -> 0.164`, and 6-state Tomato to `0.038`), trimming `1.49 pp` of risky trips and slashing HP Apple `Worst-10% Loss` by **`27.6%` (`-₹102.76 -> -₹74.42/qtl`)**.
 
-15. **Q: Summarize `FPO 90-qtl`, `Split_Top2`, and `Biological Spoilage Clock` in one breath.**  
-    **A:** Sharing one `90-qtl` FPO truck (`0.70×` freight) boosts profit to **`₹477.28/qtl`** (`+₹24.49` over solo `30-qtl`, `+₹67.75` over solo `10-qtl`); splitting `50/50` across top-2 markets cuts closed traps **`39%` (`16.17% -> 9.85%`)**; and the $Q_{10}$ Spoilage Clock warns when Tomato transit life shrinks from `110.8 h` (`20°C`) to **`24.1 h` (`42°C`)** before emitting `<160`-char SMS cards.
+15. **Q: (`Exp 13`/`13b` Appendix Illustrations) What do `FPO 90-qtl`, `Split_Top2`, and `Biological Spoilage Clock` illustrate?**  
+    **A:** *(Presented strictly as Appendix deployment illustrations, not main contributions:)* Sharing one `90-qtl` FPO truck (`0.70×` freight) lifts illustrative net profit to **`₹477.28/qtl`** (`+₹24.49` over solo `30-qtl`, `+₹67.75` over solo `10-qtl`); splitting `50/50` across top-2 markets cuts closed traps **`39%` (`16.17% -> 9.85%`)**; and the $Q_{10}$ Spoilage Clock warns when Tomato transit life shrinks from `110.8 h` (`20°C`) to **`24.1 h` (`42°C`)** before emitting `<160`-char SMS cards.
 
 ---
 
@@ -81,7 +83,7 @@
 * **"Wait—didn't your 10-year CSVs come from a HuggingFace mirror? How do you know they match official `data.gov.in`?" (`Exp 14`):**  
   We audited the official `data.gov.in` Resource `9ef84268-d588-465a-a308-a864a43d0070` XML datafile (`6,434` all-India rows, `172` matched core-panel keys) plus live `api.agmarknet.gov.in` endpoints (`22` benchmark queries, `4,427` official HP apples)—confirming **`100.00%` exact rupee parity on `Min_Price` and `Max_Price` and `99.42%` on `Modal_Price`**.
 * **"What if 3-day missing portal data wasn't a closed yard—what if the clerk just forgot to upload?" (`Exp 15`):**  
-  We re-ran all `69,526` holdout trips across 4 clerk-upload-lag assumptions (`+₹77.34` to `+₹91.66/qtl` over `B1`), **AND** checked ONLY dispatches where arrival-day exact-variety prices were **100% observed (`d0`, zero missing data)**: `MandiGuard` (`28,359` trips) earns **`₹1,035.32/qtl` (`4.98%` loss rate)** vs `B1` (`₹856.86`, `12.32%`) and `B2` (`₹833.73`, `10.32%`)—beating `B1` by **`+₹178.46/qtl`** and `B2` by **`+₹201.59/qtl`**! *(Prices/roads/weather are observed; freight `₹35 + ₹0.45/km`, rot, and `Exp 11–13` deployment scenarios are modeled.)*
+  We re-ran all `69,526` holdout trips across 4 clerk-upload-lag assumptions (`+₹77.34` to `+₹91.66/qtl` over `B1`), **AND** checked ONLY dispatches where arrival-day exact-variety prices were **100% observed (`d0`, zero missing data)**: `MandiGuard` (`28,359` trips) earns **`₹1,035.32/qtl` (`4.98%` loss rate)** vs `B1` (`₹856.86`, `12.32%`) and `B2` (`₹833.73`, `10.32%`)—beating `B1` by **`+₹178.46/qtl`** and `B2` by **`+₹201.59/qtl`**! *(Prices/roads/weather are observed; freight `₹35 + ₹0.45/km`, rot, and Appendix illustrations `Exp 11–13b` are modeled.)*
 
 ---
 

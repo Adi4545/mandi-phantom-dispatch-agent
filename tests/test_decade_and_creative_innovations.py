@@ -157,6 +157,25 @@ def test_creative_decade_results_files_non_empty() -> None:
         fp = root / "figures" / fn
         assert fp.exists() and fp.stat().st_size > 20000
 
+    # Ensure Exp 11-13b are typed strictly as Appendix_Illustration and placed after Conclusion
+    reg = pd.read_csv(root / "EXPERIMENT_REGISTRY.csv")
+    app_rows = reg[reg["experiment_id"].astype(str).str.startswith(("Exp11", "Exp12", "Exp13"))]
+    assert len(app_rows) == 7
+    assert (app_rows["type"] == "Appendix_Illustration").all()
+
+    ms_text = (root / "paper/manuscript.md").read_text()
+    idx_conc = ms_text.index("## 9. Conclusion")
+    idx_app = ms_text.index("## Appendix:")
+    assert idx_app > idx_conc
+
+    idx_contrib = ms_text.index("### Summary of Contributions")
+    idx_rel = ms_text.index("## 2. Related Work")
+    contrib_sec = ms_text[idx_contrib:idx_rel]
+    assert "Appendix illustrations, not main contributions" in contrib_sec
+    assert "90-qtl" not in contrib_sec
+    contrib_claims_only = contrib_sec.split("*(Exploratory")[0]
+    assert "ZeroCloud" not in contrib_claims_only
+
 
 def test_official_datagov_parity_and_open_yard_sensitivity() -> None:
     root = Path(__file__).resolve().parents[1]

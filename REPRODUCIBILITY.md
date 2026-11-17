@@ -18,7 +18,7 @@
    * Freezes `safety_margin_inr = 50.0` solely on `Val_2025H1` (`2025-01-01`..`2025-05-31`).
 3. **Holdout, Decade, Edge-AI & FPO Experiments & Figures:**
    * `src/evaluation/run_all_experiments.py`: Evaluates all policies (`B0`–`B6`, `MandiGuard`, ablations `T1`–`T4`, budget frontier, $3\times 3$ sensitivity + fee ablation, live check) + `R=5,000` Two-Way Origin-Mandi $\times$ 2-Week-Block Bootstrap (`seed=20261117`, Holm $m=4$).
-   * `src/evaluation/run_creative_decade_and_modern_experiments.py`: Evaluates `Exp 10` (6 macro regimes `2017H2–2026`, `661,192` eps), `Exp 10b` (`1-Yr / 3-Yr / 8-Yr` scaling), `Exp 11` (Modern AI & NeurIPS'21 `ACI`), `Exp 12` (`ZeroCloud` & Val-calibrated satisficing edge agent), and `Exp 13/13b` (`FPO 90-qtl` pooling, `Split Top-2` portfolio, Biological Spoilage Clock & `160`-char SMS cards).
+   * `src/evaluation/run_creative_decade_and_modern_experiments.py`: Runs core decade/scaling checks `Exp 10` (6 macro regimes `2017H2–2026`, `661,192` eps) & `Exp 10b` (`1-Yr / 3-Yr / 8-Yr` scaling) alongside exploratory Appendix illustrations `Exp 11` (Modern AI & NeurIPS'21 `ACI`), `Exp 12` (`ZeroCloud` & Val-calibrated satisficing edge agent), and `Exp 13/13b` (`FPO 90-qtl` pooling, `Split Top-2` portfolio, Biological Spoilage Clock & `160`-char SMS cards).
    * `src/evaluation/run_official_parity_and_open_yard_sensitivity.py`: Runs `Exp 14` (direct `data.gov.in` XML parity verification `100.00%` `Min`/`Max`, `99.42%` `Modal` across `172` matched core-panel keys) and `Exp 15` (`4` clerk-upload-lag sensitivity regimes + 100%-observed `d0` slice).
    * `src/visualization/make_figures.py`: Generates 8 300-DPI PNG figures (`fig1`–`fig8`) in `figures/`.
 4. **Tests & Notebooks:**

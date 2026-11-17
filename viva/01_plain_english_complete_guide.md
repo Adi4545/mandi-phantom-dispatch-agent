@@ -77,7 +77,7 @@ Across `69,526` untouched holdout episodes (`June 2025–April 2026`):
 
 ---
 
-## 6. Minimal Metrics, 10-Year Robustness, `ZeroCloud`, Modern AI & Creative Farmer Tools (`Exp 10`–`Exp 13b`)
+## 6. Minimal Metrics & 10-Year Robustness (`Exp 10`, `Exp 10b`)
 
 To keep thesis presentation razor-sharp for any examiner, center every comparison around **4 plain-English metrics**:
 1. **Mean Net Gain** (`₹/qtl`, and $\times 30$ per smallholder truckload)
@@ -85,8 +85,15 @@ To keep thesis presentation razor-sharp for any examiner, center every compariso
 3. **Worst-10% Loss** (`₹/qtl`, average loss on the worst 10% of days)
 4. **Live API Calls / Query** (external internet API lookups per farmer request)
 
-Key out-of-the-box breakthroughs proven on real public data:
-* **Almost 10 Years (`2017–2026`, `661,192` matched episodes across 6 regimes):** Across GST transition, Pre-COVID, COVID lockdowns, Inflation/Export curbs, the **`2024 El-Niño Heatwave`** (`+₹165.14/qtl` over `B1`), and `2025–2026`, `MandiGuard` locks `Loss-Trip Rate` at `8.78%–12.03%` vs `39.18%–44.29%` (`B1`), while proving `1-Yr` (`2024`: `₹452.79`) captures `99.5%` of `8-Yr` (`2017–2024`: `₹454.94/qtl`) performance.
-* **Modern AI & NeurIPS'21 Adaptive Conformal (`Exp 11`):** **`Direct_Quantile_GBDT_Q20`** hits **`₹459.02/qtl`** (`9.40%` loss rate) on 6-state holdout, **`Deep_MLP_Conformal`** leads `HP Apple 2026` mean (`₹615.34/qtl`), and **`MandiGuard_ACI`** dynamically shrinks HP Apple worst-10% tail risk by **`27.6%` (`-₹102.76 -> -₹74.42/qtl`)**.
-* **`MandiGuard-ZeroCloud` & Satisficing Edge-AI (`Exp 12`):** Keeping static OSRM road tables & CPU scoring on-device (`ZeroCloud_Full`) boosts net gain slightly to **`₹455.33/qtl`** at just `5.53` live calls (**`₹2,764`** per `10k` queries vs `₹7,868` for `B4`). Stopping search once a route clears a validation-frozen `₹250/qtl` hurdle (`ZeroCloud_Satisficing`) drops calls to **`3.84` calls/query (`₹1,922` per `10k` queries = `75.6%` cheaper than `B4`)**.
-* **FPO `90-qtl` Shared Truck Pooling, Split-Lot & Spoilage Clock (`Exp 13/13b`):** Three `30-qtl` farmers pooling a `90-qtl` FPO truck (`0.70x` freight) earn **`₹477.28/qtl`** (`+₹24.49/qtl` over `30-qtl` solo, `+₹67.75/qtl` over marginal `10-qtl` farmers); splitting 50/50 across top-2 yards cuts closed traps `39%` (`16.17% -> 9.85%`); and the **Biological Spoilage Clock** warns extension staff when Tomato transit life shrinks from `110.8h` (`20°C`) to `24.1h` (`42°C`).
+Core 10-year robustness proven on real public data (`2017–2026`, `661,192` matched episodes across 6 regimes):
+* Across GST transition, Pre-COVID, COVID lockdowns, Inflation/Export curbs, the **`2024 El-Niño Heatwave`** (`+₹165.14/qtl` over `B1`), and `2025–2026`, `MandiGuard` locks `Loss-Trip Rate` at `8.78%–12.03%` vs `39.18%–44.29%` (`B1`), while proving `1-Yr` (`2024`: `₹452.79`) captures `99.5%` of `8-Yr` (`2017–2024`: `₹454.94/qtl`) performance.
+
+---
+
+## Appendix Illustrations (`Exp 11`–`Exp 13b` — Exploratory, Not Main Contributions)
+
+*Scope note: The items below are optional Appendix illustrations evaluated outside the pre-registered core suite rather than main thesis contributions.*
+
+* **Alternative Predictors & NeurIPS'21 Adaptive Conformal (`Exp 11`, Appendix Illustration):** **`Direct_Quantile_GBDT_Q20`** hits **`₹459.02/qtl`** (`9.40%` loss rate) on 6-state holdout, **`Deep_MLP_Conformal`** leads `HP Apple 2026` mean (`₹615.34/qtl`), and **`MandiGuard_ACI`** dynamically shrinks HP Apple worst-10% tail risk by **`27.6%` (`-₹102.76 -> -₹74.42/qtl`)**.
+* **`MandiGuard-ZeroCloud` & Satisficing Edge-AI (`Exp 12`, Appendix Illustration):** Keeping static OSRM road tables & CPU scoring on-device (`ZeroCloud_Full`) boosts net gain slightly to **`₹455.33/qtl`** at just `5.53` live calls (**`₹2,764`** per `10k` queries vs `₹7,868` for `B4`). Stopping search once a route clears a validation-frozen `₹250/qtl` hurdle (`ZeroCloud_Satisficing`) drops calls to **`3.84` calls/query (`₹1,922` per `10k` queries = `75.6%` cheaper than `B4`)**.
+* **FPO `90-qtl` Shared Truck Pooling, Split-Lot & Spoilage Clock (`Exp 13/13b`, Appendix Illustration):** Three `30-qtl` farmers pooling a `90-qtl` FPO truck (`0.70x` freight) earn **`₹477.28/qtl`** (`+₹24.49/qtl` over `30-qtl` solo, `+₹67.75/qtl` over marginal `10-qtl` farmers); splitting 50/50 across top-2 yards cuts closed traps `39%` (`16.17% -> 9.85%`); and the **Biological Spoilage Clock** warns extension staff when Tomato transit life shrinks from `110.8h` (`20°C`) to `24.1h` (`42°C`).

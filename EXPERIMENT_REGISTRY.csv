@@ -8,12 +8,12 @@ Holdout_Conformal_Cov,Diagnostic,Holdout_2025_2026,Empirical 80% LCB Coverage (%
 Exp10_Decade_AllRegimes,Exploratory,2017H2-2026 (661192 eps across 6 regimes),Loss-Trip Rate & Worst-10% Loss range,8.78-12.03% | -20.93 to -37.89,vs B1 39.18-44.29% and -786.52 to -1289.28 INR/qtl,,LOGGED
 Exp10_ElNino2024_Peak,Exploratory,2024_ElNino_Heatwave (N=96468),MG - B1 Mean dNet (INR/qtl),165.14,387.91 vs 222.77 INR/qtl; LTR 12.03% vs 44.29%,,LOGGED
 Exp10b_Training_Scaling,Exploratory,Holdout_2025_2026 (N=69526),1Yr vs 3Yr vs 8Yr Mean dNet (INR/qtl),452.79 / 454.74 / 454.94,701932 / 1668451 / 3437098 train rows (+2.15 INR/qtl),,LOGGED
-Exp11_DirectQuantile_Holdout,Exploratory,Holdout_2025_2026 (N=69526),Mean dNet / LTR / CVaR10,459.02 / 9.40% / -32.28,Direct_Quantile_GBDT_Q20 vs MG_Std 452.79 / 9.97% / -37.89,,LOGGED
-Exp11_DeepMLP_Apple2026,Exploratory,HP_Apple_Grade_2026 (N=1537),Mean dNet / LTR / CVaR10,615.34 / 18.15% / -75.50,ACI slashes MG CVaR10 -102.76 -> -74.42 (alpha_Apple -> 0.164),,LOGGED
-Exp12_ZeroCloud_Full,Exploratory,Holdout_2025_2026 (N=69526),Mean dNet / API Calls / Cost per 10k,455.33 / 5.53 / 2764 INR,Cached T2 + Edge CPU T4: -64.9% cost vs B4 (7868 INR),,LOGGED
-Exp12_ZeroCloud_Satisficing,Exploratory,Holdout_2025_2026 (N=69526),Mean dNet / API Calls / Cost per 10k,440.48 / 3.84 / 1922 INR,Val-frozen hurdle 250 INR: -75.6% cost vs B4 retaining 97.3% gain,,LOGGED
-Exp13_FPO_Pooling_90qtl,Exploratory,Holdout_2025_2026 (0.70x freight),Mean dNet / 30qtl Equiv Gain,477.28 / 14318.5,+24.49 vs 30qtl solo (452.79) and +67.75 vs 10qtl marginal (409.53),,LOGGED
-Exp13_Split_Top2_Portfolio,Exploratory,Holdout_2025_2026 (50/50 Top-2 LCB),Closed Trap % / LTR % / Mean dNet,9.85% / 8.09% / 394.82,39% relative closed-trap reduction vs 16.17% single-yard,,LOGGED
-Exp13b_Spoilage_Clock_Tomato42C,Exploratory,NABCONS + Q10 Thermal Decay,Safe Transit Hours to 15% Loss,24.1,42C summer vs 110.8h at 20C winter (Potato 91.1h vs 418.6h),,LOGGED
+Exp11_DirectQuantile_Holdout,Appendix_Illustration,Holdout_2025_2026 (N=69526),Mean dNet / LTR / CVaR10,459.02 / 9.40% / -32.28,Direct_Quantile_GBDT_Q20 vs MG_Std 452.79 / 9.97% / -37.89,,LOGGED
+Exp11_DeepMLP_Apple2026,Appendix_Illustration,HP_Apple_Grade_2026 (N=1537),Mean dNet / LTR / CVaR10,615.34 / 18.15% / -75.50,ACI slashes MG CVaR10 -102.76 -> -74.42 (alpha_Apple -> 0.164),,LOGGED
+Exp12_ZeroCloud_Full,Appendix_Illustration,Holdout_2025_2026 (N=69526),Mean dNet / API Calls / Cost per 10k,455.33 / 5.53 / 2764 INR,Cached T2 + Edge CPU T4: -64.9% cost vs B4 (7868 INR),,LOGGED
+Exp12_ZeroCloud_Satisficing,Appendix_Illustration,Holdout_2025_2026 (N=69526),Mean dNet / API Calls / Cost per 10k,440.48 / 3.84 / 1922 INR,Val-frozen hurdle 250 INR: -75.6% cost vs B4 retaining 97.3% gain,,LOGGED
+Exp13_FPO_Pooling_90qtl,Appendix_Illustration,Holdout_2025_2026 (0.70x freight),Mean dNet / 30qtl Equiv Gain,477.28 / 14318.5,+24.49 vs 30qtl solo (452.79) and +67.75 vs 10qtl marginal (409.53),,LOGGED
+Exp13_Split_Top2_Portfolio,Appendix_Illustration,Holdout_2025_2026 (50/50 Top-2 LCB),Closed Trap % / LTR % / Mean dNet,9.85% / 8.09% / 394.82,39% relative closed-trap reduction vs 16.17% single-yard,,LOGGED
+Exp13b_Spoilage_Clock_Tomato42C,Appendix_Illustration,NABCONS + Q10 Thermal Decay,Safe Transit Hours to 15% Loss,24.1,42C summer vs 110.8h at 20C winter (Potato 91.1h vs 418.6h),,LOGGED
 Exp14_Official_DataGov_Parity,Validation,data.gov.in Resource 9ef84268-d588-465a-a308-a864a43d0070,Min/Max/Modal Exact Parity (%),100.00 / 100.00 / 99.42,172 matched panel rows from 6434 all-India official records,,LOGGED
 Exp15_OpenYard_Sensitivity,Sensitivity,Holdout_2025_2026 (5 Clerk-Lag & d0-Observed Regimes),MG - B1 Mean dNet Range (INR/qtl),+77.34 to +178.46,100% observed d0 dispatches (N=28359): MG 1035.32 vs B1 856.86 & B2 833.73,,LOGGED

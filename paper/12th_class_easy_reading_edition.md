@@ -69,7 +69,7 @@ Instead of confusing examiners with 20 metrics, every method is judged by **four
 * **Removing `T1` (`Exp 4`, Figure 3):** Profit collapses `-₹134.05/qtl` (`₹452.79 -> ₹318.74`) and traps explode **4× (`67.16%`)**. Removing **`T4`** increases losing trips by **`69.4%`** (`9.97% -> 16.89%`) and worsens worst-10% tail crashes **`10.5×` (`-₹37.89 -> -₹397.19/qtl`)**. Removing **`T3`** nudges average profit slightly up `+₹2.46/qtl` (`₹455.25`) at the price of worse heat/rain loss trips (`11.39% -> 10.10%`).
 * **Tight API Budget (`Exp 5`, Figure 4):** At `B = 6` calls max, `MandiGuard` earns **`₹403.85/qtl` (`+₹12,115.6` truck)** vs `₹299.31/qtl` for upfront checking (`+₹104.54/qtl` more).
 * **HP Graded Apples (`Exp 3`, Figure 5):** Cuts traps **7× (`94.14% -> 13.24%`)** and flips `Grade B` from **`-₹427.54` loss to `+₹833.70/qtl` profit**, though conservative `2024` bounds under-dispatch rare `Grade A` (`5.39%`), lowering overall mean (`₹605.06` vs `B2 ₹1,150.83`).
-* **Across `9/9` Freight/Rot Scenarios (`Exp 6`, Figure 6) + Open-Yard & Direct `data.gov.in` Verification (`Exp 14–15`):** `MandiGuard` beats `B1` across all 9 stress scenarios (`+₹82.62` to `+₹121.42/qtl`). Direct checks against Government of India's `data.gov.in` official XML feed show **`100.00%` exact `Min_Price`/`Max_Price` and `99.42%` `Modal_Price` parity** (`172` matched keys). Even if missing 3-day portal rows were purely delayed clerk uploads (`Exp 15`), `MandiGuard` still wins by **`+₹77.34` to `+₹91.66/qtl`**—and on dispatches with **100% observed arrival-day prices (zero missing entries)**, `MandiGuard` earns **`₹1,035.32/qtl` (`4.98%` loss rate)** vs `B1` (`₹856.86/qtl`, `12.32%`) and `B2` (`₹833.73/qtl`, `10.32%`)! *(Transparency note: prices and weather are observed from public records; truck hire [`₹35 + ₹0.45/km`], rot, and deployment scenarios [`Exp 11–13`] are modeled illustrations.)*
+* **Across `9/9` Freight/Rot Scenarios (`Exp 6`, Figure 6) + Open-Yard & Direct `data.gov.in` Verification (`Exp 14–15`):** `MandiGuard` beats `B1` across all 9 stress scenarios (`+₹82.62` to `+₹121.42/qtl`). Direct checks against Government of India's `data.gov.in` official XML feed show **`100.00%` exact `Min_Price`/`Max_Price` and `99.42%` `Modal_Price` parity** (`172` matched keys). Even if missing 3-day portal rows were purely delayed clerk uploads (`Exp 15`), `MandiGuard` still wins by **`+₹77.34` to `+₹91.66/qtl`**—and on dispatches with **100% observed arrival-day prices (zero missing entries)**, `MandiGuard` earns **`₹1,035.32/qtl` (`4.98%` loss rate)** vs `B1` (`₹856.86/qtl`, `12.32%`) and `B2` (`₹833.73/qtl`, `10.32%`)! *(Transparency note: prices and weather are observed from public records; truck hire [`₹35 + ₹0.45/km`], rot, and appendix illustrations [`Exp 11–13b`] are modeled illustrations.)*
 
 ![Tool Ablations](../figures/fig3_tool_ablation_and_monsoon_heat.png)
 
@@ -79,15 +79,10 @@ Instead of confusing examiners with 20 metrics, every method is judged by **four
 
 ![Sensitivity Grid](../figures/fig6_sensitivity_and_govt_fees.png)
 
-### Nearly 10-Year Robustness (`2017–2026`), Modern AI, `ZeroCloud`, FPO Sharing & Spoilage Clock (`Figures 7–8`)
-* **10-Year Test (`42,722,187` raw rows $\to$ `661,192` matched trips across 6 eras, Figure 7A):** Whether during `2017` GST, `2018–19` calm, `2020–21` COVID, `2022–23` export curbs, or `2024` El-Niño heat (`+₹165.14/qtl` over `B1`!), `MandiGuard` keeps losing trips at **`8.78%–12.03%`** (vs `39.18%–44.29%` naive). Meanwhile, 8-year training adds just `+₹2.15/qtl` over 1 recent year (`Exp 10b`)—fresh recent habits win!
-* **Modern AI & `MandiGuard_ACI` (`Exp 11`, Figure 7B):** A direct quantile tree (`Direct_Quantile_GBDT_Q20`) reaches `₹459.02/qtl` on 6 states, a neural net (`Deep_MLP_Conformal`) hits `₹615.34/qtl` on graded HP Apples, and **Adaptive Conformal Inference (`ACI`)** cuts HP Apple tail crashes **`27.6%`** (`-₹102.76 -> -₹74.42/qtl`).
-* **`MandiGuard-ZeroCloud` (`Exp 12`, Figure 8A):** Keeping fixed highway distances (`T2`) and the tiny CPU AI (`T4`) offline raises profit slightly to **`₹455.33/qtl`** (`pre-ranking cheaper nearby roads into top-5`), while adding a `₹250/qtl` **"good enough — stop searching!"** hurdle cuts live API spend **`75.6%`** (`3.84` calls = `₹1,922` per `10,000` farmer advisories vs `₹7,868` upfront).
-* **FPO Pooling & Spoilage Clock (`Exp 13/13b`, Figure 8B):** Three `30-qtl` farmers sharing one **`90-qtl` FPO truck (`0.70×` freight)** earn **`₹477.28/qtl`**; splitting 50/50 across two markets cuts closed traps **`39%` (`16.17% -> 9.85%`)**; and the **Biological Spoilage Clock** warns when Tomato safe travel drops from **`110.8 h` (`20°C`) to `24.1 h` (`42°C`)** before sending `<160`-char SMS alerts.
+### Nearly 10-Year Robustness Across 6 Eras (`2017–2026`, `Exp 10` & `10b`, Figure 7A)
+* **10-Year Test (`42,722,187` raw rows $\to$ `661,192` matched trips across 6 eras, Figure 7A):** Whether during `2017` GST, `2018–19` calm, `2020–21` COVID, `2022–23` export curbs, or `2024` El-Niño heat (`+₹165.14/qtl` over `B1`!), `MandiGuard` keeps losing trips at **`8.78%–12.03%`** (vs `39.18%–44.29%` naive). Meanwhile, 8-year training adds just `+₹2.15/qtl` over 1 recent year (`Exp 10b`)—fresh recent habits win! *(Figure 7B is covered in the Appendix below.)*
 
 ![Decade Regimes & Modern AI](../figures/fig7_decade_2017_2026_evolution.png)
-
-![ZeroCloud & FPO Pooling](../figures/fig8_zerocloud_fpo_and_modern_ai.png)
 
 ---
 
@@ -105,3 +100,15 @@ Instead of confusing examiners with 20 metrics, every method is judged by **four
 | **Two-Way Cluster Bootstrap** | Re-sampling whole mandis and 2-week blocks `5,000` times so correlated days don't cheat. |
 | **Holm–Bonferroni Test** | Stricter exam pass bar applied because we run 4 confirmatory checks together. |
 | **Temporal Firewall** | Strict clock wall blocking future prices or future weather from entering AI decisions. |
+
+---
+
+## Appendix: Optional Deployment & Model Illustrations (`Exp 11`–`Exp 13b` — Not Main Contributions)
+
+> **What This Section Is:** The main findings above (`H1`–`H4` and `Exp 1`–`Exp 15`) stand cleanly on their own. The three bonus illustrations below are extra "what-if" engineering ideas shown strictly as Appendix illustrations, not main thesis claims.
+
+* **Alternative AI Models & `MandiGuard_ACI` (`Exp 11`, Figure 7B):** A direct quantile tree (`Direct_Quantile_GBDT_Q20`) reaches `₹459.02/qtl` on 6 states, a neural net (`Deep_MLP_Conformal`) hits `₹615.34/qtl` on graded HP Apples, and **Adaptive Conformal Inference (`ACI`)** cuts HP Apple tail crashes **`27.6%`** (`-₹102.76 -> -₹74.42/qtl`).
+* **`MandiGuard-ZeroCloud` (`Exp 12`, Figure 8A):** Keeping fixed highway distances (`T2`) and the tiny CPU AI (`T4`) offline raises profit slightly to **`₹455.33/qtl`** (`pre-ranking cheaper nearby roads into top-5`), while adding a `₹250/qtl` **"good enough — stop searching!"** hurdle cuts live API spend **`75.6%`** (`3.84` calls = `₹1,922` per `10,000` farmer advisories vs `₹7,868` upfront).
+* **FPO Pooling & Spoilage Clock (`Exp 13/13b`, Figure 8B):** Three `30-qtl` farmers sharing one **`90-qtl` FPO truck (`0.70×` freight)** earn **`₹477.28/qtl`**; splitting 50/50 across two markets cuts closed traps **`39%` (`16.17% -> 9.85%`)**; and the **Biological Spoilage Clock** warns when Tomato safe travel drops from **`110.8 h` (`20°C`) to `24.1 h` (`42°C`)** before sending `<160`-char SMS alerts.
+
+![ZeroCloud & FPO Pooling](../figures/fig8_zerocloud_fpo_and_modern_ai.png)

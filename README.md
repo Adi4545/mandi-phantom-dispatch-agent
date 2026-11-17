@@ -13,11 +13,9 @@
 * **H3 (`SUPPORTED`, $p_{\text{Holm}} = 0.0008$):** Cuts episode phantom losses by **`37.29 pp`** compared with unconstrained ML point forecasts (`B3`: `45.28%` conditional loss-trip rate -> `MandiGuard`: **`9.97%`**).
 * **H4 (`SUPPORTED`, $p_{\text{Holm}} = 0.0008$):** Matches upfront all-tool oracle profit (`₹452.79/qtl`) using **`44.4%` fewer tool calls** (`8.75` vs `15.74` calls/episode).
 * **H2 (`NOT_SUPPORTED` on mean gain, $p_{\text{Holm}} = 0.2699$; Major Tail-Risk Advantage):** `MandiGuard` beats fresh same-day OSRM heuristics (`B2`) by `+₹6.13/qtl` overall (and **`+₹31.82/qtl`** in the 4 states with `100%` native NWP forecasts) while **nearly halving phantom loss risk (`9.97%` vs `18.11%`) and shrinking worst-10% $\text{CVaR}_{10\%}$ 11.5-fold (`-₹37.89` vs `-₹436.67/qtl`)**.
-* **10-Year Regimes, Edge-AI `ZeroCloud` & Cooperative FPO Pooling (`Exp 10`–`Exp 13b`):**
-  * Across **`661,192` matched episodes (`2017H2–2026`)**, `MandiGuard` locks `Loss-Trip Rate` to `8.78%–12.03%` vs `39.18%–44.29%` naive (`+₹165.14/qtl` gain over `B1` during the `2024 El-Niño Heatwave`).
-  * **`MandiGuard-ZeroCloud`** (cached OSRM table + on-device CPU scorer) achieves **`₹455.33/qtl`** at **`5.53` live API calls**, while Val-calibrated **satisficing early-exit** cuts live calls to **`3.84` calls/query (`₹1,922` vs `₹7,868` per `10k` queries = `-75.6%` API spend)**.
-  * **FPO `90-qtl` Shared Truck Pooling (`0.70x` freight)** elevates realized gain to **`₹477.28/qtl`** (`+₹24.49/qtl` above solo `30-qtl` and `+₹67.75/qtl` above marginal `10-qtl` growers).
+* **10-Year Multi-Regime Stability & Scaling (`Exp 10`, `Exp 10b`):** Across **`661,192` matched episodes (`2017H2–2026`)**, `MandiGuard` locks `Loss-Trip Rate` to `8.78%–12.03%` vs `39.18%–44.29%` naive (`+₹165.14/qtl` gain over `B1` during the `2024 El-Niño Heatwave`), while `1`-year recent calibration (`₹452.79/qtl`) captures `99.5%` of `8`-year training utility (`₹454.94/qtl`).
 * **Open-Yard / Clerk-Upload-Lag Sensitivity (`Exp 15`) & Direct `.gov.in` Parity (`Exp 14`):** Holds `+₹77.34` to `+₹102.78/qtl` over `B1` across all missing-entry clerk-lag assumptions, and earns **`₹1,035.32/qtl` (`4.98%` LTR)** on 100%-observed arrival-day dispatches (zero missing data: **`+₹178.46/qtl` vs `B1`** and **`+₹201.59/qtl` vs `B2`**).
+* **Appendix Illustrations (`Exp 11`–`Exp 13b`, Exploratory — Not Main Contributions):** The manuscript Appendix separately illustrates plug-in quantile/adaptive conformal models (`MandiGuard_ACI`, `-27.6%` HP Apple tail loss), offline `ZeroCloud` road/CPU caching (`3.84`–`5.53` live calls), cooperative `90-qtl` FPO pooling (`₹477.28/qtl`), and `Q10` spoilage countdown SMS cards.
 
 ---
 
@@ -26,7 +24,7 @@
 * **`configs/`**: Master pipeline settings ([config.json](configs/config.json)) and `Val_2025H1`-frozen safety margin ([frozen_calibration.json](configs/frozen_calibration.json)).
 * **`data/`**: Self-contained verified public datasets (`<= 4.82 MB` per file) including AGMARKNET 2017–2026 (`agmarknet_6state_decade_2017_2026.parquet`), HP graded apples, `8,147` OSRM highway corridors, ERA5/NWP & NASA POWER climate grids, 8 official GoI PIB survey files, SHA-256 manifests (`data/manifests/`), and [state_apmc_and_loss_parameters.csv](data/processed/state_apmc_and_loss_parameters.csv).
 * **`src/`**: Modular extraction (`src/data/`), sequential & ZeroCloud agent (`src/agents/`), baselines `B1`–`B6` (`src/baselines/`), causal/ACI conformal & modern forecasters (`src/models/`), two-way bootstrap, decade, ZeroCloud & FPO runners (`src/evaluation/`), and publication plotting (`src/visualization/`).
-* **`results/` & `figures/`**: Complete confirmatory and exploratory CSV/JSON tables (`exp1`–`exp15`), `<=160`-char real farmer SMS advisory cards, `250` JSONL execution traces, and eight 300-DPI PNG figures (`fig1`–`fig8`).
+* **`results/` & `figures/`**: Complete confirmatory, sensitivity, and appendix-illustration CSV/JSON tables (`exp1`–`exp15`), `<=160`-char real farmer SMS advisory cards, `250` JSONL execution traces, and eight 300-DPI PNG figures (`fig1`–`fig8`).
 * **`notebooks/`**: Ten executed sequential notebooks (`00`–`09`) plus clean-room verified `<3 min` **`colab_standalone_reproduction.ipynb`** paired with `<5 MB` (`4.82 MB`) `data/processed/colab_data_pack.tar.gz`.
 * **`paper/` & `viva/`**:
   * **Thesis Paper (Class-12 Clear + Full Rigor):** [manuscript.md](paper/manuscript.md) & verified BibTeX [references.bib](paper/references.bib) (`31/31` cited).
