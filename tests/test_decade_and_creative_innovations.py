@@ -156,3 +156,24 @@ def test_creative_decade_results_files_non_empty() -> None:
     for fn in ["fig7_decade_2017_2026_evolution.png", "fig8_zerocloud_fpo_and_modern_ai.png"]:
         fp = root / "figures" / fn
         assert fp.exists() and fp.stat().st_size > 20000
+
+
+def test_official_datagov_parity_and_open_yard_sensitivity() -> None:
+    root = Path(__file__).resolve().parents[1]
+    man = json.loads((root / "data/manifests/official_datagov_parity_manifest.json").read_text())
+    xml_p = root / man["xml_file"]["path"]
+    assert xml_p.exists()
+    assert _sha256_file(xml_p) == man["xml_file"]["sha256"]
+
+    exp14 = pd.read_csv(root / "results/exp14_official_datagov_parity_audit.csv")
+    assert len(exp14) == 1
+    assert exp14["min_price_exact_parity_pct"].iloc[0] == 100.0
+    assert exp14["max_price_exact_parity_pct"].iloc[0] == 100.0
+    assert exp14["modal_price_exact_parity_pct"].iloc[0] >= 99.0
+
+    exp15 = pd.read_csv(root / "results/exp15_missing_data_open_yard_sensitivity.csv")
+    assert len(exp15) == 20
+    assert not exp15.isna().any().any()
+    mg_rows = exp15[exp15["policy"] == "MandiGuard"]
+    assert (mg_rows["mg_minus_b1_inr_qtl"] > 70.0).all()
+

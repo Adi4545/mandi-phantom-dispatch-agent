@@ -1,0 +1,24 @@
+{
+  "created_utc": "2026-11-17T12:26:25.842612+00:00",
+  "resource_page_url": "https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi",
+  "datafile_url": "https://www.data.gov.in/files/ogd20/ogdpv2dms/s3fs-public/Date-Wise-Prices-all-Commodity.xml",
+  "api_gateway_probe": "timeout_or_err:ConnectTimeout",
+  "xml_file": {
+    "path": "data/raw/official_datagov_datewise_prices.xml",
+    "bytes": 2439430,
+    "sha256": "0df451235fe6f11c517947daea136254c937a20703425f377ca69310dbc2cb06"
+  },
+  "parity_summary": {
+    "official_source": "data.gov.in Resource 9ef84268-d588-465a-a308-a864a43d0070 (Date-Wise XML)",
+    "gov_dates": "2023-10-18",
+    "total_gov_all_india_rows": 6434,
+    "gov_6state_4crop_rows": 532,
+    "gov_178_panel_rows": 181,
+    "matched_panel_keys": 172,
+    "exact_10col_matches": 171,
+    "min_price_exact_parity_pct": 100.0,
+    "max_price_exact_parity_pct": 100.0,
+    "modal_price_exact_parity_pct": 99.42,
+    "exact_full_row_rate_pct": 94.48
+  }
+}

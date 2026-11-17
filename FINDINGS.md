@@ -58,3 +58,11 @@ Expanded across **`42,722,187` raw streamed official AGMARKNET records (`2017-01
    * Pooling into **`90-qtl` FPO trucks (`0.70x` freight)** elevates net gain to **`₹477.28/qtl`** (`₹14,318.5` per 30-qtl equivalent share)—**`+₹24.49/qtl`** above standard `30-qtl` solo (`₹452.79/qtl`) and **`+₹67.75/qtl`** above marginal `10-qtl` farmers (`1.60x` freight: `₹409.53/qtl`).
    * Splitting 50/50 across top-2 verified yards (`Split_Top2_Portfolio`) cuts `Closed Trap Rate` **`39%` relative (`16.17% -> 9.85%`)** and `Loss-Trip Rate` to `8.09%` (`₹394.82/qtl`).
    * The **$Q_{10}$ Biological Spoilage Clock** shows safe transit windows before `15%` thermal shrinkage compress from **`110.8h` (`20°C` winter) to `24.1h` (`42°C` summer)** on Tomato (`Potato`: `418.6h -> 91.1h`), directly driving real `<= 160`-char farmer SMS advisories.
+
+---
+
+## 5. Official `data.gov.in` Direct Parity (`Exp 14`) & Missing-Entry / Open-Yard Sensitivity (`Exp 15`)
+1. **Direct `data.gov.in` Resource `9ef84268-d588-465a-a308-a864a43d0070` Verification (`Exp 14`):** Cross-checking official `www.data.gov.in` `Date-Wise-Prices-all-Commodity.xml` (`6,434` all-India records, `532` in our 6 states & 4 crops, `181` in the `178`-mandi panel, `172` matched keys) against our decade AGMARKNET archive confirms **`100.00%` (`172/172`) exact rupee parity on `Min_Price` and `Max_Price` and `99.42%` (`171/172`) on `Modal_Price`**.
+2. **Missing-Data / Clerk-Upload-Lag Sensitivity (`Exp 15`):**
+   * Across four missing-entry assumptions on all `69,526` holdout episodes: baseline `1.5x` diversion (`+₹102.78/qtl`), `1.0x` no-return haul (`+₹91.66/qtl`: `₹454.27` vs `₹362.61`), `50%` clerk lag open carry-forward (`+₹83.61/qtl`: `₹465.35` vs `₹381.74`, LTR `7.09% vs 36.12%`), and `100%` clerk lag local parity (`+₹77.34/qtl`: `₹456.19` vs `₹378.85` `B1` & `₹452.78` `B2`).
+   * On **100%-observed arrival-day (`d0`) dispatches (zero missing data, zero closed-yard inference)**: `MandiGuard` (`28,359` dispatches) earns **`₹1,035.32/qtl` (`4.98%` LTR)** vs `B1` (`25,882`: `₹856.86`, `12.32%` LTR), `B2` (`32,679`: `₹833.73`, `10.32%` LTR), and `B3` (`22,224`: `₹1,009.17`, `9.00%` LTR)—beating `B1` by **`+₹178.46/qtl`** and `B2` by **`+₹201.59/qtl`**.

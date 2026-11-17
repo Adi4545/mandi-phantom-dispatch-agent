@@ -46,7 +46,7 @@
    **A:** Public portals don't publish truck weighment slips, so NABCONS (2022) market loss rates are the official GoI anchor—accounting for just `₹68.76/qtl` of erosion, whereas **`₹714.90/qtl`** (`58.94%` traps/drops) is raw untouched AGMARKNET price truth. Furthermore, `MandiGuard` beats `B1` across all **`9/9`** `[0.5×..1.5×]` sensitivity scenarios (`+₹82.62` to `+₹121.42/qtl`).
 
 6. **Q: How do you prove ZERO data leakage or hindsight `₹50` margin tuning?**  
-   **A:** Weights trained strictly on `2024` (`701,932` rows), scalar `₹50/qtl` froze on `Jan–May 2025` (`Val_2025H1`, `280,697` rows), hypotheses `H1`–`H4` locked in Git commit `e421d15` before holdout ran, conformal errors update only once `arrival_date <= decision_date`, and all **`18/18` automated leakage/integrity tests** pass.
+   **A:** Weights trained strictly on `2024` (`701,932` rows), scalar `₹50/qtl` froze on `Jan–May 2025` (`Val_2025H1`, `280,697` rows), hypotheses `H1`–`H4` locked in Git commit `e421d15` before holdout ran, conformal errors update only once `arrival_date <= decision_date`, and all **`19/19` automated leakage, `.gov.in` parity, & integrity tests** pass.
 
 7. **Q: Why didn't you run GPT-4, LSTMs, or Deep RL at runtime?**  
    **A:** In `Exp 11` inside the same `T1–T4` funnel, `Deep_MLP_Conformal` (`₹435.38/qtl`) and `Contextual_UCB_Bandit` (`₹406.47/qtl`) trailed `MandiGuard_Standard` (`₹452.79/qtl`) on 6-state holdout, while tabular trees run locally in **`0.075–0.099 ms/query`** with zero LLM API bills or hallucinations.
@@ -77,7 +77,15 @@
 
 ---
 
-## 5. 60-Second Live Examiner Demo Commands
+## 5. Two Examiner Knockouts (`data.gov.in` Direct Parity & Clerk Upload Lag Proof!)
+* **"Wait—didn't your 10-year CSVs come from a HuggingFace mirror? How do you know they match official `data.gov.in`?" (`Exp 14`):**  
+  We audited the official `data.gov.in` Resource `9ef84268-d588-465a-a308-a864a43d0070` XML datafile (`6,434` all-India rows, `172` matched core-panel keys) plus live `api.agmarknet.gov.in` endpoints (`22` benchmark queries, `4,427` official HP apples)—confirming **`100.00%` exact rupee parity on `Min_Price` and `Max_Price` and `99.42%` on `Modal_Price`**.
+* **"What if 3-day missing portal data wasn't a closed yard—what if the clerk just forgot to upload?" (`Exp 15`):**  
+  We re-ran all `69,526` holdout trips across 4 clerk-upload-lag assumptions (`+₹77.34` to `+₹91.66/qtl` over `B1`), **AND** checked ONLY dispatches where arrival-day exact-variety prices were **100% observed (`d0`, zero missing data)**: `MandiGuard` (`28,359` trips) earns **`₹1,035.32/qtl` (`4.98%` loss rate)** vs `B1` (`₹856.86`, `12.32%`) and `B2` (`₹833.73`, `10.32%`)—beating `B1` by **`+₹178.46/qtl`** and `B2` by **`+₹201.59/qtl`**! *(Prices/roads/weather are observed; freight `₹35 + ₹0.45/km`, rot, and `Exp 11–13` deployment scenarios are modeled.)*
+
+---
+
+## 6. 60-Second Live Examiner Demo Commands
 ```bash
 cd /Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent
 PYTHONPATH=. /Users/adityasharma/anaconda3/bin/python3 -m pytest -v tests

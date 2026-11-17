@@ -3,25 +3,26 @@ platform darwin -- Python 3.11.5, pytest-7.4.0, pluggy-1.0.0 -- /Users/adityasha
 cachedir: .pytest_cache
 rootdir: /Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent
 plugins: anyio-4.15.1
-collecting ... collected 18 items
+collecting ... collected 19 items
 
 tests/test_agent_and_leakage.py::test_variety_canonicalization PASSED    [  5%]
-tests/test_agent_and_leakage.py::test_funnel_pruning_saves_calls_vs_upfront PASSED [ 11%]
-tests/test_agent_and_leakage.py::test_causal_conformal_zero_future_leakage PASSED [ 16%]
-tests/test_decade_and_creative_innovations.py::test_decade_and_nasa_power_manifests_valid PASSED [ 22%]
-tests/test_decade_and_creative_innovations.py::test_zerocloud_live_api_call_savings_and_early_exit PASSED [ 27%]
-tests/test_decade_and_creative_innovations.py::test_aci_bounds_and_exact_freight_shift PASSED [ 33%]
-tests/test_decade_and_creative_innovations.py::test_creative_decade_results_files_non_empty PASSED [ 38%]
-tests/test_geocoding_and_knobs.py::test_saved_coordinates_and_corridors_valid PASSED [ 44%]
-tests/test_geocoding_and_knobs.py::test_tool_budget_hard_cap_and_ablation_flags PASSED [ 50%]
-tests/test_govt_surveys_and_weather.py::test_govt_survey_and_climate_manifests_integrity PASSED [ 55%]
-tests/test_govt_surveys_and_weather.py::test_statutory_fees_and_nabcons_rates PASSED [ 61%]
-tests/test_govt_surveys_and_weather.py::test_causal_weather_nowcast_features_zero_future_leakage PASSED [ 66%]
-tests/test_holdout_results_integrity.py::test_preregistration_precedes_results_in_git PASSED [ 72%]
-tests/test_holdout_results_integrity.py::test_all_experiment_artifacts_present_and_consistent PASSED [ 77%]
-tests/test_payoff_and_bootstrap.py::test_freight_and_spoilage_monotone PASSED [ 83%]
-tests/test_payoff_and_bootstrap.py::test_realized_outcome_open_vs_closed_trap PASSED [ 88%]
+tests/test_agent_and_leakage.py::test_funnel_pruning_saves_calls_vs_upfront PASSED [ 10%]
+tests/test_agent_and_leakage.py::test_causal_conformal_zero_future_leakage PASSED [ 15%]
+tests/test_decade_and_creative_innovations.py::test_decade_and_nasa_power_manifests_valid PASSED [ 21%]
+tests/test_decade_and_creative_innovations.py::test_zerocloud_live_api_call_savings_and_early_exit PASSED [ 26%]
+tests/test_decade_and_creative_innovations.py::test_aci_bounds_and_exact_freight_shift PASSED [ 31%]
+tests/test_decade_and_creative_innovations.py::test_creative_decade_results_files_non_empty PASSED [ 36%]
+tests/test_decade_and_creative_innovations.py::test_official_datagov_parity_and_open_yard_sensitivity PASSED [ 42%]
+tests/test_geocoding_and_knobs.py::test_saved_coordinates_and_corridors_valid PASSED [ 47%]
+tests/test_geocoding_and_knobs.py::test_tool_budget_hard_cap_and_ablation_flags PASSED [ 52%]
+tests/test_govt_surveys_and_weather.py::test_govt_survey_and_climate_manifests_integrity PASSED [ 57%]
+tests/test_govt_surveys_and_weather.py::test_statutory_fees_and_nabcons_rates PASSED [ 63%]
+tests/test_govt_surveys_and_weather.py::test_causal_weather_nowcast_features_zero_future_leakage PASSED [ 68%]
+tests/test_holdout_results_integrity.py::test_preregistration_precedes_results_in_git PASSED [ 73%]
+tests/test_holdout_results_integrity.py::test_all_experiment_artifacts_present_and_consistent PASSED [ 78%]
+tests/test_payoff_and_bootstrap.py::test_freight_and_spoilage_monotone PASSED [ 84%]
+tests/test_payoff_and_bootstrap.py::test_realized_outcome_open_vs_closed_trap PASSED [ 89%]
 tests/test_payoff_and_bootstrap.py::test_bootstrap_and_holm PASSED       [ 94%]
 tests/test_payoff_and_bootstrap.py::test_temporal_firewall_guard PASSED  [100%]
 
-============================== 18 passed in 3.12s ==============================
+============================= 19 passed in 54.00s ==============================
