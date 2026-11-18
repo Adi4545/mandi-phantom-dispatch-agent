@@ -1,18 +1,18 @@
 # Verified Literature Matrix — `MandiGuard`
 
-**Project:** *Phantom Spatial Arbitrage in Indian Mandis — A Climate-, Road-, and Freshness-Aware Dispatch Agent (`MandiGuard`)*  
-**Scope of Literature Audit:** 14 verified primary-source citations across four foundational pillars, plus an explicit comparison against 8 closest prior academic and applied Indian mandi forecasting, imputation, routing, and market-selection works.  
-**Verification Standard:** Every author list, title, publication year, venue, volume/issue/pages, and DOI/URL below was verified directly against primary bibliographic records via web search on November 17, 2026.
+**Project:** *Phantom Spatial Arbitrage in Indian Mandis — Stage I (`MandiGuard`) & Stage II (`MandiGuard-CRC`)*  
+**Scope of Literature Audit:** 20 verified primary-source citations (14 Stage-I pillars + 6 Stage-II mechanistic/uncertainty/selective-label/market-integration pillars) across five foundational streams, plus an explicit comparison against 8 closest prior academic and applied Indian mandi forecasting, imputation, routing, and market-selection works.  
+**Verification Standard:** Every author list, title, publication year, venue, volume/issue/pages, and DOI/URL below was verified directly against primary bibliographic records via web search on November 17–18, 2026.
 
 ---
 
-## 1. Quick-Scan Matrix of the 14 Core Primary Citations
+## 1. Quick-Scan Matrix of the 20 Core Primary Citations
 
-| # | Pillar | Citation | Venue & Year | Core Contribution | Remaining Gap Addressed by `MandiGuard` |
+| # | Pillar | Citation | Venue & Year | Core Contribution | Remaining Gap Addressed by `MandiGuard` (Stage I & Stage II) |
 |:-:|:---|:---|:---|:---|:---|
 | 1 | Spatial Arbitrage & Market Integration | **Jensen (2007)** | *QJE*, 122(3):879–924 | Mobile phones cut spatial price dispersion & waste in Kerala fisheries via real-time arbitrage | Assumes low-friction coastal routing & uniform fish quality; does not model inland road topology, yard closures, variety mismatch, or heat decay |
 | 2 | Spatial Arbitrage & Market Integration | **Sekhar (2012)** | *Food Policy*, 37(3):309–322 | Econometric cointegration tests across Indian crops show structural/inter-state market friction | Aggregate long-run cointegration tests cannot guide daily dispatch or quantify decision-time execution failures |
-| 3 | Spatial Arbitrage & Market Integration | **Chatterjee & Kapur (2016/2017)** | *India Policy Forum*, 13(1):185–229 | Documents huge persistent inter-mandi spatial price dispersion across India despite rising connectivity | Identifies the spatial price puzzle macro-empirically without operationalizing dispatch feasibility or physical shrinkage |
+| 3 | Spatial Arbitrage & Market Integration | **Chatterjee & Kapur (2016/2017)** | *India Policy Forum*, 13(1):185–229 | Documents substantial persistent inter-mandi spatial price dispersion across India despite rising connectivity | Identifies the spatial price puzzle macro-empirically without operationalizing dispatch feasibility or physical shrinkage |
 | 4 | Spatial Arbitrage & Market Integration | **Negi et al. (2018)** | *Food Policy*, 81:106–121 | Links transport & communication networks to farmer channel choice and producer price realization | Evaluates survey-level channel access rather than daily corridor-specific road travel time, climate decay, and yard activity |
 | 5 | Mandi Data & Anomaly Modeling | **Madaan et al. (2019)** | *ACM COMPASS '19*, pp. 52–64 | Forecasts AGMARKNET onion/potato prices & flags anomalies across mandis | Optimizes point price forecasting/anomaly alerts; does not evaluate executable cross-mandi dispatch under spoilage & road cost |
 | 6 | Indian Post-Harvest Loss & Climate | **Jha et al. (2015)** | ICAR-CIPHET / MoFPI (173 pp.) | Landmark national benchmark of harvest & post-harvest losses across 45+ crops including transport | Static national averages; does not map losses to daily corridor temperature or transit duration in dispatch decisions |
@@ -24,10 +24,16 @@
 | 12 | Tool-Using & Budgeted Agents | **Yao et al. (2023)** | *ICLR 2023* | ReAct interleaves reasoning traces with external API/tool calls to reduce hallucination | Unconstrained polling loop lacks explicit per-call cost budgeting or asymmetric risk-based early stopping |
 | 13 | Tool-Using & Budgeted Agents | **Kachuee et al. (2019)** | *ICLR 2019* | Opportunistic Learning acquires costly features sequentially at prediction time under budget | Formulated as RL over feature streams; not coupled with conformal risk bounds or geospatial/weather dispatch funnels |
 | 14 | Tool-Using & Budgeted Agents | **Han, Buntine, & Shareghi (2024)** | *Findings of ACL 2024*, pp. 6662–6685 | UALA gates external tool calls via calibrated uncertainty instead of uncalibrated verbalized scores | Evaluated on text QA benchmarks (HotpotQA/StrategyQA/MMLU), not multi-modal geospatial/climate/price dispatch |
+| 15 | Conformal Risk & Conditional Coverage | **Lei et al. (2018)** | *JASA*, 113(523):1094–1111 | Establishes distribution-free split conformal prediction and locally weighted residuals for regression | General statistical framework; Stage II measures how pooled residuals create a 21–23 pp volatility-quartile illusion in mandis |
+| 16 | Conformal Risk & Conditional Coverage | **Romano, Patterson, & Candès (2019)** | *NeurIPS 32*, pp. 3538–3548 | Conformalized Quantile Regression (CQR) adapts prediction intervals dynamically to local heteroscedasticity | Does not model uncensored arrival-closure payoffs or selective `HOLD_LOCAL` dispatch risk |
+| 17 | Conformal Risk & Conditional Coverage | **Angelopoulos et al. (2024)** | *ICLR 2024* (Spotlight) | Conformal Risk Control (CRC) extends split conformal to monotone loss functions via finite-sample threshold tuning | Exchangeability Theorem 1 fails under agricultural season shifts & post-selection denominators; Stage II adapts its validation ratio empirically |
+| 18 | Selective Labels & Censored Outcomes | **Lakkaraju et al. (2017)** | *ACM KDD '17*, pp. 275–284 | Formalizes selective-labels missingness when downstream outcomes are only observed under historical decisions | Focuses on observational decision confounding; Stage II uncovers arrival-censored (`dropna`) downside understatement (up to 2.54x) |
+| 19 | Thin/Fragmented Indian Markets | **Goyal (2010)** | *AEJ: Applied Economics*, 2(3):22–45 | Shows ITC e-Choupal internet kiosks raised soy prices in MP by cutting market isolation & intermediary margins | Focuses on static spot competition for oilseeds rather than grade-fragmented mountain horticultural `T1` sparsity |
+| 20 | Thin/Fragmented Indian Markets | **Levi et al. (2020)** | *PNAS*, 117(5):2366–2371 | Demonstrates unified wholesale bidding platforms (`ReMS` Karnataka) improve modal farm prices across commodities | Examines platform auction design rather than cross-mandi sub-grade reporting sparsity (`HP Apple`) causing false `T1` refusals |
 
 ---
 
-## 2. Detailed Summaries of the 14 Verified Primary Citations
+## 2. Detailed Summaries of the 20 Verified Primary Citations
 
 ### Pillar I: Agricultural Spatial Arbitrage, Price Dispersion & Indian Mandi Cointegration
 
@@ -35,7 +41,7 @@
 * **Exact Citation:** Jensen, Robert. (2007). "The Digital Provide: Information (Technology), Market Performance, and Welfare in the South Indian Fisheries Sector." *The Quarterly Journal of Economics*, Vol. 122, Issue 3, pp. 879–924.
 * **DOI / URL:** `10.1162/qjec.122.3.879` — <https://doi.org/10.1162/qjec.122.3.879>
 * **Plain-English Summary:** Jensen studied Kerala sardine fishermen before and after mobile phone coverage rolled out along the coast (1997–2001). Once fishermen could phone ahead to coastal landing markets while still at sea, cross-market price dispersion dropped sharply, almost all zero-sale fish dumping ("waste") disappeared, fishermen's profits rose by ~8%, and consumer prices fell by ~4%.
-* **Relevance & Remaining Gap:** This is the canonical empirical proof that spatial arbitrage can unlock huge producer welfare when perishables are matched to the right market in time. However, Kerala coastal boats moved homogeneous fish over short sea distances; inland horticultural mandis in India face **variety/grade heterogeneity**, **intermittent yard reporting/closures**, **mountain/highway road bottlenecks**, and **ambient heat spoilage during multi-hour truck transit**—making naive price chasing deceptive ("phantom arbitrage").
+* **Relevance & Remaining Gap:** This is the canonical empirical proof that spatial arbitrage can unlock substantial producer welfare when perishables are matched to the right market in time. However, Kerala coastal boats moved homogeneous fish over short sea distances; inland horticultural mandis in India face **variety/grade heterogeneity**, **intermittent yard reporting/closures**, **mountain/highway road bottlenecks**, and **ambient heat spoilage during multi-hour truck transit**—making naive price chasing deceptive ("phantom arbitrage").
 
 #### 2. Sekhar (2012) — *Agricultural Market Integration in India*
 * **Exact Citation:** Sekhar, C. S. C. (2012). "Agricultural market integration in India: An analysis of select commodities." *Food Policy*, Vol. 37, Issue 3, pp. 309–322.
@@ -56,7 +62,7 @@
 * **Relevance & Remaining Gap:** Confirms empirically that transport friction and information access jointly constrain producer price realization in India. Because it relies on cross-sectional household surveys, it cannot evaluate daily dynamic routing, perishable thermal degradation, or uncertainty-calibrated abstention when remote market spreads are risky.
 
 #### 5. Madaan, Sharma, Khandelwal, Goel, Singla, & Seth (2019) — *AGMARKNET Forecasting & Anomaly Detection*
-* **Exact Citation:** Madaan, Lovish, Ayush Sharma, Prakhar Khandelwal, Siddharth Goel, Puneet Singla, and Aaditeshwar Seth. (2019). "Price Forecasting & Anomaly Detection for Agricultural Commodities in India." In *Proceedings of the 2nd ACM SIGCAS Conference on Computing and Sustainable Societies (COMPASS '19)*, pp. 52–64.
+* **Exact Citation:** Madaan, Lovish, Ankur Sharma, Praneet Khandelwal, Shivank Goel, Parag Singla, and Aaditeshwar Seth. (2019). "Price Forecasting & Anomaly Detection for Agricultural Commodities in India." In *Proceedings of the 2nd ACM SIGCAS Conference on Computing and Sustainable Societies (COMPASS '19)*, pp. 52–64.
 * **DOI / URL:** `10.1145/3314344.3332488` — <https://doi.org/10.1145/3314344.3332488>
 * **Plain-English Summary:** Using multi-year AGMARKNET daily series for onions and potatoes, the authors build forecasting and anomaly-detection models to flag abnormal mandi price spikes and hoarding/supply shocks, including handling missing entries and market irregularities.
 * **Relevance & Remaining Gap:** One of the strongest CS/ICTD-for-development papers directly using AGMARKNET data. However, its target is **price forecasting and price-anomaly detection**, not **spatial dispatch optimization**. It does not route across OSRM road networks, price thermal spoilage, separate variety/grade mismatches in arbitrage spreads, or introduce a cost-sensitive `HOLD_LOCAL` reject rule.
@@ -95,7 +101,7 @@
 
 #### 10. Franc, Průša, & Voráček (2023) — *Optimal Strategies for Reject Option Classifiers*
 * **Exact Citation:** Franc, Vojtěch, Daniel Průša, and Václav Voráček. (2023). "Optimal Strategies for Reject Option Classifiers." *Journal of Machine Learning Research (JMLR)*, Vol. 24, No. 11, pp. 1–49.
-* **Verified URLs:** <https://www.jmlr.org/papers/v24/21-011.html> | Preprint: <https://arxiv.org/abs/2101.12523>
+* **Verified URLs:** <https://jmlr.org/papers/v24/21-0048.html> | Preprint: <https://arxiv.org/abs/2101.12523>
 * **Plain-English Summary:** Unifies three classic abstention formulations—explicit cost-based rejection, bounded-improvement (max coverage at capped risk), and bounded-abstention (min risk at target coverage)—showing all three reduce to a Bayes classifier paired with a randomized selection function over a *proper uncertainty score*, and gives Fisher-consistent algorithms to learn that score from black-box models.
 * **Relevance & Remaining Gap:** Bridges theoretical reject rules with practical black-box predictors via **risk–coverage curves** and proper uncertainty scores. Still, agricultural arbitrage requires **continuous asymmetric net-profit payoff calibration** (where mistake magnitude scales with freight distance and heat decay) rather than symmetric 0–1 classification risk.
 
@@ -129,6 +135,46 @@
 
 ---
 
+### Pillar V: Conditional Heteroscedasticity, Conformal Risk Control, Selective Labels & Grade Fragmentation (Stage-II Extensions)
+
+#### 15. Lei, G'Sell, Rinaldo, Tibshirani, & Wasserman (2018) — *Distribution-Free Predictive Inference for Regression*
+* **Exact Citation:** Lei, Jing, Max G'Sell, Alessandro Rinaldo, Ryan J. Tibshirani, and Larry Wasserman. (2018). "Distribution-Free Predictive Inference for Regression." *Journal of the American Statistical Association*, Vol. 113, No. 523, pp. 1094–1111.
+* **DOI / URL:** `10.1080/01621459.2017.1307116` — <https://doi.org/10.1080/01621459.2017.1307116>
+* **Plain-English Summary:** Formalizes split conformal regression intervals and proves why unscaled constant-width conformal residuals only guarantee *marginal* coverage while failing *conditional* coverage when error variance varies across feature regimes, proposing locally weighted conformity scores.
+* **Relevance & Remaining Gap:** Stage-II `Exp 16` quantifies this exact mechanism inside Indian mandis (`Q1_Calm` 90.46% vs `Q4_Volatile` 67.80% empirical coverage—a 22.66 pp spread), motivating `MandiGuard-CRC`'s move away from commodity-pooled additive intervals.
+
+#### 16. Romano, Patterson, & Candès (2019) — *Conformalized Quantile Regression (CQR)*
+* **Exact Citation:** Romano, Yaniv, Evan Patterson, and Emmanuel J. Candès. (2019). "Conformalized Quantile Regression." *Advances in Neural Information Processing Systems (NeurIPS)*, Vol. 32, pp. 3538–3548.
+* **Verified URL:** <https://proceedings.neurips.cc/paper/2019/hash/5103c3584b063c431bd1268e9b5e76fb-Abstract.html>
+* **Plain-English Summary:** Wraps pinball-loss quantile regressors with split conformal residual adjustment so interval widths adapt automatically to local input heteroscedasticity without sacrificing marginal finite-sample validity.
+* **Relevance & Remaining Gap:** Explains why Stage-I pooled residual quantiles fail under heteroscedastic market volatility (`Exp 16`) and connects naturally to asymmetric downside control—though CQR targets observed continuous outcomes rather than censored closed-yard arrival payoffs (`Exp 17`).
+
+#### 17. Angelopoulos, Bates, Fisch, Lei, & Schuster (2024) — *Conformal Risk Control (CRC)*
+* **Exact Citation:** Angelopoulos, Anastasios N., Stephen Bates, Adam Fisch, Lihua Lei, and Tal Schuster. (2024). "Conformal Risk Control." *International Conference on Learning Representations (ICLR 2024 Spotlight)*.
+* **Verified URL:** <https://openreview.net/forum?id=uPD0kqYEfS> (Preprint: `arXiv:2208.02814`)
+* **Plain-English Summary:** Extends split conformal prediction beyond 0–1 miscoverage to any bounded, monotone non-increasing loss function of a scalar threshold $\lambda$, choosing $\hat{\lambda}$ via finite-sample calibration ratio adjustment.
+* **Relevance & Remaining Gap:** Stage-II `MandiGuard-CRC` adapts this validation calibration heuristic—selecting $\lambda^* = 0.15$ on `Val_2025H1` via $(n_{\text{loss}}+1)/(n_{\text{disp}}+1) \le 0.095$ (`lambda_grid = [0.00..1.20]`) for expected-value-minus-tail score $\hat{\mu} - \lambda^* P_{\text{loc}} \hat{p}_{\text{loss}}$. Critically, because agricultural prices violate exchangeability and dispatch rate varies with $\lambda$, we **explicitly do not claim Angelopoulos et al. Theorem 1 theoretical guarantees**; Stage II reports empirical out-of-sample performance transparently.
+
+#### 18. Lakkaraju, Kleinberg, Leskovec, Ludwig, & Mullainathan (2017) — *The Selective Labels Problem*
+* **Exact Citation:** Lakkaraju, Himabindu, Jon Kleinberg, Jure Leskovec, Jens Ludwig, and Sendhil Mullainathan. (2017). "The Selective Labels Problem: Evaluating Algorithmic Predictions in the Presence of Unobservables." *Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '17)*, pp. 275–284.
+* **DOI / URL:** `10.1145/3097983.3098066` — <https://doi.org/10.1145/3097983.3098066>
+* **Plain-English Summary:** Demonstrates that evaluating or training predictive models solely on rows where outcomes were historically observed induces severe selection bias when unobservables affect both observation/selection and downstream outcomes.
+* **Relevance & Remaining Gap:** Directly illuminates **Stage-II Finding A (Censored-Arrival Survivorship Bias)**: standard `dropna(target_ret)` training drops 55.83% of raw corridors (and 12.64% post-`T1`), understating 20th-percentile downside drops by 1.82–2.54x (`age_0d..age_3d`) and creating blind spots that `MandiGuard-CRC` repairs by training directly on uncensored `Y_full` plus counterfactual open-yard validation (`N=10,162`).
+
+#### 19. Goyal (2010) — *Information, Direct Access, and Rural Market Performance in Central India*
+* **Exact Citation:** Goyal, Aparajita. (2010). "Information, Direct Access to Farmers, and Rural Market Performance in Central India." *American Economic Journal: Applied Economics*, Vol. 2, No. 3, pp. 22–45.
+* **DOI / URL:** `10.1257/app.2.3.22` — <https://doi.org/10.1257/app.2.3.22>
+* **Plain-English Summary:** Shows in Madhya Pradesh soybean districts that rural internet price kiosks and direct procurement competition increased mandi prices by ~1.7% and shifted crop area toward higher-value cash production.
+* **Relevance & Remaining Gap:** Highlights that rural market participation depends jointly on physical access and clearing liquidity; where grade differentiation fractures volume across days (as in Himachal apples), rolling average presence metrics misfire.
+
+#### 20. Levi, Rajan, Singhvi, & Zheng (2020) — *The Impact of Unifying Agricultural Wholesale Markets*
+* **Exact Citation:** Levi, Retsef, Manoj Rajan, Somya Singhvi, and Yanchong Zheng. (2020). "The impact of unifying agricultural wholesale markets on prices and farmers' profitability." *Proceedings of the National Academy of Sciences (PNAS)*, Vol. 117, No. 5, pp. 2366–2371.
+* **DOI / URL:** `10.1073/pnas.1906854117` — <https://doi.org/10.1073/pnas.1906854117>
+* **Plain-English Summary:** Uses natural experiment differences across Karnataka's Unified Market Platform (`ReMS`) to prove that centralized electronic auctioning across fragmented wholesale yards raises modal farmer prices (+5.1% average), while revealing acute sensitivity to quality grading and yard liquidity.
+* **Relevance & Remaining Gap:** Provides structural economic context for **Stage-II Finding C**: when AGMARKNET splits fresh apple harvests into sparse sub-grades (`Grade A`, `Grade B`, `Range-1`), yard-level `open_prob_14d` appears fragmented even though the destination apple auction is actively operating—accounting for 77.82%–82.75% of Stage-I `MandiGuard` refusals vs `B2` (`Exp 16`).
+
+---
+
 ## 3. Closest Prior Work on Indian Mandi Selection, Price Imputation & Agri-Logistics (Honesty Audit)
 
 To avoid claiming novelty where prior systems already exist, the table below records verified closest works touching Indian mandis, AGMARKNET data, weather, road routing, and spatial market selection:
@@ -136,13 +182,13 @@ To avoid claiming novelty where prior systems already exist, the table below rec
 | Citation | Venue & Year | Verified DOI / URL | What It Already Does | Exact Gap Left Open for `MandiGuard` |
 |:---|:---|:---|:---|:---|
 | **Mitra, Mookherjee, Torero, & Visaria (2018)** | *Review of Economics and Statistics*, 100(1):1–13 | `10.1162/rest_a_00699` | Field experiment with West Bengal potato farmers proving that providing daily wholesale mandi prices alone failed to raise average farmgate realization without outside dispatch options | Demonstrates *why* price transparency alone fails; does not build a road-, climate-, and risk-calibrated dispatch agent |
-| **Ma, Nowocin, Marathe, & Chen (2019)** | *ACM ICTD '19*, Art. 6, pp. 1–11 | `10.1145/3287098.3287100` | Collaborative filtering imputation + adaptive nearest-neighbor price forecasting across 1,000+ AGMARKNET mandis | Focuses purely on interpretable price imputation/prediction; no spatial arbitrage decomposition, OSRM routing, spoilage, or abstention |
-| **Guo, Woodruff, & Yadav (2020)** | *AAAI-20*, 34(08):13294–13299 | `10.1609/aaai.v34i08.7037` | CNN price prediction on AGMARKNET; explicitly observes missing quotes arise from yard closures/zero-sales days | Treats yard closures as a preprocessing filter for price MSE rather than an execution-time *closed-yard hazard* in spatial arbitrage |
+| **Ma, Nowocin, Marathe, & Chen (2019)** | *ACM ICTD '19*, Art. 6, pp. 1–11 | `10.1145/3287098.3287100` | *An Interpretable Produce Price Forecasting System for Small and Marginal Farmers in India Using Collaborative Filtering and Adaptive Nearest Neighbors* across 1,000+ AGMARKNET mandis | Focuses purely on interpretable price imputation/prediction; no spatial arbitrage decomposition, OSRM routing, spoilage, or abstention |
+| **Guo, Woodruff, & Yadav (2020)** | *AAAI-20*, 34(08):13294–13299 | `10.1609/aaai.v34i08.7039` | *Improving Lives of Indebted Farmers Using Deep Learning: Predicting Agricultural Produce Prices Using Convolutional Neural Networks*; explicitly observes missing quotes arise from yard closures/zero-sales days | Treats yard closures as a preprocessing filter for price MSE rather than an execution-time *closed-yard hazard* in spatial arbitrage |
 | **Mahajan & Tomar (2021)** | *AJAE*, 103(1):35–52 | `10.1111/ajae.12158` | Quantifies sharp distance gradients in Indian food supply chain disruptions during COVID-19 | Macro disruption event study; does not model routine spatial arbitrage, variety mismatch, or thermal decay |
 | **Luxen & Vetter (2011)** | *ACM SIGSPATIAL GIS '11*, pp. 513–516 | `10.1145/2093973.2094062` | Introduces Open Source Routing Machine (OSRM) using contraction hierarchies on OpenStreetMap road networks | Routing engine only; highlights why straight-line Haversine underestimates actual road distances & transit durations in India |
-| **Biradar & Divyashree (2026)** | *IJEDR*, 14(3):538–547 | [PDF](https://rjwave.org/IJEDR/papers/IJEDR2603265.pdf) | *AgriMarket AI*: XGBoost/RF mandi recommender computing net profit using **Haversine** distance & AGMARKNET prices | **Closest naive baseline:** uses Haversine (not OSRM), ignores variety/grade mismatch, closed-yard risk, ERA5 thermal spoilage, conformal abstention, and tool budgeting |
-| **Manimegalai, Sanjay, Siddarth, & Udayabhaarathi (2026)** | *IJRPR*, 7(11):1–5 | *(Verified via IJRPR Vol. 7, Issue 11, Nov 2026)* | *Mandi Cast*: SARIMA/XGBoost crop price forecast + sell advisory incorporating OpenWeatherMap features | Weather is used only as a price-forecast covariate—not for transit freshness decay, road-network arbitrage, or selective abstention |
-| **Deka (2026)** | *arXiv:2610.39949* | `10.48550/arXiv.2610.39949` | Dynamic factor models & adaptive ensembles reconstructing prolonged missing AGMARKNET prices in North-East India | Imputes missing price series statistically rather than treating non-reporting yards as a dispatch-time operational risk |
+| **Divyashree & Biradar (2026)** | *IJEDR*, 14(3):538–547 | [PDF](https://rjwave.org/IJEDR/papers/IJEDR2603265.pdf) | *AgriMarket AI: Intelligent Market Selection and Profit Prediction System for Farmers Using Machine Learning* (XGBoost/RF with Haversine distance & AGMARKNET prices) | **Closest naive baseline:** uses Haversine (not OSRM), ignores variety/grade mismatch, closed-yard risk, ERA5 thermal spoilage, conformal abstention, and tool budgeting |
+| **Manimegalai, Sanjay, Siddarth, & Udayabhaarathi (2026)** | *IJRPR*, 7(11):1–5 | *(Verified via IJRPR Vol. 7, Issue 11, Nov 2026)* | *Mandi Cast: AI-Based Crop Price Forecasting and Sell Advisory System* (SARIMA/XGBoost + OpenWeatherMap covariates) | Weather is used only as a price-forecast covariate—not for transit freshness decay, road-network arbitrage, or selective abstention |
+| **Pritam Deka (2026)** | *arXiv:2610.39949* | `10.48550/arXiv.2610.39949` | *Reconstructing Missing Mandi Prices in North-East India with Regional Factors* (dynamic factor models & adaptive ensembles) | Imputes missing price series statistically rather than treating non-reporting yards as a dispatch-time operational risk |
 
 ---
 
@@ -150,5 +196,5 @@ To avoid claiming novelty where prior systems already exist, the table below rec
 
 1. **No Quantitative Decomposition of Phantom Spatial Arbitrage:** Economists documented persistent cross-mandi dispersion (Sekhar 2012; Chatterjee & Kapur 2016/2017) and ML researchers improved AGMARKNET price MSE/imputation (Madaan et al. 2019; Ma et al. 2019; Guo et al. 2020; Deka 2026), yet no multi-state study decomposes nominal apparent spreads into **(i) variety/grade mismatch**, **(ii) closed-yard/stale-quote execution hazard**, **(iii) Haversine-vs-OSRM road friction**, and **(iv) ERA5 ambient thermal spoilage**.
 2. **Naive Applied Recommenders Optimize Symmetric Accuracy or Point Net-Profit:** Recent applied systems (*AgriMarket AI* 2026; *Mandi Cast* 2026) compute point-estimate net gains using Haversine distances or weather-augmented price regressions, exposing farmers to asymmetric downside losses when a distant spread fails in transit or on arrival.
-3. **Missing Bridge Between Conformal Abstention and Agricultural Logistics:** Selective reject theory (Chow 1970; Franc et al. 2023) and split conformal prediction (Angelopoulos & Bates 2023) provide exact tools for gating high-risk dispatches via a `HOLD_LOCAL` option, yet remain unapplied to multi-state perishable mandi routing.
-4. **Absence of Budgeted Verification in Multi-Modal Agri-Agents:** Checking OSRM routes, ERA5 corridor temperatures, and calibrated predictive intervals for every destination on every day wastes compute/API budget (contrary to Kachuee et al. 2019 and Han et al. 2024), motivating `MandiGuard`'s **sequential verification funnel**.
+3. **Missing Bridge Between Conformal Abstention, Uncensored Risk Control, and Agricultural Logistics:** Selective reject theory (Chow 1970; Franc et al. 2023), heteroscedastic conformal intervals (Lei et al. 2018; Romano et al. 2019), conformal risk control (Angelopoulos et al. 2024), and selective-labels audits (Lakkaraju et al. 2017) provide exact diagnostic and calibration tools, yet remain unapplied to arrival-censored perishable mandi dispatch and thin-grade market aggregation (Goyal 2010; Levi et al. 2020).
+4. **Absence of Budgeted Verification in Multi-Modal Agri-Agents:** Checking OSRM routes, ERA5 corridor temperatures, and calibrated risk scores for every destination on every day wastes compute/API budget (contrary to Kachuee et al. 2019 and Han et al. 2024), motivating `MandiGuard`'s **sequential verification funnel**.

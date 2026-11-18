@@ -106,25 +106,68 @@ def run_exp14_official_parity(root: Path) -> Dict:
         ).sum()
     )
 
-    audit_scope_note = "Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)"
-    audit_df = pd.DataFrame(
-        [
-            {
-                "official_source": "data.gov.in Resource 9ef84268-d588-465a-a308-a864a43d0070 (Date-Wise XML)",
-                "gov_dates": ",".join(gov_dates),
-                "total_gov_all_india_rows": int(len(df_gov)),
-                "gov_6state_4crop_rows": int(len(clean_6s4c)),
-                "gov_178_panel_rows": int(len(gov_in_core)),
-                "matched_panel_keys": int(len(matched)),
-                "exact_10col_matches": exact_10col,
-                "min_price_exact_parity_pct": round(min_parity, 2),
-                "max_price_exact_parity_pct": round(max_parity, 2),
-                "modal_price_exact_parity_pct": round(mod_parity, 2),
-                "exact_full_row_rate_pct": round(exact_10col / max(1, len(gov_in_core)) * 100.0, 2),
-                "audit_scope_note": audit_scope_note,
-            }
-        ]
+    audit_scope_note = (
+        "Tier-1 single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys) + "
+        "Tier-2 149-day official AGMARKNET 2.0 direct export vs archive mirror check (2025-11-07..2026-04-13)"
     )
+    row_tier1 = {
+        "official_source": "data.gov.in Resource 9ef84268-d588-465a-a308-a864a43d0070 (Date-Wise XML)",
+        "gov_dates": ",".join(gov_dates),
+        "total_gov_all_india_rows": int(len(df_gov)),
+        "gov_6state_4crop_rows": int(len(clean_6s4c)),
+        "gov_178_panel_rows": int(len(gov_in_core)),
+        "matched_panel_keys": int(len(matched)),
+        "exact_10col_matches": exact_10col,
+        "min_price_exact_parity_pct": round(min_parity, 2),
+        "max_price_exact_parity_pct": round(max_parity, 2),
+        "modal_price_exact_parity_pct": round(mod_parity, 2),
+        "exact_full_row_rate_pct": round(exact_10col / max(1, len(gov_in_core)) * 100.0, 2),
+        "audit_scope_note": "Tier-1 Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)",
+    }
+
+    # Tier-2: 149-day official AGMARKNET 2.0 portal export overlap check (HP Apple 2025-11-07..2026-04-13)
+    ag2_path = root / "data/raw/hp_apple_daily_2025_2026.csv"
+    mir_path = root / "data/raw/agmarknet_6state_top_apple_2024_2026_all.parquet"
+    ag2_sha = hashlib.sha256(ag2_path.read_bytes()).hexdigest()
+    hp_gov = pd.read_csv(ag2_path)
+    mir = pd.read_parquet(mir_path)
+    mir_hp = mir[(mir["State"] == "Himachal Pradesh") & (mir["Commodity"] == "Apple")].copy()
+
+    hp_gov["_dt"] = pd.to_datetime(hp_gov["arrival_date"]).dt.strftime("%Y-%m-%d")
+    mir_hp["_dt"] = pd.to_datetime(mir_hp["Arrival_Date"]).dt.strftime("%Y-%m-%d")
+    hp_gov_ov = hp_gov[hp_gov["_dt"] <= mir_hp["_dt"].max()].copy()
+    for dframe, mcol, vcol, gcol in [
+        (hp_gov_ov, "market", "variety", "grade"),
+        (mir_hp, "Market", "Variety", "Grade"),
+    ]:
+        dframe["_mkt"] = dframe[mcol].astype(str).str.strip().str.lower()
+        dframe["_var"] = dframe[vcol].astype(str).str.strip().str.lower()
+        dframe["_grd"] = dframe[gcol].astype(str).str.strip().str.lower()
+
+    m2 = hp_gov_ov.merge(mir_hp, on=["_dt", "_mkt", "_var", "_grd"])
+    m2_exact = int(
+        (
+            (m2["min_price"] == m2["Min_Price"])
+            & (m2["max_price"] == m2["Max_Price"])
+            & (m2["modal_price"] == m2["Modal_Price"])
+        ).sum()
+    )
+    row_tier2 = {
+        "official_source": "AGMARKNET 2.0 Official Portal Export (hp_apple_daily_2025_2026.csv vs Archive Mirror)",
+        "gov_dates": f"{hp_gov_ov['_dt'].min()}..{hp_gov_ov['_dt'].max()} ({int(m2['_dt'].nunique())} dates)",
+        "total_gov_all_india_rows": int(len(hp_gov)),
+        "gov_6state_4crop_rows": int(len(hp_gov_ov)),
+        "gov_178_panel_rows": int(len(m2)),
+        "matched_panel_keys": int(len(m2)),
+        "exact_10col_matches": m2_exact,
+        "min_price_exact_parity_pct": round(float((m2["min_price"] == m2["Min_Price"]).mean() * 100.0), 2),
+        "max_price_exact_parity_pct": round(float((m2["max_price"] == m2["Max_Price"]).mean() * 100.0), 2),
+        "modal_price_exact_parity_pct": round(float((m2["modal_price"] == m2["Modal_Price"]).mean() * 100.0), 2),
+        "exact_full_row_rate_pct": round(m2_exact / max(1, len(hp_gov_ov)) * 100.0, 2),
+        "audit_scope_note": f"Tier-2 149-day AGMARKNET 2.0 direct official export vs mirror overlap ({len(m2)} matched keys)",
+    }
+
+    audit_df = pd.DataFrame([row_tier1, row_tier2])
     audit_df.to_csv(res_dir / "exp14_official_datagov_parity_audit.csv", index=False)
 
     manifest = {
@@ -138,10 +181,16 @@ def run_exp14_official_parity(root: Path) -> Dict:
             "bytes": int(len(xml_bytes)),
             "sha256": xml_sha,
         },
-        "parity_summary": audit_df.iloc[0].to_dict(),
+        "agmarknet2_official_file": {
+            "path": str(ag2_path.relative_to(root)),
+            "bytes": int(ag2_path.stat().st_size),
+            "sha256": ag2_sha,
+        },
+        "parity_summary": row_tier1,
+        "tier2_agmarknet2_summary": row_tier2,
     }
     manifest_out.write_text(json.dumps(manifest, indent=2))
-    print("=== EXP 14: OFFICIAL DATA.GOV.IN PARITY AUDIT ===", flush=True)
+    print("=== EXP 14: DUAL-TIER OFFICIAL DATA.GOV.IN & AGMARKNET 2.0 PARITY AUDIT ===", flush=True)
     print(audit_df.to_string(index=False), flush=True)
     return manifest
 

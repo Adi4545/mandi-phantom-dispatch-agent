@@ -1,0 +1,5 @@
+comparison,direction,estimate,ci95_low,ci95_high,p_raw_phipson_smyth,n_episodes,n_origin_mandis,n_2week_blocks
+MandiGuard_CRC vs B1_NaiveScreen Mean dNet,greater,129.1627,72.0596,184.9457,0.0004,69526,174,23
+MandiGuard_CRC vs B2_FreshRoad Mean dNet,greater,32.5108,12.0472,50.4932,0.0016,69526,174,23
+MandiGuard_CRC vs MG_v1_PreReg Mean dNet,greater,26.3804,18.2783,37.245,0.0002,69526,174,23
+MandiGuard_CRC vs B3_MLPoint Ep Phantom Loss,less,-0.3636,-0.3922,-0.3342,0.0002,69526,174,23

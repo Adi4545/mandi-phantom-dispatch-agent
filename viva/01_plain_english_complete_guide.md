@@ -40,7 +40,7 @@ $$\text{Safe Gain} = \bigl(\text{₹}1,886 \times (1 - 0.0211)\bigr) - \text{₹
 | Layer | Exact Source | Coverage & Key Figures |
 |:---|:---|:---|
 | **Daily Market Prices & Varieties** | Public AGMARKNET archive mirror (2024-01-01..2026-04-13) + Nov 2026 Live API + Grade-Explicit HP Apple | 14,443,770 raw rows streamed → 673,971 clean → 260,043 balanced panel across 178 mandis in 6 states (Maharashtra, UP, Karnataka, MP, Gujarat, Himachal Pradesh) and 4 crops (Onion, Potato, Tomato, Apple) + 4,427 grade-explicit HP Apple rows (42 mandis). |
-| **Official Spot-Check Parity (`Exp 14`)** | Official `data.gov.in` Resource `9ef84268-d588-465a-a308-a864a43d0070` XML + Live `agmarknet.gov.in` | Single-day XML spot-check (`2023-10-18`, 6,434 all-India rows, 172 matched core-panel keys): 100.0% exact parity on `Min_Price`/`Max_Price`, 99.42% on `Modal_Price`; plus 22 live Nov-2026 queries (11/22 non-reporting over the prior 7 days). |
+| **Official Dual-Tier Parity (`Exp 14`)** | Official `data.gov.in` Resource `9ef84268-d588-465a-a308-a864a43d0070` XML + Direct `AGMARKNET 2.0` Export + Live `agmarknet.gov.in` | Tier 1 single-day XML spot-check (`2023-10-18`, 6,434 all-India rows, 172 matched keys): 100.0% exact parity on `Min`/`Max`, 99.42% on `Modal`. Tier 2 **149-day AGMARKNET 2.0 export** (`2025-11-07..2026-04-13`, 2,042 matched keys): **100.00% exact parity on `Min`/`Max`/`Modal`**, plus 22 live Nov-2026 queries (11/22 silent over 7 days). |
 | **Road Distances & Transit Times** | Public Open Source Routing Machine (OSRM) + district-validated geocoding | 220 mandis validated within ≤ 110 km of District HQ (150 exact matches, 70 centroids) → **8,147 intra-state road corridors** (15–500 km). |
 | **Ambient Heat & Monsoon Weather** | ECMWF ERA5 realized reanalysis (145/145 grids) + Open-Meteo Historical NWP (102/145 grids) + causal 2024 nowcast (43 north grids) | 141,955 daily rows (2024-01-01..2026-09-05, no missing weather rows). Strict separation: system sees forecast on decision day *t*; evaluation uses realized ERA5 over [t, t+τ]. |
 | **Official Post-Harvest Losses** | **MoFPI / NABCONS (2022)** Rajya Sabha Table (`PIB PRID 2151371`, 01 Aug 2025) | Market-level loss rates: Tomato 3.25%, Onion 1.96%, Apple 1.64%, Potato 0.86% (total losses 11.62%, 7.27%, 9.51%, 5.96%). |
@@ -49,7 +49,7 @@ $$\text{Safe Gain} = \bigl(\text{₹}1,886 \times (1 - 0.0211)\bigr) - \text{₹
 | **Smallholder Truckload & Income** | **MoSPI NSO *NSS Report No. 587* (77th Round)** (`PIB PRID 1753856`) | Potato harvest 2,933 kg (29.33 qtl), Onion 3,873 kg (38.73 qtl) → **30-quintal truckload**; average household net monthly crop receipt ₹3,798/month. |
 | **10-Year Historical + NASA Climate Extension (2017–2023)** | Public AGMARKNET archive mirror (2017–2026) & **NASA POWER Agroclimatology** (0.5° grid) | 42,722,187 raw rows streamed across 2017–2026 → **883,406 rows** (178 core mandis) + **291,384 daily NASA POWER rows** (114 cells, no missing rows). |
 
-**What Is Observed vs. Modeled (Open Limitation):** Daily prices, reporting gaps, OSRM highway times, and ERA5/NASA weather come from observed or routed public records. However, **we have no live farmer truck receipts, weighment slips, or field interviews yet**: per-quintal freight (₹35 + ₹0.45/km), Q10 biological rot anchored to NABCONS (2022), and closed-yard diversion penalties are modeled rather than field-measured. Furthermore, our 19/19 `pytest` checks verify code reproducibility, data manifests, and temporal leakage guards rather than field economics.
+**What Is Observed vs. Modeled (Open Limitation):** Daily prices, reporting gaps, OSRM highway times, and ERA5/NASA weather come from observed or routed public records. However, **we have no live farmer truck receipts, weighment slips, or field interviews yet**: per-quintal freight (₹35 + ₹0.45/km), Q10 biological rot anchored to NABCONS (2022), and closed-yard diversion penalties are modeled rather than field-measured. Furthermore, our 22/22 `pytest` checks verify code reproducibility, Dual-Tier parity manifests, Stage-II CRC invariants, and temporal leakage guards rather than field economics.
 
 ---
 
@@ -98,7 +98,7 @@ Examiners naturally ask: *"What if missing 3-day entries are simply unreported o
 
 ---
 
-## 6. Minimal Metrics & 10-Year Robustness (`Exp 10`, `Exp 10b`)
+## 6. Minimal Metrics & 10-Year Robustness (`Exp 10`, `Exp 10b`) + Stage-II `MandiGuard-CRC` (`Exp 16`–`17`)
 
 To keep thesis presentation focused for any examiner, center every comparison around **4 plain-English metrics**:
 1. **Mean Net Gain** (₹/qtl, and × 30 per smallholder truckload)
@@ -108,6 +108,10 @@ To keep thesis presentation focused for any examiner, center every comparison ar
 
 Observed across 2017–2026 historical AGMARKNET and NASA POWER records (661,192 matched episodes across 6 regimes):
 * Across GST transition, Pre-COVID, COVID lockdowns, Inflation/Export curbs, the 2024 El-Niño Heatwave (+₹165.14/qtl over `B1`), and 2025–2026, `MandiGuard` holds Loss-Trip Rate to 8.78%–12.03% vs 39.18%–44.29% (`B1`), while 1-Yr training (2024: ₹452.79/qtl) captures 99.5% of 8-Yr training (2017–2024: ₹454.94/qtl).
+
+### Stage-II (`[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]`): Fixing the Three Stage-I Bottlenecks (`Exp 16`–`17`)
+* **Autopsy (`Exp 16`):** We discovered why Stage-I tied `B2` on overall mean (`H2`) and under-dispatched HP Apples: (1) `dropna(target_ret)` hid closed-yard arrivals (discarding `55.83%` of raw `Train_2024` corridors and understating 3-day Q20 downside risk by **1.94x** in train / **2.54x** in holdout); (2) pooled cushions gave `90.46%` coverage on calm `Q1` markets vs `67.80%` on noisy `Q4` markets; (3) splitting Apple into thin grades caused **77.82%** of holdout HP Apple refusals vs `B2` at `T1`, not `T4`.
+* **Fix (`MandiGuard-CRC`, `Exp 17`, `Val_2025H1` `lambda* = 0.15`):** Trains dual 2024 tree heads directly on uncensored payoff `Y_full` ($\hat{\mu}, \hat{p}_{\text{loss}}$), ranks routes with $\hat{\mu} - 0.15 \cdot P_{\text{loc}} \cdot \hat{p}_{\text{loss}}$ (empirical CRC validation heuristic, zero holdout tuning and no Theorem 1 exchangeability claim), pre-sorts Step-0 candidates (`screen_spread > ₹100/qtl`) by `1.20x` Euclidean freight before selecting the top 5, and uses the `fresh0 | strict` rule at `T1` (admitting same-day exact-variety/grade quotes `age == 0` with `open_prob_14d >= 0.20` and `dow_open_rate >= 0.25`, alongside persistent corridors `open_prob_14d >= 0.50` and `dow_open_rate >= 0.35`). Result on holdout (`N=69,526`): **₹479.17/qtl** (`₹14,375.1` per truck; `+₹129.16` vs `B1`, **`+₹32.51` vs `B2`** `$p=0.0016$`, `+₹26.38` vs `MG_v1` `$p=0.0002$`), **`₹533.75/qtl`** on trap-free `N=10,162` open yards (`7.14%` LTR), and **`₹812.08/qtl`** (+34.2%) on HP Graded Apples.
 
 ---
 

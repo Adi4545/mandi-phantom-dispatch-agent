@@ -1,13 +1,18 @@
 {
-  "created_utc": "2026-11-17T13:14:26.379042+00:00",
+  "created_utc": "2026-11-18T05:09:00.436583+00:00",
   "resource_page_url": "https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi",
   "datafile_url": "https://www.data.gov.in/files/ogd20/ogdpv2dms/s3fs-public/Date-Wise-Prices-all-Commodity.xml",
   "api_gateway_probe": "skipped_no_env_key",
-  "audit_scope_note": "Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)",
+  "audit_scope_note": "Tier-1 single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys) + Tier-2 149-day official AGMARKNET 2.0 direct export vs archive mirror check (2025-11-07..2026-04-13)",
   "xml_file": {
     "path": "data/raw/official_datagov_datewise_prices.xml",
     "bytes": 2439430,
     "sha256": "0df451235fe6f11c517947daea136254c937a20703425f377ca69310dbc2cb06"
+  },
+  "agmarknet2_official_file": {
+    "path": "data/raw/hp_apple_daily_2025_2026.csv",
+    "bytes": 1325715,
+    "sha256": "903d784653d2083459978aeb24457ddb904c59af0065342e5b3cd3c9599392b0"
   },
   "parity_summary": {
     "official_source": "data.gov.in Resource 9ef84268-d588-465a-a308-a864a43d0070 (Date-Wise XML)",
@@ -21,6 +26,20 @@
     "max_price_exact_parity_pct": 100.0,
     "modal_price_exact_parity_pct": 99.42,
     "exact_full_row_rate_pct": 94.48,
-    "audit_scope_note": "Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)"
+    "audit_scope_note": "Tier-1 Single-day official data.gov.in XML spot-check (2023-10-18, 172 matched core-panel keys)"
+  },
+  "tier2_agmarknet2_summary": {
+    "official_source": "AGMARKNET 2.0 Official Portal Export (hp_apple_daily_2025_2026.csv vs Archive Mirror)",
+    "gov_dates": "2025-11-07..2026-04-13 (149 dates)",
+    "total_gov_all_india_rows": 4427,
+    "gov_6state_4crop_rows": 2082,
+    "gov_178_panel_rows": 2042,
+    "matched_panel_keys": 2042,
+    "exact_10col_matches": 2042,
+    "min_price_exact_parity_pct": 100.0,
+    "max_price_exact_parity_pct": 100.0,
+    "modal_price_exact_parity_pct": 100.0,
+    "exact_full_row_rate_pct": 98.08,
+    "audit_scope_note": "Tier-2 149-day AGMARKNET 2.0 direct official export vs mirror overlap (2042 matched keys)"
   }
 }

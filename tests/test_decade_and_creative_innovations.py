@@ -185,10 +185,14 @@ def test_official_datagov_parity_and_open_yard_sensitivity() -> None:
     assert _sha256_file(xml_p) == man["xml_file"]["sha256"]
 
     exp14 = pd.read_csv(root / "results/exp14_official_datagov_parity_audit.csv")
-    assert len(exp14) == 1
+    assert len(exp14) == 2
     assert exp14["min_price_exact_parity_pct"].iloc[0] == 100.0
     assert exp14["max_price_exact_parity_pct"].iloc[0] == 100.0
     assert exp14["modal_price_exact_parity_pct"].iloc[0] >= 99.0
+    assert exp14["matched_panel_keys"].iloc[1] >= 2000
+    assert exp14["min_price_exact_parity_pct"].iloc[1] == 100.0
+    assert exp14["max_price_exact_parity_pct"].iloc[1] == 100.0
+    assert exp14["modal_price_exact_parity_pct"].iloc[1] == 100.0
 
     exp15 = pd.read_csv(root / "results/exp15_missing_data_open_yard_sensitivity.csv")
     assert len(exp15) == 28

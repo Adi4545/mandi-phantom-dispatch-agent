@@ -217,17 +217,21 @@ print(pd.read_csv(ROOT / "results/exp6_sensitivity_grid.csv").to_string(index=Fa
         (
             "09_final_summary_and_viva_walkthrough.ipynb",
             [
-                _md("# Notebook 09 — 10-Year Evolution, Modern AI, ZeroCloud, FPO Pooling, Live API Audit & Defense Walkthrough\n\nDisplays 10-year `2017-2026` macro-regime evaluation (`Exp 10/10b`), modern AI & ACI showdown (`Exp 11`), `MandiGuard-ZeroCloud` cost frontier (`Exp 12`), FPO 90-qtl shared pooling & Biological Spoilage Clock (`Exp 13/13b`), 160-char SMS cards, live Nov-2026 API diagnostics (`Exp 8`), and all 8 figures (`fig1`-`fig8`)."),
+                _md("# Notebook 09 — 10-Year Evolution, Stage-II Autopsy & `MandiGuard-CRC`, Dual-Tier Parity & Defense Walkthrough\n\nDisplays Dual-Tier `Exp 14` parity, Stage-II `Exp 16` mechanistic autopsy & `Exp 17` `MandiGuard-CRC` evaluation, 10-year `2017-2026` macro-regime evaluation (`Exp 10/10b`), Appendix illustrations (`Exp 11`–`Exp 13b`), 160-char SMS cards, live Nov-2026 API diagnostics (`Exp 8`), and all 9 figures (`fig1`-`fig9`)."),
                 _code(
                     ROOT_SETUP
                     + """
 for title, fname in [
+    ("DUAL-TIER OFFICIAL PORTAL PARITY (EXP 14)", "exp14_official_datagov_parity_audit.csv"),
+    ("STAGE-II MECHANISTIC AUTOPSY (EXP 16)", "exp16_censored_bias_and_coverage_illusion.csv"),
+    ("STAGE-II MANDIGUARD-CRC EVALUATION (EXP 17)", "exp17_uncensored_crc_validation.csv"),
+    ("STAGE-II TWO-WAY CLUSTER BOOTSTRAP (EXP 17)", "exp17_crc_bootstrap_comparisons.csv"),
     ("10-YEAR DECADE REGIMES (EXP 10)", "exp10_decade_regime_evolution_2017_2026.csv"),
     ("TRAINING HORIZON SCALING 1Yr/3Yr/8Yr (EXP 10b)", "exp10b_multiyear_training_scaling.csv"),
-    ("MODERN AI & ACI SHOWDOWN (EXP 11)", "exp11_modern_ai_and_aci_showdown.csv"),
-    ("ZEROCLOUD EDGE-AI & SATISFICING COST FRONTIER (EXP 12)", "exp12_zerocloud_money_efficient_agent.csv"),
-    ("FPO TRUCK POOLING & TOP-2 SPLIT PORTFOLIO (EXP 13)", "exp13_outofbox_fpo_pooling_and_spoilage_clock.csv"),
-    ("BIOLOGICAL SPOILAGE CLOCK (EXP 13b)", "exp13b_biological_spoilage_clock.csv"),
+    ("MODERN AI & ACI SHOWDOWN (EXP 11, APPENDIX)", "exp11_modern_ai_and_aci_showdown.csv"),
+    ("ZEROCLOUD EDGE-AI & SATISFICING COST FRONTIER (EXP 12, APPENDIX)", "exp12_zerocloud_money_efficient_agent.csv"),
+    ("FPO TRUCK POOLING & TOP-2 SPLIT PORTFOLIO (EXP 13, APPENDIX)", "exp13_outofbox_fpo_pooling_and_spoilage_clock.csv"),
+    ("BIOLOGICAL SPOILAGE CLOCK (EXP 13b, APPENDIX)", "exp13b_biological_spoilage_clock.csv"),
 ]:
     print(f"=== {title} ===")
     print(pd.read_csv(ROOT / "results" / fname).to_string(index=False))
@@ -423,6 +427,11 @@ print(pd.read_csv(work_dir / "reference_results/exp2_main_benchmark_6state.csv")
 print("\\n=== ZeroCloud Edge-AI & FPO Pooling Full-Panel Reference ===")
 print(pd.read_csv(work_dir / "reference_results/exp12_zerocloud_money_efficient_agent.csv").to_string(index=False))
 print(pd.read_csv(work_dir / "reference_results/exp13_outofbox_fpo_pooling_and_spoilage_clock.csv").to_string(index=False))
+print("\\n=== Dual-Tier Official Parity (Exp 14), Mechanistic Autopsy (Exp 16) & MandiGuard-CRC (Exp 17) ===")
+print(pd.read_csv(work_dir / "reference_results/exp14_official_datagov_parity_audit.csv").to_string(index=False))
+print(pd.read_csv(work_dir / "reference_results/exp16_censored_bias_and_coverage_illusion.csv").to_string(index=False))
+d17_ref = pd.read_csv(work_dir / "reference_results/exp17_uncensored_crc_validation.csv")
+print(d17_ref[d17_ref["subgroup"] == "ALL"].to_string(index=False))
 print(f"\\nTotal Colab Standalone Elapsed Time: {time.time()-t0:.2f}s")"""
         ),
     ]

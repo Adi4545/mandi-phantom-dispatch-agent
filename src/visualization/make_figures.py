@@ -159,12 +159,14 @@ def make_fig4_budget_pareto(res_dir: Path, fig_dir: Path) -> None:
         ax.plot(sub["avg_tool_calls"], sub["mean_delta_net_inr"], fmt, color=col, linewidth=2.0, markersize=6, label=lbl)
         if pname == "MandiGuard":
             for _, row in sub.iterrows():
-                if int(row["budget_cap"]) in (4, 6, 8, 12, 20):
+                bcap = int(row["budget_cap"])
+                if bcap in (4, 6, 8, 12, 20):
+                    xyoff = (-12, 10) if bcap == 4 else (-6, 7)
                     ax.annotate(
-                        f"B={int(row['budget_cap'])}",
+                        f"B={bcap}",
                         (row["avg_tool_calls"], row["mean_delta_net_inr"]),
                         textcoords="offset points",
-                        xytext=(-6, 7),
+                        xytext=xyoff,
                         fontsize=7.5,
                         color=col,
                         fontweight="bold",
@@ -257,7 +259,8 @@ def make_fig6_sensitivity(res_dir: Path, fig_dir: Path) -> None:
         vals = piv.to_numpy()
         for i in range(vals.shape[0]):
             for j in range(vals.shape[1]):
-                ax.text(j, i, f"Rs {vals[i, j]:+.1f}", ha="center", va="center", color="black", fontweight="bold", fontsize=9)
+                lbl_val = f"Rs {vals[i, j]:+.2f}" if abs(vals[i, j]) < 1.0 else f"Rs {vals[i, j]:+.1f}"
+                ax.text(j, i, lbl_val, ha="center", va="center", color="black", fontweight="bold", fontsize=9)
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     fig.tight_layout()
@@ -443,6 +446,88 @@ def make_fig8_zerocloud_fpo_clock(res_dir: Path, fig_dir: Path) -> None:
     plt.close(fig)
 
 
+def make_fig9_mechanistic_autopsy_and_crc(res_dir: Path, fig_dir: Path) -> None:
+    d16 = pd.read_csv(res_dir / "exp16_censored_bias_and_coverage_illusion.csv")
+    d17 = pd.read_csv(res_dir / "exp17_uncensored_crc_validation.csv")
+
+    fig, axes = plt.subplots(1, 3, figsize=(14.8, 4.7))
+
+    # Panel A: Censored d0 vs Uncensored Realized Q20 Downside across Quote Age (Holdout)
+    bias_ho = d16[(d16["diagnostic_family"] == "1_Censored_Arrival_Bias") & (d16["split"] == "Holdout_2025_2026")].copy()
+    ages = ["age_0d", "age_1d", "age_2d", "age_3d"]
+    bias_ho = bias_ho.set_index("stratum").loc[ages]
+    xa = np.arange(len(ages))
+    w = 0.36
+    axes[0].bar(xa - w / 2, -bias_ho["metric_a_val"], width=w, label="Censored d0 Return Q20 Drop (%)", color="#4C72B0")
+    axes[0].bar(xa + w / 2, -bias_ho["metric_b_val"], width=w, label="Uncensored Execution Q20 Drop (%)", color="#C44E52")
+    for idx, st in enumerate(ages):
+        open_r = float(bias_ho.loc[st, "metric_c_val"])
+        axes[0].text(idx, max(-float(bias_ho.loc[st, "metric_b_val"]), 5) + 1.0, f"{open_r:.0f}%\nopen", ha="center", va="bottom", fontsize=7.8, color="#334155")
+    axes[0].set_xticks(xa)
+    axes[0].set_xticklabels(["0d (Fresh)", "1d Old", "2d Old", "3d Old"], fontsize=8.8)
+    axes[0].set_ylim(0, 34)
+    axes[0].set_ylabel("20th-Percentile Downside Drop (%)")
+    axes[0].set_title("(A) Censored-Arrival Bias (Holdout)", pad=10)
+    axes[0].legend(frameon=False, fontsize=7.8, loc="upper left")
+
+    # Panel B: Heteroscedastic Marginal Coverage Illusion across Volatility Quartiles
+    cov_ho = d16[(d16["diagnostic_family"] == "2_Heteroscedastic_Coverage_Illusion") & (d16["split"] == "Holdout_2025_2026")].copy()
+    qs = ["Q1_Calm", "Q2_Mod", "Q3_Elevated", "Q4_Volatile"]
+    cov_ho = cov_ho.set_index("stratum").loc[qs]
+    xb = np.arange(len(qs))
+    cols_b = ["#2B8CBE" if v >= 80 else "#C44E52" for v in cov_ho["metric_a_val"]]
+    bars_b = axes[1].bar(xb, cov_ho["metric_a_val"], color=cols_b, width=0.66, edgecolor="#222222", linewidth=0.5)
+    axes[1].axhline(80.0, color="#0F172A", linestyle="--", linewidth=1.2, label="Nominal 80% Target")
+    for idx, b in enumerate(bars_b):
+        row = cov_ho.iloc[idx]
+        axes[1].text(
+            b.get_x() + b.get_width() / 2,
+            min(b.get_height() * 0.52, 46.0),
+            f"{row['metric_a_val']:.1f}%\n(q80:{row['metric_c_val']:.1f}%)",
+            ha="center",
+            va="center",
+            color="white",
+            fontweight="bold",
+            fontsize=6.6,
+        )
+    axes[1].set_xticks(xb)
+    axes[1].set_xticklabels(["Q1\nCalm", "Q2\nMod.", "Q3\nElev.", "Q4\nVolatile"], fontsize=8.8)
+    axes[1].set_ylim(0, 108)
+    axes[1].set_ylabel("Empirical 80% LCB Coverage (%)")
+    axes[1].set_title("(B) Heteroscedastic Coverage Illusion", pad=10)
+    axes[1].legend(frameon=False, fontsize=8.0, loc="lower left")
+
+    # Panel C: Out-of-Sample Factorial Progression (MandiGuard-CRC vs MG_v1 & B2)
+    r_order = ["B2_FreshRoad", "MG_v1_PreReg", "Rung1_EuclidStep0", "Rung2_UncensoredCRC_StrictT1", "Rung3_MandiGuard_CRC"]
+    r_labels = ["B2\nFresh+Road", "MG_v1\n(Pre-Reg)", "Rung 1\n+Euclid0", "Rung 2\n+Uncens.CRC", "MandiGuard\n-CRC (Full)"]
+    ho6 = d17[(d17["evaluation_scope"] == "Holdout_2025_2026") & (d17["subgroup"] == "ALL")].set_index("policy").loc[r_order]
+    ap6 = d17[(d17["evaluation_scope"] == "HP_Apple_Grade_2026") & (d17["subgroup"] == "ALL")].set_index("policy").loc[r_order]
+
+    xc = np.arange(len(r_order))
+    wc = 0.36
+    b_ho = axes[2].bar(xc - wc / 2, ho6["mean_delta_net_inr"], width=wc, color="#1B7837", label="6-State Holdout (N=69,526)")
+    ax2 = axes[2].twinx()
+    b_ap = ax2.bar(xc + wc / 2, ap6["mean_delta_net_inr"], width=wc, color="#DD8452", label="HP Graded Apple (N=1,537)")
+    for b in b_ho:
+        axes[2].text(b.get_x() + b.get_width() / 2, b.get_height() + 4, f"{b.get_height():.0f}", ha="center", va="bottom", fontsize=7.6, color="#1B7837", fontweight="bold")
+    for b in b_ap:
+        ax2.text(b.get_x() + b.get_width() / 2, b.get_height() + 18, f"{b.get_height():.0f}", ha="center", va="bottom", fontsize=7.6, color="#A84A15", fontweight="bold")
+    axes[2].set_xticks(xc)
+    axes[2].set_xticklabels(r_labels, fontsize=8.0)
+    axes[2].set_ylim(380, 520)
+    ax2.set_ylim(0, 1450)
+    axes[2].set_ylabel("6-State Mean Gain (INR/qtl)", color="#1B7837")
+    ax2.set_ylabel("HP Apple Mean Gain (INR/qtl)", color="#A84A15")
+    axes[2].set_title("(C) Post-Diagnostic CRC Factorial Ladder", pad=10)
+    h1, l1 = axes[2].get_legend_handles_labels()
+    h2, l2 = ax2.get_legend_handles_labels()
+    axes[2].legend(h1 + h2, l1 + l2, frameon=False, fontsize=7.4, loc="upper left")
+
+    fig.tight_layout()
+    fig.savefig(fig_dir / "fig9_mechanistic_autopsy_and_uncensored_crc.png", dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[2]
     res_dir = root / "results"
@@ -457,7 +542,8 @@ def main() -> None:
     make_fig6_sensitivity(res_dir, fig_dir)
     make_fig7_decade_and_modern_ai(res_dir, fig_dir)
     make_fig8_zerocloud_fpo_clock(res_dir, fig_dir)
-    print("=== ALL 8 PUBLICATION FIGURES GENERATED ===")
+    make_fig9_mechanistic_autopsy_and_crc(res_dir, fig_dir)
+    print("=== ALL 9 PUBLICATION FIGURES GENERATED ===")
 
 
 if __name__ == "__main__":

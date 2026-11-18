@@ -29,12 +29,19 @@ def test_all_experiment_artifacts_present_and_consistent() -> None:
         "exp5_budget_pareto.csv",
         "exp6_sensitivity_grid.csv",
         "exp7_rejection_breakdown.csv",
+        "exp14_official_datagov_parity_audit.csv",
+        "exp15_missing_data_open_yard_sensitivity.csv",
+        "exp16_censored_bias_and_coverage_illusion.csv",
+        "exp17_uncensored_crc_validation.csv",
+        "exp17_crc_bootstrap_comparisons.csv",
     ]
     for fn in required_csvs:
         p = res_dir / fn
         assert p.exists(), f"Missing results file: {fn}"
         df = pd.read_csv(p)
         assert len(df) > 0, f"Empty results file: {fn}"
+        if fn.startswith(("exp15", "exp16", "exp17")):
+            assert not df.isna().any().any(), f"Unexpected NaNs in {fn}"
 
     assert (res_dir / "exp8_live_nov2026_demo.json").exists()
     assert (res_dir / "traces/mandiguard_sample_traces.jsonl").exists()
@@ -55,8 +62,8 @@ def test_all_experiment_artifacts_present_and_consistent() -> None:
     live = json.loads((res_dir / "exp8_live_nov2026_demo.json").read_text())
     assert live["queries_executed"] == 22
 
-    # Check all 8 publication figures generated (fig1-fig6 Phase A + fig7-fig8 Phase B)
+    # Check all 9 publication figures generated (fig1-fig6 Phase A + fig7-fig8 Phase B + fig9 Stage-II)
     figs = list((root / "figures").glob("fig*.png"))
-    assert len(figs) == 8
+    assert len(figs) == 9
     for f in figs:
         assert f.stat().st_size > 20000

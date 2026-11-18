@@ -1,0 +1,1442 @@
+<div class="pb"></div>
+<h1>Chapter 6 &mdash; Stage I Method: <code>MandiGuard</code> Step by Step</h1>
+
+<p><i>Illustration:</i> At 6:00 a.m., suppose a farmer with 30 quintals of onions sees a local price of &#8377;1,400/qtl while five markets 15&ndash;500 km away quote &#8377;150 to &#8377;900/qtl more. Stage I <code>MandiGuard</code> (frozen in Git commit <code>e421d15</code>) resolves whether to drive or stay home using an ordered four-step checklist &mdash; a <b>verification cascade</b>. Just like airport security checks a boarding pass before scanning luggage, <code>MandiGuard</code> asks cheap safety questions first and immediately prunes failing routes.</p>
+
+<div class="box key">
+  <span class="t">Zero LLM, Zero Reinforcement Learning</span>
+  <code>MandiGuard</code> uses <b>no Large Language Model (LLM)</b> and <b>no Reinforcement Learning (RL)</b>. Every choice flows deterministically through four gates (<code>T1</code> &rarr; <code>T2</code> &rarr; <code>T3</code> &rarr; <code>T4</code>), one frozen 2024 gradient-boosted tree (<code>HistGradientBoostingRegressor</code>), and an empirical causal 80% conformal cushion. Routes failing the validation-frozen &#8377;50/qtl net safety margin trigger <code>REFUSE_PHANTOM_SPREAD</code> (<code>SELL_LOCAL</code>, &#8377;0 risk).
+</div>
+
+<h2>6.1 The Vertical Verification Cascade (<code>Step 0</code> &rarr; <code>DISPATCH</code>)</h2>
+
+<p>Before metered checks begin, <b>Step 0</b> reads free public boards across 15&ndash;500 km intra-state OSRM corridors. Our pre-screened pool (<code>candidates_6state.parquet</code>, <code>1,457,515</code> rows across <code>209,450</code> episodes) keeps up to <code>12</code> destinations per episode where headline <code>screen_spread &gt; &#8377;100/qtl</code>. Stage I sorts descending by raw <code>screen_spread</code> (tie-break: alphabetical <code>dest_market</code>) and keeps the top <code>K_max = 5</code> candidates.</p>
+
+<div class="gates">
+  <div class="gate-row">
+    <div class="gate">Step 0 &mdash; Free Morning Board Screen (0 calls)<span>Sort 15&ndash;500 km routes with <code>screen_spread &gt; &#8377;100/qtl</code> descending; keep top <code>K_max = 5</code>.</span></div>
+    <div class="gate-fail-arrow">NONE &gt; &#8377;100 &#10140;</div>
+    <div class="gate-fail">Not shortlisted; stay local (<code>SELL_LOCAL</code>, &#8377;0)</div>
+  </div>
+  <div class="gate-down">&#8595; Up to 5 candidates enter loop</div>
+  <div class="gate-row">
+    <div class="gate"><code>T1</code> &mdash; Exact-Variety &amp; Weekday Vitality (+1 call)<span>Fresh exact quote (<code>age &le; 3d</code>), <code>open_prob_14d &ge; 0.50</code>, <code>dow_open &ge; 0.35</code>?</span></div>
+    <div class="gate-fail-arrow">NO &#10140;</div>
+    <div class="gate-fail">Prune (<code>VARIETY_OR_STALE</code> / <code>CLOSED_YARD_RISK</code>)</div>
+  </div>
+  <div class="gate-down">&#8595; YES</div>
+  <div class="gate-row">
+    <div class="gate"><code>T2</code> &mdash; Highway Freight &amp; State Fee (+1 call)<span>Does <code>p_fresh &minus; P_loc</code> cover OSRM freight + statutory state fee <code>F_hat</code>?</span></div>
+    <div class="gate-fail-arrow">NO &#10140;</div>
+    <div class="gate-fail">Prune (<code>FREIGHT_EXCEEDS_SPREAD</code>)</div>
+  </div>
+  <div class="gate-down">&#8595; YES</div>
+  <div class="gate-row">
+    <div class="gate"><code>T3</code> &mdash; Heat, Humidity &amp; Rain Spoilage (+1 call)<span>After day-<code>t</code> NWP decay (<code>spoil_hat</code> + rain downgrade), is net gain &gt; 0?</span></div>
+    <div class="gate-fail-arrow">NO &#10140;</div>
+    <div class="gate-fail">Prune (<code>WEATHER_SPOILAGE_RISK</code>)</div>
+  </div>
+  <div class="gate-down">&#8595; YES</div>
+  <div class="gate-row">
+    <div class="gate"><code>T4</code> &mdash; 2024 ML + 80% Conformal LCB (+1 call)<span>Compute <code>est_net_lcb = p_fresh &times; (1 + lcb_ret) &times; (1 &minus; spoil_hat) &minus; rain_pen &minus; F_hat &minus; P_loc</code></span></div>
+    <div class="gate-fail-arrow">ALL &le; &#8377;50 &#10140;</div>
+    <div class="gate-fail"><code>REFUSE_PHANTOM_SPREAD</code> (<code>ARRIVAL_REVERSION_RISK</code>)</div>
+  </div>
+  <div class="gate-down">&#8595; Pick <code>j* = argmax est_net_lcb</code></div>
+  <div class="gate-row">
+    <div class="gate final-yes">Final Decision: <code>est_net_lcb(j*) &gt; &#8377;50/qtl</code><span>Emit <code>DISPATCH(j*)</code> (<code>DISPATCH_CLEARED_LCB</code>)</span></div>
+    <div class="gate-fail-arrow">ELSE &#10140;</div>
+    <div class="gate-fail"><code>REFUSE_PHANTOM_SPREAD</code> (<code>SELL_LOCAL</code>, &#8377;0)</div>
+  </div>
+</div>
+
+<h2>6.2 Every Gate Dissected: Question, Data, Rule, Cost, Ablation &amp; Illustration</h2>
+
+<h3>Step 0 &mdash; Free Morning Board Screen</h3>
+<ul>
+  <li><b>Question &amp; Data:</b> Which 15&ndash;500 km destinations beat local price on free public commodity boards (median modal quote forward-filled up to 7 days)?</li>
+  <li><b>Exact rule &amp; Cost:</b> Keep <code>screen_spread = screen_dest_price &minus; local_price &gt; &#8377;100/qtl</code>; sort descending; retain top <code>K_max = 5</code>. Cost: <code>0</code> calls.</li>
+  <li><b>Why it exists &amp; Failure impact:</b> Because average freight plus spoilage already totals &#8377;229.57/qtl (<code>Exp 1</code>), a &#8377;100/qtl gross filter narrows search to 5 viable candidates without wasting API calls on ~30 markets per state.</li>
+  <li><b>Illustration:</b> Local Onion pays &#8377;1,200/qtl. Five yards quote +&#8377;650 to +&#8377;120 (kept); a sixth quotes +&#8377;60 (&le; &#8377;100, dropped for zero calls).</li>
+</ul>
+
+<h3>Gate <code>T1</code> &mdash; Exact-Variety &amp; Arrival-Weekday Vitality</h3>
+<ul>
+  <li><b>Question &amp; Data:</b> Does the destination actively trade my exact variety and stay open on arrival weekday <code>(t + &tau;) mod 7</code>? Uses causal (<code>&le; t</code>) <code>dest_ref_price</code>, <code>dest_age_days</code>, <code>dest_open_prob_14d</code>, and <code>dest_dow_open_rate</code>.</li>
+  <li><b>Exact rule &amp; Cost:</b> Pass iff <code>dest_ref_price &gt; 0</code>, <code>dest_age_days &le; 3</code>, <code>dest_open_prob_14d &ge; 0.50</code>, and <code>dest_dow_open_rate &ge; 0.35</code> (else <code>VARIETY_OR_STALE</code> or <code>CLOSED_YARD_RISK</code>). Cost: <code>+1</code> call.</li>
+  <li><b>Why it exists &amp; Failure impact (<code>Exp 4</code>):</b> Headline boards mix varieties and forward-fill stale quotes for 7 days while yards observe weekly holidays. Deleting <code>T1</code> is Stage I's worst failure: Holdout mean drops <b>&minus;&#8377;134.05/qtl</b> (&#8377;452.79 &rarr; &#8377;318.74), traps jump <b>4.2&times;</b> (16.17% &rarr; 67.16%), loss trips hit <b>42.80%</b>, <code>CVaR_10%</code> falls to <b>&minus;&#8377;987.10/qtl</b>, and calls rise to <b>11.03</b>! Alone, <code>T1</code> halts <b>30.82%</b> of holdout episodes (<code>Exp 7</code>).</li>
+  <li><b>Illustration:</b> Sanawad quotes +&#8377;1,047/qtl generic Onion, but <code>T1</code> spots <code>dest_age_days = 99</code> for Red Onion and prunes in 1 call instead of wasting 3 more calls or sending a truck into a variety trap.</li>
+</ul>
+
+<h3>Gate <code>T2</code> &mdash; Highway Freight &amp; Statutory State APMC Fee</h3>
+<ul>
+  <li><b>Question &amp; Data:</b> Does the fresh spread cover real OSRM highway trucking plus GoI state seller fees? Uses <code>road_km</code>, <code>same_district</code>, <code>local_price</code>, and state fee rate <code>&gamma;_{s,c}</code> (0.5% GJ/KA/HP-Veg, 1.0% MH/HP-Apple, 1.5% MP/UP).</li>
+  <li><b>Exact rule &amp; Cost:</b> Compute <code>F_hat = 35 + 0.45 &times; m_HP &times; road_km + I[cross-district] &times; &gamma;_{s,c} &times; P_loc</code> (<code>m_HP = 1.45</code> in HP, <code>1.0</code> elsewhere). Prune (<code>FREIGHT_EXCEEDS_SPREAD</code>) if <code>p_fresh &minus; P_loc &minus; F_hat &le; 0</code>. Cost: <code>+1</code> call.</li>
+  <li><b>Why it exists &amp; Failure impact (<code>Exp 4</code>):</b> Straight-line distance misses curved mountain roads (91.59% of HP roads are single-lane). Replacing OSRM with <code>1.15 &times; euclid_km</code> trims profit <b>&minus;&#8377;0.44/qtl</b> overall (<b>&minus;&#8377;1.85/qtl</b> in heat/rain) and raises LTR to 10.25%.</li>
+  <li><b>Illustration:</b> A 320 km cross-district UP route from <code>P_loc = &#8377;1,400</code> (1.5% fee = &#8377;21) costs <code>35 + 0.45 &times; 320 + 21 = &#8377;200/qtl</code>. A +&#8377;180 fresh spread nets &minus;&#8377;20 &le; 0 &rarr; pruned.</li>
+</ul>
+
+<h3>Gate <code>T3</code> &mdash; Corridor Heat, Humidity &amp; Heavy-Rain Spoilage</h3>
+<ul>
+  <li><b>Question &amp; Data:</b> Will transit heat, humidity, and rain rot consume remaining profit? Uses day-<code>t</code> NWP forecasts (<code>route_fc_tmax</code>, <code>route_fc_rh</code>, <code>route_fc_rain</code>), NABCONS 20&deg;C rates <code>s_{0,c}</code> (Tomato 3.25%, Onion 1.96%, Apple 1.64%, Potato 0.86%), and <code>dest_intra_spread_14d</code>.</li>
+  <li><b>Exact rule &amp; Cost:</b> <code>spoil_hat = min(0.55, s_{0,c} &times; (max(1, truck_hours)/24) &times; 2^((T_eff&minus;20)/10) &times; [1 + 0.25 &times; max(0, (RH_eff&minus;70)/30)] + 0.02 &times; I[Rain &ge; 35 mm])</code>; if <code>Rain &ge; 35 mm</code>, add quality penalty <code>rain_pen = 0.50 &times; p_fresh &times; dest_intra_spread_14d</code>. Prune (<code>WEATHER_SPOILAGE_RISK</code>) if <code>p_fresh &times; (1 &minus; spoil_hat) &minus; rain_pen &minus; F_hat &minus; P_loc &le; 0</code>. Cost: <code>+1</code> call.</li>
+  <li><b>Why it exists &amp; Failure impact (<code>Exp 4</code>):</b> Open trucks decay 4&times; faster at 40&deg;C than 20&deg;C, and storms downgrade crates. Without <code>T3</code>, extreme heat/rain LTR rises from 10.10% to <b>11.39%</b> and <code>CVaR_10%</code> worsens from &minus;&#8377;57.11 to <b>&minus;&#8377;67.49/qtl</b> (though stacking <code>T3</code> atop <code>T4</code> trades &minus;&#8377;2.46/qtl overall mean).</li>
+  <li><b>Illustration:</b> Facing 123 mm forecasted rain on a Karnataka Tomato run, <code>T3</code> adds +2% rot plus the 50% quality slide toward minimum price, pruning immediately.</li>
+</ul>
+
+<h3>Gate <code>T4</code> &mdash; Frozen 2024 ML + 80% Conformal LCB &amp; Final Decision</h3>
+<ul>
+  <li><b>Question &amp; Data:</b> Even on an open yard after freight and rot, what if prices mean-revert during the 1&ndash;3 day drive? Uses 17 causal features (<code>FEATURE_COLS</code>), frozen 2024 HGBR point prediction <code>pred_ret</code>, and rolling 400-trip residual quantile <code>q&#770;_0.80</code>.</li>
+  <li><b>Exact rule &amp; Cost:</b> Compute <code>lcb_ret = pred_ret &minus; max(0, q&#770;_0.80)</code>, <code>p_arr_lcb = p_fresh &times; (1 + lcb_ret)</code>, and <code>est_net_lcb = p_arr_lcb &times; (1 &minus; spoil_hat) &minus; rain_pen &minus; F_hat &minus; P_loc</code>. Pick <code>j* = argmax_j est_net_lcb</code>; emit <code>DISPATCH</code> iff <code>est_net_lcb(j*) &gt; &#8377;50.0/qtl</code> (frozen on <code>Val_2025H1</code>), else <code>REFUSE_PHANTOM_SPREAD</code>. Cost: <code>+1</code> call.</li>
+  <li><b>Why it exists &amp; Failure impact (<code>Exp 4</code>):</b> Without <code>T4</code>, dispatched loss trips jump from 9.97% to <b>16.89%</b> and <code>CVaR_10%</code> collapses <b>&gt;10&times;</b> from &minus;&#8377;37.89 to <b>&minus;&#8377;397.19/qtl</b>.</li>
+  <li><b>Illustration:</b> If <code>p_fresh = &#8377;2,000</code>, <code>pred_ret = &minus;2%</code>, and <code>q&#770;_0.80 = 6%</code>, then <code>lcb_ret = &minus;8%</code> and cautious arrival price drops to &#8377;1,840/qtl before final comparison against &#8377;50/qtl.</li>
+</ul>
+
+<h2>6.3 Complete Dictionary of All 17 Causal Features (<code>FEATURE_COLS</code>)</h2>
+
+<p>Every feature fed to <code>CausalArrivalForecaster</code> (<code>src/models/arrival_forecaster.py:29-47</code>; computed in <code>src/data/build_dispatch_episodes.py:160-343</code>) uses strictly data observed on or before decision morning <code>t</code>. Target: <code>clip((dest_modal_d0 &minus; dest_ref_price) / dest_ref_price, &minus;0.60, 0.80)</code>.</p>
+
+<table>
+  <tr><th>#</th><th>Feature (<code>FEATURE_COLS</code>)</th><th>Meaning</th><th>Exact Formula / Clipping (Strictly <code>&le; t</code>)</th></tr>
+  <tr><td class="num">1</td><td><code>tau_days</code></td><td>Arrival lag (days)</td><td><code>1</code> if <code>truck_hours &le; 4.5</code>, <code>2</code> if <code>4.5&ndash;8.5</code>, <code>3</code> if <code>&gt; 8.5</code> (OSRM).</td></tr>
+  <tr><td class="num">2</td><td><code>dest_age_days</code></td><td>Quote staleness</td><td><code>t &minus; last_obs_idx</code> (<code>0..14</code>; <code>99.0</code> if missing in 14d).</td></tr>
+  <tr><td class="num">3</td><td><code>dest_ret_1d</code></td><td>1d destination return</td><td><code>(P_t &minus; P_{t&minus;1})/P_{t&minus;1}</code> on 14d ffill modal, clipped <code>[&minus;0.5, 0.5]</code> (fill <code>0.0</code>).</td></tr>
+  <tr><td class="num">4</td><td><code>dest_ret_3d</code></td><td>3d destination return</td><td><code>(P_t &minus; P_{t&minus;3})/P_{t&minus;3}</code> on 14d ffill modal, clipped <code>[&minus;0.5, 0.5]</code>.</td></tr>
+  <tr><td class="num">5</td><td><code>dest_ret_7d</code></td><td>7d destination trend</td><td><code>(P_t &minus; P_{t&minus;7})/P_{t&minus;7}</code> on 14d ffill modal, clipped <code>[&minus;0.5, 0.5]</code>.</td></tr>
+  <tr><td class="num">6</td><td><code>dest_ret_14d</code></td><td>14d destination trend</td><td><code>(P_t &minus; P_{t&minus;14})/P_{t&minus;14}</code> on 14d ffill modal, clipped <code>[&minus;0.5, 0.5]</code>.</td></tr>
+  <tr><td class="num">7</td><td><code>dest_vol_14d</code></td><td>14d price volatility</td><td>Rolling 14d std of <code>dest_ret_1d</code> (<code>min_periods=2</code>), clipped <code>[0, 0.4]</code> (fill <code>0.04</code>).</td></tr>
+  <tr><td class="num">8</td><td><code>dest_intra_spread_14d</code></td><td>Quality price spread</td><td>14d mean of 14d-ffilled <code>clip((Modal&minus;Min)/Modal, 0, 0.7)</code> on open days (fill <code>0.10</code>).</td></tr>
+  <tr><td class="num">9</td><td><code>dest_open_prob_14d</code></td><td>14d exact-variety activity</td><td>Fraction of days in <code>[t&minus;13, t]</code> with valid exact-variety quote (<code>0..1</code>).</td></tr>
+  <tr><td class="num">10</td><td><code>dest_dow_open_rate</code></td><td>Arrival-weekday openness</td><td>Laplace <code>(k+1)/(n+2)</code> over trailing 12 occurrences of weekday <code>(t+&tau;) mod 7</code> <code>&le; t</code> (fill <code>0.5</code>).</td></tr>
+  <tr><td class="num">11</td><td><code>state_hub_ret_7d</code></td><td>State-wide 7d crop wave</td><td>7d return of state median commodity modal price (ffill 7d, clipped <code>[&minus;0.5, 0.5]</code>).</td></tr>
+  <tr><td class="num">12</td><td><code>dest_level_ratio_30d</code></td><td>Price spike ratio</td><td><code>clip(last_p / rolling_30d_median, 0.4, 2.5)</code> (<code>min_periods=3</code>, fill <code>1.0</code>).</td></tr>
+  <tr><td class="num">13</td><td><code>arrival_dow</code></td><td>Arrival weekday</td><td>Integer <code>0..6</code> (Mon=0..Sun=6) for <code>t + &tau;</code>.</td></tr>
+  <tr><td class="num">14</td><td><code>month_sin</code></td><td>Seasonal cycle (sine)</td><td><code>sin(2&pi; &times; dayofyear / 365.25)</code> at decision date <code>t</code>.</td></tr>
+  <tr><td class="num">15</td><td><code>month_cos</code></td><td>Seasonal cycle (cosine)</td><td><code>cos(2&pi; &times; dayofyear / 365.25)</code> paired with <code>month_sin</code>.</td></tr>
+  <tr><td class="num">16</td><td><code>commodity_code</code></td><td>Crop ID (categorical 15)</td><td><code>Onion=0, Potato=1, Tomato=2, Apple=3</code> (native HGBR categorical split).</td></tr>
+  <tr><td class="num">17</td><td><code>state_code</code></td><td>State ID (categorical 16)</td><td><code>MH=0, UP=1, KA=2, MP=3, GJ=4, HP=5</code> (native HGBR categorical split).</td></tr>
+</table>
+
+<h2>6.4 How the 2024 Price Model Learns &amp; Freezes</h2>
+
+<div class="box think">
+  <span class="t">Intuition: What Is a <code>HistGradientBoostingRegressor</code>?</span>
+  Picture 180 experienced mandi brokers in sequence. Broker 1 predicts arrival return from the 17 clues using a shallow tree (<code>max_depth=5</code>). Each next broker fits a small correction tree to prior mistakes, shrunk gently by <code>learning_rate=0.05</code> (<code>min_samples_leaf=80</code>, <code>l2_regularization=1.0</code>). Binning continuous features into fast histograms lets it score in 0.093 ms/query while splitting <code>commodity_code</code> and <code>state_code</code> natively.
+</div>
+
+<p>Inside <code>Train_2024</code> (<code>src/models/arrival_forecaster.py:152-185</code>): (1) <b>Out-of-sample residual seeding:</b> keeping non-null <code>target_ret</code> rows (<code>310,138</code> of <code>701,932</code> rows with <code>arrival_date &le; 2024-12-31</code>), a temporary model fits Jan&ndash;Sep 2024 arrivals (<code>&lt; 2024-10-01</code>) and predicts Oct&ndash;Dec 2024 (<code>&ge; 2024-10-01</code>) to populate the initial trailing <code>400</code>-trip error queue without in-sample optimism; (2) <b>Full-2024 freeze:</b> the final <code>point_model</code> fits all settled 2024 rows (target clipped <code>[&minus;0.60, 0.80]</code>, <code>seed=20261117</code>) and freezes permanently.</p>
+
+<h2>6.5 Causal Conformal LCB &amp; Numeric Walkthrough</h2>
+
+<p>Because a 2-day trip leaving June 10 clears only on June 12, peeking at June 12's error on June 10 would leak the future. Our conformal buffer strictly matures residuals via a min-heap only once <code>arrival_date &le; decision_date</code>:</p>
+
+<div class="box math">
+  <span class="t">Causal Conformal LCB &amp; Maturation Buffer</span>
+  <span class="formula">r_k = pred_ret(k) &minus; target_ret(k)     (push into 400-trip deque B_c(t) ONLY when arrival_date(k) &le; t)
+q&#770;_0.80(c, t) = Quantile_{0.80}(B_c(t)) if |B_c(t)| &ge; 40 else Quantile_{0.80}(B_global(t)) if |B_global(t)| &ge; 20 else 0.12
+lcb_ret = pred_ret &minus; max(0.0, q&#770;_0.80)
+est_net_lcb = [ p_fresh &times; (1 + lcb_ret) ] &times; (1 &minus; spoil_hat) &minus; rain_pen &minus; F_hat &minus; P_loc</span>
+</div>
+
+<p>Using signed error <code>pred_ret &minus; target_ret</code> targets downside shortfalls specifically. Empirical 80% coverage held at <b>78.85%</b> on validation and <b>79.07%</b> on holdout.</p>
+
+<div class="box think">
+  <span class="t">Illustration: Numeric Walkthrough of Gate <code>T4</code></span>
+  A Maharashtra Tomato route quotes <code>p_fresh = &#8377;2,100/qtl</code> (<code>P_loc = &#8377;1,500</code>), <code>F_hat = &#8377;135</code>, <code>spoil_hat = 0.040</code>, and <code>rain_pen = &#8377;0</code>.<br/>
+  1. Frozen 2024 tree predicts <code>pred_ret = &minus;0.025</code> (&minus;2.5%, point &#8377;2,047.50).<br/>
+  2. Matured 400-trip Tomato buffer yields <code>q&#770;_0.80 = 0.080</code> &rarr; <code>lcb_ret = &minus;0.105</code> &rarr; <code>P_arr^LCB = &#8377;2,100 &times; 0.895 = &#8377;1,879.50</code>.<br/>
+  3. After 4% rot, freight, and home price: <code>est_net_lcb = 1,879.50 &times; 0.96 &minus; 135 &minus; 1,500 = +&#8377;169.32/qtl &gt; &#8377;50</code> &rarr; <b><code>DISPATCH</code></b>! (If <code>q&#770;_0.80</code> widened to <code>0.160</code>, <code>est_net_lcb</code> drops to +&#8377;8.04 &le; &#8377;50 &rarr; <code>REFUSE_PHANTOM_SPREAD</code>.)
+</div>
+
+<h2>6.6 Call-Budget Illustration (11 vs 20 Calls) &amp; Why Zero LLM / RL</h2>
+
+<div class="box think">
+  <span class="t">Illustration: 5 Candidates &mdash; 11 Calls (<code>MandiGuard</code>) vs 20 Calls (<code>B4</code>)</span>
+  <table>
+    <tr><th>Rank</th><th>Candidate</th><th><code>T1</code></th><th><code>T2</code></th><th><code>T3</code></th><th><code>T4</code></th><th>Calls</th><th>Outcome</th></tr>
+    <tr><td class="num">1</td><td>Mkt A (+&#8377;620)</td><td><b>FAIL</b> (age 9d)</td><td><i>skip</i></td><td><i>skip</i></td><td><i>skip</i></td><td class="num">1</td><td>Pruned <code>T1</code> (3 saved)</td></tr>
+    <tr><td class="num">2</td><td>Mkt B (+&#8377;410)</td><td>PASS</td><td><b>FAIL</b> (480 km)</td><td><i>skip</i></td><td><i>skip</i></td><td class="num">2</td><td>Pruned <code>T2</code> (2 saved)</td></tr>
+    <tr><td class="num">3</td><td>Mkt C (+&#8377;340)</td><td>PASS</td><td>PASS</td><td><b>FAIL</b> (95mm)</td><td><i>skip</i></td><td class="num">3</td><td>Pruned <code>T3</code> (1 saved)</td></tr>
+    <tr class="hl"><td class="num">4</td><td>Mkt D (+&#8377;290)</td><td>PASS</td><td>PASS</td><td>PASS</td><td><b>PASS (+&#8377;142)</b></td><td class="num">4</td><td><b>Winner (&gt;&#8377;50)</b></td></tr>
+    <tr><td class="num">5</td><td>Mkt E (+&#8377;210)</td><td><b>FAIL</b> (Sun closed)</td><td><i>skip</i></td><td><i>skip</i></td><td><i>skip</i></td><td class="num">1</td><td>Pruned <code>T1</code> (3 saved)</td></tr>
+    <tr><td colspan="6"><b>Total across 5 candidates:</b></td><td class="num"><b>11 calls</b></td><td><b>vs 20 for <code>B4</code> (45% saved)</b></td></tr>
+  </table>
+  <code>MandiGuard</code> makes the <b>identical choice</b> as <code>B4</code> while saving 9 calls here (and 44.4% across all 69,526 episodes: 8.75 vs 15.74).
+</div>
+
+<div class="box viva">
+  <span class="t">Say This in the Viva: Why Deterministic Rules Beat LLMs and RL</span>
+  "Examiner, risking &#8377;42,000 of onions on a highway requires exact rupee math, zero hallucination, and transparent auditability. An LLM risks arithmetic drift, and an RL agent needs thousands of costly truck failures to explore. Our deterministic cascade runs in 0.093 ms/query, logs exact codes like <code>VARIETY_OR_STALE</code>, and matches upfront checking using 44.4% fewer calls."
+</div>
+
+<div class="box key">
+  <span class="t">Check Your Understanding &mdash; Chapter 6</span>
+  <ol>
+    <li><b>Why does <code>T1</code> precede <code>T2</code>&ndash;<code>T4</code>?</b> It stops 30.82% of episodes in ~3 calls and avoids 67.16% trap exposure.</li>
+    <li><b>Why fit Jan&ndash;Sep before full 2024?</b> To seed the initial 400-trip conformal queue with genuinely out-of-sample Oct&ndash;Dec 2024 residuals.</li>
+    <li><b>Why require <code>arrival_date &le; decision_date</code>?</b> A 2-day route clears auction two days later; updating earlier leaks future prices.</li>
+    <li><b>When is <code>REFUSE_PHANTOM_SPREAD</code> emitted?</b> Whenever no surviving route beats <code>est_net_lcb &gt; &#8377;50/qtl</code>.</li>
+  </ol>
+</div>
+
+<div class="pb"></div>
+<h1>Chapter 7 &mdash; Fair Testing Design: Baselines, Metrics &amp; Statistical Protocol</h1>
+
+<p>Testing a dispatch algorithm fairly requires strong baselines, asymmetric downside metrics, correlation-aware confidence intervals, and strict pre-registration before unblinding holdout data (frozen in Git commit <code>e421d15</code>).</p>
+
+<h2>7.1 Seven Comparators (<code>B0</code>&ndash;<code>B6</code>): Isolating Every Moving Part</h2>
+
+<p>In <code>src/baselines/dispatch_baselines.py</code>, seven matched comparators test every ingredient of <code>MandiGuard</code> on identical candidate tables:</p>
+
+<table>
+  <tr><th>Code</th><th>Policy Name</th><th>Exact Rule (<code>dispatch_baselines.py</code>)</th><th>Calls</th><th>Design Element Isolated</th></tr>
+  <tr><td><code>B0</code></td><td><code>B0_SellLocal</code></td><td>Always sell locally (&#8377;0).</td><td class="num">0.00</td><td>Zero-risk home anchor.</td></tr>
+  <tr><td><code>B1</code></td><td><code>B1_NaiveScreenGreedy</code></td><td>Max <code>screen_dest_price (&le;7d) &minus; P_loc &minus; naive_freight &gt; &#8377;100</code>, where <code>naive_freight = 35 + 0.45 &times; m_HP &times; 1.20 &times; euclid_km</code>.</td><td class="num">0.00</td><td>Cost of chasing headline screens with straight-line distance (<code>Exp 1</code>, <code>H1</code>).</td></tr>
+  <tr><td><code>B2</code></td><td><code>B2_FreshRoadGreedy</code></td><td>Top-5 by spread; requires <code>dest_age_days == 0</code> + OSRM freight/fees <code>&gt; &#8377;100</code> (no weekday, weather, or ML LCB).</td><td class="num">7.87</td><td>Value of ML + conformal + weekday/weather checks beyond "fresh quote + real road cost" (<code>H2</code>).</td></tr>
+  <tr><td><code>B3</code></td><td><code>B3_MLPointDispatch</code></td><td>Top-5; <code>p_base &times; (1 + pred_ret) &minus; F_hat &minus; P_loc &gt; &#8377;50</code> (falls back to <code>screen_dest_price</code> if ref missing); omits <code>T1</code>, <code>T3</code>, <code>T4</code>.</td><td class="num">7.87</td><td>Why unfiltered point-ML hallucinates arbitrage on stale yards (<code>H3</code>).</td></tr>
+  <tr><td><code>B4</code></td><td><code>B4_UpfrontAllTools</code></td><td>Calls ALL 4 tools upfront per candidate (<code>4 &times; n_cands</code>); identical <code>&gt; &#8377;50</code> decision; under cap <code>B</code>, completes <code>&lfloor;B/4&rfloor;</code> candidates.</td><td class="num">15.74</td><td>Pure call efficiency of cheap-first pruning (<code>H4</code>, <code>Exp 5</code>).</td></tr>
+  <tr><td><code>B5</code></td><td><code>B5_MultiAgentCoordinator</code></td><td>3 roles communicate via &#8377;150 quantized buckets (<code>floor(lcb/150) &times; 150 &ge; &#8377;50</code>), breaking ties by Step-0 spread.</td><td class="num">8.76</td><td>Hidden profit loss from quantized inter-agent messages vs continuous rupees.</td></tr>
+  <tr><td><code>B6</code></td><td><code>B6_HeuristicBucketRouter</code></td><td>Rule router: <code>age &le; 1</code>, <code>open_prob &ge; 0.60</code>, <code>50 + 0.55 &times; km</code>, 12% haircut if <code>T &ge; 35&deg;C</code>/<code>Rain &ge; 25mm</code> (else 4%), cutoff <code>&gt; &#8377;200</code>.</td><td class="num">11.80</td><td>Advantage of calibrated physical/conformal scoring over verbal rules.</td></tr>
+</table>
+
+<h2>7.2 Four Core Metrics &amp; Crucial Arithmetic: Conditional LTR vs Episode Loss Incidence</h2>
+
+<ol>
+  <li><b>Mean Net Gain (&#8377;/qtl &amp; 30-qtl truck):</b> Average <code>delta_net_inr</code> across <b>all</b> shortlisted episodes (stay-home = &#8377;0).</li>
+  <li><b>Loss-Trip Rate (Conditional LTR, %):</b> Share of <i>dispatched</i> trips losing money (<code>delta_net_inr &lt; 0</code>).</li>
+  <li><b>Worst-10% Loss (<code>CVaR_10%</code>, &#8377;/qtl):</b> Mean net payoff over the worst 10% of all episodes (relative to &#8377;3,798/month HH crop income).</li>
+  <li><b>Live API Calls / Query:</b> Average external <code>T1</code>&ndash;<code>T4</code> checks per episode (plus closed/variety trap rate diagnostic).</li>
+</ol>
+
+<div class="box warn">
+  <span class="t">Denominator Check: Conditional LTR vs Episode Phantom Loss Incidence</span>
+  <b>Table 4</b> reports <b>Conditional LTR</b> among <i>dispatched trucks</i> (<code>MandiGuard</code> <b>9.97%</b>, <code>B3</code> <b>45.28%</b>). <b>Table 3 (<code>H3</code>)</b> tests <b>Episode-Level Loss Incidence</b> across all <code>69,526</code> episodes:
+  <code>MandiGuard = 48.66% &times; 9.97% = 4.85%</code> vs <code>B3 = 93.05% &times; 45.28% = 42.14%</code> &rarr; difference = <b>&minus;37.29 pp</b> (<code>&minus;0.3729</code>).
+</div>
+
+<h2>7.3 Pre-Registered Hypotheses (<code>H1</code>&ndash;<code>H4</code>) &amp; Exact Estimands</h2>
+<ul>
+  <li><b><code>H1</code>:</b> <code>E[&Delta;Net(MandiGuard) &minus; &Delta;Net(B1)] &gt; 0</code> (one-sided <code>greater</code>).</li>
+  <li><b><code>H2</code>:</b> <code>E[&Delta;Net(MandiGuard) &minus; &Delta;Net(B2)] &gt; 0</code> (one-sided <code>greater</code>).</li>
+  <li><b><code>H3</code>:</b> <code>P(EpLoss(MandiGuard)) &minus; P(EpLoss(B3)) &lt; 0</code> (one-sided <code>less</code>).</li>
+  <li><b><code>H4</code>:</b> <code>E[Calls(MandiGuard) &minus; 0.75 &times; Calls(B4)] &lt; 0</code> (one-sided <code>less</code>).</li>
+</ul>
+
+<h2>7.4 Paired Two-Way Cluster Bootstrap (<code>174 &times; 23</code>, <code>R = 5,000</code>) Step by Step</h2>
+
+<p>Because daily mandi trips correlate both across time within one origin yard (<b>174 origin mandis</b>) and across yards hit by the same fortnightly storm or market shock (<b>23 two-week blocks</b>), standard IID t-tests understate variance. We use paired two-way cluster bootstrapping (<code>src/evaluation/bootstrap.py</code>):</p>
+
+<div class="box math">
+  <span class="t">Two-Way Cluster Bootstrap &amp; Phipson&ndash;Smyth Formula</span>
+  <span class="formula">1. Compute paired differences d_e = metric_A(e) &minus; metric_B(e) over N = 69,526 episodes.
+2. Sum into 174 &times; 23 matrices S_{m,b} = &Sigma; d_e and counts C_{m,b}.
+3. For r = 1..5,000 (seed = 20261117): draw 174 mandis with replacement (m_w) AND 23 two-week blocks with replacement (b_w):
+     theta&#770;_r = (&Sigma;_{m,b} m_w[m] &times; S_{m,b} &times; b_w[b]) / (&Sigma;_{m,b} m_w[m] &times; C_{m,b} &times; b_w[b]).
+4. 95% CI = [Quantile_{0.025}(theta&#770;), Quantile_{0.975}(theta&#770;)];  Phipson&ndash;Smyth p_raw = (n_fail + 1) / (R + 1).</span>
+</div>
+
+<div class="box think">
+  <span class="t">Illustration: 3 Mandis &times; 2 Fortnights Cluster Resample</span>
+  Suppose 3 mandis (M1, M2, M3) across 2 weeks (W1 monsoon, W2 normal) have cell sums (10 eps/cell):
+  <table>
+    <tr><th>Mandi \ Fortnight</th><th>W1 (Monsoon)</th><th>W2 (Normal)</th></tr>
+    <tr><td>M1 (Lasalgaon)</td><td class="num">+&#8377;2,000</td><td class="num">+&#8377;1,000</td></tr>
+    <tr><td>M2 (Indore)</td><td class="num">&minus;&#8377;1,500</td><td class="num">+&#8377;500</td></tr>
+    <tr><td>M3 (Kolar)</td><td class="num">&minus;&#8377;500</td><td class="num">+&#8377;800</td></tr>
+  </table>
+  If one draw samples mandis <code>(M2, M2, M3)</code> (weights <code>[0,2,1]</code>) and weeks <code>(W1, W1)</code> (<code>[2,0]</code>), cell <code>(M2,W1)</code> gets weight 4 and <code>(M3,W1)</code> gets weight 2 (60 eps total), yielding <code>(4&times;(&minus;1500) + 2&times;(&minus;500))/60 = &minus;&#8377;116.7/qtl</code>. Correlated shocks stay intact inside each resample!
+</div>
+
+<h2>7.5 Phipson&ndash;Smyth Exact p-Values &amp; Holm&ndash;Bonferroni Walkthrough</h2>
+
+<p>Because finite resampling cannot yield <code>p = 0</code>, Phipson &amp; Smyth (2010) compute <code>(b + 1)/(R + 1)</code> (so <code>b = 0</code> gives <code>1/5001 = 0.0002</code>; <code>b = 2</code> gives <code>3/5001 = 0.0006</code>). Holm&ndash;Bonferroni (1979) then orders the <code>m = 4</code> hypotheses from smallest <code>p_raw</code> to largest, multiplies by <code>(4 &minus; rank)</code>, and takes a running maximum (<code>bootstrap.py:21-30</code>):</p>
+
+<table>
+  <tr><th>Rank</th><th>Hypothesis</th><th><code>p_raw</code></th><th>Multiplier</th><th>Product</th><th>Running Max (<code>p_Holm</code>)</th><th>Verdict (&alpha; = 0.05)</th></tr>
+  <tr class="hl"><td class="num">1</td><td><code>H3</code></td><td class="num">0.0002</td><td class="num">&times; 4</td><td class="num">0.0008</td><td class="num"><b>0.0008</b></td><td><b>SUPPORTED</b></td></tr>
+  <tr class="hl"><td class="num">2</td><td><code>H4</code></td><td class="num">0.0002</td><td class="num">&times; 3</td><td class="num">0.0006</td><td class="num"><b>0.0008</b> (max with 0.0008)</td><td><b>SUPPORTED</b></td></tr>
+  <tr class="hl"><td class="num">3</td><td><code>H1</code></td><td class="num">0.0006</td><td class="num">&times; 2</td><td class="num">0.0012</td><td class="num"><b>0.0012</b></td><td><b>SUPPORTED</b></td></tr>
+  <tr><td class="num">4</td><td><code>H2</code></td><td class="num">0.269946</td><td class="num">&times; 1</td><td class="num">0.269946</td><td class="num"><b>0.269946</b></td><td><b>NOT_SUPPORTED</b></td></tr>
+</table>
+
+<h2>7.6 Chronological Firewall &amp; Pre-Registration Wall (Commit <code>e421d15</code>)</h2>
+
+<div class="timeline">
+  <div style="flex:4; background:#dbeafe;"><b>Zone 1: Train_2024</b><br/>Jan&ndash;Dec 2024 (701,932 rows)<br/>Fit &amp; freeze tree</div>
+  <div style="flex:3; background:#fef3c7;"><b>Zone 2: Val_2025H1</b><br/>Jan&ndash;May 2025 (42,794 eps / 280,697 rows)<br/>Freeze &#8377;50/qtl (78.85% cov)</div>
+  <div style="flex:1; background:#fee2e2;"><b>WALL</b><br/>Git <code>e421d15</code><br/>Lock <code>H1</code>&ndash;<code>H4</code></div>
+  <div style="flex:4; background:#dcfce7;"><b>Zone 3: Holdout_2025_2026</b><br/>Jun 2025&ndash;Apr 2026 (69,526 shortlisted)<br/>Single evaluation</div>
+</div>
+
+<p>On <code>Val_2025H1</code> (<code>B1</code> &#8377;255.28 / 38.99% LTR; <code>B2</code> &#8377;330.28 / 16.77% LTR; <code>configs/frozen_calibration.json</code>), sweeping <code>{50, 100, 150, 200, 250}</code> selected <b>&#8377;50.0/qtl</b> (max validation profit with LTR &le; 15%):</p>
+
+<table>
+  <tr><th>Margin (&#8377;/qtl)</th><th>Disp (%)</th><th>Val Mean &Delta;Net (&#8377;/qtl)</th><th>Val LTR (%)</th><th>Calls</th><th>Decision</th></tr>
+  <tr class="hl"><td class="num"><b>&#8377;50.0</b></td><td class="num">52.94%</td><td class="num"><b>&#8377;351.36</b></td><td class="num">9.68%</td><td class="num">9.10</td><td><b>FROZEN</b> (pre-holdout)</td></tr>
+  <tr><td class="num">&#8377;100.0</td><td class="num">48.55%</td><td class="num">&#8377;345.63</td><td class="num">8.88%</td><td class="num">9.10</td><td>Lower gain</td></tr>
+  <tr><td class="num">&#8377;150.0</td><td class="num">44.38%</td><td class="num">&#8377;337.90</td><td class="num">8.32%</td><td class="num">9.10</td><td>Over-conservative</td></tr>
+  <tr><td class="num">&#8377;200.0</td><td class="num">40.58%</td><td class="num">&#8377;328.75</td><td class="num">7.99%</td><td class="num">9.10</td><td>Below <code>B2</code></td></tr>
+  <tr><td class="num">&#8377;250.0</td><td class="num">37.01%</td><td class="num">&#8377;318.92</td><td class="num">7.70%</td><td class="num">9.10</td><td>Leaves &#8377;32.44/qtl</td></tr>
+</table>
+
+<div class="box key">
+  <span class="t">Check Your Understanding &mdash; Chapter 7</span>
+  <ol>
+    <li><b>What does <code>B3_MLPointDispatch</code> isolate?</b> Raw 2024 ML price prediction + OSRM freight without <code>T1</code>, <code>T3</code>, or <code>T4</code> conformal cushions.</li>
+    <li><b>Why does Conditional LTR 9.97% equal Episode Loss Incidence 4.85%?</b> Because <code>48.66% &times; 9.97% = 4.85%</code> across all shortlisted episodes.</li>
+    <li><b>Why resample 174 mandis &times; 23 two-week blocks?</b> To preserve spatial correlation within mandis and calendar shock correlation across mandis.</li>
+    <li><b>Why did <code>H3</code> and <code>H4</code> both get <code>p_Holm = 0.0008</code>?</b> Holm&ndash;Bonferroni takes a running maximum: <code>max(4&times;0.0002, 3&times;0.0002) = 0.0008</code>.</li>
+  </ol>
+</div>
+
+<div class="pb"></div>
+<h1>Chapter 8 &mdash; Stage I Results &amp; Every Experiment Explained (<code>Exp 1</code>&ndash;<code>Exp 15</code>)</h1>
+
+<p>This chapter covers all fourteen Stage-I studies, sensitivity audits, and official parity checks using a five-part format: <b>Question</b> &rarr; <b>Design</b> &rarr; <b>Full Numbers</b> &rarr; <b>Interpretation</b> &rarr; <b>Viva Point</b>. Confirmatory tests (<code>H1</code>&ndash;<code>H4</code>) run on the pre-registered holdout (<code>Holdout_2025_2026</code>, June 1, 2025 &ndash; April 8, 2026, <code>N = 69,526</code> active episodes) with the frozen 2024 forecaster and <code>&#8377;50/qtl</code> margin.</p>
+
+<h2>8.1 <code>Exp 1</code> &mdash; Phantom Spatial Arbitrage Anatomy Under Naive Screen Chasing</h2>
+<ul>
+  <li><b>Question:</b> When a farmer chases the highest headline portal spread (<code>B1_NaiveScreenGreedy</code>), how much survives freight, statutory fees, spoilage, and arrival-day execution realities?</li>
+  <li><b>Design:</b> Across <code>69,526</code> shortlisted holdout episodes, <code>B1</code> triggers <code>63,040</code> dispatches (90.67%). Using <code>exp1_phantom_anatomy.csv</code>, headline <code>screen_spread</code> is decomposed into: (1) OSRM freight + GoI fees, (2) <code>Q10</code> spoilage, and (3) arrival-day traps and price drops, yielding realized <code>real_delta_net_inr</code>.</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Slice (<code>exp1_phantom_anatomy.csv</code>)</th>
+    <th><code>B1</code> Trips</th>
+    <th>Screen Spread (&#8377;)</th>
+    <th>Freight &amp; Fee (&#8377;)</th>
+    <th>Spoilage (&#8377;)</th>
+    <th>Trap &amp; Reversion (&#8377;)</th>
+    <th>Realized &Delta;Net (&#8377;/qtl)</th>
+    <th>Loss Trips (%)</th>
+    <th>Trap Rate (%)</th>
+    <th>No Variety 3d (%)</th>
+    <th>30-qtl Truck (&#8377;)</th>
+  </tr>
+  <tr class="hl">
+    <td><b>Overall (All Holdout <code>B1</code>)</b></td>
+    <td class="num">63,040</td>
+    <td class="num">&#8377;1,330.49</td>
+    <td class="num">&#8377;160.81</td>
+    <td class="num">&#8377;68.76</td>
+    <td class="num">&#8377;714.90</td>
+    <td class="num"><b>&#8377;386.02</b></td>
+    <td class="num"><b>40.46%</b></td>
+    <td class="num"><b>58.94%</b></td>
+    <td class="num">46.69%</td>
+    <td class="num">&#8377;11,580.5</td>
+  </tr>
+  <tr>
+    <td>Commodity: Apple</td>
+    <td class="num">7,784</td>
+    <td class="num">&#8377;3,499.80</td>
+    <td class="num">&#8377;250.18</td>
+    <td class="num">&#8377;191.68</td>
+    <td class="num">&#8377;1,982.36</td>
+    <td class="num">&#8377;1,075.58</td>
+    <td class="num">40.02%</td>
+    <td class="num">55.13%</td>
+    <td class="num">44.08%</td>
+    <td class="num">&#8377;32,267.5</td>
+  </tr>
+  <tr>
+    <td>Commodity: Onion</td>
+    <td class="num">20,355</td>
+    <td class="num">&#8377;704.50</td>
+    <td class="num">&#8377;138.07</td>
+    <td class="num">&#8377;28.60</td>
+    <td class="num">&#8377;484.23</td>
+    <td class="num">&#8377;53.61</td>
+    <td class="num">48.69%</td>
+    <td class="num">57.26%</td>
+    <td class="num">45.58%</td>
+    <td class="num">&#8377;1,608.2</td>
+  </tr>
+  <tr>
+    <td>Commodity: Potato</td>
+    <td class="num">15,354</td>
+    <td class="num">&#8377;817.36</td>
+    <td class="num">&#8377;146.00</td>
+    <td class="num">&#8377;19.34</td>
+    <td class="num">&#8377;418.54</td>
+    <td class="num">&#8377;233.47</td>
+    <td class="num">37.83%</td>
+    <td class="num">60.54%</td>
+    <td class="num">45.08%</td>
+    <td class="num">&#8377;7,004.1</td>
+  </tr>
+  <tr>
+    <td>Commodity: Tomato</td>
+    <td class="num">19,547</td>
+    <td class="num">&#8377;1,521.55</td>
+    <td class="num">&#8377;160.55</td>
+    <td class="num">&#8377;100.45</td>
+    <td class="num">&#8377;683.16</td>
+    <td class="num">&#8377;577.39</td>
+    <td class="num">34.14%</td>
+    <td class="num">60.96%</td>
+    <td class="num">50.15%</td>
+    <td class="num">&#8377;17,321.8</td>
+  </tr>
+  <tr>
+    <td>State: Gujarat</td>
+    <td class="num">14,271</td>
+    <td class="num">&#8377;1,371.78</td>
+    <td class="num">&#8377;152.59</td>
+    <td class="num">&#8377;64.95</td>
+    <td class="num">&#8377;701.72</td>
+    <td class="num">&#8377;452.53</td>
+    <td class="num">34.44%</td>
+    <td class="num">58.63%</td>
+    <td class="num">44.09%</td>
+    <td class="num">&#8377;13,575.8</td>
+  </tr>
+  <tr>
+    <td>State: Himachal Pradesh</td>
+    <td class="num">8,575</td>
+    <td class="num">&#8377;2,185.77</td>
+    <td class="num">&#8377;182.53</td>
+    <td class="num">&#8377;142.25</td>
+    <td class="num">&#8377;1,467.21</td>
+    <td class="num">&#8377;393.77</td>
+    <td class="num">46.82%</td>
+    <td class="num">59.42%</td>
+    <td class="num">40.31%</td>
+    <td class="num">&#8377;11,813.0</td>
+  </tr>
+  <tr>
+    <td>State: Karnataka</td>
+    <td class="num">6,448</td>
+    <td class="num">&#8377;1,162.71</td>
+    <td class="num">&#8377;144.94</td>
+    <td class="num">&#8377;58.21</td>
+    <td class="num">&#8377;614.40</td>
+    <td class="num">&#8377;345.16</td>
+    <td class="num">42.74%</td>
+    <td class="num">60.03%</td>
+    <td class="num">43.42%</td>
+    <td class="num">&#8377;10,354.7</td>
+  </tr>
+  <tr>
+    <td>State: Madhya Pradesh</td>
+    <td class="num">5,821</td>
+    <td class="num">&#8377;824.54</td>
+    <td class="num">&#8377;118.25</td>
+    <td class="num">&#8377;22.78</td>
+    <td class="num">&#8377;587.69</td>
+    <td class="num">&#8377;95.82</td>
+    <td class="num">51.57%</td>
+    <td class="num">59.70%</td>
+    <td class="num">47.17%</td>
+    <td class="num">&#8377;2,874.5</td>
+  </tr>
+  <tr>
+    <td>State: Maharashtra</td>
+    <td class="num">14,401</td>
+    <td class="num">&#8377;1,477.73</td>
+    <td class="num">&#8377;157.62</td>
+    <td class="num">&#8377;62.23</td>
+    <td class="num">&#8377;635.55</td>
+    <td class="num">&#8377;622.33</td>
+    <td class="num">38.87%</td>
+    <td class="num">61.76%</td>
+    <td class="num">50.42%</td>
+    <td class="num">&#8377;18,669.8</td>
+  </tr>
+  <tr>
+    <td>State: Uttar Pradesh</td>
+    <td class="num">13,524</td>
+    <td class="num">&#8377;885.60</td>
+    <td class="num">&#8377;185.01</td>
+    <td class="num">&#8377;57.95</td>
+    <td class="num">&#8377;438.96</td>
+    <td class="num">&#8377;203.67</td>
+    <td class="num">38.61%</td>
+    <td class="num">55.13%</td>
+    <td class="num">50.85%</td>
+    <td class="num">&#8377;6,110.2</td>
+  </tr>
+  <tr>
+    <td>Distance: 15&ndash;100 km</td>
+    <td class="num">10,578</td>
+    <td class="num">&#8377;1,109.91</td>
+    <td class="num">&#8377;86.06</td>
+    <td class="num">&#8377;44.94</td>
+    <td class="num">&#8377;688.35</td>
+    <td class="num">&#8377;290.56</td>
+    <td class="num">40.41%</td>
+    <td class="num">52.79%</td>
+    <td class="num">40.85%</td>
+    <td class="num">&#8377;8,716.8</td>
+  </tr>
+  <tr>
+    <td>Distance: 100&ndash;250 km</td>
+    <td class="num">29,560</td>
+    <td class="num">&#8377;1,328.34</td>
+    <td class="num">&#8377;140.65</td>
+    <td class="num">&#8377;58.66</td>
+    <td class="num">&#8377;668.25</td>
+    <td class="num">&#8377;460.78</td>
+    <td class="num">38.35%</td>
+    <td class="num">58.01%</td>
+    <td class="num">45.28%</td>
+    <td class="num">&#8377;13,823.5</td>
+  </tr>
+  <tr>
+    <td>Distance: 250&ndash;500 km</td>
+    <td class="num">22,902</td>
+    <td class="num">&#8377;1,435.14</td>
+    <td class="num">&#8377;221.36</td>
+    <td class="num">&#8377;92.80</td>
+    <td class="num">&#8377;787.37</td>
+    <td class="num">&#8377;333.60</td>
+    <td class="num">43.21%</td>
+    <td class="num">62.99%</td>
+    <td class="num">51.21%</td>
+    <td class="num">&#8377;10,008.1</td>
+  </tr>
+</table>
+
+<ul>
+  <li><b>Interpretation:</b> Headline spreads average &#8377;1,330.49/qtl, yet <b>71% vanishes</b>, leaving &#8377;386.02/qtl per dispatched truck (&#8377;350.01/qtl across all 69,526 episodes including 9.33% &#8377;0 stay-home days: <code>386.02 &times; 0.9067 = &#8377;350.01</code>). Crucially, freight + fees (&#8377;160.81) and spoilage (&#8377;68.76) are dwarfed by <b>execution traps and arrival-day drops (&#8377;714.90/qtl)</b>. In Onion, 48.69% of trips lose money (+&#8377;53.61/qtl realized out of &#8377;704.50); in Madhya Pradesh, 51.57% lose money; on 250&ndash;500 km hauls, traps hit 62.99%. Overall worst-10% <code>CVaR_10%</code> reaches &minus;&#8377;1,062.66/qtl (&minus;&#8377;31,879.8 per 30-qtl truck &mdash; over 8&times; an Indian agricultural household's &#8377;3,798 monthly crop income).</li>
+  <li><b>Viva Point:</b> "Freight is not why farmers lose money chasing mandi portals &mdash; arrival-day traps and price reversion (&#8377;714.90/qtl) exceed freight and spoilage combined (&#8377;229.57/qtl) by over 3&times;."</li>
+</ul>
+
+<h2>8.2 <code>Exp 2</code> &mdash; Stage-I Main 6-State Holdout Benchmark &amp; Confirmatory Tests (<code>H1</code>&ndash;<code>H4</code>)</h2>
+<ul>
+  <li><b>Question:</b> Evaluated strictly out-of-sample on <code>Holdout_2025_2026</code> (<code>N = 69,526</code>) with frozen 2024 weights and &#8377;50/qtl margin, how does <code>MandiGuard</code> compare against all seven comparators (<code>B0</code>&ndash;<code>B6</code>) on profit, safety, and call budget &mdash; and which pre-registered hypotheses pass Holm&ndash;Bonferroni FWER control?</li>
+  <li><b>Design:</b> Run all 8 policies on identical shortlisted episodes; evaluate empirical causal 80% LCB coverage (<code>78.85%</code> validation, <b><code>79.07%</code></b> holdout); run 5,000 paired two-way cluster bootstrap resamples across 174 origin mandis &times; 23 two-week blocks with Phipson&ndash;Smyth p-values and Holm&ndash;Bonferroni correction (<code>confirmatory_holm_summary.csv</code>, <code>exp2_main_benchmark_6state.csv</code>).</li>
+</ul>
+
+<p><b>Table 3: Stage-I Pre-Registered Confirmatory Hypothesis Suite (<code>H1</code>&ndash;<code>H4</code>, Holm&ndash;Bonferroni FWER &alpha; = 0.05)</b></p>
+<table>
+  <tr>
+    <th>Hypothesis</th>
+    <th>Target Estimand (<code>N = 69,526</code>, 174 Mandis &times; 23 Blocks)</th>
+    <th>Point Estimate</th>
+    <th>95% Two-Way CI</th>
+    <th><code>p_raw</code></th>
+    <th><code>p_Holm</code></th>
+    <th>Outcome</th>
+  </tr>
+  <tr class="hl">
+    <td><code>H1</code></td>
+    <td><code>MandiGuard</code> minus <code>B1</code> Mean &Delta;Net (&#8377;/qtl)</td>
+    <td class="num"><b>+&#8377;102.78</b></td>
+    <td class="num">[+&#8377;48.66, +&#8377;153.45]</td>
+    <td class="num">0.0006</td>
+    <td class="num"><b>0.0012</b></td>
+    <td><b>SUPPORTED</b></td>
+  </tr>
+  <tr>
+    <td><code>H2</code></td>
+    <td><code>MandiGuard</code> minus <code>B2</code> Mean &Delta;Net (&#8377;/qtl)</td>
+    <td class="num">+&#8377;6.13</td>
+    <td class="num">[&minus;&#8377;17.02, +&#8377;25.02]</td>
+    <td class="num">0.2699</td>
+    <td class="num">0.2699</td>
+    <td><b>NOT_SUPPORTED</b></td>
+  </tr>
+  <tr class="hl">
+    <td><code>H3</code></td>
+    <td><code>MandiGuard</code> minus <code>B3</code> Episode Loss Rate (prob)</td>
+    <td class="num"><b>&minus;0.3729</b> (&minus;37.29 pp)</td>
+    <td class="num">[&minus;0.4019, &minus;0.3424]</td>
+    <td class="num">0.0002</td>
+    <td class="num"><b>0.0008</b></td>
+    <td><b>SUPPORTED</b></td>
+  </tr>
+  <tr class="hl">
+    <td><code>H4</code></td>
+    <td><code>MandiGuard</code> Calls minus <code>0.75 &times; B4</code> Calls</td>
+    <td class="num"><b>&minus;3.0548</b> (&minus;44.4%)</td>
+    <td class="num">[&minus;3.4408, &minus;2.6906]</td>
+    <td class="num">0.0002</td>
+    <td class="num"><b>0.0008</b></td>
+    <td><b>SUPPORTED</b></td>
+  </tr>
+</table>
+
+<p><b>Table 4: Stage-I Main Holdout Policy Comparison (<code>Holdout_2025_2026</code>, <code>N = 69,526</code>)</b></p>
+<table>
+  <tr>
+    <th>Policy Comparator</th>
+    <th>Dispatch (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>Cond. Disp. &Delta;Net (&#8377;/qtl)</th>
+    <th>Open-<code>d0</code> Mean (&#8377;/qtl)</th>
+    <th>Ep. Loss (%)</th>
+    <th>Cond. LTR (%)</th>
+    <th>Trap (%)</th>
+    <th>Worst-10% <code>CVaR_10%</code></th>
+    <th>Live Calls</th>
+    <th>30-qtl Truck (&#8377;)</th>
+  </tr>
+  <tr>
+    <td><code>B0_SellLocal</code></td>
+    <td class="num">0.00%</td>
+    <td class="num">&#8377;0.00</td>
+    <td class="num">&#8377;0.00</td>
+    <td class="num">&#8377;0.00</td>
+    <td class="num">0.00%</td>
+    <td class="num">0.00%</td>
+    <td class="num">0.00%</td>
+    <td class="num">&#8377;0.00</td>
+    <td class="num">0.00</td>
+    <td class="num">&#8377;0.0</td>
+  </tr>
+  <tr>
+    <td><code>B1_NaiveScreenGreedy</code></td>
+    <td class="num">90.67%</td>
+    <td class="num">&#8377;350.01</td>
+    <td class="num">&#8377;386.02</td>
+    <td class="num">&#8377;606.71</td>
+    <td class="num">36.69%</td>
+    <td class="num">40.46%</td>
+    <td class="num">58.94%</td>
+    <td class="num">&minus;&#8377;1,062.66</td>
+    <td class="num">0.00</td>
+    <td class="num">&#8377;10,500.2</td>
+  </tr>
+  <tr>
+    <td><code>B2_FreshRoadGreedy</code></td>
+    <td class="num">62.11%</td>
+    <td class="num">&#8377;446.66</td>
+    <td class="num">&#8377;719.13</td>
+    <td class="num">&#8377;467.48</td>
+    <td class="num">11.25%</td>
+    <td class="num">18.11%</td>
+    <td class="num">24.32%</td>
+    <td class="num">&minus;&#8377;436.67</td>
+    <td class="num">7.87</td>
+    <td class="num">&#8377;13,399.7</td>
+  </tr>
+  <tr>
+    <td><code>B3_MLPointDispatch</code></td>
+    <td class="num">93.05%</td>
+    <td class="num">&#8377;330.85</td>
+    <td class="num">&#8377;355.56</td>
+    <td class="num">&#8377;676.67</td>
+    <td class="num">42.14%</td>
+    <td class="num">45.28%</td>
+    <td class="num">65.65%</td>
+    <td class="num">&minus;&#8377;1,097.80</td>
+    <td class="num">7.87</td>
+    <td class="num">&#8377;9,925.6</td>
+  </tr>
+  <tr>
+    <td><code>B6_HeuristicBucketRouter</code></td>
+    <td class="num">43.36%</td>
+    <td class="num">&#8377;431.94</td>
+    <td class="num">&#8377;996.23</td>
+    <td class="num">&#8377;430.65</td>
+    <td class="num">5.15%</td>
+    <td class="num">11.88%</td>
+    <td class="num">21.59%</td>
+    <td class="num">&minus;&#8377;42.42</td>
+    <td class="num">11.80</td>
+    <td class="num">&#8377;12,958.3</td>
+  </tr>
+  <tr>
+    <td><code>B5_MultiAgentCoordinator</code></td>
+    <td class="num">41.59%</td>
+    <td class="num">&#8377;437.39</td>
+    <td class="num">&#8377;1,051.56</td>
+    <td class="num">&#8377;437.04</td>
+    <td class="num">3.90%</td>
+    <td class="num">9.38%</td>
+    <td class="num">16.57%</td>
+    <td class="num">&minus;&#8377;31.77</td>
+    <td class="num">8.76</td>
+    <td class="num">&#8377;13,121.7</td>
+  </tr>
+  <tr>
+    <td><code>B4_UpfrontAllTools</code></td>
+    <td class="num">48.66%</td>
+    <td class="num">&#8377;452.79</td>
+    <td class="num">&#8377;930.61</td>
+    <td class="num">&#8377;458.35</td>
+    <td class="num">4.85%</td>
+    <td class="num">9.97%</td>
+    <td class="num">16.17%</td>
+    <td class="num">&minus;&#8377;37.89</td>
+    <td class="num">15.74</td>
+    <td class="num">&#8377;13,583.6</td>
+  </tr>
+  <tr class="hl">
+    <td><b><code>MandiGuard</code> (Stage I)</b></td>
+    <td class="num"><b>48.66%</b></td>
+    <td class="num"><b>&#8377;452.79</b></td>
+    <td class="num"><b>&#8377;930.61</b></td>
+    <td class="num"><b>&#8377;458.35</b></td>
+    <td class="num"><b>4.85%</b></td>
+    <td class="num"><b>9.97%</b></td>
+    <td class="num"><b>16.17%</b></td>
+    <td class="num"><b>&minus;&#8377;37.89</b></td>
+    <td class="num"><b>8.75</b></td>
+    <td class="num"><b>&#8377;13,583.6</b></td>
+  </tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG2}"/>
+  <div class="cap"><b>Figure 2.</b> Stage-I main policy comparison across all <code>69,526</code> shortlisted holdout episodes (<code>Exp 2</code>). Panel (A) shows mean net gain over selling locally (&#8377;/qtl): <code>MandiGuard</code> earns &#8377;452.79/qtl, matching upfront <code>B4</code> identically while beating naive screen chasing <code>B1</code> (&#8377;350.01) and unfiltered point-ML <code>B3</code> (&#8377;330.85). Panel (B) shows dispatched loss-trip rate and closed/no-variety trap rate: <code>MandiGuard</code> holds loss trips to 9.97% and traps to 16.17%, compared with 45.28% and 65.65% for <code>B3</code>.</div>
+</div>
+
+<ul>
+  <li><b>Interpretation &amp; Honest <code>H2</code> Discussion:</b> Stage I confirms three of four pre-registered claims strongly: +&#8377;102.78/qtl over <code>B1</code> (<code>H1</code>, +&#8377;3,083.5 per 30-qtl truck), &minus;37.29 pp episode phantom loss over <code>B3</code> (<code>H3</code>), and 44.4% fewer external calls than <code>B4</code> (<code>H4</code>, 8.75 vs 15.74) with identical &#8377;452.79/qtl profit. Crucially, <b><code>H2</code> failed</b> (+&#8377;6.13/qtl over <code>B2</code>, 95% CI [&minus;&#8377;17.02, +&#8377;25.02], <code>p_Holm = 0.2699</code>). Why? Stage-I <code>MandiGuard</code> traded dispatch volume (48.66% vs 62.11%) for dramatic downside protection &mdash; cutting conditional loss trips nearly in half (9.97% vs 18.11%) and reducing worst-10% tail losses more than 11&times; (&minus;&#8377;37.89 vs &minus;&#8377;436.67/qtl) &mdash; but left too many safe dispatches on the table due to censored training and rigid pooled cushions, which Stage II uncovers and repairs.</li>
+  <li><b>Viva Defense Point:</b> "Notice two things: first, raw ML without gating (<code>B3</code>) actually performs worse than a farmer with no ML (<code>B1</code>: &#8377;330.85 vs &#8377;350.01) because ML chases high stale quotes. Second, we report <code>H2</code> honestly as <code>NOT_SUPPORTED</code> in Stage I rather than moving goalposts after unblinding."</li>
+</ul>
+
+<h2>8.3 <code>Exp 2b</code> &mdash; State, Crop &amp; Native-NWP 4-State Robustness Check</h2>
+<ul>
+  <li><b>Question:</b> Does Stage-I performance hold across individual crops and states, and did our causal Ridge estimator (filling 43 northern weather grid cells missing archived NWP forecasts) distort the main 6-state benchmark?</li>
+  <li><b>Design:</b> Slice the <code>69,526</code> holdout episodes by all 6 states, all 4 commodities, and the 4-state subset (<code>Gujarat, Karnataka, Madhya Pradesh, Maharashtra</code>; <code>N = 42,766</code>) where 100% of grid cells had native archived Open-Meteo Historical NWP files (<code>exp2b_by_state_commodity.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Slice (<code>exp2b_by_state_commodity.csv</code>)</th>
+    <th><code>N</code> Eps</th>
+    <th><code>B1</code> (&#8377;/qtl)</th>
+    <th><code>B2</code> (&#8377;/qtl)</th>
+    <th><code>B3</code> (&#8377;/qtl)</th>
+    <th><code>MandiGuard</code> (&#8377;/qtl)</th>
+    <th><code>B1</code> Ep.Loss</th>
+    <th><code>B3</code> Ep.Loss</th>
+    <th><code>MG</code> Ep.Loss</th>
+    <th><code>MG &minus; B1</code></th>
+    <th><code>MG &minus; B2</code></th>
+    <th>Calls</th>
+  </tr>
+  <tr><td>State: Gujarat</td><td class="num">14,702</td><td class="num">439.26</td><td class="num">428.14</td><td class="num">393.09</td><td class="num"><b>451.14</b></td><td class="num">33.43%</td><td class="num">37.22%</td><td class="num"><b>6.63%</b></td><td class="num">+11.88</td><td class="num">+23.00</td><td class="num">10.56</td></tr>
+  <tr><td>State: Himachal Pradesh</td><td class="num">8,952</td><td class="num">377.18</td><td class="num"><b>869.54</b></td><td class="num">549.10</td><td class="num">793.28</td><td class="num">44.85%</td><td class="num">46.53%</td><td class="num"><b>7.96%</b></td><td class="num">+416.10</td><td class="num">&minus;76.25</td><td class="num">10.03</td></tr>
+  <tr><td>State: Karnataka</td><td class="num">6,733</td><td class="num">330.55</td><td class="num"><b>420.42</b></td><td class="num">333.02</td><td class="num">401.87</td><td class="num">40.93%</td><td class="num">40.07%</td><td class="num"><b>6.43%</b></td><td class="num">+71.32</td><td class="num">&minus;18.55</td><td class="num">7.98</td></tr>
+  <tr><td>State: Madhya Pradesh</td><td class="num">6,286</td><td class="num">88.73</td><td class="num">213.71</td><td class="num">125.93</td><td class="num"><b>245.02</b></td><td class="num">47.76%</td><td class="num">45.86%</td><td class="num"><b>6.14%</b></td><td class="num">+156.29</td><td class="num">+31.31</td><td class="num">8.53</td></tr>
+  <tr><td>State: Maharashtra</td><td class="num">15,045</td><td class="num">595.69</td><td class="num">592.89</td><td class="num">568.25</td><td class="num"><b>656.08</b></td><td class="num">37.20%</td><td class="num">42.35%</td><td class="num"><b>3.78%</b></td><td class="num">+60.39</td><td class="num">+63.19</td><td class="num">8.18</td></tr>
+  <tr><td>State: Uttar Pradesh</td><td class="num">17,808</td><td class="num">154.68</td><td class="num"><b>217.97</b></td><td class="num">40.71</td><td class="num">203.82</td><td class="num">29.32%</td><td class="num">43.27%</td><td class="num"><b>1.67%</b></td><td class="num">+49.15</td><td class="num">&minus;14.15</td><td class="num">7.46</td></tr>
+  <tr><td>Crop: Apple</td><td class="num">7,856</td><td class="num">1,065.72</td><td class="num"><b>1,646.75</b></td><td class="num">1,124.90</td><td class="num">1,569.77</td><td class="num">39.65%</td><td class="num">42.91%</td><td class="num"><b>5.93%</b></td><td class="num">+504.05</td><td class="num">&minus;76.97</td><td class="num">7.52</td></tr>
+  <tr><td>Crop: Onion</td><td class="num">23,467</td><td class="num">46.50</td><td class="num">156.20</td><td class="num">14.94</td><td class="num"><b>163.41</b></td><td class="num">42.23%</td><td class="num">47.79%</td><td class="num"><b>3.87%</b></td><td class="num">+116.91</td><td class="num">+7.21</td><td class="num">8.47</td></tr>
+  <tr><td>Crop: Potato</td><td class="num">17,594</td><td class="num">203.75</td><td class="num">253.72</td><td class="num">181.91</td><td class="num"><b>258.38</b></td><td class="num">33.01%</td><td class="num">40.13%</td><td class="num"><b>5.40%</b></td><td class="num">+54.63</td><td class="num">+4.66</td><td class="num">8.75</td></tr>
+  <tr><td>Crop: Tomato</td><td class="num">20,609</td><td class="num"><b>547.64</b></td><td class="num">484.64</td><td class="num">515.05</td><td class="num">522.48</td><td class="num">32.38%</td><td class="num">37.11%</td><td class="num"><b>5.09%</b></td><td class="num">&minus;25.16</td><td class="num">+37.84</td><td class="num">9.53</td></tr>
+  <tr class="hl"><td><b>4 States 100% Native NWP</b></td><td class="num">42,766</td><td class="num">425.65</td><td class="num">453.37</td><td class="num">405.98</td><td class="num"><b>485.18</b></td><td class="num">38.04%</td><td class="num">40.74%</td><td class="num"><b>5.52%</b></td><td class="num">+59.53</td><td class="num">+31.82</td><td class="num">9.02</td></tr>
+</table>
+
+<ul>
+  <li><b>Interpretation:</b> Notice two important facts. First, across the 42,766 episodes in the 4 states with 100% archived Open-Meteo NWP forecasts, <code>MandiGuard</code> achieves &#8377;485.18/qtl (+&#8377;59.53 over <code>B1</code> and +&#8377;31.82 over <code>B2</code>) while cutting episode loss incidence from 38.04% to 5.52% &mdash; proving that Ridge weather estimation on the 43 northern cells (out-of-sample Jan&ndash;May 2025 MAE 1.047&deg;C, 0.001 mm rain, 0.284% humidity) did <i>not</i> manufacture artificial gains. Second, Stage I lags <code>B2</code> in Himachal Pradesh (&minus;&#8377;76.25) and Apple (&minus;&#8377;76.97), pointing directly toward the sparse-yard/grade problem investigated next in <code>Exp 3</code> and <code>Exp 16</code>. (And per pre-registration discipline, the 4-state NWP check is an exploratory diagnostic, not a rescue of <code>H2</code>.)</li>
+  <li><b>Viva Defense Point:</b> "In Tomato, naive <code>B1</code> earns &#8377;547.64 vs <code>MandiGuard</code> &#8377;522.48 on mean, because occasional sharp summer Tomato rallies lift <code>B1</code>'s average &mdash; yet <code>B1</code> loses money on 32.38% of all episodes while <code>MandiGuard</code> cuts episode losses over six-fold to 5.09%."</li>
+</ul>
+
+<h2>8.4 <code>Exp 3</code> &mdash; Grade-Explicit 2026 Himachal Pradesh Apple Harvest</h2>
+<ul>
+  <li><b>Question:</b> When portals explicitly separate quality grades (<code>Grade A</code>, <code>Grade B</code>, <code>Medium</code>, <code>Local</code>, <code>Range-1</code>, <code>Grade C</code>) during the June&ndash;August 2026 Himachal Apple harvest, how severely do grade-mismatch traps hurt naive chasing, and how does Stage I perform?</li>
+  <li><b>Design:</b> Run the 2024 non-grade-explicit forecaster (streaming causal updates from the Nov 2025&ndash;May 2026 warmup) across <code>1,537</code> shortlisted active HP Apple episodes (June 1 &ndash; August 27, 2026; <code>exp3_hp_apple_grade_holdout.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Grade Stratum (<code>N</code>)</th>
+    <th>Policy</th>
+    <th>Disp (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>Cond. LTR (%)</th>
+    <th>Trap (%)</th>
+    <th>Worst-10% <code>CVaR_10%</code></th>
+    <th>Calls</th>
+    <th>30-qtl Truck (&#8377;)</th>
+  </tr>
+  <tr><td><code>ALL_GRADES</code> (1,537)</td><td><code>B1_NaiveScreen</code></td><td class="num">100.00%</td><td class="num">&#8377;841.58</td><td class="num">58.88%</td><td class="num"><b>94.14%</b></td><td class="num">&minus;&#8377;8,487.24</td><td class="num">0.00</td><td class="num">&#8377;25,247.5</td></tr>
+  <tr><td><code>ALL_GRADES</code> (1,537)</td><td><code>B2_FreshRoad</code></td><td class="num">33.64%</td><td class="num"><b>&#8377;1,150.83</b></td><td class="num">28.43%</td><td class="num">34.04%</td><td class="num">&minus;&#8377;272.50</td><td class="num">9.17</td><td class="num">&#8377;34,525.0</td></tr>
+  <tr><td><code>ALL_GRADES</code> (1,537)</td><td><code>B3_MLPoint</code></td><td class="num">100.00%</td><td class="num">&#8377;749.05</td><td class="num">60.96%</td><td class="num">97.27%</td><td class="num">&minus;&#8377;8,054.15</td><td class="num">9.17</td><td class="num">&#8377;22,471.4</td></tr>
+  <tr class="hl"><td><code>ALL_GRADES</code> (1,537)</td><td><code>MandiGuard</code> (Stage I)</td><td class="num">18.67%</td><td class="num">&#8377;605.06</td><td class="num"><b>21.25%</b></td><td class="num"><b>13.24%</b></td><td class="num"><b>&minus;&#8377;102.76</b></td><td class="num"><b>5.41</b></td><td class="num">&#8377;18,151.8</td></tr>
+  <tr><td><code>Grade A</code> (371)</td><td><code>B1</code>/<code>B2</code>/<code>MG</code></td><td class="num">100/19.41/5.39%</td><td class="num">1,978.22/1,598.95/205.46</td><td class="num">58.76/37.50/20.00%</td><td class="num">90.30/37.50/10.00%</td><td class="num">&minus;9,217.42/&minus;127.89/&minus;4.86</td><td class="num">0/9.27/4.82</td><td class="num">&#8377;6,163.7 (MG)</td></tr>
+  <tr><td><code>Grade B</code> (330)</td><td><code>B1</code>/<code>B2</code>/<code>MG</code></td><td class="num">100/55.15/30.30%</td><td class="num"><b>&minus;427.54</b>/1,020.98/<b>+833.70</b></td><td class="num">67.58/34.62/22.00%</td><td class="num">92.73/30.22/14.00%</td><td class="num">&minus;11,157.52/&minus;4,472.90/&minus;117.76</td><td class="num">0/8.38/5.80</td><td class="num">&#8377;25,011.0 (MG)</td></tr>
+  <tr><td><code>Medium</code> (701)</td><td><code>B1</code>/<code>B2</code>/<code>MG</code></td><td class="num">100/36.38/23.68%</td><td class="num">679.02/1,187.05/813.43</td><td class="num">57.49/21.57/21.08%</td><td class="num">96.01/36.47/13.25%</td><td class="num">&minus;6,869.13/&minus;210.48/&minus;181.25</td><td class="num">0/9.48/5.68</td><td class="num">&#8377;24,403.0 (MG)</td></tr>
+  <tr><td><code>Local</code> (62)</td><td><code>B1</code>/<code>B2</code>/<code>MG</code></td><td class="num">100/12.90/1.61%</td><td class="num">&minus;117.07/106.03/135.71</td><td class="num">69.35/25.00/0.00%</td><td class="num">96.77/12.50/0.00%</td><td class="num">&minus;4,855.22/&minus;213.26/0.00</td><td class="num">0/8.84/4.61</td><td class="num">&#8377;4,071.2 (MG)</td></tr>
+  <tr><td><code>Grade Range-1</code> (59)</td><td><code>B1</code>/<code>B2</code>/<code>MG</code></td><td class="num">100/0.00/0.00%</td><td class="num">4,254.08/0.00/0.00</td><td class="num">11.86/0.00/0.00%</td><td class="num">100.00/0.00/0.00%</td><td class="num">&minus;581.34/0.00/0.00</td><td class="num">0/10.00/5.00</td><td class="num">&#8377;0.00 (MG)</td></tr>
+  <tr><td><code>Grade C</code> (14)</td><td><code>B1</code>/<code>B2</code>/<code>MG</code></td><td class="num">100/0.00/0.00%</td><td class="num">&minus;1,360.63/0.00/0.00</td><td class="num">78.57/0.00/0.00%</td><td class="num">100.00/0.00/0.00%</td><td class="num">&minus;4,565.75/0.00/0.00</td><td class="num">0/7.57/3.79</td><td class="num">&#8377;0.00 (MG)</td></tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG5}"/>
+  <div class="cap"><b>Figure 5.</b> Secondary validation on grade-explicit 2026 Himachal Pradesh Apples (<code>Exp 3</code>, <code>N = 1,537</code>). Panel (A) shows that naive <code>B1</code> and unfiltered <code>B3</code> hit 94.14% and 97.27% traps, while Stage-I <code>MandiGuard</code> cuts traps to 13.24% (though under-dispatching at &#8377;605.06/qtl vs <code>B2</code>'s &#8377;1,150.83/qtl). Panel (B) shows trap elimination across major grades: 90&ndash;97% naive trap rates drop to 0&ndash;14% under <code>MandiGuard</code>.</div>
+</div>
+
+<ul>
+  <li><b>Interpretation:</b> Naive screen chasing triggers <b>94.14% traps</b> and <b>&minus;&#8377;8,487.24/qtl</b> worst-10% losses because farmers selling Grade B apples chase Grade A headline prices! Stage-I <code>MandiGuard</code> cuts traps seven-fold to 13.24%, cuts worst-10% loss from &minus;&#8377;8,487.24 to &minus;&#8377;102.76/qtl, cuts calls 41% vs <code>B2</code> (5.41 vs 9.17), and turns Grade B from <b>&minus;&#8377;427.54/qtl to +&#8377;833.70/qtl</b>. <b>Candid Stage-I failure:</b> overall Stage-I mean profit (&#8377;605.06/qtl, 18.67% dispatch, only 5.39% on Grade A) trails <code>B2</code> (&#8377;1,150.83/qtl, 33.64% dispatch) and <code>B1</code> (&#8377;841.58/qtl). Why? Stage-II <code>Exp 16</code> proves that <code>77.82%</code> of holdout Apple refusals vs <code>B2</code> came from <code>T1</code>'s rolling <code>open_prob_14d &ge; 0.50</code> rule rather than conformal interval width!</li>
+  <li><b>Viva Defense Point:</b> "In Grade B apples, naive chasing loses &#8377;427.54/qtl on average because a Grade B grower sees a Grade A headline price; Stage I flips Grade B to +&#8377;833.70/qtl, and we openly document Stage I's over-refusal on Grade A as the exact motivator for Stage II."</li>
+</ul>
+
+<h2>8.5 <code>Exp 4</code> &mdash; Leave-One-Tool-Out Ablations (All Holdout &amp; Extreme Heat/Rain)</h2>
+<ul>
+  <li><b>Question:</b> Which of the four gates (<code>T1</code>, <code>T2</code>, <code>T3</code>, <code>T4</code>) contributes most to profit and tail-loss protection across all <code>69,526</code> episodes and during the <code>21,656</code> extreme heat (<code>&ge; 35&deg;C</code>) or heavy rain (<code>&ge; 35 mm</code>) trips?</li>
+  <li><b>Design:</b> Disable exactly one gate at a time inside <code>AgentConfig</code> while keeping every other component identical (<code>exp4_tool_ablations.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Ablation Variant</th>
+    <th>Regime (<code>N</code>)</th>
+    <th>Disp (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>Cond. LTR (%)</th>
+    <th>Trap (%)</th>
+    <th>Worst-10% <code>CVaR_10%</code></th>
+    <th>Calls</th>
+  </tr>
+  <tr class="hl"><td><b><code>Full_MandiGuard</code></b></td><td>All Holdout (69,526)</td><td class="num">48.66%</td><td class="num"><b>&#8377;452.79</b></td><td class="num"><b>9.97%</b></td><td class="num"><b>16.17%</b></td><td class="num"><b>&minus;&#8377;37.89</b></td><td class="num">8.75</td></tr>
+  <tr><td><code>No_T1_Vitality</code></td><td>All Holdout (69,526)</td><td class="num">80.55%</td><td class="num">&#8377;318.74</td><td class="num">42.80%</td><td class="num">67.16%</td><td class="num">&minus;&#8377;987.10</td><td class="num">11.03</td></tr>
+  <tr><td><code>No_T2_OSRM_to_Euclid</code></td><td>All Holdout (69,526)</td><td class="num">49.16%</td><td class="num">&#8377;452.35</td><td class="num">10.25%</td><td class="num">16.22%</td><td class="num">&minus;&#8377;38.57</td><td class="num">7.05</td></tr>
+  <tr><td><code>No_T3_Weather</code></td><td>All Holdout (69,526)</td><td class="num">50.18%</td><td class="num">&#8377;455.25</td><td class="num">10.61%</td><td class="num">16.18%</td><td class="num">&minus;&#8377;41.59</td><td class="num">7.23</td></tr>
+  <tr><td><code>No_T4_ConformalLCB</code></td><td>All Holdout (69,526)</td><td class="num">62.75%</td><td class="num">&#8377;448.74</td><td class="num">16.89%</td><td class="num">16.13%</td><td class="num">&minus;&#8377;397.19</td><td class="num">7.23</td></tr>
+  <tr class="hl"><td><b><code>Full_MandiGuard</code></b></td><td>Heat/Rain (21,656)</td><td class="num">55.74%</td><td class="num">&#8377;470.07</td><td class="num"><b>10.10%</b></td><td class="num">16.34%</td><td class="num"><b>&minus;&#8377;57.11</b></td><td class="num">9.62</td></tr>
+  <tr><td><code>No_T1_Vitality</code></td><td>Heat/Rain (21,656)</td><td class="num">85.45%</td><td class="num">&#8377;367.77</td><td class="num">38.74%</td><td class="num">66.92%</td><td class="num">&minus;&#8377;1,003.01</td><td class="num">12.04</td></tr>
+  <tr><td><code>No_T2_OSRM_to_Euclid</code></td><td>Heat/Rain (21,656)</td><td class="num">56.11%</td><td class="num">&#8377;468.22</td><td class="num">10.59%</td><td class="num">16.45%</td><td class="num">&minus;&#8377;58.54</td><td class="num">7.74</td></tr>
+  <tr><td><code>No_T3_Weather</code></td><td>Heat/Rain (21,656)</td><td class="num">58.44%</td><td class="num">&#8377;474.31</td><td class="num">11.39%</td><td class="num">16.43%</td><td class="num">&minus;&#8377;67.49</td><td class="num">7.94</td></tr>
+  <tr><td><code>No_T4_ConformalLCB</code></td><td>Heat/Rain (21,656)</td><td class="num">67.95%</td><td class="num">&#8377;465.50</td><td class="num">15.73%</td><td class="num">15.97%</td><td class="num">&minus;&#8377;458.74</td><td class="num">7.94</td></tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG3}"/>
+  <div class="cap"><b>Figure 3.</b> Leave-one-tool-out ablation across full holdout (<code>N = 69,526</code>) and extreme weather (<code>N = 21,656</code>, <code>Exp 4</code>). Removing <code>T1</code> causes the largest drop in profit (&minus;&#8377;134.05/qtl) and spikes loss-trip rate to 42.80%; removing <code>T4</code> lifts loss-trip rate to 16.89% and tail losses more than 10&times; to &minus;&#8377;397.19/qtl.</div>
+</div>
+
+<ul>
+  <li><b>Interpretation:</b> Two gates carry the load: <code>T1</code> eliminates closed/stale-variety traps (&minus;&#8377;134.05/qtl if removed; traps 4.2&times; to 67.16%; calls jump from 8.75 to 11.03), and <code>T4</code> cuts tail losses 10&times; (&minus;&#8377;37.89 vs &minus;&#8377;397.19/qtl if removed). <code>T2</code> (OSRM vs 1.15&times; Euclid) contributes +&#8377;0.44/qtl overall (+&#8377;1.85/qtl in heat/rain), and <code>T3</code> tightens heat/rain safety (LTR 11.39% &rarr; 10.10%, <code>CVaR_10%</code> &minus;&#8377;67.49 &rarr; &minus;&#8377;57.11/qtl) while trading &minus;&#8377;2.46/qtl overall mean on hot days when destination rallies outpaced spoilage.</li>
+  <li><b>Viva Defense Point:</b> "Removing <code>T1</code> actually <i>increases</i> tool calls (8.75 &rarr; 11.03) while losing &#8377;134.05/qtl &mdash; proving that early pruning saves both compute and farmer cash."</li>
+</ul>
+
+<h2>8.6 <code>Exp 5</code> &mdash; Tool-Call Budget Pareto Frontier</h2>
+<ul>
+  <li><b>Question:</b> When mobile connectivity or API quotas cap total external calls per episode at <code>B &in; {1, 2, 3, 4, 6, 8, 12, 20}</code>, how cleanly does sequential pruning dominate upfront checking (<code>B4</code>) and quantized coordination (<code>B5</code>)?</li>
+  <li><b>Design:</b> Evaluate <code>MandiGuard</code>, <code>B4_UpfrontAllTools</code> (which completes <code>&lfloor;B/4&rfloor;</code> whole candidates), and <code>B5_MultiAgentCoordinator</code> at all 8 caps (<code>exp5_budget_pareto.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Budget Cap <code>B</code></th>
+    <th><code>MandiGuard</code> Mean (Calls / Disp%)</th>
+    <th><code>B4_Upfront</code> Mean (Calls / Disp%)</th>
+    <th><code>B5_MultiAgent</code> Mean (Calls / Disp%)</th>
+    <th><code>MG &minus; B4</code> (&#8377;/qtl)</th>
+  </tr>
+  <tr><td class="num">1</td><td class="num">&#8377;0.00 (1.00 / 0.00%)</td><td class="num">&#8377;0.00 (1.00 / 0.00%)</td><td class="num">&#8377;0.00 (1.00 / 0.00%)</td><td class="num">&#8377;0.00</td></tr>
+  <tr><td class="num">2</td><td class="num">&#8377;0.00 (1.93 / 0.00%)</td><td class="num">&#8377;0.00 (2.00 / 0.00%)</td><td class="num">&#8377;0.00 (1.93 / 0.00%)</td><td class="num">&#8377;0.00</td></tr>
+  <tr><td class="num">3</td><td class="num">&#8377;0.00 (2.81 / 0.00%)</td><td class="num">&#8377;0.00 (3.00 / 0.00%)</td><td class="num">&#8377;0.00 (2.81 / 0.00%)</td><td class="num">&#8377;0.00</td></tr>
+  <tr><td class="num">4</td><td class="num">&#8377;299.31 (3.65 / 30.09%)</td><td class="num">&#8377;299.31 (4.00 / 30.09%)</td><td class="num">&#8377;291.59 (3.66 / 26.25%)</td><td class="num">&#8377;0.00</td></tr>
+  <tr class="hl"><td class="num"><b>6</b></td><td class="num"><b>&#8377;403.85 (5.05 / 44.07%)</b></td><td class="num">&#8377;299.31 (5.75 / 30.09%)</td><td class="num">&#8377;391.57 (5.05 / 37.89%)</td><td class="num"><b>+&#8377;104.54</b></td></tr>
+  <tr><td class="num">8</td><td class="num">&#8377;435.70 (6.19 / 47.53%)</td><td class="num">&#8377;389.17 (7.49 / 41.12%)</td><td class="num">&#8377;421.59 (6.19 / 40.61%)</td><td class="num">+&#8377;46.53</td></tr>
+  <tr><td class="num">12</td><td class="num">&#8377;447.67 (7.73 / 48.49%)</td><td class="num">&#8377;420.04 (10.57 / 45.28%)</td><td class="num">&#8377;432.57 (7.73 / 41.44%)</td><td class="num">+&#8377;27.63</td></tr>
+  <tr><td class="num">20</td><td class="num">&#8377;452.79 (8.75 / 48.66%)</td><td class="num">&#8377;452.79 (15.74 / 48.66%)</td><td class="num">&#8377;437.39 (8.76 / 41.59%)</td><td class="num">&#8377;0.00 (44.4% fewer calls)</td></tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG4}"/>
+  <div class="cap"><b>Figure 4.</b> Tool-call budget vs realized net gain Pareto frontier on holdout (<code>Exp 5</code>). Under a tight cap of <code>B = 6</code> calls, <code>MandiGuard</code> reaches &#8377;403.85/qtl in 5.05 avg calls, beating upfront <code>B4</code> (&#8377;299.31/qtl in 5.75 calls) by +&#8377;104.54/qtl.</div>
+</div>
+
+<ul>
+  <li><b>Interpretation:</b> At <code>B = 6</code>, <code>B4</code> gets stuck after checking <code>&lfloor;6/4&rfloor; = 1</code> candidate (earning &#8377;299.31/qtl in 5.75 calls), whereas <code>MandiGuard</code> quickly prunes stale top-rank traps at 1 call each and finishes later valid candidates, earning <b>&#8377;403.85/qtl (+&#8377;104.54/qtl, +&#8377;3,136.4 per 30-qtl truck)</b> using fewer calls (5.05).</li>
+  <li><b>Viva Defense Point:</b> "Direct API cost savings (&#8377;0.05/call) are tiny compared with crop profit, so the real engineering reason for <code>H4</code> is latency and tight query caps like <code>B = 6</code>, where sequential pruning is worth +&#8377;104.54/qtl."</li>
+</ul>
+
+<h2>8.7 <code>Exp 6</code> &mdash; 3&times;3 Freight &times; Spoilage Grid &amp; GoI Statutory Fee Ablation</h2>
+<ul>
+  <li><b>Question:</b> Because trucking rates and biological decay rates are survey-anchored parameters rather than weighbridge receipts, do Stage-I conclusions flip if true freight or spoilage differs by &plusmn;25%&ndash;50%, or if we use state-specific GoI APMC fee rules instead of a uniform 1.5% charge?</li>
+  <li><b>Design:</b> Recompute realized outcomes across all 9 cells of <code>freight_mult &in; {0.75, 1.0, 1.25}</code> &times; <code>spoilage_mult &in; {0.5, 1.0, 1.5}</code> plus a 10th row disabling state-specific GoI fees (<code>exp6_sensitivity_grid.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Freight Mult</th>
+    <th>Spoilage Mult</th>
+    <th>State GoI Fees</th>
+    <th><code>B1</code> (&#8377;)</th>
+    <th><code>B2</code> (&#8377;)</th>
+    <th><code>MG</code> (&#8377;)</th>
+    <th><code>MG &minus; B1</code></th>
+    <th><code>MG &minus; B2</code></th>
+    <th><code>B1</code> LTR (%)</th>
+    <th><code>MG</code> LTR (%)</th>
+  </tr>
+  <tr><td class="num">0.75&times;</td><td class="num">0.5&times;</td><td>Yes</td><td class="num">406.99</td><td class="num">491.14</td><td class="num">489.62</td><td class="num"><b>+82.62</b></td><td class="num">&minus;1.52</td><td class="num">38.07%</td><td class="num">9.01%</td></tr>
+  <tr><td class="num">0.75&times;</td><td class="num">1.0&times;</td><td>Yes</td><td class="num">380.23</td><td class="num">467.80</td><td class="num">473.07</td><td class="num"><b>+92.84</b></td><td class="num">+5.27</td><td class="num">39.13%</td><td class="num">9.64%</td></tr>
+  <tr><td class="num">0.75&times;</td><td class="num">1.5&times;</td><td>Yes</td><td class="num">353.47</td><td class="num">444.47</td><td class="num">457.11</td><td class="num"><b>+103.64</b></td><td class="num">+12.64</td><td class="num">40.28%</td><td class="num">10.22%</td></tr>
+  <tr><td class="num">1.00&times;</td><td class="num">0.5&times;</td><td>Yes</td><td class="num">376.26</td><td class="num">469.37</td><td class="num">468.50</td><td class="num"><b>+92.24</b></td><td class="num">&minus;0.87</td><td class="num">39.36%</td><td class="num">9.48%</td></tr>
+  <tr class="hl"><td class="num"><b>1.00&times;</b></td><td class="num"><b>1.0&times;</b></td><td><b>Yes</b></td><td class="num">350.01</td><td class="num">446.66</td><td class="num"><b>452.79</b></td><td class="num"><b>+102.78</b></td><td class="num">+6.13</td><td class="num">40.46%</td><td class="num"><b>9.97%</b></td></tr>
+  <tr><td class="num">1.00&times;</td><td class="num">1.5&times;</td><td>Yes</td><td class="num">323.76</td><td class="num">423.94</td><td class="num">437.35</td><td class="num"><b>+113.59</b></td><td class="num">+13.41</td><td class="num">41.57%</td><td class="num">10.61%</td></tr>
+  <tr><td class="num">1.25&times;</td><td class="num">0.5&times;</td><td>Yes</td><td class="num">349.18</td><td class="num">448.92</td><td class="num">448.91</td><td class="num"><b>+99.72</b></td><td class="num">&minus;0.02</td><td class="num">40.11%</td><td class="num">9.71%</td></tr>
+  <tr><td class="num">1.25&times;</td><td class="num">1.0&times;</td><td>Yes</td><td class="num">323.40</td><td class="num">426.73</td><td class="num">433.53</td><td class="num"><b>+110.13</b></td><td class="num">+6.80</td><td class="num">41.22%</td><td class="num">10.30%</td></tr>
+  <tr><td class="num">1.25&times;</td><td class="num">1.5&times;</td><td>Yes</td><td class="num">297.61</td><td class="num">404.54</td><td class="num">419.04</td><td class="num"><b>+121.42</b></td><td class="num">+14.50</td><td class="num">42.36%</td><td class="num">10.88%</td></tr>
+  <tr><td class="num">1.00&times;</td><td class="num">1.0&times;</td><td>No (1.5% uniform)</td><td class="num">338.02</td><td class="num">439.07</td><td class="num">445.67</td><td class="num"><b>+107.66</b></td><td class="num">+6.60</td><td class="num">40.84%</td><td class="num">10.00%</td></tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG6}"/>
+  <div class="cap"><b>Figure 6.</b> Sensitivity grid across <code>3 &times; 3</code> freight and weather spoilage multipliers (<code>Exp 6</code>). Panel (A) shows <code>MandiGuard</code> beats <code>B1</code> in all 9/9 parameter cells by +&#8377;82.62 to +&#8377;121.42/qtl. Panel (B) shows <code>MandiGuard</code> leads <code>B2</code> at 1.0&times; and 1.5&times; spoilage (+&#8377;5.27 to +&#8377;14.50/qtl) and trails marginally by &minus;&#8377;0.02 to &minus;&#8377;1.52/qtl only when spoilage is halved to 0.5&times;.</div>
+</div>
+
+<ul>
+  <li><b>Interpretation:</b> Across all 9 cost regimes, <code>MandiGuard</code> outperforms <code>B1</code> by +&#8377;82.62 to +&#8377;121.42/qtl while keeping loss-trip rate tightly inside 9.01%&ndash;10.88% (vs 38.07%&ndash;42.36% for <code>B1</code>). Modeling verified state-specific GoI APMC F&amp;V exemptions (0.5% in GJ/KA/HP-Veg, 1.0% in MH/HP-Apple, 1.5% in MP/UP) increases realized profit by <b>+&#8377;7.12/qtl</b> over uniform 1.5% fees (&#8377;452.79 vs &#8377;445.67/qtl).</li>
+  <li><b>Viva Defense Point:</b> "Even if real-world spoilage is half of NABCONS survey rates and freight is 25% cheaper, our margin over naive chasing remains +&#8377;82.62/qtl (+&#8377;2,479 per truck)."</li>
+</ul>
+
+<h2>8.8 <code>Exp 7</code> &mdash; Where Every Episode Is Stopped: Rejection Breakdown</h2>
+<ul>
+  <li><b>Question:</b> Across all <code>69,526</code> shortlisted holdout episodes, how many episodes pass to dispatch and at which exact gate does each refused episode terminate?</li>
+  <li><b>Design:</b> Tabulate final episode <code>action</code>, primary <code>reason</code>, episode share (%), and mean tool calls overall and per commodity (<code>exp7_rejection_breakdown.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Decision &amp; Reason Code</th>
+    <th>Overall % (Count)</th>
+    <th>Overall Calls</th>
+    <th>Apple %</th>
+    <th>Onion %</th>
+    <th>Potato %</th>
+    <th>Tomato %</th>
+  </tr>
+  <tr class="hl"><td><code>DISPATCH</code> (<code>DISPATCH_CLEARED_LCB</code>)</td><td class="num"><b>48.66%</b> (33,828)</td><td class="num">12.30</td><td class="num">55.12%</td><td class="num">38.90%</td><td class="num">53.32%</td><td class="num">53.32%</td></tr>
+  <tr><td><code>REFUSE</code>: <code>VARIETY_OR_STALE</code> (<code>T1</code>)</td><td class="num"><b>25.48%</b> (17,713)</td><td class="num">3.64</td><td class="num">28.92%</td><td class="num">26.42%</td><td class="num">24.57%</td><td class="num">23.86%</td></tr>
+  <tr><td><code>REFUSE</code>: <code>CLOSED_YARD_RISK</code> (<code>T1</code>)</td><td class="num"><b>5.34%</b> (3,714)</td><td class="num">3.04</td><td class="num">6.22%</td><td class="num">5.50%</td><td class="num">7.43%</td><td class="num">3.04%</td></tr>
+  <tr><td><code>REFUSE</code>: <code>FREIGHT_EXCEEDS_SPREAD</code> (<code>T2</code>)</td><td class="num">2.24% (1,555)</td><td class="num">3.55</td><td class="num">0.52%</td><td class="num">3.68%</td><td class="num">2.60%</td><td class="num">0.94%</td></tr>
+  <tr><td><code>REFUSE</code>: <code>WEATHER_SPOILAGE_RISK</code> (<code>T3</code>)</td><td class="num">0.71% (494)</td><td class="num">4.96</td><td class="num">0.51%</td><td class="num">1.11%</td><td class="num">0.47%</td><td class="num">0.54%</td></tr>
+  <tr><td><code>REFUSE</code>: <code>ARRIVAL_REVERSION_RISK</code> (<code>T4</code>)</td><td class="num">17.58% (12,222)</td><td class="num">8.86</td><td class="num">8.71%</td><td class="num">24.39%</td><td class="num">11.61%</td><td class="num">18.30%</td></tr>
+</table>
+
+<ul>
+  <li><b>Interpretation:</b> Gate <code>T1</code> stops <b>30.82%</b> of all episodes (<code>25.48% + 5.34%</code>) in just 3.04&ndash;3.64 calls on average! Meanwhile, <code>T4</code> catches another 17.58% (24.39% in Onion, where spreads are narrowest relative to volatility) after an average of 8.86 calls.</li>
+  <li><b>Viva Defense Point:</b> "Almost one in three market opportunities dies right at Gate <code>T1</code> before we ever ask for weather or run ML, keeping total average call volume at 8.75."</li>
+</ul>
+
+<h2>8.9 <code>Exp 8</code> &mdash; Live Official <code>agmarknet.gov.in</code> Yard Activity Check (Nov 2026)</h2>
+<ul>
+  <li><b>Question:</b> Are non-reporting markets an old historical quirk in our 2017&ndash;2026 archive, or do major Indian APMCs still go silent for days at a time on the live government portal right now?</li>
+  <li><b>Design:</b> Query 22 benchmark market-commodity corridors directly against live <code>agmarknet.gov.in</code> on November 17, 2026 across the prior 7-day window (<code>exp8_live_nov2026_demo.json</code>).</li>
+  <li><b>Verified Numbers:</b> Out of <b>22 live queries</b>, exactly <b>11 (50.0%)</b> had zero reported prices across the entire prior week (<code>PRUNE_NON_REPORTING_7D</code>: Lasalgaon, Bhokardan, Talegaon Dabhade, APMC Mumbai in MH Onion; Bengaluru in KA Tomato; Ujjain, Ratlam in MP Onion; Mahuva, Rajkot, Gondal, Bhavnagar in GJ Onion). Two markets (9.1%) were sparse (<code>WATCH_SPARSE</code>: Indore 2 days, PMY Dhalli Shimla 1 day), and 9 (40.9%) were active (<code>PASS_ACTIVE</code>: Solapur 3d, Prayagraj 7d, Kanpur 6d, Lucknow 4d, Kolar 7d, Mysuru 6d, Ramanagara 7d, Shajapur 6d, Ahmedabad 9 entries).</li>
+  <li><b>Interpretation &amp; Viva Defense Point:</b> "Even in November 2026 on live <code>agmarknet.gov.in</code>, 50% of benchmark yards &mdash; including major hubs like Lasalgaon, Bengaluru, and Rajkot &mdash; reported zero days in a full week. Checking portal freshness first (<code>T1</code>) is essential in production."</li>
+</ul>
+
+<h2>8.10 <code>Exp 9</code> &mdash; Zero-Shot Leave-One-State-Out (LOSO) Transfer</h2>
+<ul>
+  <li><b>Question:</b> If we deploy <code>MandiGuard</code> in a brand-new Indian state whose historical prices were never seen during tree training, does it still transfer safely?</li>
+  <li><b>Design:</b> For each of the 6 states in turn, fit <code>CausalArrivalForecaster</code> strictly on 2024 rows from the <i>other 5 states</i>, warm conformal residuals on the held-out state during <code>Val_2025H1</code>, and score <code>Holdout_2025_2026</code> (<code>exp9_loso_transfer_and_arrival_drop.csv</code>).</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Held-Out State (<code>N</code>)</th>
+    <th>Policy</th>
+    <th>Disp (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>Cond. LTR (%)</th>
+    <th>Cond. Arrival Drop (%)</th>
+    <th>Cond. Trap (%)</th>
+    <th><code>MG_LOSO &minus; B1</code></th>
+  </tr>
+  <tr><td>Maharashtra (15,045)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code>/<b><code>MG_LOSO</code></b></td><td class="num">95.72/63.46/97.79/<b>53.34</b></td><td class="num">595.69/592.89/539.96/<b>651.08</b></td><td class="num">38.87/14.15/46.11/<b>6.60</b></td><td class="num">52.28/8.18/62.45/<b>3.91</b></td><td class="num">61.76/23.83/69.41/<b>16.00</b></td><td class="num"><b>+&#8377;55.39</b></td></tr>
+  <tr><td>Uttar Pradesh (17,808)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code>/<b><code>MG_LOSO</code></b></td><td class="num">75.94/45.82/84.93/<b>35.95</b></td><td class="num">154.68/217.97/17.81/<b>216.22</b></td><td class="num">38.61/14.54/52.18/<b>8.11</b></td><td class="num">53.07/5.94/70.58/<b>3.34</b></td><td class="num">55.13/10.44/71.71/<b>7.17</b></td><td class="num"><b>+&#8377;61.54</b></td></tr>
+  <tr><td>Karnataka (6,733)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code>/<b><code>MG_LOSO</code></b></td><td class="num">95.77/70.13/95.22/<b>53.30</b></td><td class="num">330.55/420.42/309.45/<b>400.06</b></td><td class="num">42.74/21.09/44.42/<b>11.45</b></td><td class="num">46.67/15.40/51.44/<b>8.08</b></td><td class="num">60.03/35.58/62.86/<b>19.67</b></td><td class="num"><b>+&#8377;69.51</b></td></tr>
+  <tr><td>Madhya Pradesh (6,286)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code>/<b><code>MG_LOSO</code></b></td><td class="num">92.60/55.68/88.53/<b>31.67</b></td><td class="num">88.73/213.71/160.86/<b>211.52</b></td><td class="num">51.57/27.94/46.92/<b>11.45</b></td><td class="num">55.66/20.83/53.80/<b>8.04</b></td><td class="num">59.70/24.94/57.92/<b>12.96</b></td><td class="num"><b>+&#8377;122.79</b></td></tr>
+  <tr><td>Gujarat (14,702)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code>/<b><code>MG_LOSO</code></b></td><td class="num">97.07/73.63/96.59/<b>64.60</b></td><td class="num">439.26/428.14/385.52/<b>450.76</b></td><td class="num">34.44/16.03/39.39/<b>10.62</b></td><td class="num">47.63/10.17/56.82/<b>6.78</b></td><td class="num">58.63/24.73/66.16/<b>19.64</b></td><td class="num"><b>+&#8377;11.50</b></td></tr>
+  <tr><td>Himachal Pradesh (8,952)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code>/<b><code>MG_LOSO</code></b></td><td class="num">95.79/71.83/95.51/<b>54.26</b></td><td class="num">377.18/869.54/649.08/<b>801.37</b></td><td class="num">46.82/24.48/46.46/<b>14.31</b></td><td class="num">45.29/15.49/48.49/<b>9.72</b></td><td class="num">59.42/33.39/63.18/<b>19.25</b></td><td class="num"><b>+&#8377;424.19</b></td></tr>
+</table>
+
+<ul>
+  <li><b>Interpretation:</b> Zero-shot <code>MandiGuard_LOSO</code> beats naive <code>B1</code> in <b>6 out of 6 unseen states</b> (+&#8377;424.19 HP, +&#8377;122.79 MP, +&#8377;69.51 KA, +&#8377;61.54 UP, +&#8377;55.39 MH, +&#8377;11.50 GJ) and cuts arrival-day price drops down to <b>3.34%&ndash;9.72%</b> (versus 45.29%&ndash;55.66% for <code>B1</code> and 48.49%&ndash;70.58% for <code>B3</code>).</li>
+  <li><b>Viva Defense Point:</b> "Even when Himachal Pradesh's mountain markets are held out completely during training, causal conformal warming plus <code>T1</code>&ndash;<code>T3</code> outperforms naive chasing by +&#8377;424.19/qtl."</li>
+</ul>
+
+<h2>8.11 <code>Exp 10</code> &amp; <code>Exp 10b</code> &mdash; Ten-Year Macro Regimes (<code>2017&ndash;2026</code>) &amp; Training Scaling</h2>
+<ul>
+  <li><b>Question:</b> Does Stage-I stability hold over nearly a decade of macro shocks &mdash; 2017 GST transition, Pre-COVID, 2020&ndash;21 COVID lockdowns, 2022&ndash;23 export curbs, and the 2024 El-Ni&ntilde;o heatwave &mdash; and does training on 8 years of data beat training on 1 recent year?</li>
+  <li><b>Design:</b> Pair <code>42,722,187</code> raw AGMARKNET records (<code>883,406</code> core-panel rows) with <code>291,384</code> NASA POWER daily grids (2017&ndash;2023) plus ERA5/NWP (2024&ndash;2026), evaluating <b>661,192 matched episodes</b> across 6 eras using strictly expanding historical training windows (<code>Exp 10</code>), then test 1-Yr vs 3-Yr vs 8-Yr training on Holdout (<code>Exp 10b</code>).</li>
+</ul>
+
+<p><b>Table 7: Multi-Regime Evaluation Across Six Macro Eras (<code>2017&ndash;2026</code>, <code>N = 661,192</code>, <code>exp10_decade_regime_evolution_2017_2026.csv</code>)</b></p>
+<table>
+  <tr>
+    <th>Macro Era (<code>N</code> Trips, Train Window)</th>
+    <th><code>B1</code> Mean (LTR / <code>CVaR_10%</code>)</th>
+    <th><code>B2</code> Mean (LTR / <code>CVaR_10%</code>)</th>
+    <th><code>MandiGuard</code> Mean (30-qtl Truck)</th>
+    <th><code>MG</code> LTR (%)</th>
+    <th><code>MG</code> Trap (%)</th>
+    <th><code>MG</code> <code>CVaR_10%</code></th>
+    <th><code>MG &minus; B1</code></th>
+  </tr>
+  <tr><td>2017H2 GST (31,997; <code>2017H1</code>)</td><td class="num">&#8377;393.39 (39.18%/&minus;910.99)</td><td class="num"><b>&#8377;430.35</b> (19.75%/&minus;465.04)</td><td class="num">&#8377;425.04 (&#8377;12,751.2)</td><td class="num"><b>11.67%</b></td><td class="num"><b>17.57%</b></td><td class="num"><b>&minus;&#8377;31.62</b></td><td class="num">+&#8377;31.65</td></tr>
+  <tr><td>2018&ndash;19 Pre-COVID (145,972; <code>2017</code>)</td><td class="num">&#8377;254.77 (42.36%/&minus;786.52)</td><td class="num">&#8377;329.53 (17.69%/&minus;313.32)</td><td class="num"><b>&#8377;345.17</b> (&#8377;10,355.1)</td><td class="num"><b>8.78%</b></td><td class="num"><b>13.90%</b></td><td class="num"><b>&minus;&#8377;20.93</b></td><td class="num">+&#8377;90.40</td></tr>
+  <tr><td>2020&ndash;21 COVID (139,032; <code>2017&ndash;19</code>)</td><td class="num">&#8377;279.96 (42.24%/&minus;851.55)</td><td class="num"><b>&#8377;355.24</b> (18.63%/&minus;353.56)</td><td class="num">&#8377;340.83 (&#8377;10,224.8)</td><td class="num"><b>10.59%</b></td><td class="num"><b>15.60%</b></td><td class="num"><b>&minus;&#8377;23.42</b></td><td class="num">+&#8377;60.87</td></tr>
+  <tr><td>2022&ndash;23 Infl./Curb (178,197; <code>2017&ndash;21</code>)</td><td class="num">&#8377;278.41 (42.22%/&minus;1,057.30)</td><td class="num">&#8377;376.00 (18.79%/&minus;451.87)</td><td class="num"><b>&#8377;394.37</b> (&#8377;11,831.0)</td><td class="num"><b>10.50%</b></td><td class="num"><b>14.17%</b></td><td class="num"><b>&minus;&#8377;33.29</b></td><td class="num">+&#8377;115.96</td></tr>
+  <tr class="hl"><td>2024 El-Ni&ntilde;o Heat (96,468; <code>2017&ndash;23</code>)</td><td class="num">&#8377;222.77 (44.29%/&minus;1,289.28)</td><td class="num">&#8377;381.99 (18.94%/&minus;474.26)</td><td class="num"><b>&#8377;387.91</b> (&#8377;11,637.4)</td><td class="num"><b>12.03%</b></td><td class="num"><b>15.32%</b></td><td class="num"><b>&minus;&#8377;36.82</b></td><td class="num"><b>+&#8377;165.14</b></td></tr>
+  <tr><td>2025&ndash;26 Holdout (69,526; <code>2024</code>)</td><td class="num">&#8377;350.01 (40.46%/&minus;1,062.66)</td><td class="num">&#8377;446.66 (18.11%/&minus;436.67)</td><td class="num"><b>&#8377;452.79</b> (&#8377;13,583.6)</td><td class="num"><b>9.97%</b></td><td class="num"><b>16.17%</b></td><td class="num"><b>&minus;&#8377;37.89</b></td><td class="num">+&#8377;102.78</td></tr>
+</table>
+
+<p><b><code>Exp 10b</code> Multi-Year Training Horizon Scaling (<code>Holdout_2025_2026</code>, <code>exp10b_multiyear_training_scaling.csv</code>):</b></p>
+<table>
+  <tr>
+    <th>Training Horizon</th>
+    <th>Train Rows</th>
+    <th>Disp (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>30-qtl Truck (&#8377;)</th>
+    <th>Cond. LTR (%)</th>
+    <th>Trap (%)</th>
+    <th><code>CVaR_10%</code> (&#8377;/qtl)</th>
+    <th>Calls</th>
+  </tr>
+  <tr><td><code>MandiGuard_1Yr</code> (2024 only)</td><td class="num">701,932</td><td class="num">48.66%</td><td class="num">&#8377;452.79</td><td class="num">&#8377;13,583.6</td><td class="num">9.97%</td><td class="num">16.17%</td><td class="num">&minus;&#8377;37.89</td><td class="num">8.75</td></tr>
+  <tr><td><code>MandiGuard_3Yr</code> (2022&ndash;2024)</td><td class="num">1,668,451</td><td class="num">49.04%</td><td class="num">&#8377;454.74</td><td class="num">&#8377;13,642.3</td><td class="num">10.02%</td><td class="num">15.87%</td><td class="num">&minus;&#8377;37.02</td><td class="num">8.75</td></tr>
+  <tr class="hl"><td><code>MandiGuard_8Yr</code> (2017&ndash;2024)</td><td class="num">3,437,098</td><td class="num">49.07%</td><td class="num">&#8377;454.94</td><td class="num">&#8377;13,648.2</td><td class="num">9.98%</td><td class="num">15.92%</td><td class="num">&minus;&#8377;37.09</td><td class="num">8.75</td></tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG7}"/>
+  <div class="cap"><b>Figure 7.</b> Ten-year macro-regime evaluation (<code>Exp 10</code>) and exploratory predictor preview (<code>Exp 11</code>). Panel (A) shows causal <code>MandiGuard</code> holding loss-trip rates within 8.78%&ndash;12.03% across all six eras (2017&ndash;2026, <code>N = 661,192</code>), peaking at +&#8377;165.14/qtl over <code>B1</code> during the 2024 El-Ni&ntilde;o heatwave. Panel (B) previews alternative predictors and Adaptive Conformal Inference (<code>Exp 11</code>), examined as exploratory Appendix material in Chapter 10.</div>
+</div>
+
+<ul>
+  <li><b>Interpretation:</b> Across 661,192 episodes spanning GST, COVID, export bans, and heatwaves, naive <code>B1</code> loses money 39.18%&ndash;44.29% of the time with tail losses reaching &minus;&#8377;1,289.28/qtl, whereas <code>MandiGuard</code> bounds loss trips to 8.78%&ndash;12.03% and tail losses to &minus;&#8377;20.93 to &minus;&#8377;37.89/qtl. Notice also <code>Exp 10b</code>: expanding training nearly 5&times; from 701,932 rows (1 year) to 3,437,098 rows (8 years) adds only <b>+&#8377;2.15/qtl</b> (&#8377;452.79 &rarr; &#8377;454.94), confirming that recent market dynamics and conformal risk buffers outweigh raw multi-year volume.</li>
+  <li><b>Viva Defense Point:</b> "When an examiner asks whether 2024 was an abnormally lucky period, point to Table 7: 2024 El-Ni&ntilde;o was actually the hardest stress era (<code>B1</code> crashed to &#8377;222.77/qtl and &minus;&#8377;1,289.28 tail), and <code>MandiGuard</code> delivered its largest margin (+&#8377;165.14/qtl) there."</li>
+</ul>
+
+<h2>8.12 <code>Exp 14</code> &mdash; Dual-Tier Official <code>data.gov.in</code> XML &amp; <code>AGMARKNET 2.0</code> Parity Audit</h2>
+<ul>
+  <li><b>Question:</b> Because our bulk 2017&ndash;2026 historical files came from a public AGMARKNET archive mirror rather than direct government XML downloads, do those mirror prices match official Government of India releases down to the exact rupee?</li>
+  <li><b>Design:</b> Execute a two-tier audit (<code>exp14_official_datagov_parity_audit.csv</code>): Tier 1 cross-checks a single-day official <code>data.gov.in</code> XML release (<code>2023-10-18</code>, Resource <code>9ef84268-d588-465a-a308-a864a43d0070</code>), and Tier 2 cross-checks a 149-trading-day direct official <code>AGMARKNET 2.0</code> export (<code>hp_apple_daily_2025_2026.csv</code>) against the archive mirror overlap.</li>
+</ul>
+
+<table>
+  <tr>
+    <th>Official Audit Tier</th>
+    <th>Date Window</th>
+    <th>Total Gov Rows</th>
+    <th>6-State/4-Crop (Panel)</th>
+    <th>Matched Keys</th>
+    <th>Exact Matches</th>
+    <th><code>Min_Price</code> Parity</th>
+    <th><code>Max_Price</code> Parity</th>
+    <th><code>Modal_Price</code> Parity</th>
+  </tr>
+  <tr>
+    <td><b>Tier 1:</b> <code>data.gov.in</code> XML (<code>9ef84268-...</code>)</td>
+    <td><code>2023-10-18</code> (1 day)</td>
+    <td class="num">6,434</td>
+    <td class="num">532 (181)</td>
+    <td class="num">172</td>
+    <td class="num">171</td>
+    <td class="num"><b>100.00%</b></td>
+    <td class="num"><b>100.00%</b></td>
+    <td class="num"><b>99.42%</b> (171/172)</td>
+  </tr>
+  <tr class="hl">
+    <td><b>Tier 2:</b> Direct <code>AGMARKNET 2.0</code> Export</td>
+    <td><code>2025-11-07..2026-04-13</code> (149 days)</td>
+    <td class="num">4,427</td>
+    <td class="num">2,082 (2,042)</td>
+    <td class="num">2,042</td>
+    <td class="num">2,042</td>
+    <td class="num"><b>100.00%</b></td>
+    <td class="num"><b>100.00%</b></td>
+    <td class="num"><b>100.00%</b> (2,042/2,042)</td>
+  </tr>
+</table>
+
+<ul>
+  <li><b>Interpretation &amp; Candid Scope Limit:</b> Tier 1 achieves 100.00% Min/Max and 99.42% Modal parity across 172 matched keys; Tier 2 achieves <b>100.00% exact rupee parity (2,042/2,042) across all three fields</b> over 149 distinct official trading dates (covering 98.08% of the 2,082 official rows in the mirror overlap window). Candid limitation: multi-year all-crop official XML archives remain unpulled due to portal history limits.</li>
+  <li><b>Viva Defense Point:</b> "We did not take a third-party Hugging Face mirror on blind faith &mdash; we audited exact rupee parity against both <code>data.gov.in</code> XML and 149 days of direct <code>AGMARKNET 2.0</code> exports."</li>
+</ul>
+
+<h2>8.13 <code>Exp 15</code> &mdash; Trap-Penalty Crossover Curve &amp; Fair Matched Open-Yard Cohorts</h2>
+<ul>
+  <li><b>Question:</b> Critics might ask: "What if missing destination prices in the 3-day window are just clerk non-reporting rather than closed yards, or what if your simulated <code>1.5&times;</code> return freight penalty drove all of <code>MandiGuard</code>'s advantage?"</li>
+  <li><b>Design:</b> Evaluate two transparent counterfactual checks on <code>Holdout_2025_2026</code> (<code>exp15_missing_data_open_yard_sensitivity.csv</code>): (A) sweep trap penalties across all 69,526 episodes from <code>1.5&times;/10%</code> down to <code>0.0&times;/0%</code> and a <code>&#8377;0</code> break-even phone-ahead scenario (Regimes 1&ndash;5); and (B) restrict evaluation to <b>identical guaranteed-open episodes</b> where every single shortlisted top-5 candidate has observed prices on arrival day <code>d0</code> (<code>N = 10,162</code>) or within <code>d0..d2</code> (<code>N = 16,849</code>) with zero simulated traps and zero selection bias (Regimes 6&ndash;7).</li>
+</ul>
+
+<table>
+  <tr>
+    <th><code>Exp 15</code> Regime (<code>Scope</code>, <code>N</code>)</th>
+    <th><code>B1</code> Mean (LTR / <code>CVaR_10%</code>)</th>
+    <th><code>B2</code> Mean (LTR / <code>CVaR_10%</code>)</th>
+    <th><code>B3</code> Mean (LTR / <code>CVaR_10%</code>)</th>
+    <th><code>MG</code> Mean (LTR / <code>CVaR_10%</code>)</th>
+    <th><code>MG &minus; B1</code></th>
+    <th><code>MG &minus; B2</code></th>
+    <th><code>MG &minus; B3</code></th>
+  </tr>
+  <tr><td><code>1_Baseline_Div1.5x_Disc10pct</code> (69,526)</td><td class="num">350.01 (40.46%/&minus;1,062.66)</td><td class="num">446.66 (18.11%/&minus;436.67)</td><td class="num">330.85 (45.28%/&minus;1,097.80)</td><td class="num">452.79 (9.97%/&minus;37.89)</td><td class="num"><b>+102.78</b></td><td class="num">+6.13</td><td class="num"><b>+121.94</b></td></tr>
+  <tr><td><code>2_OneWayDiv_Div1.0x_Disc10pct</code> (69,526)</td><td class="num">362.61 (40.46%/&minus;1,045.30)</td><td class="num">449.33 (18.11%/&minus;409.93)</td><td class="num">344.88 (45.28%/&minus;1,085.36)</td><td class="num">454.27 (9.97%/&minus;35.25)</td><td class="num"><b>+91.66</b></td><td class="num">+4.94</td><td class="num"><b>+109.39</b></td></tr>
+  <tr><td><code>3_HalfDiv_Div0.5x_Disc5pct</code> (69,526)</td><td class="num">413.57 (38.01%/&minus;949.48)</td><td class="num">452.32 (18.08%/&minus;381.62)</td><td class="num">409.88 (42.07%/&minus;953.61)</td><td class="num">456.00 (9.97%/&minus;32.37)</td><td class="num"><b>+42.43</b></td><td class="num">+3.68</td><td class="num"><b>+46.12</b></td></tr>
+  <tr><td><code>4_ZeroDiv_Div0.0x_Disc0pct</code> <i>(crossover)</i> (69,526)</td><td class="num"><b>468.17</b> (18.52%/&minus;877.41)</td><td class="num">456.09 (12.50%/&minus;70.80)</td><td class="num"><b>479.09</b> (20.40%/&minus;851.02)</td><td class="num">458.17 (<b>6.09%</b>/<b>&minus;28.70</b>)</td><td class="num">&minus;10.00</td><td class="num">+2.08</td><td class="num">&minus;20.93</td></tr>
+  <tr><td><code>5_ZeroTrap_BreakEven0_Missing3d</code> (69,526)</td><td class="num">376.77 (8.33%/&minus;62.39)</td><td class="num">457.24 (12.25%/&minus;67.00)</td><td class="num">385.42 (4.93%/&minus;31.21)</td><td class="num">459.03 (5.96%/&minus;26.20)</td><td class="num"><b>+82.26</b></td><td class="num">+1.79</td><td class="num"><b>+73.61</b></td></tr>
+  <tr class="hl"><td><code>6_Fair_Matched_AllTopK_Observed_d0</code> (<b>10,162</b>)</td><td class="num">472.51 (19.84%/&minus;694.72)</td><td class="num">469.99 (15.09%/&minus;94.70)</td><td class="num"><b>553.22</b> (14.77%/&minus;362.40)</td><td class="num">510.89 (<b>6.82%</b>/<b>&minus;36.07</b>)</td><td class="num"><b>+38.38</b></td><td class="num"><b>+40.91</b></td><td class="num">&minus;42.33</td></tr>
+  <tr><td><code>7_Fair_Matched_AllTopK_Observed_3d</code> (<b>16,849</b>)</td><td class="num">581.06 (20.63%/&minus;829.21)</td><td class="num">572.09 (15.81%/&minus;588.86)</td><td class="num"><b>670.38</b> (15.02%/&minus;464.35)</td><td class="num">592.53 (<b>7.74%</b>/<b>&minus;48.25</b>)</td><td class="num"><b>+11.47</b></td><td class="num"><b>+20.44</b></td><td class="num">&minus;77.85</td></tr>
+</table>
+
+<ul>
+  <li><b>Interpretation:</b> Two takeaways stand out. First, on Regimes 1&ndash;5, <code>MandiGuard</code> leads <code>B1</code> and <code>B3</code> through half penalties (<code>0.5&times;/5%</code>: +&#8377;42.43/+&#8377;46.12) and &#8377;0 missing-3d phone-ahead (+&#8377;82.26/+&#8377;73.61), losing on mean only at zero-cost fantasy (<code>0.0&times;/0%</code>: &minus;&#8377;10.00/&minus;&#8377;20.93, still cutting LTR ~3&times; to 6.09% and holding <code>CVaR_10%</code> at &minus;&#8377;28.70 vs &minus;&#8377;877.41/&minus;&#8377;851.02). Second, on matched open cohorts (<code>N = 10,162</code> and <code>N = 16,849</code>, zero traps), <code>MandiGuard</code> beats <code>B1</code> (+&#8377;38.38) and <code>B2</code> (+&#8377;40.91), while unfiltered point-ML <code>B3</code> earns &#8377;553.22/qtl (+&#8377;42.33) &mdash; <b>at 2.2&times; higher loss rate (14.77% vs 6.82%) and 10&times; deeper tail losses (&minus;&#8377;362.40 vs &minus;&#8377;36.07)</b>!</li>
+  <li><b>Viva Point:</b> "Why does <code>B3</code> look strong when all top-5 yards are guaranteed open (<code>N = 10,162</code>) yet collapse across all 69,526 episodes? Because our 2024 tree predicts open prices well; naive point-ML fails on the full market strictly without <code>T1</code> openness checks and <code>T4</code> cushions."</li>
+</ul>
+
+<div class="box key">
+  <span class="t">Check Your Understanding &mdash; Chapter 8</span>
+  <ol>
+    <li><b>In <code>Exp 1</code>, why does Table 1/<code>Exp 1</code> report &#8377;386.02/qtl while Table 4 reports &#8377;350.01/qtl for <code>B1</code>?</b> &#8377;386.02 averages across the 63,040 dispatched trips (90.67%), whereas &#8377;350.01 averages across all 69,526 shortlisted episodes counting 9.33% stay-home days as &#8377;0 (<code>386.02 &times; 0.9067 = 350.01</code>).</li>
+    <li><b>Which single gate in <code>Exp 4</code> drives both profit and trap reduction?</b> Gate <code>T1</code>: removing it drops profit by &minus;&#8377;134.05/qtl, expands traps 4.2&times; to 67.16%, and raises API calls from 8.75 to 11.03.</li>
+    <li><b>What happens in <code>Exp 5</code> when query budget is capped at <code>B = 6</code>?</b> <code>MandiGuard</code> earns &#8377;403.85/qtl (5.05 calls) vs &#8377;299.31/qtl (5.75 calls) for <code>B4</code> &mdash; +&#8377;104.54/qtl higher gain using fewer calls.</li>
+    <li><b>What does the <code>N = 10,162</code> cohort in <code>Exp 15</code> prove about <code>B3</code> vs <code>MandiGuard</code>?</b> Price forecasting itself works well on guaranteed-open yards (<code>B3</code> &#8377;553.22 vs <code>MG</code> &#8377;510.89), but without <code>T1</code>/<code>T4</code>, <code>B3</code> still suffers 2.2&times; higher loss rate and 10&times; deeper tail losses (&minus;&#8377;362.40 vs &minus;&#8377;36.07).</li>
+  </ol>
+</div>
+
+<div class="pb"></div>
+<h1>Chapter 9 &mdash; Stage II (<code>[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]</code>): Mechanistic Autopsy (<code>Exp 16</code>) &amp; <code>MandiGuard-CRC</code> (<code>Exp 17</code>)</h1>
+
+<div class="box warn">
+  <span class="t">Anti-HARKing Quarantine Notice (Stage I vs Stage II)</span>
+  Stage I (<code>MandiGuard</code> v1, hypotheses <code>H1</code>&ndash;<code>H4</code>, Tables 3&ndash;4, frozen in Git commit <code>e421d15</code>) remains <b>permanently untouched</b> as our pre-registered confirmatory audit. Every diagnosis (<code>Exp 16</code>) and corrective model (<code>MandiGuard-CRC</code>, <code>Exp 17</code>) in this chapter is explicitly marked <b><code>[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]</code></b>: we investigated why <code>H2</code> failed and why HP Apple under-dispatched <i>after</i> seeing Stage-I results, then built a cleaner repair trained strictly on 2024 settled corridors (<code>274,296</code> rows) and calibrated exclusively on <code>Val_2025H1</code> (<code>N = 42,794</code>, <code>arrival_date &le; 2025-05-31</code>) with <b>zero holdout tuning</b>.
+</div>
+
+<h2>9.1 <code>Exp 16</code> &mdash; Mechanistic Autopsy: Three Root Causes Behind Stage-I Stagnation</h2>
+
+<p>Why did Stage-I <code>MandiGuard</code> fail to beat the simple <code>B2_FreshRoadGreedy</code> heuristic on mean profit (<code>H2</code>: +&#8377;6.13/qtl, <code>p_Holm = 0.2699</code>) and lag <code>B2</code> on 2026 HP Graded Apples (&#8377;605.06 vs &#8377;1,150.83/qtl)? Running a read-only forensic autopsy (<code>Exp 16</code>, <code>exp16_censored_bias_and_coverage_illusion.csv</code>) across <code>Train_2024</code>, <code>Val_2025H1</code>, <code>Holdout_2025_2026</code>, and <code>HP_Apple</code> exposes three distinct structural flaws.</p>
+
+<h3>Mechanism 1: Censored-Arrival Survivorship Bias (Up to 2.54&times; Downside Understatement)</h3>
+
+<div class="box think">
+  <span class="t">Analogy: Asking Only Sunny-Day Travellers How Safe a Mountain Pass Is</span>
+  Surveying only drivers who finished cleanly makes a mountain pass look artificially fast. Likewise, Stage I's <code>CausalArrivalForecaster.fit()</code> called <code>dropna(subset=["target_ret"])</code>, dropping routes lacking an exact-variety quote on <code>d0</code> &mdash; discarding <b>55.83%</b> of raw <code>Train_2024</code> candidates (393,669/705,059) and <b>12.64%</b> even <i>after</i> Gate <code>T1</code>! Because non-reporting days skew worse, survivor-only fitting understates downside tail drops by ~2&times; to 2.54&times;.
+</div>
+
+<table>
+  <tr>
+    <th>Split</th>
+    <th>Quote Age Stratum (Post-<code>T1</code>)</th>
+    <th><code>N</code> Rows</th>
+    <th>Censored <code>d0</code> Q20 Drop (%)</th>
+    <th>Uncensored Q20 Drop (%)</th>
+    <th>Understatement Ratio</th>
+    <th>Exact-<code>d0</code> Open Rate (%)</th>
+  </tr>
+  <tr><td><code>Train_2024</code></td><td><code>age_0d</code></td><td class="num">287,234</td><td class="num">&minus;4.81%</td><td class="num">&minus;9.62%</td><td class="num">2.00&times;</td><td class="num">89.10%</td></tr>
+  <tr><td><code>Train_2024</code></td><td><code>age_1d</code></td><td class="num">27,734</td><td class="num">&minus;9.09%</td><td class="num">&minus;16.56%</td><td class="num">1.82&times;</td><td class="num">77.32%</td></tr>
+  <tr><td><code>Train_2024</code></td><td><code>age_2d</code></td><td class="num">7,501</td><td class="num">&minus;11.76%</td><td class="num">&minus;22.17%</td><td class="num">1.89&times;</td><td class="num">68.43%</td></tr>
+  <tr><td><code>Train_2024</code></td><td><code>age_3d</code></td><td class="num">3,195</td><td class="num">&minus;13.46%</td><td class="num">&minus;26.08%</td><td class="num">1.94&times;</td><td class="num">62.63%</td></tr>
+  <tr><td><code>Holdout_2025_2026</code></td><td><code>age_0d</code></td><td class="num">174,453</td><td class="num">&minus;9.09%</td><td class="num">&minus;14.72%</td><td class="num">1.62&times;</td><td class="num">86.90%</td></tr>
+  <tr><td><code>Holdout_2025_2026</code></td><td><code>age_1d</code></td><td class="num">22,395</td><td class="num">&minus;13.33%</td><td class="num">&minus;20.90%</td><td class="num">1.57&times;</td><td class="num">77.27%</td></tr>
+  <tr><td><code>Holdout_2025_2026</code></td><td><code>age_2d</code></td><td class="num">6,601</td><td class="num">&minus;15.38%</td><td class="num">&minus;25.05%</td><td class="num">1.63&times;</td><td class="num">66.93%</td></tr>
+  <tr class="hl"><td><code>Holdout_2025_2026</code></td><td><code>age_3d</code></td><td class="num">2,641</td><td class="num">&minus;10.55%</td><td class="num"><b>&minus;26.82%</b></td><td class="num"><b>2.54&times;</b></td><td class="num"><b>62.97%</b></td></tr>
+</table>
+
+<h3>Mechanism 2: The Heteroscedastic Coverage Illusion (21&ndash;23 pp Volatility Swing)</h3>
+
+<div class="box think">
+  <span class="t">Analogy: One Medium-Size Life Vest for Both Pool Swimmers and Ocean Surfers</span>
+  Stage I kept a single commodity-pooled additive quantile <code>q&#770;_0.80</code> across all markets for a given crop. That achieved ~79% average coverage overall (78.85% validation, 79.07% holdout) &mdash; but only by averaging two opposite errors! On calm, low-volatility markets (<code>Q1_Calm</code>), Stage I slapped on a 6.04% safety penalty when true 80th-percentile error was only 1.98%, choking off safe profits (90.46% over-coverage). On wild, volatile markets (<code>Q4_Volatile</code>), Stage I issued an 8.89% cushion when true error was 17.08%, collapsing coverage to <b>67.80%</b>!
+</div>
+
+<table>
+  <tr>
+    <th>Split</th>
+    <th><code>dest_vol_14d</code> Quartile</th>
+    <th><code>N</code> Rows</th>
+    <th>Empirical 80% Coverage (%)</th>
+    <th>Issued Cushion (%)</th>
+    <th>True 80th-Pct Error (%)</th>
+    <th>Diagnostic Diagnosis</th>
+  </tr>
+  <tr><td><code>Val_2025H1</code></td><td><code>Q1_Calm</code></td><td class="num">32,290</td><td class="num"><b>88.91%</b></td><td class="num">4.09%</td><td class="num">1.43%</td><td>Over-cautious (~2.9&times; needed cushion)</td></tr>
+  <tr><td><code>Val_2025H1</code></td><td><code>Q2_Mod</code></td><td class="num">32,283</td><td class="num">83.66%</td><td class="num">6.02%</td><td class="num">3.92%</td><td>Mildly conservative</td></tr>
+  <tr><td><code>Val_2025H1</code></td><td><code>Q3_Elevated</code></td><td class="num">32,291</td><td class="num">74.90%</td><td class="num">6.65%</td><td class="num">7.47%</td><td>Under-covered (&minus;5.1 pp below 80%)</td></tr>
+  <tr><td><code>Val_2025H1</code></td><td><code>Q4_Volatile</code></td><td class="num">32,281</td><td class="num"><b>67.84%</b></td><td class="num">7.15%</td><td class="num">14.12%</td><td>Severe under-coverage (&minus;21.07 pp vs Q1)</td></tr>
+  <tr class="hl"><td><code>Holdout_2025_2026</code></td><td><code>Q1_Calm</code></td><td class="num">49,100</td><td class="num"><b>90.46%</b></td><td class="num">6.04%</td><td class="num">1.98%</td><td>Over-cautious (~3.1&times; needed cushion)</td></tr>
+  <tr><td><code>Holdout_2025_2026</code></td><td><code>Q2_Mod</code></td><td class="num">49,107</td><td class="num">83.12%</td><td class="num">7.32%</td><td class="num">5.27%</td><td>Mildly conservative</td></tr>
+  <tr><td><code>Holdout_2025_2026</code></td><td><code>Q3_Elevated</code></td><td class="num">49,089</td><td class="num">74.90%</td><td class="num">8.14%</td><td class="num">9.72%</td><td>Under-covered</td></tr>
+  <tr class="hl"><td><code>Holdout_2025_2026</code></td><td><code>Q4_Volatile</code></td><td class="num">49,094</td><td class="num"><b>67.80%</b></td><td class="num">8.89%</td><td class="num"><b>17.08%</b></td><td>Severe under-coverage (&minus;22.66 pp vs Q1)</td></tr>
+</table>
+
+<h3>Mechanism 3: Sub-Grade <code>T1</code> Sparsity in HP Graded Apples (77.82% Refusal Cause)</h3>
+
+<div class="box think">
+  <span class="t">Analogy: A Busy Restaurant Split Into Ten Tiny Menu Counters</span>
+  During Stage I, we guessed that <code>MandiGuard</code> barely dispatched HP <code>Grade A</code> apples (5.39%) because <code>T4</code> conformal cushions were too wide. Checking the actual refusal logs proved us wrong! When a mountain mandi auctions <code>Grade A</code>, <code>Grade B</code>, <code>Medium</code>, and <code>Range-1</code> apples on rotating days, splitting one active market into separate grade tags makes each sub-tag's 14-day reporting probability drop below 0.50 &mdash; even when today's price is fresh (<code>age = 0</code>)!
+</div>
+
+<table>
+  <tr>
+    <th>Split (<code>B2_Disp &amp; MG_Refuse</code>)</th>
+    <th><code>N</code> Disagreed Lots</th>
+    <th>Blocked by <code>T1</code> (%)</th>
+    <th>Blocked by <code>T4</code> LCB (%)</th>
+    <th>Other Gates (<code>T2</code>/<code>T3</code>)</th>
+    <th><code>B2</code> Realized Mean (&#8377;/qtl)</th>
+  </tr>
+  <tr><td><code>HP_Warmup_to_2026_05</code></td><td class="num">458</td><td class="num"><b>82.75%</b></td><td class="num">16.59%</td><td class="num">0.66%</td><td class="num">+&#8377;1,004.66</td></tr>
+  <tr class="hl"><td><code>HP_Apple_Holdout_2026</code></td><td class="num">275</td><td class="num"><b>77.82%</b></td><td class="num">22.18%</td><td class="num">0.00%</td><td class="num">+&#8377;3,511.16</td></tr>
+</table>
+
+<h2>9.2 Corrective Architecture: <code>Rung 0</code> &rarr; <code>Rung 1</code> &rarr; <code>Rung 2</code> &rarr; <code>Rung 3</code> (<code>MandiGuard-CRC</code>)</h2>
+
+<p>To trace exactly how much each repair helps, Stage II builds a clean four-rung factorial ladder inside <code>src/models/uncensored_crc_forecaster.py</code> and <code>src/evaluation/run_mechanistic_autopsy_and_crc.py</code>:</p>
+
+<div class="flow">
+  <div class="fbox c6"><b>Rung 0: <code>MG_v1</code></b><span>Pre-registered Stage I (&#8377;452.79)</span></div>
+  <div class="farrow">&#10140;</div>
+  <div class="fbox c1"><b>Rung 1: +Euclid Step-0</b><span>Free 1.20&times; Euclid sort before top-5</span></div>
+  <div class="farrow">&#10140;</div>
+  <div class="fbox c5"><b>Rung 2: +Uncensored CRC</b><span>274,296 settled routes, 18 features, <code>&lambda;* = 0.10</code></span></div>
+  <div class="farrow">&#10140;</div>
+  <div class="fbox c2"><b>Rung 3: <code>MandiGuard-CRC</code></b><span>+ Grade-aware <code>T1</code> (<code>fresh0 | strict</code>), <code>&lambda;* = 0.15</code></span></div>
+</div>
+
+<ul>
+  <li><b>Rung 1 (Zero-Call Euclidean Step-0 Pre-Sorting):</b> Operating on the identical pre-screened <code>screen_spread &gt; &#8377;100/qtl</code> pool (up to 12 candidates per episode in <code>candidates_6state.parquet</code>), Stage I sorted purely by gross <code>screen_spread</code> &mdash; meaning (<i>Illustration:</i> a 480 km yard quoting +&#8377;350 could push a 40 km yard quoting +&#8377;330 out of the top-5 shortlist!). Both <code>Rung 1</code> and <code>Rungs 2&ndash;3</code> sort descending by <code>screen_spread &minus; (35 + 0.45 &times; m_HP &times; 1.20 &times; euclid_km)</code> before keeping top <code>K_max = 5</code> (<code>0</code> extra API calls, <code>0</code> ML changes; <code>&#8377;50/qtl</code> remains solely the <code>T4</code> dispatch threshold).</li>
+  <li><b>Rung 2 (Dual-Head Uncensored Payoff Forecaster + Price-Scaled CRC, Strict <code>T1</code>):</b> Instead of dropping censored arrival rows, Rung 2 trains directly on all <b>274,296 settled 2024 corridors</b> satisfying <code>arrival_date + 2d &le; 2024-12-31</code> (strict 2-day settlement firewall so even wait-day outcomes are settled inside 2024), passing <code>T1</code>, and having <code>static_net &gt; 0</code>. It uses <b>18 features</b> <code>EXT_FEATURE_COLS = FEATURE_COLS + ["static_margin_ratio"]</code>, where <code>static_margin_ratio = clip(static_net / max(100, local_price), &minus;0.5, 2.0)</code> and <code>static_net = dest_ref_price &times; (1 &minus; spoil_hat) &minus; rain_pen &minus; F_hat &minus; local_price</code>. Two gradient-boosted estimators predict uncensored execution payoff <code>Y_full = real_delta_net_inr</code> (including real closed/delay outcomes):
+    <ol>
+      <li>Regression head <code>reg_exec</code> (<code>HistGradientBoostingRegressor</code>) predicts normalized residual return <code>r_exec = clip((real_delta_net_inr &minus; static_net) / dest_ref_price, &minus;1.0, 0.8)</code>, reconstructing expected uncensored net profit <code>&mu;&#770; = static_net + dest_ref_price &times; r&#770;_exec</code>.</li>
+      <li>Classification head <code>clf_loss</code> (uncalibrated <code>HistGradientBoostingClassifier</code>, <code>predict_proba[:, 1]</code>) estimates episode loss probability <code>p&#770;_loss = P(real_delta_net_inr &lt; 0)</code>.</li>
+    </ol>
+    Every surviving route is scored by expected profit minus price-scaled downside hazard:
+  </li>
+</ul>
+
+<div class="box math">
+  <span class="t">Stage-II Uncensored CRC Decision Rule &amp; Validation Calibration (<code>uncensored_crc_forecaster.py</code>)</span>
+  <span class="formula">1. Risk-adjusted dispatch score for candidate m:
+      Score_CRC(m) = &mu;&#770;(m) &minus; &lambda;* &times; P_loc &times; p&#770;_loss(m)
+
+2. Dispatch admission rule (among T1&ndash;T3 survivors):
+      Keep candidates with &mu;&#770;(m) &gt; &#8377;50/qtl; pick m* = argmax Score_CRC(m).
+      Emit DISPATCH iff Score_CRC(m*) &gt; &#8377;50/qtl (else REFUSE_PHANTOM_SPREAD).
+
+3. Validation calibration algorithm strictly on Val_2025H1 (N = 42,794, arr_dt &le; 2025-05-31):
+      Sweep &lambda; &in; {0.00, 0.05, 0.10, ..., 1.20} (25 grid points):
+          Run cascade on Val_2025H1 with penalty &lambda;.
+          Count dispatched trips n_d(&lambda;) and losing dispatched trips n_l(&lambda;).
+          Compute empirical CRC ratio:  R&#770;(&lambda;) = (n_l(&lambda;) + 1) / (n_d(&lambda;) + 1).
+          If R&#770;(&lambda;) &le; &beta;_target = 0.095:
+              Freeze &lambda;* = &lambda; and BREAK (stop at first feasible grid point!).
+      Result frozen prior to holdout:  &lambda;* = 0.10 (Rung 2, Strict T1)  |  &lambda;* = 0.15 (Rung 3, MandiGuard-CRC).</span>
+</div>
+
+<ul>
+  <li><b>Rung 3 (Grade-Aware <code>T1</code> Liquidity Aggregation: <code>fresh0 | strict</code>):</b> Replaces rigid <code>open_prob_14d &ge; 0.50</code> with <code>fresh0 | strict</code> inside <code>t1_pass_mask</code>: a candidate passes <code>T1</code> if <code>dest_ref_price &gt; 0</code> AND either <code>strict</code> holds (<code>age &le; 3, open_prob_14d &ge; 0.50, dow_open_rate &ge; 0.35</code>) OR <code>fresh0</code> holds (<code>age == 0, open_prob_14d &ge; 0.20, dow_open_rate &ge; 0.25</code>). If a destination actively reported an exact grade <i>today</i> (<code>age == 0</code>), requiring only 20% 14-day density (~3 days/fortnight) and 25% arrival-weekday openness prevents the 77.82% false sub-grade refusals while blocking stale quotes and closed holidays!</li>
+</ul>
+
+<div class="box think">
+  <span class="t">Illustration: Why <code>&lambda;* &times; P_loc &times; p&#770;_loss</code> Adapts Automatically Across Cheap Onions vs Expensive Apples</span>
+  Suppose <code>&lambda;* = 0.15</code>.<br/>
+  <b>Case 1 (Calm Onion Route):</b> Local price <code>P_loc = &#8377;1,000/qtl</code>. Static net is &#8377;180/qtl, uncensored expected net <code>&mu;&#770; = &#8377;170/qtl</code>, and classifier sees a calm market with <code>p&#770;_loss = 0.06</code> (6% loss risk). Risk penalty = <code>0.15 &times; 1,000 &times; 0.06 = &#8377;9/qtl</code>. Score = <code>170 &minus; 9 = +&#8377;161/qtl &gt; &#8377;50</code> &rarr; <b>DISPATCH</b>! (Whereas Stage I's pooled additive cushion would have taxed it unnecessarily.)<br/>
+  <b>Case 2 (Volatile Apple Route):</b> Local price <code>P_loc = &#8377;6,000/qtl</code>. Expected net looks promising at <code>&mu;&#770; = +&#8377;220/qtl</code>, but high 14-day volatility plus 3-day quote age leads the uncensored classifier to warn <code>p&#770;_loss = 0.25</code> (25% loss risk). Risk penalty = <code>0.15 &times; 6,000 &times; 0.25 = &#8377;225/qtl</code>. Score = <code>220 &minus; 225 = &minus;&#8377;5/qtl &le; &#8377;50</code> &rarr; <b>REFUSE_PHANTOM_SPREAD</b>! Multiplying by <code>P_loc</code> scales risk naturally to the rupee stakes at hazard.
+</div>
+
+<h2>9.3 <code>Exp 17</code> &mdash; Complete Stage-II Out-of-Sample Tables &amp; Bootstrap Results</h2>
+
+<p>Tables 9 and 10 below present every verified number from <code>exp17_uncensored_crc_validation.csv</code> and <code>exp17_crc_bootstrap_comparisons.csv</code> across Validation (<code>N = 42,794</code>), Full Holdout (<code>N = 69,526</code>), Fair Open-Yard Cohort (<code>N = 10,162</code>), and HP Graded Apples (<code>N = 1,537</code>, plus Grade A and Grade B).</p>
+
+<p><b>Table 9: <code>Exp 17</code> <code>[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]</code> Factorial Progression &amp; Cross-Cohort Evaluation (<code>&lambda;* = 0.15</code> Rung 3; <code>&lambda;* = 0.10</code> Rung 2)</b></p>
+<table>
+  <tr>
+    <th>Cohort (<code>Scope</code>, <code>N</code>)</th>
+    <th>Policy / Rung</th>
+    <th>Disp (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>30-qtl Truck (&#8377;)</th>
+    <th>Cond LTR (%)</th>
+    <th>Ep Loss (%)</th>
+    <th>Trap (%)</th>
+    <th><code>CVaR_10%</code> (&#8377;)</th>
+    <th>Calls</th>
+  </tr>
+  <tr><td><code>Val_2025H1</code> (42,794)</td><td><code>B1_NaiveScreen</code></td><td class="num">89.88%</td><td class="num">&#8377;255.28</td><td class="num">&#8377;7,658.5</td><td class="num">38.99%</td><td class="num">35.05%</td><td class="num">52.29%</td><td class="num">&minus;&#8377;867.88</td><td class="num">0.00</td></tr>
+  <tr><td><code>Val_2025H1</code> (42,794)</td><td><code>B2_FreshRoad</code></td><td class="num">63.12%</td><td class="num">&#8377;330.28</td><td class="num">&#8377;9,908.3</td><td class="num">16.77%</td><td class="num">10.59%</td><td class="num">21.45%</td><td class="num">&minus;&#8377;350.78</td><td class="num">7.79</td></tr>
+  <tr><td><code>Val_2025H1</code> (42,794)</td><td><code>B3_MLPoint</code></td><td class="num">92.46%</td><td class="num">&#8377;205.08</td><td class="num">&#8377;6,152.4</td><td class="num">44.47%</td><td class="num">41.12%</td><td class="num">59.24%</td><td class="num">&minus;&#8377;972.23</td><td class="num">7.79</td></tr>
+  <tr><td><code>Val_2025H1</code> (42,794)</td><td><code>MG_v1_PreReg</code> (Note*)</td><td class="num">52.95%</td><td class="num">&#8377;351.48</td><td class="num">&#8377;10,544.4</td><td class="num">9.65%</td><td class="num">5.11%</td><td class="num">13.85%</td><td class="num">&minus;&#8377;26.69</td><td class="num">9.10</td></tr>
+  <tr><td><code>Val_2025H1</code> (42,794)</td><td><code>Rung1_EuclidStep0</code></td><td class="num">53.10%</td><td class="num">&#8377;352.11</td><td class="num">&#8377;10,563.4</td><td class="num">9.59%</td><td class="num">5.09%</td><td class="num">13.74%</td><td class="num">&minus;&#8377;26.75</td><td class="num">9.16</td></tr>
+  <tr><td><code>Val_2025H1</code> (42,794)</td><td><code>Rung2_UncensoredCRC_StrictT1</code> (<code>&lambda;=0.10</code>)</td><td class="num">57.14%</td><td class="num">&#8377;358.52</td><td class="num">&#8377;10,755.5</td><td class="num">9.34%</td><td class="num">5.34%</td><td class="num">12.41%</td><td class="num">&minus;&#8377;26.81</td><td class="num">9.16</td></tr>
+  <tr class="hl"><td><code>Val_2025H1</code> (42,794)</td><td><b><code>Rung3_MandiGuard_CRC</code> (<code>&lambda;=0.15</code>)</b></td><td class="num">56.60%</td><td class="num"><b>&#8377;365.46</b></td><td class="num"><b>&#8377;10,963.8</b></td><td class="num"><b>9.15%</b></td><td class="num">5.18%</td><td class="num">13.15%</td><td class="num"><b>&minus;&#8377;26.19</b></td><td class="num">9.37</td></tr>
+
+  <tr><td><code>Holdout_2025_2026</code> (69,526)</td><td><code>B1_NaiveScreen</code></td><td class="num">90.67%</td><td class="num">&#8377;350.01</td><td class="num">&#8377;10,500.2</td><td class="num">40.46%</td><td class="num">36.69%</td><td class="num">58.94%</td><td class="num">&minus;&#8377;1,062.66</td><td class="num">0.00</td></tr>
+  <tr><td><code>Holdout_2025_2026</code> (69,526)</td><td><code>B2_FreshRoad</code></td><td class="num">62.11%</td><td class="num">&#8377;446.66</td><td class="num">&#8377;13,399.7</td><td class="num">18.11%</td><td class="num">11.25%</td><td class="num">24.32%</td><td class="num">&minus;&#8377;436.67</td><td class="num">7.87</td></tr>
+  <tr><td><code>Holdout_2025_2026</code> (69,526)</td><td><code>B3_MLPoint</code></td><td class="num">93.05%</td><td class="num">&#8377;330.85</td><td class="num">&#8377;9,925.6</td><td class="num">45.28%</td><td class="num">42.14%</td><td class="num">65.65%</td><td class="num">&minus;&#8377;1,097.80</td><td class="num">7.87</td></tr>
+  <tr><td><code>Holdout_2025_2026</code> (69,526)</td><td><code>MG_v1_PreReg</code> (Rung 0)</td><td class="num">48.66%</td><td class="num">&#8377;452.79</td><td class="num">&#8377;13,583.6</td><td class="num">9.97%</td><td class="num">4.85%</td><td class="num">16.17%</td><td class="num">&minus;&#8377;37.89</td><td class="num">8.75</td></tr>
+  <tr><td><code>Holdout_2025_2026</code> (69,526)</td><td><code>Rung1_EuclidStep0</code></td><td class="num">48.89%</td><td class="num">&#8377;455.15</td><td class="num">&#8377;13,654.4</td><td class="num">9.91%</td><td class="num">4.84%</td><td class="num">16.17%</td><td class="num">&minus;&#8377;37.75</td><td class="num">8.81</td></tr>
+  <tr><td><code>Holdout_2025_2026</code> (69,526)</td><td><code>Rung2_UncensoredCRC_StrictT1</code></td><td class="num">55.17%</td><td class="num">&#8377;469.29</td><td class="num">&#8377;14,078.8</td><td class="num">10.52%</td><td class="num">5.80%</td><td class="num">14.82%</td><td class="num">&minus;&#8377;43.49</td><td class="num">8.81</td></tr>
+  <tr class="hl"><td><code>Holdout_2025_2026</code> (69,526)</td><td><b><code>Rung3_MandiGuard_CRC</code></b></td><td class="num"><b>55.09%</b></td><td class="num"><b>&#8377;479.17</b></td><td class="num"><b>&#8377;14,375.1</b></td><td class="num"><b>10.48%</b></td><td class="num"><b>5.77%</b></td><td class="num"><b>15.57%</b></td><td class="num"><b>&minus;&#8377;44.03</b></td><td class="num"><b>9.07</b></td></tr>
+
+  <tr><td><code>Matched_Observed_d0</code> (10,162)</td><td><code>B1</code>/<code>B2</code></td><td class="num">74.78%/64.38%</td><td class="num">&#8377;472.51/&#8377;469.99</td><td class="num">&#8377;14,175.4/&#8377;14,099.6</td><td class="num">19.84%/15.09%</td><td class="num">14.84%/9.71%</td><td class="num">0.11%/0.00%</td><td class="num">&minus;&#8377;694.72/&minus;&#8377;94.70</td><td class="num">0.00/5.21</td></tr>
+  <tr><td><code>Matched_Observed_d0</code> (10,162)</td><td><code>B3</code>/<code>MG_v1</code></td><td class="num">73.47%/47.31%</td><td class="num"><b>&#8377;553.22</b>/&#8377;510.89</td><td class="num">&#8377;16,596.6/&#8377;15,326.8</td><td class="num">14.77%/6.82%</td><td class="num">10.85%/3.23%</td><td class="num">0.00%/0.00%</td><td class="num">&minus;&#8377;362.40/&minus;&#8377;36.07</td><td class="num">5.21/8.74</td></tr>
+  <tr><td><code>Matched_Observed_d0</code> (10,162)</td><td><code>Rung1</code>/<code>Rung2</code></td><td class="num">47.35%/57.47%</td><td class="num">&#8377;510.86/&#8377;528.47</td><td class="num">&#8377;15,325.8/&#8377;15,854.2</td><td class="num">6.84%/7.79%</td><td class="num">3.24%/4.48%</td><td class="num">0.02%/0.02%</td><td class="num">&minus;&#8377;36.15/&minus;&#8377;38.84</td><td class="num">8.70/8.70</td></tr>
+  <tr class="hl"><td><code>Matched_Observed_d0</code> (10,162)</td><td><b><code>Rung3_MandiGuard_CRC</code></b></td><td class="num">55.41%</td><td class="num"><b>&#8377;533.75</b></td><td class="num"><b>&#8377;16,012.5</b></td><td class="num"><b>7.14%</b></td><td class="num"><b>3.96%</b></td><td class="num">0.02%</td><td class="num"><b>&minus;&#8377;35.00</b></td><td class="num">8.91</td></tr>
+
+  <tr><td><code>HP_Apple_2026</code> (<code>ALL</code>, 1,537)</td><td><code>B1</code>/<code>B2</code>/<code>B3</code></td><td class="num">100/33.64/100%</td><td class="num">841.58/<b>1,150.83</b>/749.05</td><td class="num">25,247.5/34,525.0/22,471.4</td><td class="num">58.88/28.43/60.96%</td><td class="num">58.88/9.56/60.96%</td><td class="num">94.14/34.04/97.27%</td><td class="num">&minus;8,487.24/&minus;272.50/&minus;8,054.15</td><td class="num">0/9.17/9.17</td></tr>
+  <tr><td><code>HP_Apple_2026</code> (<code>ALL</code>, 1,537)</td><td><code>MG_v1</code>/<code>Rung1</code>/<code>Rung2</code></td><td class="num">18.67/18.09/19.39%</td><td class="num">605.06/597.61/609.47</td><td class="num">18,151.8/17,928.3/18,284.2</td><td class="num">21.25/21.58/23.83%</td><td class="num">3.97/3.90/4.62%</td><td class="num">13.24/14.39/15.10%</td><td class="num">&minus;102.76/&minus;94.83/&minus;105.65</td><td class="num">5.41/5.40/5.40</td></tr>
+  <tr class="hl"><td><code>HP_Apple_2026</code> (<code>ALL</code>, 1,537)</td><td><b><code>Rung3_MandiGuard_CRC</code></b></td><td class="num">22.84%</td><td class="num"><b>&#8377;812.08</b> (+34.2%)</td><td class="num"><b>&#8377;24,362.4</b></td><td class="num"><b>21.08%</b></td><td class="num">4.81%</td><td class="num">18.23%</td><td class="num"><b>&minus;&#8377;113.40</b></td><td class="num">5.53</td></tr>
+  <tr><td><code>HP_Apple_2026</code> (<code>Grade A</code>, 371)</td><td><code>MG_v1</code> &rarr; <b><code>Rung3_CRC</code></b></td><td class="num">5.39% &rarr; 7.01%</td><td class="num">&#8377;205.46 &rarr; <b>&#8377;477.56</b></td><td class="num">&#8377;6,163.7 &rarr; <b>&#8377;14,326.7</b></td><td class="num">20.00% &rarr; <b>11.54%</b></td><td class="num">1.08% &rarr; 0.81%</td><td class="num">10.00% &rarr; 15.38%</td><td class="num">&minus;&#8377;4.86 &rarr; <b>&minus;&#8377;4.57</b></td><td class="num">4.82 &rarr; 4.89</td></tr>
+  <tr><td><code>HP_Apple_2026</code> (<code>Grade B</code>, 330)</td><td><code>MG_v1</code> &rarr; <b><code>Rung3_CRC</code></b></td><td class="num">30.30% &rarr; 33.03%</td><td class="num">&#8377;833.70 &rarr; <b>&#8377;852.01</b></td><td class="num">&#8377;25,011.0 &rarr; <b>&#8377;25,560.4</b></td><td class="num">22.00% &rarr; 27.52%</td><td class="num">6.67% &rarr; 9.09%</td><td class="num">14.00% &rarr; 18.35%</td><td class="num">&minus;&#8377;117.76 &rarr; &minus;&#8377;142.46</td><td class="num">5.80 &rarr; 5.88</td></tr>
+</table>
+
+<p><i>Footnote (*):</i> On <code>Val_2025H1</code> (<code>N = 42,794</code>), <code>MG_v1_PreReg</code> reports &#8377;351.48/qtl (9.65% conditional LTR) in <code>Exp 17</code> versus &#8377;351.36/qtl (9.68%) in Stage-I calibration because the pickled <code>forecaster_2024.pkl</code> on disk reflects post-validation conformal deque state; Holdout and all <code>MandiGuard-CRC</code> rows are unaffected.</p>
+
+<p><b>Table 10: <code>Exp 17</code> Paired Two-Way Cluster Bootstrap Comparisons (<code>R = 5,000</code>, 174 Origin Mandis &times; 23 Two-Week Blocks, <code>Holdout_2025_2026</code>)</b></p>
+<table>
+  <tr>
+    <th>Stage-II Comparison (<code>N = 69,526</code>, <code>exp17_crc_bootstrap_comparisons.csv</code>)</th>
+    <th>Point Estimate</th>
+    <th>95% Two-Way Cluster CI</th>
+    <th>Exact Phipson&ndash;Smyth <code>p_raw</code></th>
+    <th>Takeaway</th>
+  </tr>
+  <tr class="hl"><td><code>MandiGuard-CRC</code> minus <code>B1_NaiveScreen</code> (&#8377;/qtl)</td><td class="num"><b>+&#8377;129.16</b></td><td class="num">[+&#8377;72.06, +&#8377;184.95]</td><td class="num"><b>0.0004</b></td><td>+&#8377;3,874.9 per 30-qtl truckload over naive portal chasing</td></tr>
+  <tr class="hl"><td><code>MandiGuard-CRC</code> minus <code>B2_FreshRoad</code> (&#8377;/qtl)</td><td class="num"><b>+&#8377;32.51</b></td><td class="num">[+&#8377;12.05, +&#8377;50.49]</td><td class="num"><b>0.0016</b></td><td>Resolves Stage-I <code>H2</code> bottleneck out-of-sample (+&#8377;975/truck)</td></tr>
+  <tr class="hl"><td><code>MandiGuard-CRC</code> minus <code>MG_v1_PreReg</code> (&#8377;/qtl)</td><td class="num"><b>+&#8377;26.38</b></td><td class="num">[+&#8377;18.28, +&#8377;37.25]</td><td class="num"><b>0.0002</b></td><td>Clean validation-calibrated gain over Stage I</td></tr>
+  <tr class="hl"><td><code>MandiGuard-CRC</code> minus <code>B3_MLPoint</code> Ep. Phantom Loss</td><td class="num"><b>&minus;0.3636</b> (&minus;36.36 pp)</td><td class="num">[&minus;0.3922, &minus;0.3342]</td><td class="num"><b>0.0002</b></td><td>Cuts episode-level losses from 42.14% down to 5.77%</td></tr>
+</table>
+
+<div class="figure">
+  <img src="{FIG8}"/>
+  <div class="cap"><b>Figure 8.</b> Stage-II mechanistic autopsy and validation-calibrated uncensored CRC progression (<code>[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]</code>, <code>Exp 16</code>&ndash;<code>Exp 17</code>). Panel (A) shows Holdout 20th-percentile downside drops under censored <code>d0</code> targets vs uncensored execution payoffs across quote ages 0d to 3d (understating 3d downside 2.54&times;: &minus;10.55% vs &minus;26.82%). Panel (B) shows Stage-I pooled conformal coverage collapsing from 90.46% in calm markets (<code>Q1</code>) to 67.80% in volatile markets (<code>Q4</code>) relative to the 80% target line. Panel (C) traces the factorial ladder from <code>B2</code> and <code>MG_v1</code> to <code>MandiGuard-CRC</code> on both the 6-State Holdout (&#8377;453 &rarr; &#8377;479/qtl, left axis) and 2026 HP Graded Apples (&#8377;605 &rarr; &#8377;812/qtl, right axis).</div>
+</div>
+
+<h2>9.4 Why Zero Holdout Overfitting &amp; Explicit Disclaimer of Theorem 1 Guarantees</h2>
+
+<ul>
+  <li><b>Why zero holdout overfitting?</b> Every tree parameter inside <code>reg_exec</code> and <code>clf_loss</code> was fitted strictly on 2024 routes settled before <code>2024-12-31</code> (<code>274,296</code> corridors), and the single risk multiplier <code>&lambda;* = 0.15</code> was picked automatically by the first-feasible stopping rule on <code>Val_2025H1</code> (<code>N = 42,794</code>, <code>arrival_date &le; 2025-05-31</code>) before touching <code>Holdout_2025_2026</code> (<code>N = 69,526</code>), <code>Matched_Observed_d0</code> (<code>N = 10,162</code>), or <code>HP_Apple_Grade_2026</code> (<code>N = 1,537</code>). Even on guaranteed-open routes with zero simulated trap penalties (<code>N = 10,162</code>), <code>MandiGuard-CRC</code> climbs to <b>&#8377;533.75/qtl</b> (+&#8377;22.86 over <code>MG_v1</code>, +&#8377;63.76 over <code>B2</code>) at 7.14% LTR and &minus;&#8377;35.00/qtl <code>CVaR_10%</code>.</li>
+</ul>
+
+<div class="box warn">
+  <span class="t">Mandatory Statistical Disclaimer: Empirical Calibration, NOT Theorem 1 Guarantees</span>
+  Do <b>not</b> claim that Conformal Prediction or Conformal Risk Control (Angelopoulos et al., 2024) gives a mathematical distribution-free Theorem 1 guarantee here. Why? First, daily agricultural market prices across monsoon and harvest seasons are <b>not exchangeable</b>. Second, our denominator <code>n_disp(&lambda;)</code> changes with threshold <code>&lambda;</code> (selective post-decision risk rather than a fixed evaluation denominator). Therefore, <code>(n_l + 1) / (n_d + 1) &le; 0.095</code> is used strictly as an <b>empirical validation-calibration heuristic on <code>Val_2025H1</code> and verified out-of-sample on Holdout</b>, never as a mathematical guarantee.
+</div>
+
+<div class="box key">
+  <span class="t">Check Your Understanding &mdash; Chapter 9</span>
+  <ol>
+    <li><b>Why does Stage II carry the tag <code>[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]</code>?</b> Because it was designed after seeing Stage-I's <code>H2</code> and HP Apple results, while preserving commit <code>e421d15</code> intact and freezing <code>&lambda;* = 0.15</code> solely on <code>Val_2025H1</code>.</li>
+    <li><b>What three mechanisms did <code>Exp 16</code> uncover?</b> (1) Censored-arrival bias (dropping 55.83% raw 2024 rows understates 3d downside 2.54&times; on holdout), (2) heteroscedastic coverage illusion (90.46% calm <code>Q1</code> vs 67.80% volatile <code>Q4</code>), and (3) sub-grade <code>T1</code> sparsity (77.82% of holdout HP Apple refusals vs <code>B2</code> happened at <code>T1</code>).</li>
+    <li><b>How does <code>Rung 3</code> fix HP Apple <code>T1</code> sparsity without letting stale quotes sneak in?</b> Via <code>fresh0 | strict</code>: routes with today's exact quote (<code>age == 0</code>) need only <code>open_prob_14d &ge; 0.20</code> and <code>dow_open_rate &ge; 0.25</code>, lifting HP Apple profit +34.2% (&#8377;605.06 &rarr; &#8377;812.08/qtl).</li>
+    <li><b>Why cannot we claim Angelopoulos et al. Theorem 1 guarantees for <code>MandiGuard-CRC</code>?</b> Because seasonal crop prices violate exchangeability and the dispatched sample size <code>n_d(&lambda;)</code> shifts with <code>&lambda;</code>.</li>
+  </ol>
+</div>
+
+<div class="pb"></div>
+<h1>Chapter 10 &mdash; Exploratory Appendix Illustrations (<code>Exp 11</code>&ndash;<code>Exp 13b</code>, Not Main Contributions)</h1>
+
+<div class="box warn">
+  <span class="t">Scope Disclosure: Exploratory Appendix Illustrations Only</span>
+  Everything in this chapter (<code>Exp 11</code> through <code>Exp 13b</code>) consists of <b>exploratory post-hoc illustrations</b> using non-preregistered model swaps or stylized deployment cost parameters (&#8377;0.05/call API pricing, 0.70&times; FPO bulk freight, 1.60&times; marginal 10-qtl freight, 50/50 split loads). They illustrate deployment engineering and practical farmer UX &mdash; they are <b>not core thesis contributions</b>.
+</div>
+
+<h2>10.1 <code>Exp 11</code> &mdash; Alternative Predictors &amp; Adaptive Conformal Inference (<code>ACI</code>)</h2>
+
+<p>To check whether Stage-I's choice of <code>HistGradientBoostingRegressor</code> plus static causal conformal LCB missed major gains from neural nets, extra trees, quantile regression, bandits, or Gibbs &amp; Cand&egrave;s (2021) Adaptive Conformal Inference (<code>ACI</code>), we plugged five alternative forecasters into the identical <code>T1</code>&ndash;<code>T4</code> cascade (<code>exp11_modern_ai_and_aci_showdown.csv</code>, <code>aci_diagnostics.json</code>).</p>
+
+<table>
+  <tr>
+    <th>Predictor Variant (<code>Exp 11</code>)</th>
+    <th>6-State Disp (%)</th>
+    <th>6-State Mean (&#8377;/qtl)</th>
+    <th>6-State LTR (%)</th>
+    <th>6-State <code>CVaR_10%</code></th>
+    <th>HP Apple Mean (&#8377;/qtl)</th>
+    <th>HP Apple LTR (%)</th>
+    <th>HP Apple <code>CVaR_10%</code></th>
+  </tr>
+  <tr><td><code>Direct_Quantile_GBDT_Q20</code></td><td class="num">51.02%</td><td class="num"><b>&#8377;459.02</b></td><td class="num"><b>9.40%</b></td><td class="num">&minus;&#8377;32.28</td><td class="num">&#8377;605.07</td><td class="num">20.07%</td><td class="num">&minus;&#8377;95.35</td></tr>
+  <tr><td><code>ExtraTrees_Conformal</code></td><td class="num">49.02%</td><td class="num">&#8377;453.30</td><td class="num">10.25%</td><td class="num">&minus;&#8377;38.94</td><td class="num">&#8377;593.49</td><td class="num">22.60%</td><td class="num">&minus;&#8377;111.75</td></tr>
+  <tr class="hl"><td><code>MandiGuard_Standard</code> (Stage I)</td><td class="num">48.66%</td><td class="num">&#8377;452.79</td><td class="num">9.97%</td><td class="num">&minus;&#8377;37.89</td><td class="num">&#8377;605.06</td><td class="num">21.25%</td><td class="num">&minus;&#8377;102.76</td></tr>
+  <tr><td><code>MandiGuard_ACI_NeurIPS21</code></td><td class="num">46.17%</td><td class="num">&#8377;437.90</td><td class="num">10.22%</td><td class="num">&minus;&#8377;33.71</td><td class="num">&#8377;598.54</td><td class="num">20.08%</td><td class="num"><b>&minus;&#8377;74.42</b></td></tr>
+  <tr><td><code>Deep_MLP_Conformal</code></td><td class="num">47.08%</td><td class="num">&#8377;435.38</td><td class="num">10.69%</td><td class="num">&minus;&#8377;35.93</td><td class="num"><b>&#8377;615.34</b></td><td class="num"><b>18.15%</b></td><td class="num">&minus;&#8377;75.50</td></tr>
+  <tr><td><code>Contextual_UCB_Bandit</code></td><td class="num">39.61%</td><td class="num">&#8377;406.47</td><td class="num">10.93%</td><td class="num"><b>&minus;&#8377;31.92</b></td><td class="num">&#8377;615.04</td><td class="num">20.73%</td><td class="num">&minus;&#8377;79.20</td></tr>
+</table>
+
+<p>Under 6-state holdout, <code>Direct_Quantile_GBDT_Q20</code> edges ahead slightly at &#8377;459.02/qtl (9.40% LTR, &minus;&#8377;32.28 <code>CVaR_10%</code>), while neural <code>Deep_MLP_Conformal</code> trails at &#8377;435.38/qtl (though reaching &#8377;615.34/qtl on HP Apple). Under <code>ACI</code> (<code>adaptive_gamma = 0.005</code>, <code>&alpha;</code> clipped inside <code>[0.02, 0.45]</code>), the online quantile automatically tightens Tomato <code>&alpha;</code> from <code>0.200</code> down to <b><code>0.038</code></b> on 6-state holdout (while Onion adjusts to <code>0.244</code>, Potato to <code>0.270</code>, and Apple to <code>0.205</code>), and tightens HP Apple <code>&alpha;</code> from <code>0.200</code> to <b><code>0.164</code></b>, cutting HP Apple worst-10% tail loss by <b>27.6%</b> (&minus;&#8377;102.76 &rarr; &minus;&#8377;74.42/qtl).</p>
+
+<h2>10.2 <code>Exp 12</code> &mdash; <code>MandiGuard-ZeroCloud</code> Edge Caching &amp; Satisficing Early-Exit</h2>
+
+<p>Because OSRM road distances between fixed APMCs rarely change overnight (<code>T2</code>) and the frozen gradient-boosted tree scores in under a tenth of a millisecond on a cheap CPU (<code>T4</code>), offloading <code>T2</code> and <code>T4</code> onto a phone or district server leaves only live market vitality (<code>T1</code>) and morning weather (<code>T3</code>) requiring internet calls. Furthermore, adding a Herbert Simon satisficing early-exit threshold (calibrated on <code>Val_2025H1</code> to <b>&ge; &#8377;250/qtl</b>) lets the agent stop searching remaining candidates as soon as it finds a solidly profitable destination (<code>exp12_zerocloud_money_efficient_agent.csv</code>).</p>
+
+<table>
+  <tr>
+    <th>Architecture Variant (<code>N = 69,526</code>, Modeled &#8377;0.05/call)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>30-qtl Truck (&#8377;)</th>
+    <th>LTR (%)</th>
+    <th><code>CVaR_10%</code> (&#8377;)</th>
+    <th>Live Calls</th>
+    <th>CPU ms/Query</th>
+    <th>API Spend / 10k Queries</th>
+  </tr>
+  <tr><td><code>B4_UpfrontAllTools</code> (reference)</td><td class="num">&#8377;452.79</td><td class="num">&#8377;13,583.6</td><td class="num">9.97%</td><td class="num">&minus;&#8377;37.89</td><td class="num">15.74</td><td class="num">0.115</td><td class="num">&#8377;7,868</td></tr>
+  <tr><td><code>B5_MultiAgentCoordinator</code></td><td class="num">&#8377;437.39</td><td class="num">&#8377;13,121.7</td><td class="num">9.38%</td><td class="num">&minus;&#8377;31.77</td><td class="num">8.76</td><td class="num">0.093</td><td class="num">&#8377;4,379</td></tr>
+  <tr><td><code>MandiGuard_Standard</code> (live <code>T1</code>..<code>T4</code>)</td><td class="num">&#8377;452.79</td><td class="num">&#8377;13,583.6</td><td class="num">9.97%</td><td class="num">&minus;&#8377;37.89</td><td class="num">8.75</td><td class="num">0.093</td><td class="num">&#8377;4,374 (&minus;44.4%)</td></tr>
+  <tr class="hl"><td><code>MandiGuard_ZeroCloud_Full</code> (cached <code>T2</code> + CPU <code>T4</code>)</td><td class="num"><b>&#8377;455.33</b></td><td class="num"><b>&#8377;13,659.8</b></td><td class="num"><b>9.89%</b></td><td class="num">&minus;&#8377;37.83</td><td class="num"><b>5.53</b></td><td class="num">0.099</td><td class="num"><b>&#8377;2,764</b> (&minus;64.9%)</td></tr>
+  <tr class="hl"><td><code>MandiGuard_ZeroCloud_Satisficing</code> (Val <code>&ge; &#8377;250</code>)</td><td class="num">&#8377;440.48</td><td class="num">&#8377;13,214.5</td><td class="num">10.30%</td><td class="num">&minus;&#8377;38.97</td><td class="num"><b>3.84</b></td><td class="num"><b>0.075</b></td><td class="num"><b>&#8377;1,922</b> (&minus;75.6%)</td></tr>
+</table>
+
+<p>Notice why <code>MandiGuard_ZeroCloud_Full</code> actually edges <code>MandiGuard_Standard</code> by +&#8377;2.54/qtl (&#8377;455.33 vs &#8377;452.79): locally cached <code>T2</code> freight lets Step 0 sort candidates by freight-adjusted screen spread before picking the top 5! Adding the <code>Val_2025H1</code>-calibrated <code>&ge; &#8377;250/qtl</code> satisficing stop trims live calls to <b>3.84 calls/query</b> (&minus;75.6% modeled API spend vs <code>B4</code> at 0.075 ms/query CPU) while preserving 97.3% of standard net profit (&#8377;440.48/qtl).</p>
+
+<h2>10.3 <code>Exp 13</code> &amp; <code>Exp 13b</code> &mdash; Cooperative <code>FPO</code> Truck-Sharing, Split Loads, Spoilage Clock &amp; SMS Cards</h2>
+
+<p>Three practical cooperative/extension illustrations wrap up the Appendix (<code>exp13_outofbox_fpo_pooling_and_spoilage_clock.csv</code>, <code>exp13b_biological_spoilage_clock.csv</code>, <code>sample_farmer_sms_cards.txt</code>):</p>
+
+<table>
+  <tr>
+    <th>Logistics / Portfolio Scenario (<code>N = 69,526</code>)</th>
+    <th>Disp (%)</th>
+    <th>Mean &Delta;Net (&#8377;/qtl)</th>
+    <th>30-qtl Equiv (&#8377;)</th>
+    <th>Cond LTR (%)</th>
+    <th>Trap (%)</th>
+    <th><code>CVaR_10%</code> (&#8377;)</th>
+    <th>Calls</th>
+  </tr>
+  <tr><td><code>B1_Marginal_Solo_10qtl_1.60xFreight</code></td><td class="num">84.38%</td><td class="num">&#8377;288.43</td><td class="num">&#8377;8,652.8</td><td class="num">42.32%</td><td class="num">59.38%</td><td class="num">&minus;&#8377;1,130.13</td><td class="num">0.00</td></tr>
+  <tr><td><code>MandiGuard_Marginal_Solo_10qtl_1.60xFreight</code></td><td class="num">43.08%</td><td class="num">&#8377;409.53</td><td class="num">&#8377;12,286.0</td><td class="num">10.59%</td><td class="num">16.29%</td><td class="num">&minus;&#8377;37.46</td><td class="num">8.38</td></tr>
+  <tr><td><code>B1_Standard_MiniTruck_30qtl_1.00xFreight</code></td><td class="num">90.67%</td><td class="num">&#8377;350.01</td><td class="num">&#8377;10,500.2</td><td class="num">40.46%</td><td class="num">58.94%</td><td class="num">&minus;&#8377;1,062.66</td><td class="num">0.00</td></tr>
+  <tr><td><code>MandiGuard_Standard_MiniTruck_30qtl_1.00xFreight</code></td><td class="num">48.66%</td><td class="num">&#8377;452.79</td><td class="num">&#8377;13,583.6</td><td class="num">9.97%</td><td class="num">16.17%</td><td class="num">&minus;&#8377;37.89</td><td class="num">8.75</td></tr>
+  <tr><td><code>B1_Cooperative_FPO_90qtl_0.70xFreight</code></td><td class="num">93.59%</td><td class="num">&#8377;386.52</td><td class="num">&#8377;11,595.6</td><td class="num">38.96%</td><td class="num">58.57%</td><td class="num">&minus;&#8377;1,028.95</td><td class="num">0.00</td></tr>
+  <tr class="hl"><td><b><code>MandiGuard_Cooperative_FPO_90qtl_0.70xFreight</code></b></td><td class="num">51.73%</td><td class="num"><b>&#8377;477.28</b></td><td class="num"><b>&#8377;14,318.5</b></td><td class="num">9.51%</td><td class="num">16.03%</td><td class="num">&minus;&#8377;37.44</td><td class="num">8.93</td></tr>
+  <tr><td><code>Split_Top2_Portfolio_StandardFreight</code> (50/50 split)</td><td class="num">48.66%</td><td class="num">&#8377;394.82</td><td class="num">&#8377;11,844.6</td><td class="num"><b>8.09%</b></td><td class="num"><b>9.85%</b></td><td class="num"><b>&minus;&#8377;26.40</b></td><td class="num">8.75</td></tr>
+</table>
+
+<p>Pooling three 30-qtl lots into one <b>90-qtl Farmer Producer Organization (FPO) truck</b> (0.70&times; modeled bulk freight) lifts net gain to <b>&#8377;477.28/qtl</b> (&#8377;14,318.5 per 30-qtl share) &mdash; +&#8377;24.49/qtl above solo 30-qtl (&#8377;452.79) and +&#8377;67.75/qtl above marginal 10-qtl growers paying 1.60&times; freight (&#8377;409.53). Splitting cargo 50/50 across the top-2 LCB-cleared yards (<code>Split_Top2_Portfolio</code>) cuts closed-trap exposure by <b>39% relative</b> (16.17% &rarr; 9.85%) and reduces loss-trip rate to <b>8.09%</b> (&#8377;394.82/qtl, &minus;&#8377;26.40 <code>CVaR_10%</code>).</p>
+
+<p><b><code>Exp 13b</code> Biological <code>Q10</code> Spoilage Clock (Safe Hours Before Reaching 15% Thermal Shrinkage):</b></p>
+<table>
+  <tr>
+    <th>Commodity (NABCONS 24h @ 20&deg;C)</th>
+    <th>20&deg;C Winter (Daily Decay / Safe Hours)</th>
+    <th>32&deg;C Spring/Monsoon (Daily Decay / Safe Hours)</th>
+    <th>42&deg;C Peak Summer (Daily Decay / Safe Hours)</th>
+  </tr>
+  <tr><td><b>Tomato</b> (3.25%)</td><td class="num">3.25%/d &rarr; <b>110.8 h</b></td><td class="num">7.47%/d &rarr; <b>48.2 h</b></td><td class="num">14.93%/d &rarr; <b>24.1 h</b></td></tr>
+  <tr><td><b>Onion</b> (1.96%)</td><td class="num">1.96%/d &rarr; <b>183.7 h</b></td><td class="num">4.50%/d &rarr; <b>79.9 h</b></td><td class="num">9.01%/d &rarr; <b>40.0 h</b></td></tr>
+  <tr><td><b>Apple</b> (1.64%)</td><td class="num">1.64%/d &rarr; <b>219.5 h</b></td><td class="num">3.77%/d &rarr; <b>95.5 h</b></td><td class="num">7.54%/d &rarr; <b>47.8 h</b></td></tr>
+  <tr><td><b>Potato</b> (0.86%)</td><td class="num">0.86%/d &rarr; <b>418.6 h</b></td><td class="num">1.98%/d &rarr; <b>182.2 h</b></td><td class="num">3.95%/d &rarr; <b>91.1 h</b></td></tr>
+</table>
+
+<p>Finally, from actual holdout episodes, <code>MandiGuard</code> formats plain-text feature-phone SMS cards strictly within the <b>160-character</b> GSM limit (<code>results/sample_farmer_sms_cards.txt</code>):</p>
+<ul>
+  <li><code>[MandiGuard DISPATCH] MH Onion: Amrawati-&gt;Kamthi (170km/3.3h). LCB +Rs154, Real +Rs268/qtl!</code></li>
+  <li><code>[MandiGuard STOP] MP Onion at Mandsaur: SKIP Sanawad (+Rs1047 screen). VARIETY_OR_STALE. Sell local!</code></li>
+  <li><code>[MandiGuard RAIN STOP] KA Tomato at Udupi: SKIP Chikkamagalo. Rain 123mm -&gt; spoil risk. Sell local!</code></li>
+  <li><code>[MandiGuard FPO POOL] 90qtl shared FPO truck (0.70x freight) raises mean net gain +Rs24.5/qtl over 30qtl solo (Rs477.3/qtl vs Rs452.8)!</code></li>
+</ul>
+
+<div class="figure">
+  <img src="{FIGA1}"/>
+  <div class="cap"><b>Figure A1.</b> Exploratory Appendix illustrations (<code>Exp 12</code>&ndash;<code>Exp 13b</code>, not main thesis contributions). Panel (A) shows how caching static road routes and running ML on local CPU (<code>ZeroCloud_Full</code>) plus adding a validation-calibrated &#8377;250/qtl satisficing early-exit cuts modeled live API cost per 10,000 queries from &#8377;7,868 (<code>B4</code>) to &#8377;1,922 (&minus;75.6%). Panel (B) compares 90-qtl FPO truck-sharing (&#8377;477.3/qtl), 50/50 split-lot diversification (9.8% traps), 10-qtl marginal growers (&#8377;409.5/qtl), and the biological <code>Q10</code> spoilage clock.</div>
+</div>
+
+<div class="box key">
+  <span class="t">Check Your Understanding &mdash; Chapter 10</span>
+  <ol>
+    <li><b>Why are <code>Exp 11</code>&ndash;<code>Exp 13b</code> placed in an Appendix rather than claimed as main contributions?</b> Because they use un-preregistered model variants or stylized deployment cost ratios (&#8377;0.05/call, 0.70&times; FPO freight, 50/50 split) rather than confirmatory Stage-I or Stage-II tests.</li>
+    <li><b>How did <code>ACI</code> help on 2026 HP Graded Apples in <code>Exp 11</code>?</b> By adapting Apple's target error level from 0.200 to 0.164 online, cutting worst-10% tail losses 27.6% (&minus;&#8377;102.76 &rarr; &minus;&#8377;74.42/qtl).</li>
+    <li><b>Why did <code>MandiGuard_ZeroCloud_Full</code> earn +&#8377;2.54/qtl more than standard <code>MandiGuard</code>?</b> Cached <code>T2</code> freight allows pre-ranking Step-0 candidates by freight-adjusted spread before selecting the top-5 shortlist.</li>
+    <li><b>How much does 42&deg;C peak summer heat compress safe Tomato transit time to 15% modeled loss?</b> From 110.8 hours at 20&deg;C winter down to 24.1 hours at 42&deg;C summer (compared with 91.1 hours for Potato).</li>
+  </ol>
+</div>
