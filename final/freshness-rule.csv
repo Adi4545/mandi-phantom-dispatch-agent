@@ -1,0 +1,7 @@
+cohort,evaluation,policy,n_episodes,dispatches,negative_episodes,dispatch_pct,loss_pct_among_dispatches,loss_pct_per_episode,mean_gain_inr_per_qtl_episode,worst_decile_inr_per_qtl_episode,verified_original_dispatch_quotes,vetoed_b1_dispatches,vetoed_losing_dispatches,vetoed_profitable_dispatches,mean_diff_vs_b1,ci95_low_vs_b1,ci95_high_vs_b1,mean_diff_vs_b2,ci95_low_vs_b2,ci95_high_vs_b2,n_origin_mandis,n_2week_blocks
+six_state,exploratory_reused_holdout,B1_original,69526,63040,25507,90.671116,40.461612,36.686995,350.005768,-1062.699504,,,,,,,,,,,,
+six_state,exploratory_reused_holdout,B1_headline_max_age_1d,69526,55435,20709,79.732762,37.357265,29.785979,340.843457,-991.076735,63040.000000,7605.000000,4798.000000,2807.000000,-9.162311,-19.200866,0.027288,-105.814255,-161.389310,-49.190776,174.000000,23.000000
+six_state,exploratory_reused_holdout,B2_fresh_exact_road,69526,43183,7820,62.110577,18.108978,11.247591,446.657712,-436.691084,,,,,,,,,,,,
+HP_graded_apple,exploratory_reused_holdout,B1_original,1537,1537,905,100.000000,58.880937,58.880937,841.581979,-8494.668849,,,,,,,,,,,,
+HP_graded_apple,exploratory_reused_holdout,B1_headline_max_age_1d,1537,1366,789,88.874431,57.759883,51.333767,783.518664,-8200.961511,1537.000000,171.000000,116.000000,55.000000,-58.063315,-267.759559,131.306116,-367.313462,-1869.078833,1350.729658,39.000000,7.000000
+HP_graded_apple,exploratory_reused_holdout,B2_fresh_exact_road,1537,517,147,33.636955,28.433269,9.564086,1150.832126,-2069.033581,,,,,,,,,,,,
