@@ -1,0 +1,44 @@
+{
+  "seed": 20261117,
+  "price_model_sha256": "ce5d4ab68903afd184987a995c9e0cfc3fc10def8ab48fb06f4c0874073499dd",
+  "candidate_sha256": {
+    "candidates_6state.parquet": "ea5ac38a90bb764aa659565935085c56aacab4302c2d67a8f053618fd0377aa2",
+    "candidates_hp_apple_grade.parquet": "e3483e11670717e651302c0f91356bc2eac30243027143b12b7506723473844a"
+  },
+  "calibration_proposals_with_labels": 26566,
+  "would_veto": 1921,
+  "target_negative": 940,
+  "target_positive": 981,
+  "last_training_settlement": "2025-05-31",
+  "target_mean": 12.180020997211944,
+  "features": [
+    "relative_hurdle_margin",
+    "fresh_net_margin_inr",
+    "local_price",
+    "road_km",
+    "dest_open_prob_14d",
+    "dest_dow_open_rate",
+    "dest_vol_14d",
+    "dest_intra_spread_14d"
+  ],
+  "median_imputation": {
+    "relative_hurdle_margin": 0.18316081201550388,
+    "fresh_net_margin_inr": 547.5043375,
+    "local_price": 1362.5,
+    "road_km": 194.49,
+    "dest_open_prob_14d": 0.7857142857142857,
+    "dest_dow_open_rate": 0.7857142857142857,
+    "dest_vol_14d": 0.08476353386582863,
+    "dest_intra_spread_14d": 0.11305614072099164
+  },
+  "max_depth": 3,
+  "min_samples_leaf": 250,
+  "sklearn": "1.3.0",
+  "daily_budget": "floor(n_B2/10)",
+  "veto_threshold": 100.0,
+  "tree": "|--- dest_vol_14d <= 0.243371\n|   |--- local_price <= 14875.000000\n|   |   |--- local_price <= 8335.000000\n|   |   |   |--- value: [3.180167]\n|   |   |--- local_price >  8335.000000\n|   |   |   |--- value: [34.593679]\n|   |--- local_price >  14875.000000\n|   |   |--- value: [148.118164]\n|--- dest_vol_14d >  0.243371\n|   |--- local_price <= 1495.500000\n|   |   |--- dest_intra_spread_14d <= 0.423160\n|   |   |   |--- value: [-1.369340]\n|   |   |--- dest_intra_spread_14d >  0.423160\n|   |   |   |--- value: [50.222038]\n|   |--- local_price >  1495.500000\n|   |   |--- value: [475.479577]\n",
+  "random_benchmark_unique_forecasts_across_cyclic_allocations": {
+    "six_state": 43183,
+    "hp_apple": 275
+  }
+}

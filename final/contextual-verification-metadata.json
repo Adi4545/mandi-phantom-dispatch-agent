@@ -1,0 +1,56 @@
+{
+  "train_candidate_episodes_after_full_settlement": 95720,
+  "train_b2_proposals": 60093,
+  "train_loss_cases": 11335,
+  "train_max_selected_settlement_date": "2024-12-31",
+  "seed": 20261117,
+  "number_of_bootstrap_draws": 5000,
+  "target": "max(0, -modeled_B2_incremental_payoff_inr_per_quintal)",
+  "features": [
+    "margin",
+    "local_price",
+    "dest_ref_price",
+    "road_km",
+    "tau_days",
+    "dest_open_prob_14d",
+    "dest_dow_open_rate",
+    "dest_vol_14d",
+    "dest_intra_spread_14d",
+    "dest_ret_7d",
+    "month_sin",
+    "month_cos",
+    "state_code",
+    "commodity_code"
+  ],
+  "daily_slots": "floor(number_of_B2_proposals_on_date/10)",
+  "model": {
+    "categorical_features": [
+      12,
+      13
+    ],
+    "early_stopping": false,
+    "interaction_cst": null,
+    "l2_regularization": 0.0,
+    "learning_rate": 0.06,
+    "loss": "squared_error",
+    "max_bins": 255,
+    "max_depth": 3,
+    "max_iter": 60,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 50,
+    "monotonic_cst": null,
+    "n_iter_no_change": 10,
+    "quantile": null,
+    "random_state": 20261117,
+    "scoring": "loss",
+    "tol": 1e-07,
+    "validation_fraction": 0.1,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "evidence": "Exploratory reanalysis of previously inspected cohorts with fixed simulator payoffs. Perfect, cost-free loss verification before departure is assumed; no verified field outcomes.",
+  "inputs_sha256": {
+    "candidates_6state.parquet": "ea5ac38a90bb764aa659565935085c56aacab4302c2d67a8f053618fd0377aa2",
+    "candidates_hp_apple_grade.parquet": "e3483e11670717e651302c0f91356bc2eac30243027143b12b7506723473844a"
+  }
+}

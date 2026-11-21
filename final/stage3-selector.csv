@@ -1,0 +1,3 @@
+panel,episodes,B2_dispatches,selector_dispatches,extra_abstentions,B2_negative_dispatches,selector_negative_dispatches,B2_mean_inr_qtl,selector_mean_inr_qtl,paired_mean_selector_minus_B2,paired_cluster_ci_low,paired_cluster_ci_high,origin_market_clusters,calendar_week_clusters,valid_boot_reps
+six_state,69526,43183,43183,0,7820,7820,446.65771204203446,446.65771204203446,0.0,0.0,0.0,174,46,5000
+hp_apple,1537,517,517,0,147,147,1150.832126266615,1150.832126266615,0.0,0.0,0.0,39,13,5000
