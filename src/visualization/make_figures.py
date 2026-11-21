@@ -288,7 +288,7 @@ def make_fig7_decade_and_modern_ai(res_dir: Path, fig_dir: Path) -> None:
     pol_specs = [
         ("B1_NaiveScreen", "B1 Naive Screen", "#C44E52"),
         ("B2_FreshRoad", "B2 Fresh+Road", "#DD8452"),
-        ("MandiGuard_Expanding", "MandiGuard (Causal)", "#1B7837"),
+        ("MandiGuard_Expanding", "MandiGuard", "#1B7837"),
     ]
     for k, (pkey, plabel, pcol) in enumerate(pol_specs):
         sub = d10[d10["policy"] == pkey].set_index("regime").loc[[r[0] for r in regimes]]
@@ -311,7 +311,7 @@ def make_fig7_decade_and_modern_ai(res_dir: Path, fig_dir: Path) -> None:
     axes[0].set_xticklabels([r[1] for r in regimes], fontsize=8.8)
     axes[0].set_ylim(0, 560)
     axes[0].set_ylabel("Mean Net Gain (INR/qtl)")
-    axes[0].set_title("(A) 10-Year Regime Robustness (2017-2026, Loss-Trip % Annotated)", pad=22)
+    axes[0].set_title("(A) Simulated gains by historical period", pad=22)
     axes[0].legend(frameon=False, fontsize=8.5, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=3)
 
     # Panel B: Modern AI & ACI Showdown (Holdout 6-State + HP Apple Shift Insight)
@@ -332,27 +332,18 @@ def make_fig7_decade_and_modern_ai(res_dir: Path, fig_dir: Path) -> None:
     axes[1].barh(y, h6["mean_net_gain_inr_qtl"], color=colors_b, height=0.58)
     axes[1].set_yticks(y)
     axes[1].set_yticklabels([name_map.get(p, p) for p in h6["policy"]], fontsize=8.8)
-    axes[1].set_xlim(350, 560)
-    axes[1].set_ylim(-1.45, 5.55)
-    axes[1].set_xlabel("Mean Net Gain on 6-State Holdout (INR/qtl)")
-    axes[1].set_title("(B) Modern Predictors & ACI Tail Safety (Holdout & HP Shift)", pad=12)
+    axes[1].set_xlim(0, 750)
+    axes[1].set_ylim(-0.65, 5.55)
+    axes[1].set_xlabel("Simulated mean gain per episode (INR/qtl)")
+    axes[1].set_title("(B) Model comparison on the six-state holdout", pad=12)
     for idx, (_, row) in enumerate(h6.iterrows()):
         axes[1].text(
             row["mean_net_gain_inr_qtl"] + 2.5,
             idx,
-            f"Rs {row['mean_net_gain_inr_qtl']:.1f} | LTR {row['loss_trip_rate_pct']:.1f}% | W10 {row['worst_10pct_loss_inr_qtl']:+.0f}",
+            f"Rs {row['mean_net_gain_inr_qtl']:.1f} · {row['loss_trip_rate_pct']:.1f}% losing trips",
             va="center",
             fontsize=7.8,
         )
-    axes[1].text(
-        354,
-        -0.92,
-        "HP Apple Shift (N=1,537): Deep MLP leads mean (Rs 615.3/qtl);\nACI cuts tail Worst-10% loss by 27.6% (-Rs 102.8 -> -Rs 74.4/qtl)",
-        fontsize=8.0,
-        va="center",
-        bbox={"boxstyle": "round,pad=0.35", "facecolor": "#F4F6F9", "edgecolor": "#B0BEC5"},
-    )
-
     fig.tight_layout()
     fig.savefig(fig_dir / "fig7_decade_2017_2026_evolution.png", dpi=300, bbox_inches="tight")
     plt.close(fig)

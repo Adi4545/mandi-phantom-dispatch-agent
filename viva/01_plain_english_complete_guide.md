@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](../final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # Plain-English Complete Study Guide — `MandiGuard`
 
 **Who This Guide Is For:** Any M.Tech student, thesis guide, or external examiner who wants to understand—and defend—every idea, dataset, equation, and architectural choice in `MandiGuard` from first principles without drowning in dense math.

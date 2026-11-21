@@ -32,19 +32,11 @@ from src.baselines.dispatch_baselines import (
 )
 from src.evaluation.bootstrap import holm_bonferroni, two_way_mandi_week_bootstrap
 from src.evaluation.payoff_model import PayoffParams, compute_realized_dispatch_outcome
+from src.evaluation.tail_risk import lower_decile_mean
 from src.utils.leakage import load_config
 
 LOT_SIZE_QTL = 30.0  # Grounded in MoSPI NSO NSS 77th Round Report No. 587 (Potato 29.33 qtl, Onion 38.73 qtl)
 AVG_MONTHLY_CROP_INCOME_INR = 3798.0  # NSO NSS 77th Round Table 6
-
-
-def _cvar10(vals: np.ndarray) -> float:
-    arr = vals[np.isfinite(vals)]
-    if len(arr) == 0:
-        return 0.0
-    q10 = np.quantile(arr, 0.10)
-    tail = arr[arr <= q10]
-    return float(tail.mean()) if len(tail) > 0 else float(q10)
 
 
 def _summarize_policy(name: str, pol_df: pd.DataFrame) -> Dict[str, object]:
@@ -62,7 +54,7 @@ def _summarize_policy(name: str, pol_df: pd.DataFrame) -> Dict[str, object]:
     cond_dnet = float(dnet[disp].mean()) if n_disp > 0 else 0.0
     # Open-Day-0 conditional on open-d0 dispatches (or SELL_LOCAL=0 for abstainers)
     valid_od0 = open_d0[np.isfinite(open_d0)]
-    mean_od0 = float(valid_od0.mean()) if len(valid_od0) > 0 else 0.0
+    mean_od0 = float(valid_od0.mean()) if len(valid_od0) > 0 else np.nan
 
     return {
         "policy": name,
@@ -74,7 +66,7 @@ def _summarize_policy(name: str, pol_df: pd.DataFrame) -> Dict[str, object]:
         "ep_phantom_loss_pct": round(float(ep_phantom.mean() * 100.0), 2),
         "cond_phantom_loss_rate_pct": round(cond_plr, 2),
         "cond_closed_or_trap_rate_pct": round(cond_trap, 2),
-        "cvar_10_inr": round(_cvar10(dnet), 2),
+        "cvar_10_inr": round(lower_decile_mean(dnet), 2),
         "avg_tool_calls": round(float(calls.mean()), 2),
         "lot_30qtl_gain_inr": round(float(dnet.mean()) * LOT_SIZE_QTL, 1),
     }

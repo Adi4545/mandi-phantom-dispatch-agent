@@ -32,6 +32,7 @@ from src.baselines.dispatch_baselines import (
     eval_b3_ml_point_dispatch,
 )
 from src.data.extract_agmarknet_multistate import parse_and_clean
+from src.evaluation.tail_risk import lower_decile_mean
 from src.utils.leakage import load_config
 
 OFFICIAL_DATAGOV_XML_URL = (
@@ -195,15 +196,6 @@ def run_exp14_official_parity(root: Path) -> Dict:
     return manifest
 
 
-def _cvar10(vals: np.ndarray) -> float:
-    arr = vals[np.isfinite(vals)]
-    if len(arr) == 0:
-        return 0.0
-    q10 = np.quantile(arr, 0.10)
-    tail = arr[arr <= q10]
-    return float(tail.mean()) if len(tail) > 0 else float(q10)
-
-
 def run_exp15_open_yard_sensitivity(root: Path) -> pd.DataFrame:
     cfg = load_config(root)
     splits = cfg["temporal_splits"]
@@ -268,7 +260,7 @@ def run_exp15_open_yard_sensitivity(root: Path) -> pd.DataFrame:
                     "dispatch_rate_pct": round(float(disp.mean() * 100.0), 2),
                     "mean_net_gain_inr_qtl": round(means[pname], 2),
                     "loss_trip_rate_pct": round(float((dnet[disp] < 0.0).mean() * 100.0), 2) if disp.any() else 0.0,
-                    "cvar_10_inr_qtl": round(_cvar10(dnet), 2),
+                    "cvar_10_inr_qtl": round(lower_decile_mean(dnet), 2),
                     "mg_minus_b1_inr_qtl": round(mg_mean - means["B1_NaiveScreen"], 2) if is_mg else 0.0,
                     "mg_minus_b2_inr_qtl": round(mg_mean - means["B2_FreshRoad"], 2) if is_mg else 0.0,
                     "mg_minus_b3_inr_qtl": round(mg_mean - means["B3_MLPoint"], 2) if is_mg else 0.0,

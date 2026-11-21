@@ -1,0 +1,26 @@
+cohort,grade,policy,episodes,dispatches,dispatches_with_observed_day0_payoff,abstentions_scored_zero,wrongly_filled_day0_payoffs,historical_day0_mean,corrected_day0_mean,other_historical_summary_fields_match
+Six_state,ALL,B1_NaiveScreenGreedy,69526,63040,25882,6486,22940,606.71,685.16,True
+Six_state,ALL,B2_FreshRoadGreedy,69526,43183,32679,26343,6618,467.48,461.62,True
+Six_state,ALL,B3_MLPointDispatch,69526,64695,22224,4831,23995,676.67,828.97,True
+Six_state,ALL,B6_HeuristicBucketRouter,69526,30145,23637,39381,4553,430.65,416.42,True
+HP_Apple,ALL_GRADES,B1_NaiveScreenGreedy,1537,1537,90,0,661,3471.46,8350.03,True
+HP_Apple,Grade A,B1_NaiveScreenGreedy,371,371,36,0,48,9428.05,17609.93,True
+HP_Apple,Grade B,B1_NaiveScreenGreedy,330,330,24,0,180,2627.42,5663.75,True
+HP_Apple,Grade C,B1_NaiveScreenGreedy,14,14,0,0,0,0.0,,True
+HP_Apple,Grade Range-1,B1_NaiveScreenGreedy,59,59,0,0,0,0.0,,True
+HP_Apple,Local,B1_NaiveScreenGreedy,62,62,2,0,9,1865.49,1667.79,True
+HP_Apple,Medium,B1_NaiveScreenGreedy,701,701,28,0,424,2784.5,-775.71,True
+HP_Apple,ALL_GRADES,B2_FreshRoadGreedy,1537,517,341,1020,21,1156.79,1109.92,True
+HP_Apple,Grade A,B2_FreshRoadGreedy,371,72,45,299,1,1745.3,1664.27,True
+HP_Apple,Grade B,B2_FreshRoadGreedy,330,182,127,148,7,1348.29,1238.46,True
+HP_Apple,Grade C,B2_FreshRoadGreedy,14,0,0,14,0,0.0,0.0,True
+HP_Apple,Grade Range-1,B2_FreshRoadGreedy,59,0,0,59,0,0.0,0.0,True
+HP_Apple,Local,B2_FreshRoadGreedy,62,8,7,54,0,277.69,277.69,True
+HP_Apple,Medium,B2_FreshRoadGreedy,701,255,162,446,13,965.21,954.89,True
+HP_Apple,ALL_GRADES,B3_MLPointDispatch,1537,1537,42,0,443,4351.62,16997.66,True
+HP_Apple,Grade A,B3_MLPointDispatch,371,371,30,0,32,11964.98,20286.38,True
+HP_Apple,Grade B,B3_MLPointDispatch,330,330,11,0,154,2869.48,9127.04,True
+HP_Apple,Grade C,B3_MLPointDispatch,14,14,0,0,0,0.0,,True
+HP_Apple,Grade Range-1,B3_MLPointDispatch,59,59,0,0,0,0.0,,True
+HP_Apple,Local,B3_MLPointDispatch,62,62,1,0,6,2419.88,4912.68,True
+HP_Apple,Medium,B3_MLPointDispatch,701,701,0,0,251,3499.21,,True

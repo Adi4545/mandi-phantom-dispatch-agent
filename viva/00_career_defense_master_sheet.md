@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](../final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # M.Tech Viva Career Defense Master Sheet (`MandiGuard` Stage I + `MandiGuard-CRC` Stage II)
 ### *Read This 10 Minutes Before Walking Into Your Thesis Defense Room*
 

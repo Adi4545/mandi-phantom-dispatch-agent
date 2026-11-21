@@ -163,7 +163,7 @@ def test_creative_decade_results_files_non_empty() -> None:
     assert len(app_rows) == 7
     assert (app_rows["type"] == "Appendix_Illustration").all()
 
-    ms_text = (root / "paper/manuscript.md").read_text()
+    ms_text = (root / "paper/manuscript_historical.md").read_text()
     idx_conc = ms_text.index("## 9. Conclusion")
     idx_app = ms_text.index("## Appendix:")
     assert idx_app > idx_conc

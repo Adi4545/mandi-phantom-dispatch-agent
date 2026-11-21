@@ -1,0 +1,29 @@
+{
+  "base": "b399358cfedb4e6a4ca93d3003c77c715badb55a",
+  "protocol_reference": "d20a0cb25827b73688e4ced19948ac5c01e49f6b",
+  "python": "3.11.5",
+  "platform": "Darwin x86_64",
+  "packages": {
+    "numpy": "1.24.3",
+    "scikit-learn": "1.3.0",
+    "pandas": "2.0.3",
+    "pyarrow": "11.0.0",
+    "scipy": "1.11.1"
+  },
+  "sha256": {
+    "data/processed/candidates_6state.parquet": "ea5ac38a90bb764aa659565935085c56aacab4302c2d67a8f053618fd0377aa2",
+    "data/processed/candidates_hp_apple_grade.parquet": "e3483e11670717e651302c0f91356bc2eac30243027143b12b7506723473844a",
+    "data/interim/forecaster_2024.pkl": "ce5d4ab68903afd184987a995c9e0cfc3fc10def8ab48fb06f4c0874073499dd",
+    "configs/config.json": "ff112de485ab7d9a87f40e81a1ab606565353bf0064cf6ca092d2f924d294b32",
+    "configs/frozen_calibration.json": "ddc5561fb60638b74d062b35cc90d43bf90d0483002c58f919adf3260adc6d2b",
+    "results/exp2_main_benchmark_6state.csv": "029a464b8c61f220601a8fe14c83f601ffe048810f612e0fcfcfb8d436138bd4",
+    "results/exp3_hp_apple_grade_holdout.csv": "85464ccc5abe902e13ce5cf170a53baae2e413748dfb6e453ca23c2854f05572",
+    "results/exp4_tool_ablations.csv": "3f2a909599d4e4f8759b4df0b9c28a3594affadf676c6750d5559472b4d8cfe1",
+    "results/exp5_budget_pareto.csv": "5a15e5d7ee15e9095e4743f58ba1f1a39d004994680f92c0b40c458b0dd5d906",
+    "results/exp15_missing_data_open_yard_sensitivity.csv": "739edc1ece80e5c8bb6248b5c36728c6ed826f773444bc6e67ff71fc089ff3f4",
+    "results/exp17_uncensored_crc_validation.csv": "7bdd2f47939a099e5d2c45145807d661bec843288785f9a335ee94e39cfb9034",
+    "results/confirmatory_holm_summary.csv": "03b6f3a9e86e35579e9c0d814c535eb9a00251f4b0384c32e236b7f212f4528e",
+    "results/selected_route_integrity.csv": "4196b5265a600abaf0b6c41c70bfdc9db6e3b9d82486ab41d725ab4b5412871c",
+    "final/decision-weather-control.csv": "70b9da526ac2730f5058f5c159246610ed8bb38aafffb3c4eadda768b121b986"
+  }
+}

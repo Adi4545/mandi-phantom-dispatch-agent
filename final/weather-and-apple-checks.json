@@ -1,0 +1,85 @@
+{
+  "input_sha256": {
+    "data/processed/candidates_hp_apple_grade.parquet": "e3483e11670717e651302c0f91356bc2eac30243027143b12b7506723473844a",
+    "data/interim/forecaster_2024.pkl": "ce5d4ab68903afd184987a995c9e0cfc3fc10def8ab48fb06f4c0874073499dd",
+    "data/interim/weather_cache_era5.parquet": "773aa00d3d076ec2fb9cab9a5d0616771473e50f4da68a4411648f6c2cab7834",
+    "data/interim/weather_cache_fc.parquet": "721e149cc7a7920c51851af8ce4c28c40fcf4d25d08a4b5bbaa49f4d1f7961fe",
+    "data/processed/mandi_coordinates.parquet": "9b099ccfc71602c5d9318d84a291158a4ba5609cd1372e5269c81813cf574781",
+    "data/raw/agmarknet_6state_top_apple_2024_2026_all.parquet": "558aa02e3e6843836a33cc88d130fd5cbd4d584edc5b80fdea48ac5b1366c118"
+  },
+  "scope": "HP exact-grade 2026 screened episodes; per-quintal simulator, same model/outcome parameters.",
+  "weather_cache": {
+    "paired_cell_days": 99858,
+    "cells": 102,
+    "wet_paired_cell_days": 43408,
+    "rain_identical": 99858,
+    "humidity_identical": 99858,
+    "max_temperature_identical": 24520
+  },
+  "market_selection": {
+    "historical_market_count": 178,
+    "training_20_days_only_count": 180,
+    "training_80_days_only_count": 171,
+    "added_if_exclude_future_days_20_day_cutoff": [
+      [
+        "Himachal Pradesh",
+        "Mehndli"
+      ],
+      [
+        "Himachal Pradesh",
+        "Parala"
+      ],
+      [
+        "Karnataka",
+        "K.R.Nagar"
+      ]
+    ],
+    "removed_if_exclude_future_days_20_day_cutoff": [
+      [
+        "Karnataka",
+        "Malur"
+      ]
+    ]
+  },
+  "hp_candidate_rows": 13997,
+  "max_abs_payoff_difference": 3.637978807091713e-12,
+  "B1_independent": {
+    "episodes": 1537,
+    "dispatches": 1537,
+    "negative_episodes": 905,
+    "mean_inr_per_episode": 841.5819789247719,
+    "loss_pct_per_dispatch": 58.88093689004555,
+    "historical_mean_at_or_below_q10": -8487.236718826303,
+    "exact_10_percent_mass_tail_mean": -8494.668848895102,
+    "open_day0_fields_borrowed_by_historical_groupby_first": 661
+  },
+  "B2_independent": {
+    "episodes": 1537,
+    "dispatches": 517,
+    "negative_episodes": 147,
+    "mean_inr_per_episode": 1150.832126266615,
+    "loss_pct_per_dispatch": 28.433268858800773,
+    "historical_mean_at_or_below_q10": -272.5025376246148,
+    "exact_10_percent_mass_tail_mean": -2069.0335810535157,
+    "open_day0_fields_borrowed_by_historical_groupby_first": 21
+  },
+  "v1_archived_weather": {
+    "episodes": 1537,
+    "dispatches": 287,
+    "negative_episodes": 61,
+    "mean_inr_per_episode": 605.0595795163016,
+    "loss_pct_per_dispatch": 21.254355400696863,
+    "historical_mean_at_or_below_q10": -102.7560658974387,
+    "exact_10_percent_mass_tail_mean": -876.4684605825773
+  },
+  "v1_seven_day_lag_decision_weather": {
+    "episodes": 1537,
+    "dispatches": 281,
+    "negative_episodes": 57,
+    "mean_inr_per_episode": 609.0699090643668,
+    "loss_pct_per_dispatch": 20.284697508896798,
+    "historical_mean_at_or_below_q10": -94.63571531524305,
+    "exact_10_percent_mass_tail_mean": -808.4365270586475
+  },
+  "changed_action_or_destination": 18
+}

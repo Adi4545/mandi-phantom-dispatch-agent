@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](../final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # MandiGuard (12th-Class Easy Reading Edition)
 ### *How Four Simple Checks Stop Indian Farmers From Losing Money on Apparent "High-Price" Mandis*
 
