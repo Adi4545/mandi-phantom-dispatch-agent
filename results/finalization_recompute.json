@@ -1,0 +1,188 @@
+{
+  "holdout_episodes": 69526,
+  "pickle_error": "AttributeError: Can't get attribute '__pyx_unpickle_CyHalfSquaredError' on <module 'sklearn._loss._loss' from '/home/ubuntu/.local/lib/python3.12/site-packages/sklearn/_loss/_loss.cpython-312-x86_64-linux-gnu.so'>",
+  "holdout_conformal_coverage_pct": null,
+  "published_holdout_conformal_coverage_pct": 79.07,
+  "metric_mismatches": [],
+  "bootstrap": [
+    {
+      "hypothesis": "H_B2_minus_B1",
+      "estimate": 96.6586,
+      "ci95_low": 37.4905,
+      "ci95_high": 155.2385,
+      "p_percentile": 0.0011997600479904018,
+      "p_basic": 0.0021995600879824036,
+      "n": 69526,
+      "p_holm_percentile": 0.0011997600479904018
+    }
+  ],
+  "published_holm": [
+    {
+      "hypothesis": "H1",
+      "estimand": "MG - B1 Mean dNet (INR/qtl)",
+      "direction": "greater",
+      "estimate": 102.7823,
+      "ci95_low": 48.6649,
+      "ci95_high": 153.4512,
+      "p_raw": 0.0006,
+      "n_episodes": 69526,
+      "n_origin_mandis": 174,
+      "n_2week_blocks": 23,
+      "p_holm": 0.0012,
+      "status": "SUPPORTED"
+    },
+    {
+      "hypothesis": "H2",
+      "estimand": "MG - B2 Mean dNet (INR/qtl)",
+      "direction": "greater",
+      "estimate": 6.1303,
+      "ci95_low": -17.0161,
+      "ci95_high": 25.0171,
+      "p_raw": 0.269946,
+      "n_episodes": 69526,
+      "n_origin_mandis": 174,
+      "n_2week_blocks": 23,
+      "p_holm": 0.269946,
+      "status": "NOT_SUPPORTED"
+    },
+    {
+      "hypothesis": "H3",
+      "estimand": "MG - B3 Ep Phantom Incidence (prob)",
+      "direction": "less",
+      "estimate": -0.3729,
+      "ci95_low": -0.4019,
+      "ci95_high": -0.3424,
+      "p_raw": 0.0002,
+      "n_episodes": 69526,
+      "n_origin_mandis": 174,
+      "n_2week_blocks": 23,
+      "p_holm": 0.0008,
+      "status": "SUPPORTED"
+    },
+    {
+      "hypothesis": "H4",
+      "estimand": "MG Calls - 0.75*B4 Calls",
+      "direction": "less",
+      "estimate": -3.0548,
+      "ci95_low": -3.4408,
+      "ci95_high": -2.6906,
+      "p_raw": 0.0002,
+      "n_episodes": 69526,
+      "n_origin_mandis": 174,
+      "n_2week_blocks": 23,
+      "p_holm": 0.0008,
+      "status": "SUPPORTED"
+    }
+  ],
+  "b1_dispatches": 63040,
+  "b1_outcome_types": [
+    {
+      "outcome_type": "exact_open_d0",
+      "n_b1_dispatches": 25883,
+      "share_pct": 41.06,
+      "mean_delta_net_inr": 856.83,
+      "loss_rate_pct": 12.32
+    },
+    {
+      "outcome_type": "other_variety_distress",
+      "n_b1_dispatches": 18655,
+      "share_pct": 29.59,
+      "mean_delta_net_inr": 54.72,
+      "loss_rate_pct": 50.83
+    },
+    {
+      "outcome_type": "closed_yard_divert",
+      "n_b1_dispatches": 8026,
+      "share_pct": 12.73,
+      "mean_delta_net_inr": -261.3,
+      "loss_rate_pct": 100.0
+    },
+    {
+      "outcome_type": "exact_wait_d1",
+      "n_b1_dispatches": 5488,
+      "share_pct": 8.71,
+      "mean_delta_net_inr": 598.35,
+      "loss_rate_pct": 23.74
+    },
+    {
+      "outcome_type": "no_commodity_divert",
+      "n_b1_dispatches": 2752,
+      "share_pct": 4.37,
+      "mean_delta_net_inr": -285.2,
+      "loss_rate_pct": 100.0
+    },
+    {
+      "outcome_type": "exact_wait_d2",
+      "n_b1_dispatches": 2236,
+      "share_pct": 3.55,
+      "mean_delta_net_inr": 328.31,
+      "loss_rate_pct": 33.86
+    }
+  ],
+  "b1_trap_flag_pct": 58.94,
+  "b1_no_exact_3d_pct": 46.69,
+  "extreme_prices": {
+    "screen_dest_price": {
+      "n_gt_20000": 417,
+      "n_lt_5": 0,
+      "n": 468816
+    },
+    "dest_ref_price": {
+      "n_gt_20000": 484,
+      "n_lt_5": 0,
+      "n": 282817
+    },
+    "local_price": {
+      "n_gt_20000": 6,
+      "n_lt_5": 0,
+      "n": 468816
+    },
+    "dest_modal_d0": {
+      "n_gt_20000": 332,
+      "n_lt_5": 0,
+      "n": 196899
+    }
+  },
+  "exp18": [
+    {
+      "slice": "early_2025-06-01_to_2026-02-11",
+      "untouched": false,
+      "n_episodes": 59640,
+      "B1_mean": 332.81,
+      "B2_mean": 464.24,
+      "B2_minus_B1": 131.42,
+      "B1_ep_phantom_pct": 37.63,
+      "B2_ep_phantom_pct": 11.42,
+      "B1_cvar10": -1132.8,
+      "B2_cvar10": -459.59,
+      "MG_recomputed": false
+    },
+    {
+      "slice": "late_2026-02-12_to_2026-04-08",
+      "untouched": false,
+      "n_episodes": 9886,
+      "B1_mean": 453.67,
+      "B2_mean": 340.61,
+      "B2_minus_B1": -113.06,
+      "B1_ep_phantom_pct": 31.0,
+      "B2_ep_phantom_pct": 10.24,
+      "B1_cvar10": -606.92,
+      "B2_cvar10": -296.14,
+      "MG_recomputed": false
+    },
+    {
+      "slice": "full_used_holdout",
+      "untouched": false,
+      "n_episodes": 69526,
+      "B1_mean": 350.0,
+      "B2_mean": 446.66,
+      "B2_minus_B1": 96.66,
+      "B1_ep_phantom_pct": 36.69,
+      "B2_ep_phantom_pct": 11.25,
+      "B1_cvar10": -1062.66,
+      "B2_cvar10": -436.67,
+      "MG_recomputed": false
+    }
+  ],
+  "cvar_hand_check": -30.0
+}

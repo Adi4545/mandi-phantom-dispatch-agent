@@ -5,8 +5,10 @@ Addresses two verified pathologies of standard mandi price models (`Exp 16`):
      uncensored execution return `r_exec = (real_delta_net_inr - static_net) / dest_ref_price`
      strictly after settlement (`arrival_date + 2d <= train_cutoff`), jointly estimating both
      expected return `mu_hat` and episode-loss probability `p_loss`.
-  2. Heteroscedastic Coverage Illusion: Replaces homoscedastic global quantile subtraction with
-     Neyman-Pearson / Conformal Risk Control (Angelopoulos et al., 2024) price-scaled risk scoring:
+  2. Heteroscedastic Coverage Illusion: Replaces a single additive cushion with an
+     empirically calibrated price-scaled risk gate. The ratio is inspired by
+     conformal risk control (Angelopoulos et al., 2024) but does not satisfy
+     Theorem 1: prices are not exchangeable, and the dispatch denominator depends on lambda.
          Score = mu_hat(x) - lambda_star * local_price * p_loss(x),
      with `lambda_star` calibrated strictly on `Val_2025H1` to satisfy `(n_loss + 1)/(n_disp + 1) <= beta`.
 """
@@ -196,7 +198,10 @@ class UncensoredCRCForecaster:
             disp = res["is_dispatch"].to_numpy(dtype=bool)
             n_d = int(disp.sum())
             n_l = int(res.loc[disp, "is_phantom_loss"].sum()) if n_d > 0 else 0
-            crc_risk = float((n_l + 1) / (n_d + 1)) if n_d > 0 else 0.0
+            # A rule that never dispatches has no conditional loss rate.
+            # (n_l+1)/(n_d+1) is 1 when n_d=0; treating that as risk 0 would
+            # accept total abstention as perfect risk control.
+            crc_risk = float((n_l + 1) / (n_d + 1)) if n_d > 0 else 1.0
             if crc_risk <= cfg.beta_target:
                 chosen_lam = float(lam)
                 chosen_risk = crc_risk

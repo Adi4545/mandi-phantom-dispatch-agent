@@ -1,0 +1,7 @@
+outcome_type,n_b1_dispatches,share_pct,mean_delta_net_inr,loss_rate_pct
+exact_open_d0,25883,41.06,856.83,12.32
+other_variety_distress,18655,29.59,54.72,50.83
+closed_yard_divert,8026,12.73,-261.3,100.0
+exact_wait_d1,5488,8.71,598.35,23.74
+no_commodity_divert,2752,4.37,-285.2,100.0
+exact_wait_d2,2236,3.55,328.31,33.86

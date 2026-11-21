@@ -63,6 +63,26 @@ def test_uncensored_crc_settlement_firewall_zero_future_leakage() -> None:
     assert np.allclose(pl1, pl2, atol=1e-12)
 
 
+def test_crc_zero_dispatch_is_not_zero_risk() -> None:
+    """Total abstention must not satisfy the empirical risk gate."""
+    cands = _make_toy_cands().copy()
+    cands["real_delta_net_inr"] = -50.0
+    fc = UncensoredCRCForecaster(seed=0)
+    # Bypass fitting: calibration only needs predict_components.
+    fc.is_fitted = True
+    fc.predict_components = lambda df: (  # type: ignore[method-assign]
+        np.full(len(df), -10.0),
+        np.full(len(df), 0.9),
+        np.full(len(df), -10.0),
+        np.full(len(df), 40.0),
+        np.full(len(df), 40.0),
+    )
+    cfg = CRCConfig(safety_margin_inr=10_000.0, beta_target=0.095, thin_grade_aware_t1=True)
+    out = fc.calibrate_crc_lambda(cands, cfg=cfg, lambda_grid=np.array([0.0, 0.15, 1.2]))
+    assert out["val_crc_risk"] == 1.0
+    assert out["lambda_star"] == 1.2
+
+
 def test_thin_grade_aware_t1_and_crc_calibration_bound() -> None:
     cands = _make_toy_cands()
     # Add dest_open_prob_14d=0.30, age=0 row and verify thin-grade-aware accepts while strict rejects

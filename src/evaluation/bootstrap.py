@@ -93,18 +93,25 @@ def two_way_mandi_week_bootstrap(
         boot_ests[r0 : r0 + rc] = vals
 
     ci_low, ci_high = np.quantile(boot_ests, [0.025, 0.975])
-    # Center bootstrap distribution under H0 to compute one-sided test, or count violation fraction directly
+    # Primary p-value inverts the percentile interval: share of replicates on the
+    # wrong side of 0, with the Phipson-Smyth +1 correction. This is not a
+    # null-recentered pivot (the bootstrap draws stay centered at the estimate).
+    # `p_value_basic` is the matching one-sided basic/pivotal tail,
+    # P*(2*estimate - replicate is on the wrong side of 0).
     if direction == "greater":
-        # Fraction of bootstrap draws <= 0 (paired bootstrap one-sided p-value)
         n_fail = int(np.sum(boot_ests <= 0.0))
+        n_fail_basic = int(np.sum(boot_ests >= (2.0 * point_est)))
     else:
         n_fail = int(np.sum(boot_ests >= 0.0))
+        n_fail_basic = int(np.sum(boot_ests <= (2.0 * point_est)))
     p_val = phipson_smyth_p(n_fail, reps)
     return {
         "estimate": point_est,
         "ci95_low": float(ci_low),
         "ci95_high": float(ci_high),
         "p_value": p_val,
+        "p_value_percentile": p_val,
+        "p_value_basic": phipson_smyth_p(n_fail_basic, reps),
         "n": int(len(diff)),
         "n_mandis": n_mandis,
         "n_blocks": n_blocks,
