@@ -1,0 +1,9 @@
+panel,priority,episodes,proposed_trips,call_slots,ceiling_gain_per_episode_inr_qtl,ceiling_gain_per_call_inr_qtl
+six_state,uniform_random_expected,69526,63040,6163,15.736217563235925,177.5233266755705
+six_state,oldest_variety_quote,69526,63040,6163,25.977673392486672,293.05917901769084
+six_state,smallest_screen_margin,69526,63040,6163,16.43480399177815,185.4042158579211
+six_state,perfect_priority_ceiling,69526,63040,6163,98.3998657123934,1110.067996676921
+hp_apple,uniform_random_expected,1537,1537,112,118.15040081638935,1621.403268346343
+hp_apple,oldest_variety_quote,1537,1537,112,120.06472751727262,1647.6739838754288
+hp_apple,smallest_screen_margin,1537,1537,112,301.0553925231526,4131.447663465049
+hp_apple,perfect_priority_ceiling,1537,1537,112,432.3766105428106,5933.596878609821
