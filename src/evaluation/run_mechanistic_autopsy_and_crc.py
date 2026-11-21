@@ -26,6 +26,7 @@ from src.baselines.dispatch_baselines import (
 )
 from src.evaluation.bootstrap import two_way_mandi_week_bootstrap
 from src.evaluation.payoff_model import PayoffParams
+from src.evaluation.tail_risk import lower_decile_mean
 from src.models.uncensored_crc_forecaster import (
     CRCConfig,
     UncensoredCRCForecaster,
@@ -35,15 +36,6 @@ from src.models.uncensored_crc_forecaster import (
 from src.utils.leakage import assert_no_future_leakage_dates, load_config
 
 LOT_SIZE_QTL = 30.0
-
-
-def _cvar10(vals: np.ndarray) -> float:
-    arr = vals[np.isfinite(vals)]
-    if len(arr) == 0:
-        return 0.0
-    q10 = np.quantile(arr, 0.10)
-    tail = arr[arr <= q10]
-    return float(tail.mean()) if len(tail) > 0 else float(q10)
 
 
 def _summarize(name: str, dfp: pd.DataFrame, scope: str, extra: str = "") -> Dict[str, object]:
@@ -64,7 +56,7 @@ def _summarize(name: str, dfp: pd.DataFrame, scope: str, extra: str = "") -> Dic
         "cond_phantom_loss_rate_pct": round(ltr, 2),
         "ep_phantom_loss_pct": round(ep_loss, 2),
         "cond_closed_or_trap_rate_pct": round(trap, 2),
-        "cvar_10_inr": round(_cvar10(dnet), 2),
+        "cvar_10_inr": round(lower_decile_mean(dnet), 2),
         "avg_tool_calls": round(float(dfp["tool_calls_total"].mean()), 2),
     }
 
@@ -269,8 +261,26 @@ def run_exp17_uncensored_crc(
     all_rows.extend(rows_va)
     rows_ho, pols_ho = _run_suite("Holdout_2025_2026", ho)
     all_rows.extend(rows_ho)
-    rows_d0, _ = _run_suite("Matched_AllTopK_Observed_d0", ho_open_d0)
+    rows_d0, policies_d0 = _run_suite("Matched_AllTopK_Observed_d0", ho_open_d0)
     all_rows.extend(rows_d0)
+    # The historical cohort filters episodes; policies can still choose a route
+    # outside the five candidates that qualified an episode for inclusion.
+    keys = ["episode_id", "dest_market"]
+    shortlist_keys = pd.MultiIndex.from_frame(top_k[keys])
+    candidate_outcomes = ho_open_d0.set_index(keys, verify_integrity=True)
+    selection_audit = []
+    for policy, decisions in policies_d0.items():
+        chosen = decisions.loc[decisions["is_dispatch"]]
+        chosen_keys = pd.MultiIndex.from_arrays([chosen["episode_id"], chosen["chosen_dest"]], names=keys)
+        outside = ~chosen_keys.isin(shortlist_keys)
+        quoted = candidate_outcomes.loc[chosen_keys, "dest_modal_d0"].notna().to_numpy()
+        selection_audit.append({
+            "policy": policy, "episodes": len(decisions), "dispatches": len(chosen),
+            "selected_outside_screen_top_k": int(outside.sum()),
+            "selected_without_day0_quote": int((~quoted).sum()),
+            "outside_top_k_and_without_day0_quote": int((outside & ~quoted).sum()),
+        })
+    pd.DataFrame(selection_audit).to_csv(root / "results/exp17_matched_route_audit.csv", index=False)
     rows_ap, _ = _run_suite("HP_Apple_Grade_2026", ho_ap, by_grade=True)
     all_rows.extend(rows_ap)
 

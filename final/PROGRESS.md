@@ -1,3 +1,5 @@
+> Historical assessment at b399358. Later checks and dispositions appear in the [correction record](CORRECTIONS.md) and [independent review](reviews/corrections-qa.md).
+
 # Progress log
 
 Base commit at start: `d20a0cb25827b73688e4ced19948ac5c01e49f6b` on `main`.

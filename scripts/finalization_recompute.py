@@ -28,7 +28,8 @@ from src.baselines.dispatch_baselines import (
 )
 from src.evaluation.bootstrap import holm_bonferroni, two_way_mandi_week_bootstrap
 from src.evaluation.payoff_model import PayoffParams
-from src.evaluation.run_all_experiments import _cvar10, _summarize_policy
+from src.evaluation.run_all_experiments import _summarize_policy
+from src.evaluation.tail_risk import lower_decile_mean
 from src.utils.leakage import load_config
 
 LATE_SLICE_START = "2026-02-12"  # declared before looking at slice estimates
@@ -207,8 +208,8 @@ def main() -> None:
                 "B2_minus_B1": round(float((sub["B2_FreshRoadGreedy_dnet"] - sub["B1_NaiveScreenGreedy_dnet"]).mean()), 2),
                 "B1_ep_phantom_pct": round(float(sub["B1_NaiveScreenGreedy_phantom"].mean() * 100), 2),
                 "B2_ep_phantom_pct": round(float(sub["B2_FreshRoadGreedy_phantom"].mean() * 100), 2),
-                "B1_cvar10": round(_cvar10(sub["B1_NaiveScreenGreedy_dnet"].to_numpy()), 2),
-                "B2_cvar10": round(_cvar10(sub["B2_FreshRoadGreedy_dnet"].to_numpy()), 2),
+                "B1_cvar10": round(lower_decile_mean(sub["B1_NaiveScreenGreedy_dnet"].to_numpy()), 2),
+                "B2_cvar10": round(lower_decile_mean(sub["B2_FreshRoadGreedy_dnet"].to_numpy()), 2),
                 "MG_recomputed": "MandiGuard_dnet" in sub.columns,
             }
         )
@@ -221,6 +222,7 @@ def main() -> None:
         "holdout_conformal_coverage_pct": None if cov is None else round(cov, 2),
         "published_holdout_conformal_coverage_pct": 79.07,
         "metric_mismatches": diffs,
+        "tail_definition": "Mean of exactly the lowest 10% of finite episode payoff mass. Historical tables included all ties at the percentile.",
         "bootstrap": boot_rows,
         "published_holm": published_holm.to_dict(orient="records"),
         "b1_dispatches": int(len(chosen)),
@@ -229,7 +231,7 @@ def main() -> None:
         "b1_no_exact_3d_pct": round(float(chosen["real_no_exact_variety_3d"].mean() * 100), 2),
         "extreme_prices": extreme,
         "exp18": slice_rows,
-        "cvar_hand_check": round(_cvar10(np.array([0.0, 0.0, -10.0, -30.0, 5.0, 8.0, 9.0, 10.0, 11.0, 12.0])), 4),
+        "cvar_hand_check": round(lower_decile_mean(np.array([0.0, 0.0, -10.0, -30.0, 5.0, 8.0, 9.0, 10.0, 11.0, 12.0])), 4),
     }
     (root / "results/finalization_recompute.json").write_text(json.dumps(report, indent=2))
     print(json.dumps({"mismatches": diffs, "coverage": report["holdout_conformal_coverage_pct"], "bootstrap": boot_rows, "exp18": slice_rows, "outcomes": outcome_rows}, indent=2))

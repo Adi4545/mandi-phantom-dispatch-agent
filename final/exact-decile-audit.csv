@@ -1,0 +1,43 @@
+evaluation_scope,subgroup,policy,n_episodes,dispatch_rate_pct,mean_delta_net_inr,archived_mean_at_or_below_q10_inr,exact_lower_decile_mean_inr
+HP_Apple_Grade_2026,ALL,B1_NaiveScreen,1537,100.0,841.58,-8487.24,-8494.67
+HP_Apple_Grade_2026,ALL,B2_FreshRoad,1537,33.64,1150.83,-272.5,-2069.03
+HP_Apple_Grade_2026,ALL,B3_MLPoint,1537,100.0,749.05,-8054.15,-8061.01
+HP_Apple_Grade_2026,ALL,MG_v1_PreReg,1537,18.67,605.06,-102.76,-876.47
+HP_Apple_Grade_2026,ALL,Rung1_EuclidStep0,1537,18.09,597.61,-94.83,-813.83
+HP_Apple_Grade_2026,ALL,Rung2_UncensoredCRC_StrictT1,1537,19.39,609.47,-105.65,-900.48
+HP_Apple_Grade_2026,ALL,Rung3_MandiGuard_CRC,1537,22.84,812.08,-113.4,-929.66
+HP_Apple_Grade_2026,Grade A,B1_NaiveScreen,371,100.0,1978.22,-9217.42,-9278.51
+HP_Apple_Grade_2026,Grade A,B2_FreshRoad,371,19.41,1598.95,-127.89,-1123.8
+HP_Apple_Grade_2026,Grade A,B3_MLPoint,371,100.0,1861.92,-9290.16,-9348.57
+HP_Apple_Grade_2026,Grade A,MG_v1_PreReg,371,5.39,205.46,-4.86,-46.53
+HP_Apple_Grade_2026,Grade A,Rung1_EuclidStep0,371,5.66,215.13,-4.88,-46.53
+HP_Apple_Grade_2026,Grade A,Rung2_UncensoredCRC_StrictT1,371,5.39,212.26,-4.86,-46.53
+HP_Apple_Grade_2026,Grade A,Rung3_MandiGuard_CRC,371,7.01,477.56,-4.57,-42.82
+HP_Apple_Grade_2026,Grade B,B1_NaiveScreen,330,100.0,-427.54,-11157.52,-11157.52
+HP_Apple_Grade_2026,Grade B,B2_FreshRoad,330,55.15,1020.98,-4472.9,-4472.9
+HP_Apple_Grade_2026,Grade B,B3_MLPoint,330,100.0,-680.75,-10420.72,-10420.72
+HP_Apple_Grade_2026,Grade B,MG_v1_PreReg,330,30.3,833.7,-117.76,-899.25
+HP_Apple_Grade_2026,Grade B,Rung1_EuclidStep0,330,27.58,788.33,-77.1,-607.48
+HP_Apple_Grade_2026,Grade B,Rung2_UncensoredCRC_StrictT1,330,32.12,794.02,-126.73,-971.62
+HP_Apple_Grade_2026,Grade B,Rung3_MandiGuard_CRC,330,33.03,852.01,-142.46,-1083.59
+Holdout_2025_2026,ALL,B1_NaiveScreen,69526,90.67,350.01,-1062.66,-1062.7
+Holdout_2025_2026,ALL,B2_FreshRoad,69526,62.11,446.66,-436.67,-436.69
+Holdout_2025_2026,ALL,B3_MLPoint,69526,93.05,330.85,-1097.8,-1097.84
+Holdout_2025_2026,ALL,MG_v1_PreReg,69526,48.66,452.79,-37.89,-212.93
+Holdout_2025_2026,ALL,Rung1_EuclidStep0,69526,48.89,455.15,-37.75,-211.24
+Holdout_2025_2026,ALL,Rung2_UncensoredCRC_StrictT1,69526,55.17,469.29,-43.49,-220.19
+Holdout_2025_2026,ALL,Rung3_MandiGuard_CRC,69526,55.09,479.17,-44.03,-223.19
+Matched_AllTopK_Observed_d0,ALL,B1_NaiveScreen,10162,74.78,472.51,-694.72,-695.22
+Matched_AllTopK_Observed_d0,ALL,B2_FreshRoad,10162,64.38,469.99,-94.7,-429.34
+Matched_AllTopK_Observed_d0,ALL,B3_MLPoint,10162,73.47,553.22,-362.4,-362.68
+Matched_AllTopK_Observed_d0,ALL,MG_v1_PreReg,10162,47.31,510.89,-36.07,-201.66
+Matched_AllTopK_Observed_d0,ALL,Rung1_EuclidStep0,10162,47.35,510.86,-36.15,-202.0
+Matched_AllTopK_Observed_d0,ALL,Rung2_UncensoredCRC_StrictT1,10162,57.47,528.47,-38.84,-182.6
+Matched_AllTopK_Observed_d0,ALL,Rung3_MandiGuard_CRC,10162,55.41,533.75,-35.0,-169.92
+Val_2025H1,ALL,B1_NaiveScreen,42794,89.88,255.28,-867.88,-867.94
+Val_2025H1,ALL,B2_FreshRoad,42794,63.12,330.28,-350.78,-350.83
+Val_2025H1,ALL,B3_MLPoint,42794,92.46,205.08,-972.23,-972.3
+Val_2025H1,ALL,MG_v1_PreReg,42794,52.95,351.48,-26.69,-139.25
+Val_2025H1,ALL,Rung1_EuclidStep0,42794,53.1,352.11,-26.75,-139.08
+Val_2025H1,ALL,Rung2_UncensoredCRC_StrictT1,42794,57.14,358.52,-26.81,-129.23
+Val_2025H1,ALL,Rung3_MandiGuard_CRC,42794,56.6,365.46,-26.19,-127.24

@@ -33,17 +33,9 @@ from src.baselines.dispatch_baselines import (
 )
 from src.data.build_dispatch_episodes import build_panel_tables
 from src.evaluation.payoff_model import BASE_SPOIL_24H, PayoffParams, compute_freight_inr, compute_spoilage_fraction
+from src.evaluation.tail_risk import lower_decile_mean
 from src.models.arrival_forecaster import COMMODITY_TO_ID, CausalArrivalForecaster
 from src.utils.leakage import load_config
-
-
-def _cvar10(vals: np.ndarray) -> float:
-    arr = vals[np.isfinite(vals)]
-    if len(arr) == 0:
-        return 0.0
-    q10 = np.quantile(arr, 0.10)
-    tail = arr[arr <= q10]
-    return float(tail.mean()) if len(tail) > 0 else float(q10)
 
 
 def _minimal_metrics(name: str, pol_df: pd.DataFrame, extra: Dict[str, object] | None = None) -> Dict[str, object]:
@@ -60,7 +52,7 @@ def _minimal_metrics(name: str, pol_df: pd.DataFrame, extra: Dict[str, object] |
         "lot_30qtl_gain_inr": round(float(dnet.mean() * 30.0), 1),
         "loss_trip_rate_pct": round(float(ep_pl[disp].mean() * 100.0), 2) if disp.any() else 0.0,
         "closed_trap_rate_pct": round(float(trap[disp].mean() * 100.0), 2) if disp.any() else 0.0,
-        "worst_10pct_loss_inr_qtl": round(_cvar10(dnet), 2),
+        "worst_10pct_loss_inr_qtl": round(lower_decile_mean(dnet), 2),
         "live_api_calls_per_query": round(float(calls.mean()), 2),
     }
     if extra:

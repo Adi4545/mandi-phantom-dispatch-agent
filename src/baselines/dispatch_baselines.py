@@ -24,7 +24,8 @@ def eval_b1_naive_screen_greedy(
     naive_net = df["screen_dest_price"] - df["local_price"] - naive_freight
     df["naive_est_net"] = naive_net
     df = df.sort_values(["episode_id", "naive_est_net", "dest_market"], ascending=[True, False, True])
-    top = df.groupby("episode_id", as_index=False).first()
+    # Select one complete destination row, including missing arrival-day outcomes.
+    top = df.drop_duplicates("episode_id", ignore_index=True)
 
     dispatch_mask = (top["naive_est_net"] > hurdle_inr) & np.isfinite(top["real_delta_net_inr"])
     out = pd.DataFrame(
@@ -64,7 +65,8 @@ def eval_b2_fresh_road_greedy(
     est_net = np.where(df["dest_age_days"] == 0, df["dest_ref_price"] - df["local_price"] - freight, -1e12)
     df["b2_est"] = est_net
     # Uses 1 fresh-check + 1 road lookup on up to 5 candidates = 2 calls per active candidate evaluated
-    top = df.sort_values(["episode_id", "b2_est", "dest_market"], ascending=[True, False, True]).groupby("episode_id", as_index=False).first()
+    ranked = df.sort_values(["episode_id", "b2_est", "dest_market"], ascending=[True, False, True])
+    top = ranked.drop_duplicates("episode_id", ignore_index=True)
     n_cands = df.groupby("episode_id").size().reindex(top["episode_id"]).to_numpy()
     dispatch_mask = top["b2_est"] > hurdle_inr
     return pd.DataFrame(
@@ -104,7 +106,8 @@ def eval_b3_ml_point_dispatch(
     p_arr_p50 = p_base * (1.0 + df["pred_ret"])
     est_net = p_arr_p50 - freight - df["local_price"]
     df["b3_est"] = est_net
-    top = df.sort_values(["episode_id", "b3_est", "dest_market"], ascending=[True, False, True]).groupby("episode_id", as_index=False).first()
+    ranked = df.sort_values(["episode_id", "b3_est", "dest_market"], ascending=[True, False, True])
+    top = ranked.drop_duplicates("episode_id", ignore_index=True)
     n_cands = df.groupby("episode_id").size().reindex(top["episode_id"]).to_numpy()
     dispatch_mask = top["b3_est"] > safety_margin_inr
     return pd.DataFrame(
@@ -295,7 +298,8 @@ def eval_b6_heuristic_bucket_router(
         -1e12,
     )
     df["b6_score"] = score
-    top = df.sort_values(["episode_id", "b6_score", "dest_market"], ascending=[True, False, True]).groupby("episode_id", as_index=False).first()
+    ranked = df.sort_values(["episode_id", "b6_score", "dest_market"], ascending=[True, False, True])
+    top = ranked.drop_duplicates("episode_id", ignore_index=True)
     n_cands = df.groupby("episode_id").size().reindex(top["episode_id"]).to_numpy()
     dispatch_mask = top["b6_score"] > 200.0
     return pd.DataFrame(

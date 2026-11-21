@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # Project State — `MandiGuard`
 
 **Last Updated:** 2026-11-18 (Stage-I Confirmatory + Stage-II Mechanistic Autopsy & `MandiGuard-CRC` + Dual-Tier `Exp 14` Complete)  

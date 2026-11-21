@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # Reproducibility & Verification Guide — `MandiGuard`
 
 ## 1. Environment Requirements

@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](../final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # M.Tech Viva Questions & Crisp Examiner-Ready Answers — `MandiGuard` & `MandiGuard-CRC` (50 Examiner Q&As)
 
 ## Group A — Motivation, Novelty & Agricultural Economics (Q1–Q9)

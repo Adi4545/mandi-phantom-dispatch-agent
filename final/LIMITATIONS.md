@@ -1,3 +1,5 @@
+> Historical assessment at b399358. Later checks and dispositions appear in the [correction record](CORRECTIONS.md) and [independent review](reviews/corrections-qa.md).
+
 # Limitations (submission text)
 
 1. Payoffs are computed, not observed. There are no truck receipts, weighment slips, or farmer surveys behind ₹35 + ₹0.45/km, the Q10 curve, or the non-quote penalty.

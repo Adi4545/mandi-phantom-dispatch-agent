@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # Quality gates
 
 | Gate | Result | Evidence |

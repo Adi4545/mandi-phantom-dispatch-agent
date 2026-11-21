@@ -1,0 +1,219 @@
+{
+  "core_panel": {
+    "rows": 260043,
+    "days": 832,
+    "first": "2024-01-01",
+    "last": "2026-04-13",
+    "states": 6,
+    "state_market_keys": 178,
+    "market_keys_multiple_districts": 0,
+    "nonunique_key_excess_rows": 2296,
+    "exact_price_key_duplicate_excess_rows": 0,
+    "modal_outside_bounds": 759,
+    "varieties": 51,
+    "grades": 14,
+    "crops": {
+      "Onion": 89161,
+      "Tomato": 73241,
+      "Potato": 69296,
+      "Apple": 28345
+    }
+  },
+  "all_clean": {
+    "rows": 673971,
+    "days": 832,
+    "first": "2024-01-01",
+    "last": "2026-04-13",
+    "states": 6,
+    "state_market_keys": 699,
+    "market_keys_multiple_districts": 3,
+    "nonunique_key_excess_rows": 3791,
+    "exact_price_key_duplicate_excess_rows": 0,
+    "modal_outside_bounds": 782,
+    "varieties": 58,
+    "grades": 14,
+    "crops": {
+      "Onion": 213801,
+      "Tomato": 184707,
+      "Potato": 183837,
+      "Apple": 91626
+    }
+  },
+  "decade": {
+    "rows": 883406,
+    "days": 3323,
+    "first": "2017-01-01",
+    "last": "2026-04-13",
+    "states": 6,
+    "state_market_keys": 178,
+    "market_keys_multiple_districts": 0,
+    "nonunique_key_excess_rows": 2296,
+    "exact_price_key_duplicate_excess_rows": 0,
+    "modal_outside_bounds": 799,
+    "varieties": 55,
+    "grades": 14,
+    "crops": {
+      "Onion": 273298,
+      "Tomato": 264674,
+      "Potato": 231617,
+      "Apple": 113817
+    }
+  },
+  "retained_only_due_to_full_period_eligibility": [
+    [
+      "Himachal Pradesh",
+      "Bandrol"
+    ],
+    [
+      "Himachal Pradesh",
+      "Dharamshala"
+    ],
+    [
+      "Himachal Pradesh",
+      "Kullu(Patli Kuhal)"
+    ],
+    [
+      "Himachal Pradesh",
+      "Nahan"
+    ],
+    [
+      "Himachal Pradesh",
+      "Shimla and Kinnaur(Nerwa)"
+    ],
+    [
+      "Karnataka",
+      "Bijapur"
+    ],
+    [
+      "Karnataka",
+      "Malur"
+    ]
+  ],
+  "xml_core_markets_with_only_nonstudy_crops": [
+    [
+      "Karnataka",
+      "Arasikere"
+    ],
+    [
+      "Karnataka",
+      "Malur"
+    ],
+    [
+      "Karnataka",
+      "Raichur"
+    ],
+    [
+      "Madhya Pradesh",
+      "Shamgarh"
+    ],
+    [
+      "Maharashtra",
+      "Khed(Chakan)"
+    ]
+  ],
+  "xml": {
+    "source_rows": 6434,
+    "target_rows_before_panel": 532,
+    "left_rows": 181,
+    "right_rows_in_scope": 352,
+    "left_unique_keys": 181,
+    "right_unique_keys": 352,
+    "shared_keys": 172,
+    "matched_row_pairs": 172,
+    "equal_key_price_triplets": 171,
+    "min_max_modal_equal_row_pairs": [
+      172,
+      172,
+      171
+    ],
+    "left_dates": 1,
+    "matched_dates": 1
+  },
+  "hp_apple": {
+    "source_rows": 4427,
+    "source_market_names": 42,
+    "source_days": 289,
+    "source_first": "2025-11-07",
+    "source_last": "2026-09-01",
+    "retrieval_vintages": [
+      "2026-09-02T17:13:13+05:30"
+    ],
+    "recorded_arrival_tonnes_median": 0.3,
+    "rows_below_3_tonnes": 3904,
+    "all_price_triplets_with_district": {
+      "left_rows": 2082,
+      "right_rows_in_scope": 2076,
+      "left_unique_keys": 2082,
+      "right_unique_keys": 2076,
+      "shared_keys": 2042,
+      "matched_row_pairs": 2042,
+      "equal_key_price_triplets": 2042,
+      "min_max_modal_equal_row_pairs": [
+        2042,
+        2042,
+        2042
+      ],
+      "left_dates": 150,
+      "matched_dates": 149
+    },
+    "published_join_without_district": {
+      "left_rows": 2082,
+      "right_rows_in_scope": 2076,
+      "left_unique_keys": 2082,
+      "right_unique_keys": 2076,
+      "shared_keys": 2042,
+      "matched_row_pairs": 2042,
+      "equal_key_price_triplets": 2042,
+      "min_max_modal_equal_row_pairs": [
+        2042,
+        2042,
+        2042
+      ],
+      "left_dates": 150,
+      "matched_dates": 149
+    }
+  },
+  "route_matrix": {
+    "rows": 8147,
+    "endpoints": {
+      "market_exact": 150,
+      "district_centroid": 70
+    },
+    "routes_with_centroid_endpoint": 4592
+  },
+  "weather": [
+    {
+      "source": "causal_era5_nowcast_le_t",
+      "rows": 42097,
+      "cells": 43,
+      "rows_with_forecast_equal_to_realized_rain": 39912,
+      "rows_with_equal_positive_rain": 16685,
+      "rows_with_forecast_equal_to_realized_humidity": 41225
+    },
+    {
+      "source": "open_meteo_historical_nwp",
+      "rows": 99858,
+      "cells": 102,
+      "rows_with_forecast_equal_to_realized_rain": 99858,
+      "rows_with_equal_positive_rain": 43408,
+      "rows_with_forecast_equal_to_realized_humidity": 99858
+    }
+  ],
+  "survey_snapshot_sha256_matches": {
+    "PIB_2151371_NABCONS_2022": true,
+    "PIB_2198688_CIPHET_vs_NABCONS": true,
+    "PIB_154554_APMC_Deregulation": true,
+    "PIB_1753856_NSS77_Report587": true,
+    "PIB_168990_ColdStorage_Baseline": true,
+    "PIB_2023_ColdStorage_PDF": true,
+    "PIB_2086484_eNAM_States": true,
+    "PIB_2248987_Agri_Hort_2024_25": true
+  },
+  "november_snapshot": {
+    "queries": 22,
+    "http_200": 22,
+    "with_numeric_price": 11,
+    "distinct_markets": 22,
+    "distinct_market_commodity_keys": 22
+  }
+}

@@ -1,3 +1,5 @@
+> This document records the earlier analysis. Use the [correction record](final/CORRECTIONS.md) for the revised downside estimates, arrival-day diagnostics, weather control and reproduction commands.
+
 # Empirical & Confirmatory Findings — `MandiGuard`
 
 **Primary Holdout Period:** 2025-06-01 to 2026-04-08 (realized arrival lookup through 2026-04-13), spanning **69,526 shortlisted active dispatch episodes** across 174 origin mandis and 23 two-week blocks (81,048 total holdout episodes; 468,816 candidate corridors).  

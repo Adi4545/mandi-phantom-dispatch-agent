@@ -1,0 +1,8 @@
+policy,episodes,dispatches,selected_outside_screen_top_k,selected_without_day0_quote,outside_top_k_and_without_day0_quote
+B1_NaiveScreen,10162,7599,14,8,8
+B2_FreshRoad,10162,6542,0,0,0
+B3_MLPoint,10162,7466,0,0,0
+MG_v1_PreReg,10162,4808,0,0,0
+Rung1_EuclidStep0,10162,4812,29,1,1
+Rung2_UncensoredCRC_StrictT1,10162,5840,38,1,1
+Rung3_MandiGuard_CRC,10162,5631,39,1,1

@@ -1,3 +1,5 @@
+> Historical assessment at b399358. Later checks and dispositions appear in the [correction record](CORRECTIONS.md) and [independent review](reviews/corrections-qa.md).
+
 # Novelty assessment
 
 ## What the prior literature already contains
