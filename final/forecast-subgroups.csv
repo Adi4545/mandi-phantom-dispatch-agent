@@ -1,0 +1,25 @@
+panel,mode,group,value,episodes,mean_vs_b2
+six_state,margin,State,Gujarat,14702,1.9199791250808156
+six_state,margin,State,Himachal Pradesh,8952,8.832687993533838
+six_state,margin,State,Karnataka,6733,1.9232696897085249
+six_state,margin,State,Madhya Pradesh,6286,2.935646943382969
+six_state,margin,State,Maharashtra,15045,2.950246073062104
+six_state,margin,State,Uttar Pradesh,17808,0.5216603682638694
+six_state,margin,Commodity,Apple,7856,9.350015416871626
+six_state,margin,Commodity,Onion,23467,1.6040278265490588
+six_state,margin,Commodity,Potato,17594,1.0584253027955544
+six_state,margin,Commodity,Tomato,20609,3.04039063667684
+six_state,all,State,Gujarat,14702,5.074900228633302
+six_state,all,State,Himachal Pradesh,8952,21.045673150480773
+six_state,all,State,Karnataka,6733,2.71671821770397
+six_state,all,State,Madhya Pradesh,6286,9.371682647744729
+six_state,all,State,Maharashtra,15045,7.1177464278559235
+six_state,all,State,Uttar Pradesh,17808,1.4050972275903897
+six_state,all,Commodity,Apple,7856,20.754549266296532
+six_state,all,Commodity,Onion,23467,4.269726111287142
+six_state,all,Commodity,Potato,17594,3.4476832538728663
+six_state,all,Commodity,Tomato,20609,7.201641790760192
+hp_apple,margin,State,Himachal Pradesh,1537,-0.9565298369192984
+hp_apple,margin,Commodity,Apple,1537,-0.9565298369192984
+hp_apple,all,State,Himachal Pradesh,1537,26.12836580609848
+hp_apple,all,Commodity,Apple,1537,26.12836580609848

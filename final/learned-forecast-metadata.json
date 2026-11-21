@@ -1,0 +1,15 @@
+{
+  "routing_fit": "Same fixed settled-2024 B2 target, features and hyperparameters as contextual-verification-metadata.json",
+  "training_b2_trips": 60093,
+  "through_settlement": "2024-12-31",
+  "forecast_model_sha256": "ce5d4ab68903afd184987a995c9e0cfc3fc10def8ab48fb06f4c0874073499dd",
+  "permutation_and_test_label_mutation_invariance": "Verified on both evaluation panels",
+  "threshold_inr_qtl": 100.0,
+  "veto_rule": "b2_margin + dest_ref_price * frozen_point_return <= threshold",
+  "uncertainty": "5000 paired resamples of nonoverlapping 14-day blocks; additional crossed origin-market x 14-day bootstrap; both weight all eligible episodes",
+  "cost_unit": "Forecast rows are distinct B2 proposals passed to the released predictor; one priority prediction per B2 proposal for learned routing. Batch invocation, prices, settlement and actual latency are separate.",
+  "input_sha256": {
+    "candidates_6state.parquet": "ea5ac38a90bb764aa659565935085c56aacab4302c2d67a8f053618fd0377aa2",
+    "candidates_hp_apple_grade.parquet": "e3483e11670717e651302c0f91356bc2eac30243027143b12b7506723473844a"
+  }
+}
