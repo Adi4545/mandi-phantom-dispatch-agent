@@ -1,0 +1,4 @@
+slice,untouched,n_episodes,B1_mean,B2_mean,B2_minus_B1,B1_ep_phantom_pct,B2_ep_phantom_pct,B1_cvar10,B2_cvar10,MG_recomputed
+early_2025-06-01_to_2026-02-11,False,59640,332.81,464.24,131.42,37.63,11.42,-1132.8,-459.59,False
+late_2026-02-12_to_2026-04-08,False,9886,453.67,340.61,-113.06,31.0,10.24,-606.92,-296.14,False
+full_used_holdout,False,69526,350.0,446.66,96.66,36.69,11.25,-1062.66,-436.67,False

@@ -58,6 +58,15 @@ def test_all_experiment_artifacts_present_and_consistent() -> None:
     assert (holm["n_episodes"] == 69526).all()
     assert holm[["estimate", "ci95_low", "ci95_high", "p_raw", "p_holm"]].notna().all().all()
 
+    # H3 is episode-level incidence, not the conditional loss-trip rate.
+    b3_ep = float(exp2.loc["B3_MLPointDispatch", "ep_phantom_loss_pct"])
+    mg_ep = float(exp2.loc["MandiGuard", "ep_phantom_loss_pct"])
+    b3_cond = float(exp2.loc["B3_MLPointDispatch", "cond_phantom_loss_rate_pct"])
+    mg_cond = float(exp2.loc["MandiGuard", "cond_phantom_loss_rate_pct"])
+    h3 = float(holm.loc[holm["hypothesis"] == "H3", "estimate"].iloc[0])
+    assert abs(((mg_ep - b3_ep) / 100.0) - h3) < 5e-4
+    assert abs((mg_cond - b3_cond) / 100.0 - h3) > 0.01
+
     # Check live demo valid summary
     live = json.loads((res_dir / "exp8_live_nov2026_demo.json").read_text())
     assert live["queries_executed"] == 22

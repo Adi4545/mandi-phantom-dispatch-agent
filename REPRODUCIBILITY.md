@@ -3,6 +3,7 @@
 ## 1. Environment Requirements
 * **OS / Tested Hardware:** macOS (`arm64`), 8 GB RAM (`Python 3.11.5`), also portable cleanly to Linux / Google Colab.
 * **Packages (`environment/requirements.txt`):** `numpy`, `pandas`, `pyarrow`, `scikit-learn`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `requests`, `beautifulsoup4`, `pypdf`, `pytest`, `jupyter`, `nbconvert`.
+* **Forecaster pickle:** `data/interim/forecaster_2024.pkl` was serialized with scikit-learn **1.3.0** (`sklearn_version` inside the pickle). On Python 3.12 with a newer scikit-learn it raises `AttributeError: Can't get attribute '__pyx_unpickle_CyHalfSquaredError'`. Unit tests do not load this pickle. Replaying `MandiGuard` / `B3` predictions requires scikit-learn 1.3.0. Payoff-only policies `B1` and `B2` do not.
 
 ## 2. Deterministic Execution Order (End-to-End Pipeline)
 1. **Official Market & Geospatial Data (`src/data/`):**
