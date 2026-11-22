@@ -1,3 +1,5 @@
+> **Superseded downside numbers.** CVaR and worst-10% figures here are not ES10. See `revision/es10.py` and `paper/manuscript.md`.
+
 # MandiGuard (12th-Class Easy Reading Edition)
 ### *How Four Simple Checks Stop Indian Farmers From Losing Money on Apparent "High-Price" Mandis*
 

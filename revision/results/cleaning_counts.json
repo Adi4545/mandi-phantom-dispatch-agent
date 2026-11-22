@@ -1,0 +1,16 @@
+{
+  "panel_rows": 260043,
+  "invalid_nonpositive_price_rows": 0,
+  "modal_outside_minmax_rows": 759,
+  "duplicate_key_rows": 4559,
+  "duplicate_keys": 2263,
+  "duplicate_keys_conflicting_modal": 1489,
+  "rows_after_drop_invalid": 260043,
+  "retained_key_rows_after_median": 257747,
+  "decision_rows_2025_2026": 752456,
+  "rain_fc_equals_era5": 498083,
+  "rh_fc_equals_era5": 370328,
+  "rain_pairs": 752456,
+  "candidate_rows_touching_conflicting_duplicate": 12691,
+  "episodes_touching_conflicting_duplicate": 4793
+}

@@ -1,0 +1,31 @@
+{
+  "b2_theta_frozen_on_val": 250,
+  "margin_frozen_on_val": 200,
+  "val_b2": {
+    "policy": "B2",
+    "n": 34875,
+    "dispatch_rate": 0.601,
+    "n_dispatch": 20959,
+    "mean": 308.57,
+    "loss_rate": 0.2761,
+    "es10": -339.2,
+    "loss_given_loss": -258.11
+  },
+  "val_mg": {
+    "policy": "MG",
+    "n": 34875,
+    "dispatch_rate": 0.7243,
+    "n_dispatch": 25259,
+    "mean": 343.95,
+    "loss_rate": 0.3095,
+    "es10": -387.2,
+    "loss_given_loss": -262.82
+  },
+  "test_n_episodes": 56172,
+  "weather_primary": "none_20C_reference",
+  "settlement_primary": "sequential",
+  "div_primary": 1.5,
+  "disc_primary": 0.1,
+  "exploratory": false,
+  "note": "Thresholds frozen on Jan-May 2025. Jun 2025-Apr 2026 is the test window. No untouched window remains beyond this split. Stage I H2 on the old same-day design stays inconclusive and is not re-opened here."
+}

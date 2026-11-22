@@ -1,0 +1,7 @@
+policy,n,dispatch_rate,n_dispatch,mean,loss_rate,es10,loss_given_loss,role
+B1,56172,1.0,56172,455.43,0.4147,-530.85,-261.59,B1_lagged_screen
+B2,56172,0.7395,41541,432.41,0.3082,-419.36,-271.18,B2_theta100
+B2,56172,0.6013,33779,424.23,0.3051,-398.18,-284.8,B2_val_conservative
+MG,56172,0.7373,41417,490.52,0.3341,-444.37,-279.24,cautious_T1_T2_T4
+MG,56172,0.7432,41749,490.35,0.3339,-446.66,-280.11,ablation_euclid_instead_of_road
+MG,56172,0.7208,40487,490.14,0.3331,-435.84,-277.28,ablation_plus_2024_climatology

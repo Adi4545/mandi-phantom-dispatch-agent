@@ -1,3 +1,5 @@
+> **Superseded downside numbers.** Any CVaR, worst-10%, or `cvar_10` figure in this file is the mean of points below a sample quantile. It is not ES10. The current definition and the current tables are `revision/es10.py` and `revision/results/`. The Stage I comparison with the road rule remains inconclusive.
+
 # Plain-English Complete Study Guide — `MandiGuard`
 
 **Who This Guide Is For:** Any M.Tech student, thesis guide, or external examiner who wants to understand—and defend—every idea, dataset, equation, and architectural choice in `MandiGuard` from first principles without drowning in dense math.

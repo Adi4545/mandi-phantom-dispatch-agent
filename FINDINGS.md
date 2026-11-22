@@ -1,3 +1,5 @@
+> **Superseded downside numbers.** Any CVaR, worst-10%, or `cvar_10` figure in this file is the mean of points below a sample quantile. It is not ES10. The current definition and the current tables are `revision/es10.py` and `revision/results/`. The Stage I comparison with the road rule remains inconclusive.
+
 # Empirical & Confirmatory Findings — `MandiGuard`
 
 **Primary Holdout Period:** 2025-06-01 to 2026-04-08 (realized arrival lookup through 2026-04-13), spanning **69,526 shortlisted active dispatch episodes** across 174 origin mandis and 23 two-week blocks (81,048 total holdout episodes; 468,816 candidate corridors).  

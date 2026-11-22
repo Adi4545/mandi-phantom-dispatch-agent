@@ -1,3 +1,5 @@
+> **Superseded downside numbers.** Any CVaR, worst-10%, or `cvar_10` figure in this file is the mean of points below a sample quantile. It is not ES10. The current definition and the current tables are `revision/es10.py` and `revision/results/`. The Stage I comparison with the road rule remains inconclusive.
+
 # Spoken M.Tech Defense Pitches (1-Min, 5-Min, & 15-Min) — `MandiGuard` (Stage I) & `MandiGuard-CRC` (Stage II)
 
 ---

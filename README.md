@@ -9,7 +9,11 @@ Empirically (`Exp 1`, `Exp 10`), most apparent cross-mandi portal spreads erode 
 
 ---
 
-## Key Results Around 4 Minimal Metrics (Mean Net Gain, Loss-Trip Rate, Worst-10% Loss, Live API Calls/Query)
+## Current paper (lagged replay)
+
+The defendable write-up is `paper/manuscript.md`. Tables come from `python -m revision.build_run` and live in `revision/results/`. On 56,172 test episodes, screen-chasing loses money on 41.47% of trips (mean ₹455.43/qtl, ES10 −₹530.85). A ₹200 margin rule frozen on the validation months dispatches 73.73% of episodes (mean ₹490.52, loss rate 33.41%, ES10 −₹444.37). A yesterday's-quote road rule at a ₹100 cutoff dispatches 73.95% (mean ₹432.41, loss rate 30.82%, ES10 −₹419.36). The margin rule has the higher mean and the worse tail. ES10 is defined in `revision/es10.py`. The older numbers below use a different downside estimator (`cvar_10_inr`) and are not ES10. See `results/ES10_NOTE.md`.
+
+## Historical draft (not the current ES10)
 
 ### View 1: Main Holdout Benchmark (`N = 69,526`, Modeled Trap Penalties)
 * **Spread Erosion (`Exp 1`):** Across 63,040 naive screen-chasing dispatches (`B1`), headline spreads average ₹1,330.49/qtl. **46.69%** have no exact-variety quote for three arrival days. The flag `closed_or_no_variety_trap` is **58.94%** because it also counts exact-variety sales after a 1–2 day wait (12.25 pp). A missing row is not an observed closure. **40.46%** have negative gain under the structural cost model (episode-level `CVaR_10%` -₹1,062.66/qtl, including non-dispatches in the benchmark table's other policies).
