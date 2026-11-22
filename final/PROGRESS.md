@@ -47,3 +47,12 @@ Step 1 [A1 PI Snapshot]
   - Lagged HP graded apples (`N = 2,802`): `MG` (`₹1,044.05`, `57.21%`) trails `B2_age_matched` (`₹1,199.31`, `89.47%`) on mean while reducing ep_loss (`19.20%` vs `49.54%`) and `ES10` (`-₹1,619` vs `-₹2,392`).
   - `A8` stability boundary: `MG > B1` holds across all LCV/steep freight (`₹0.45..1.20/km`), arhtiya (`0..6%`), and spoilage (`0.5..2.0x`) stress tests, flipping only at the NITI Aayog bulk floor (`₹0.258/qtl-km`, `-₹14.23/qtl`) or `div=0` (`₹440.40` vs `₹459.38`).
 - **Steps 3 & 4 Acceptance Test:** All `revision/results/*.csv` and `summary.json` generated deterministically (`exploratory: true`). **PASSED.**
+
+## Step 5: Literature Audit (`A9`), Pre-Registered `RR-Abstain` (`A10`), & Adversarial Review (`A11`/`A12`)
+- Verified 9 additional DOIs/URLs (`manski1990bounds`, `horowitz2000nonparametric`, `ban2019bigdata`, `kallus2021minimax`, `jin2023selection`, `nitiaayog2021freight`, `rbi2024top`, `kader2002postharvest`, `gross2016usda66`) via Crossref / JSTOR / JMLR / official portals and committed `final/PREREG_A10.md` + `paper/references.bib` at SHA **`87a0b62`** BEFORE writing or running `revision/eval_a10.py` (`R5`).
+- Executed `python3 -m revision.eval_a10` ONCE on frozen validation -> test:
+  - Validation (`2025-01-01..2025-05-31`) selected $\kappa^* = 5.0$, $m^*_{\text{match}} = ₹3.73/\text{qtl}$ (and zero-cutoff `RR_Abstain_m0` at $m=0$ nearly identical).
+  - Test (`N = 58,676`, `exploratory: true` wrt prior calendar exposure) at matched ~69–72% dispatch: `RR_Abstain_matched` (`69.02%` disp) reached Mean **`₹475.36/qtl`** (`+₹41.80` vs `B2_age_matched`, Holm `p = 0.0020`), EpLossRate **`17.23%`** (`-9.49 pp`, Holm `p = 0.0020`), and exact **`ES10 -₹460.72/qtl`** (`+₹64.54` vs `B2_age_matched` and `+₹52.06` vs hard-gated `MG_matched`, Holm **`p = 0.0020`** across **both** clustering schemes!).
+  - Non-Apple crops (`N = 52,207`) improved across every staple (`Onion +₹101.93 ES10`, `Potato +₹88.91 ES10`, `Tomato +₹49.31 ES10`); holds down to `div = 0.0`; improves HP Apple mean/ES10 vs `B2_age_matched` though `cond_loss_rate` stays `44.63%`.
+- Completed `A11` / `A12` adversarial review and converged on the single surviving novelty sentence in `final/NOVELTY_V2.md`.
+- **Step 5 Acceptance Test:** `PREREG_A10.md` commit `87a0b62` precedes `eval_a10.py` commit; all `a10_*.csv`, `a10_summary.json`, `NOVELTY_V2.md`, and expanded `pytest` tests pass **100%**. **PASSED.**

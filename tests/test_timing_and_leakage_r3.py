@@ -154,3 +154,76 @@ def test_hp_apple_lagged_invariants_and_gitignored_independence() -> None:
     bv_text = (ROOT / "revision/build_variant.py").read_text()
     assert "candidates_6state.parquet" not in bv_text.split("Enforces" if "Enforces" in bv_text else "ROOT = Path")[1]
 
+
+def test_sequential_settlement_fee_base_and_edge_cases() -> None:
+    from revision.es10 import es10
+    from revision.eval_a10 import rr_abstain_score
+    from revision.eval_run import settle_candidates, summarize_chosen
+    from revision.stats_utils import weighted_es10
+
+    # Base synthetic frame verifying all settlement branches + M9 fee-base fix
+    # freight_road = 35 + 0.45 * 100 = 80.0; Tomato 4h at 20C = 0.0325 * (4/24) = 0.0054166667
+    sp4 = 0.0325 * (4.0 / 24.0)
+    sp28 = 0.0325 * (28.0 / 24.0)
+    sp52 = 0.0325 * (52.0 / 24.0)
+
+    def _row(same_dist, dm0, dm1, dm2, am0, am1, am2):
+        return {
+            "State": "Maharashtra", "Commodity": "Tomato", "road_km": 100.0, "truck_hours": 4.0,
+            "same_district": same_dist, "fee_rate": 0.0 if same_dist else 0.01,
+            "settle_local_price_d0": 1000.0, "origin_lag_price": 1000.0, "dest_lag_price": 1500.0,
+            "freight_road": 80.0, "spoil_ref_0": sp4,
+            "dest_exact_rep_28d": 0.5, "dest_dow_exact_rep_8w": 0.5,
+            "settle_dest_modal_d0": dm0, "settle_dest_modal_d1": dm1, "settle_dest_modal_d2": dm2,
+            "settle_any_min_d0": am0, "settle_any_min_d1": am1, "settle_any_min_d2": am2,
+        }
+
+    test_df = pd.DataFrame([
+        _row(False, 1600.0, np.nan, np.nan, 1200.0, np.nan, np.nan),  # 0: d0 exact sell w/ 1% dest post-spoil fee
+        _row(True, 1600.0, np.nan, np.nan, 1200.0, np.nan, np.nan),   # 1: same_district zero fee
+        _row(False, np.nan, 1600.0, np.nan, np.nan, 1600.0, np.nan),  # 2: d0 no commodity -> MUST divert d0 (NO wait lookahead!)
+        _row(False, np.nan, 1600.0, np.nan, 1200.0, 1600.0, np.nan),  # 3: d0 other var active -> wait 1d (+25 detention) -> d1 sell
+        _row(False, np.nan, np.nan, np.nan, 1200.0, 1200.0, 1100.0),  # 4: d2 fallback to other_var_min * (1 - 0.10) + 50 detention
+        _row(False, np.nan, np.nan, np.nan, 1200.0, 1200.0, np.nan),  # 5: d2 no commodity -> divert d2 + 50 detention + zero fee
+    ])
+
+    y, ot = settle_candidates(test_df, how="sequential", weather="none", div=1.5, disc=0.10, return_outcomes=True)
+    # 0: fee on dest post-spoil sale: 1600*(1-sp4)*(1-0.01) - 80 - 1000
+    exp0 = 1600.0 * (1.0 - sp4) * 0.99 - 80.0 - 1000.0
+    assert abs(y[0] - exp0) < 1e-9 and ot[0] == "exact_d0"
+    # 1: same_district fee == 0 -> exact difference equals 1% of dest gross sale (1600*(1-sp4)*0.01), independent of local_price!
+    assert abs((y[1] - y[0]) - 1600.0 * (1.0 - sp4) * 0.01) < 1e-9
+    # 2: sequential NO lookahead! Even though dm1 == 1600, am0 is NaN so trader returns at d0 with zero fee!
+    exp2 = -1.5 * 80.0 - 1000.0 * sp4
+    assert abs(y[2] - exp2) < 1e-9 and ot[2] == "no_comm_divert_d0"
+    # Verify hindsight differs on row 2
+    yh = settle_candidates(test_df, how="hindsight", weather="none", div=1.5, disc=0.10)
+    assert yh[2] > 400.0 and ot[2] == "no_comm_divert_d0"
+    # 3: wait 1d -> 1600*(1-sp28)*0.99 - 80 - 25 - 1000
+    exp3 = 1600.0 * (1.0 - sp28) * 0.99 - 80.0 - 25.0 - 1000.0
+    assert abs(y[3] - exp3) < 1e-9 and ot[3] == "exact_wait_d1"
+    # 4: d2 distress -> 1100*0.9*(1-sp52)*0.99 - 80 - 50 - 1000
+    exp4 = (1100.0 * 0.90) * (1.0 - sp52) * 0.99 - 80.0 - 50.0 - 1000.0
+    assert abs(y[4] - exp4) < 1e-9 and ot[4] == "other_var_distress_d2"
+    # 5: d2 divert -> -1.5*80 - 1000*sp52 - 50 (zero fee!)
+    exp5 = -1.5 * 80.0 - 1000.0 * sp52 - 50.0
+    assert abs(y[5] - exp5) < 1e-9 and ot[5] == "no_comm_divert_d2"
+
+    # Weighted ES10 exact identity with es10 for unit weights
+    arr = np.array([-300.0, -50.0, 0.0, 0.0, 10.0, 20.0, 40.0, 80.0, 120.0, 200.0, 350.0])
+    assert abs(weighted_es10(arr, np.ones_like(arr)) - es10(arr)) < 1e-10
+
+    # Zero-dispatch summarize_chosen edge case
+    zero_df = pd.DataFrame({"eligible": [False, False], "y_raw": [100.0, -50.0]})
+    zs = summarize_chosen("zero", zero_df)
+    assert zs["n_dispatch"] == 0 and zs["mean"] == 0.0 and zs["cond_loss_rate"] is None
+
+    # RR-Abstain boundary check (p_rep = 0 -> delta_miss; p_rep = 1 -> delta_open)
+    b_df = pd.DataFrame([
+        {**_row(False, 1600, np.nan, np.nan, 1200, np.nan, np.nan), "dest_exact_rep_28d": 1.0, "dest_dow_exact_rep_8w": 1.0},
+        {**_row(False, 1600, np.nan, np.nan, 1200, np.nan, np.nan), "dest_exact_rep_28d": 0.0, "dest_dow_exact_rep_8w": 0.0},
+    ])
+    sc = rr_abstain_score(b_df, kappa=1.5)
+    assert abs(sc[0] - (1500.0 * (1.0 - sp4) * 0.99 - 1000.0 - 80.0)) < 1e-9
+    assert abs(sc[1] - (-1.5 * 80.0 - 1000.0 * sp4)) < 1e-9
+
