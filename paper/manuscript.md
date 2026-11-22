@@ -139,7 +139,7 @@ Every policy sees the identical Top-5 strictly-lagged candidate menu (`lag_sprea
 6. **Pre-Registered `RR-Abstain` (`A10`, Commit `87a0b62`):** Replaces binary activity gates (`T1`) with a single convex combination of open-market net gain $\widehat{\Delta}_{\text{open}}$ and a bounded no-quote return penalty weighted by strictly-prior reporting reliability $\hat{p}_{\text{rep}}(c, t) = 0.5\,\text{rep}_{28\text{d}} + 0.5\,\text{dow}_{8\text{w}}$ over `dest_lag_age in 1..3`:
    $$S_{\text{RR}}(c, t; \kappa) = \hat{p}_{\text{rep}}(c, t)\,\widehat{\Delta}_{\text{open}}(c, t) + \big(1 - \hat{p}_{\text{rep}}(c, t)\big)\,\big(-\kappa\,\text{Freight}_{\text{road}}(c) - P_{\text{orig,lag}}(o, t)\,s_{\text{ref,0}}(c)\big)$$
 
-   Validation tuning (`2025-01-01..2025-05-31`, `kappa in [0..5.0]`) at matched dispatch selected **$\kappa^* = 5.0$** with matched threshold **$m^*_{\text{match}} = ₹3.73/\text{qtl}$** (and we also report the zero-threshold version `RR_Abstain_m0` with $S_{\text{RR}} > 0$, removing threshold calibration altogether).
+   Validation tuning (`2025-01-01..2025-05-31`, `kappa in [0..5.0]`) at matched dispatch selected **$\kappa^* = 5.0$** with matched threshold **$m^*_{\text{match}} = ₹3.73/\text{qtl}$**. Crucially for plain field deployment (`A15`), **the zero-cutoff form `RR_Abstain_m0` ($S_{\text{RR}} > 0$) eliminates threshold tuning altogether**, reducing the operational dispatch rule to one scalar weighting formula usable on a Class-12 pocket calculator (`₹475.76/qtl` mean vs `₹475.36/qtl` matched).
 
 <!-- WORKED_EXAMPLE_START -->
 > **Worked Example 3 (`RR-Abstain` Comparing Two Equal-Spread Destinations):**  
@@ -205,9 +205,9 @@ Look closely at why matching quote ages (`M4`) and dispatch rates (`M3`) transfo
 | **`H_A10_4`:** `ES10(RR) − ES10(MG_matched)` | **+₹52.06** | `[+₹31.83, +₹75.07]` | `0.0020` | `[+₹26.78, +₹81.86]` | `0.0020` |
 | Exploratory: `Mean(RR) − Mean(MG_matched)` | `+₹7.46` | `[−₹4.44, +₹22.64]` | `p_2s=0.241` | `[−₹8.04, +₹30.28]` | `p_2s=0.410` |
 
-![Risk-coverage curves with 95% cluster confidence bands for B2_age_matched and MG_T1_T2_T3_T4 alongside B1 and RR_Abstain_matched](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/figures/rev_fig1_risk_coverage_ci.png)
+![Risk-coverage curves with 95% cluster confidence bands for B2_age_matched and MG_T1_T2_T3_T4 alongside B1 and RR_Abstain_matched](../figures/rev_fig1_risk_coverage_ci.png)
 
-![Matched-dispatch component ablations and worst-10% ES10 comparison across Onion, Potato, Tomato, Non-Apple, and Apple subsets](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/figures/rev_fig2_ablations_and_crops.png)
+![Matched-dispatch component ablations and worst-10% ES10 comparison across Onion, Potato, Tomato, Non-Apple, and Apple subsets](../figures/rev_fig2_ablations_and_crops.png)
 
 ### 4.3 RQ3: Missing-Quote Bounds, Parameter Stability, Settlement Delay, and Crop/State Splits
 1. **Does `RR-Abstain` Survive Non-Apple Crops? (`M3` Test):** Yes. On the `52,207` non-apple episodes (`a10_crop_splits.csv`), `RR_Abstain_matched` raises mean gain from `₹253.73` (`B2_age_matched`) to `₹288.55` (`+₹34.82`, CI `[+₹23.89, +₹46.25]`), slashes episode loss rate from `26.48%` to `16.59%`, and improves `ES10` from `−₹397.59` to **`−₹319.49` (+₹78.10/qtl, CI `[+₹58.38, +₹99.51]`)**. All three staple vegetables improve jointly on mean and `ES10`: **Onion** (`N = 19,820`, mean `+₹31.41`, `ES10 +₹101.93` CI `[+₹67.58, +₹139.80]`), **Potato** (`N = 14,923`, mean `+₹32.28`, `ES10 +₹88.91` CI `[+₹62.96, +₹113.95]`), and **Tomato** (`N = 17,464`, mean `+₹40.87`, `ES10 +₹49.31` CI `[+₹17.25, +₹82.73]`). By contrast, on generic **Apple** (`N = 6,469`), `RR_Abstain_matched` raises mean (`+₹98.14`, CI `[+₹24.61, +₹195.96]`) while leaving `ES10` statistically tied (`−₹1,537.30` vs `−₹1,533.29`, CI `[−₹209.47, +₹160.84]`).
@@ -216,9 +216,9 @@ Look closely at why matching quote ages (`M4`) and dispatch rates (`M3`) transfo
 4. **Economic Parameter Tornado Stability Region:** Across smallholder-truck and LCV freight rates (`₹0.45..₹1.20/qtl-km`), incremental *arhtiya* commissions (`0%..6%`), HP hill factors (`1.00..1.75`), buyer-paid fees (`0%`), spoilage (`0.5x..2.0x`), detention (`₹0..100/day`), and `origin_lag` outside-option benchmarking (`tornado_sensitivity.csv`), `MG` stays ahead of `B1` (`+₹21.67` to `+₹156.89/qtl`), flipping **only** if transport drops to the NITI Aayog bulk corridor floor (`₹0.258/qtl-km` + `₹20` base -> `MG` trails `B1` by `−₹14.23/qtl` due to abstaining too aggressively).
 5. **Sequential vs Hindsight Lookahead Gap:** Scoring identical `B1` trips with 3-day hindsight rather than sequential arrival reduces apparent episode loss incidence from `45.21%` to `31.35%` and inflates `B2_age_matched` mean from `₹433.56` to `₹566.48/qtl`. Substituting `origin_lag_price` for realized `settle_local_price_d0` changes `RR`/`MG`/`B2` means mildly (`₹433.56` -> `₹450.97` for `B2_age_matched`).
 
-![Parameter sensitivity across primary-source freight and arhtiya commission assumptions (left) and ES10 robustness across missing-price scenarios (right)](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/figures/rev_fig3_sensitivity_tornado_and_missing.png)
+![Parameter sensitivity across primary-source freight and arhtiya commission assumptions (left) and ES10 robustness across missing-price scenarios (right)](../figures/rev_fig3_sensitivity_tornado_and_missing.png)
 
-![Sequential vs 3-day hindsight lookahead bias (left) and lagged Himachal Pradesh graded-apple stress test results (right)](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/figures/rev_fig4_settlement_and_hp_apple.png)
+![Sequential vs 3-day hindsight lookahead bias (left) and lagged Himachal Pradesh graded-apple stress test results (right)](../figures/rev_fig4_settlement_and_hp_apple.png)
 
 ---
 
@@ -245,7 +245,7 @@ To uphold transparent scholarship, six binding limitations remain unresolved by 
 
 ## 7. Conclusion and Full Cleanroom Reproducibility
 
-Online mandi price screens mislead roughly four to five times out of ten when lagged exact-variety gaps are treated as executable cash under realistic transport, statutory, and arrival-settlement assumptions. Stripping away leaked weather, tree pickles, conformal overclaims, and same-day price lookahead cuts pipeline complexity to four transparent equations and enables **1-command reproduction from tracked repository files (`make reproduce`, clean-clone max numeric discrepancy `0.0000`, `0` untraceable numbers across manuscript and viva documents)**. Weighting spread signals by historical variety-reporting reliability against a worst-case return bound (`RR-Abstain`) delivers consistent mean, loss-rate, and `ES10` gains on staple vegetables under exploratory retrospective replay, ready for prospective field piloting with Farmer Producer Organizations.
+Online mandi price screens mislead roughly four to five times out of ten when lagged exact-variety gaps are treated as executable cash under realistic transport, statutory, and arrival-settlement assumptions. Stripping away leaked weather, tree pickles, conformal overclaims, and same-day price lookahead cuts pipeline complexity to four transparent equations and enables **1-command reproduction from tracked repository files (`make reproduce`, clean-clone max numeric discrepancy `0.0000`, `0` untraceable numbers across manuscript, slides, and viva documents)**. Even in its threshold-free pocket-calculator form (`RR_Abstain_m0`, $S_{\text{RR}} > 0$ with single parameter $\kappa^* = 5.0$), weighting spread signals by historical variety-reporting reliability against a worst-case return bound (`RR-Abstain`) delivers consistent mean, loss-rate, and `ES10` gains on staple vegetables under exploratory retrospective replay, ready for prospective field piloting with Farmer Producer Organizations.
 
 ---
 

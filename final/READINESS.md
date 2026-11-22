@@ -7,8 +7,8 @@
 ---
 
 ## 1. What Is 100% Ready and Verified
-- Every internal critical and major defect from Review 3 (`C1`, `C2`, `M3`–`M9`, `N1`, `N3`) is resolved, tested (`32/32` pytest passing), independently re-derived within `₹0.00` (`scripts/a16_independent_audit.py`), and reproduced from a clean clone without gitignored inputs (`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`).
-- Paper (`paper/manuscript.md`), difficulty audit (`final/DIFFICULTY.md`), and all viva guides (`final/VIVA_QA.md`, `viva/00..03*.md`) are aligned on one verified, plain-English story with `0` untraceable numbers (`scripts/verify_traceability.py`).
+- Every internal critical and major defect from Review 3 (`C1`, `C2`, `M3`–`M9`, `N1`, `N3`) is resolved, tested (`33/33` pytest passing including portability, BibTeX sync & `R5` commit-order assertions), independently re-derived within `₹0.00` (`scripts/a16_independent_audit.py`), and reproduced from a clean clone without gitignored inputs (`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`).
+- Paper (`paper/manuscript.md`), Class-12 companion (`paper/12th_class_easy_reading_edition.md`), slides (`final/SLIDE_OUTLINE.md`), simplified design (`final/SIMPLIFIED_DESIGN.md`), difficulty audit (`final/DIFFICULTY.md`), and all viva guides (`final/VIVA_QA.md`, `viva/00..03*.md`) are aligned on one verified, plain-English story with `0` untraceable numbers across all `9/9` active documents (`scripts/verify_traceability.py`).
 
 ## 2. Why Status Remains `CONDITIONAL` (Single External Blocker)
 - **Gate J (`BLOCKED`, honestly disclosed):** No untouched post-April-2026 multi-state bulk AGMARKNET panel exists in official archives. While `A10` (`RR-Abstain`) was strictly pre-registered (`87a0b62`) before coding `eval_a10.py`, prospective validation on future arrivals and field cost validation require live pilot collection (`R5`, `R7`).

@@ -1,15 +1,16 @@
-# Slide outline
+# M.Tech Defense Slide Outline (`SLIDE_OUTLINE.md` — Revision v4 Verified)
 
-1. Title and one-sentence claim: retrospective comparison of dispatch rules; H2 not supported; not a field-income result.
-2. Question: which rule, scored on the same episodes, has higher modeled net gain after freight, fees, spoilage, and a stated non-quote penalty.
-3. Data map: mirror panel, what Exp 14 actually checked, what a missing row is.
-4. Payoff equation, with assumed terms marked.
-5. Stage I protocol and the git dates. Say the runner shipped with the hypotheses.
-6. Policies B1, B2, B3, B4 in one table. Identical episodes.
-7. H1–H4 with intervals. Leave H2 as not supported. Do not read conditional loss rates as H3.
-8. Exp 1b outcome mix. Do not say “58.94% closed”.
-9. Exp 15 penalty sweep, including the zero-penalty crossing.
-10. Exp 18: B2 versus B1 changes sign late in the holdout. MandiGuard not resimulated.
-11. Stage II, labeled post-hoc. One sentence on why it is not conformal risk control.
-12. What failed: H2, pickle replay, duplicate quotes, no untouched test.
-13. Narrow contribution and the field trial you would run next.
+*(All numbers trace directly to `revision/results/` and `scripts/verify_traceability.py` across the `N = 58,676` lagged test panel, 1 June 2025 – 8 April 2026, `exploratory: true`.)*
+
+1. **Title & Core Question:** *When Online Mandi Prices Mislead* — Treating yesterday's portal price gap as dispatch cash ignores variety mismatch, reporting gaps, freight, statutory fees, and spoilage (`R7`: modeled dispatch payoff != farm household income).
+2. **Data Provenance & Cleaning Funnel (`A2`):** Official tracked AGMARKNET + OSRM (`178` core markets, `42` HP Apple yards) -> `260,043` raw rows -> `759` out-of-range (`modal_outside_minmax`) dropped -> `259,284` valid -> `256,997` unique keys -> `248,302` canonical rows -> `95,074` Top-5 episodes (`36,398` val, `58,676` test).
+3. **Strict `<= t - 1` Information Firewall (`R3`):** Shortlist, origin quote, destination quote (`age 1..7`), and prior reporting rates strictly `< date t`; `98.64%` ERA5-identical forecast weather (`66,222 / 67,135` rows) removed cleanly (`none_20C_reference` primary). Proven by counterfactual future-corruption test (`pytest`).
+4. **Payoff Equation & Sequential Settlement (`A4`, `M9`):** Statutory APMC fee (`0.5%–1.5%`) applied on destination post-spoilage gross auction value (`0` intra-district/divert); sequential day-by-day settlement (`sell d0` -> `wait 1d` only if commodity active -> `other-variety` or `return -1.5 * F`).
+5. **RQ1 — Screen-Chasing Failure (`B1_lagged_screen`, Table 3):** `100.00%` dispatch earns `₹397.87/qtl` mean but suffers **45.21%** episode losses and **`−₹641.26/qtl` `ES10`**; **28.98%** (`17,005` trips) turn back sequentially under zero recorded arrivals (`outcome_mix.csv`).
+6. **Fair Matched-Age Baselines & `T1..T4` Ablations (`R4`, `M3`, `M4`):** On identical `lag 1..3` menus at matched `~70%` dispatch, hard-gated `MG_matched` lifts mean by `+₹34.35/qtl` over `B2_age_matched` (`₹467.90` vs `₹433.56`) **but fails on worst-10% `ES10`** (`+₹12.49`, CI `[−₹16.57, +₹39.97]`, `p_holm = 0.589`). Activity filter `T1` drives `+₹33.91/qtl`; `1.20 * euclid_km` matches OSRM within `₹0.40/qtl`; Stage I `H2` stays visible (`+₹6.13`, `p_holm = 0.2699`).
+7. **Pre-Registered `RR-Abstain` & Zero-Cutoff Simplification (`A10`, Commit `87a0b62`):** One Class-12 pocket-calculator convex score $S_{\text{RR}} = \hat{p}_{\text{rep}}\,\widehat{\Delta}_{\text{open}} + (1 - \hat{p}_{\text{rep}})(-\kappa\,F - P_{\text{orig}}\,s)$ (`kappa* = 5.0`), reducing pipeline difficulty from `4.3 -> 1.6 / 5`. Show Risk–Coverage & `ES10` figure (`figures/rev_fig1_risk_coverage_ci.png`).
+8. **Headline Pre-Registered Results (`H_A10_1..4`):** `RR_Abstain_matched` (`69.02%` disp) delivers **`₹475.36/qtl` mean** (`+₹41.80`, Holm `p = 0.0020`), **`17.23%` EpLoss** (`−9.49 pp`, Holm `p = 0.0020`), and **`−₹460.72/qtl` `ES10`** (**`+₹64.54` vs `B2_age_matched`**, **`+₹52.06` vs `MG_matched`**, Holm `p = 0.0020` on BOTH `origin_x_2week` and `b2dest_or_origin_x_2week`). Zero-cutoff **`RR_Abstain_m0`** ($S_{\text{RR}} > 0$) achieves nearly identical `₹475.76/qtl` / `17.43%` / `−₹461.74` with zero threshold calibration.
+9. **Crop Generalization vs Apple Volatility (`figures/rev_fig2_ablations_and_crops.png`):** On `52,207` Non-Apple staple episodes, `RR_Abstain_matched` gains **`+₹78.10/qtl` `ES10`** (CI `[+₹58.38, +₹99.51]`): Onion (`+₹101.93`), Potato (`+₹88.91`), Tomato (`+₹49.31`). Generic Apple ties on `ES10` (`−₹1,537.30` vs `−₹1,533.29`).
+10. **Sensitivity & Missing-Price Bounds (`figures/rev_fig3_sensitivity_tornado_and_missing.png`):** `RR_Abstain_matched` beats `B2_age_matched` and `B1` down to **`div = 0.0, disc = 0.00`** (`₹493.37` vs `₹475.80` / `₹461.57`; `ES10 −₹349.35` vs `−₹359.17`). `MG` flips only under bulk heavy-truck corridor floor (`₹0.258/qtl-km`, `−₹14.23`).
+11. **Honest Failures & Boundaries (`figures/rev_fig4_settlement_and_hp_apple.png`):** Lagged HP graded apples (`N = 2,802`) retain `44.63%` conditional losses and `−₹2,165.73` `ES10` (`−₹3,453.18` in June–August 2026); Gate J prospective future bulk panel is `BLOCKED (disclosed)`; empirical tuning != conformal guarantee.
+12. **Cleanroom Reproducibility & Next Field Step:** `make reproduce` in a fresh clone (zero gitignored files) reproduces with **`0.0000`** max diff, `0` untraceable numbers across manuscript/viva, `₹0.00` independent `A16` audit match; next step is a prospective FPO live auction-slip pilot.

@@ -198,18 +198,24 @@ def check_document(path: Path, verified_vals: np.ndarray) -> List[str]:
     return failures
 
 
+DEFAULT_DOC_REL_PATHS = [
+    "paper/manuscript.md",
+    "paper/12th_class_easy_reading_edition.md",
+    "final/VIVA_QA.md",
+    "final/SLIDE_OUTLINE.md",
+    "final/SIMPLIFIED_DESIGN.md",
+    "viva/00_career_defense_master_sheet.md",
+    "viva/01_plain_english_complete_guide.md",
+    "viva/02_50_viva_questions_and_answers.md",
+    "viva/03_spoken_pitches_1m_5m_15m.md",
+]
+
+
 def verify_docs(root: Path = ROOT, paths: List[Path] | None = None) -> List[str]:
     reg = build_verified_registry(root)
     vals = np.array([float(k) for k in reg.keys()], dtype=np.float64)
     if paths is None:
-        paths = [
-            root / "paper/manuscript.md",
-            root / "final/VIVA_QA.md",
-            root / "viva/00_career_defense_master_sheet.md",
-            root / "viva/01_plain_english_complete_guide.md",
-            root / "viva/02_50_viva_questions_and_answers.md",
-            root / "viva/03_spoken_pitches_1m_5m_15m.md",
-        ]
+        paths = [root / rel for rel in DEFAULT_DOC_REL_PATHS]
     all_fails: List[str] = []
     for p in paths:
         if p.exists():
@@ -218,12 +224,13 @@ def verify_docs(root: Path = ROOT, paths: List[Path] | None = None) -> List[str]
 
 
 def main() -> None:
+    checked = [rel for rel in DEFAULT_DOC_REL_PATHS if (ROOT / rel).exists()]
     fails = verify_docs()
     if fails:
         for f in fails:
             print("FAIL:", f)
         raise SystemExit(f"Found {len(fails)} untraceable numeric claims!")
-    print("TRACEABILITY CHECK PASSED: 0 untraceable empirical numbers across paper/manuscript.md, final/VIVA_QA.md, and viva/00_career_defense_master_sheet.md!")
+    print(f"TRACEABILITY CHECK PASSED: 0 untraceable empirical numbers across all {len(checked)} paper/companion/slide/viva docs ({', '.join(checked)})!")
 
 
 if __name__ == "__main__":

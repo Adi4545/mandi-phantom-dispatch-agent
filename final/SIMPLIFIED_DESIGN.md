@@ -1,42 +1,37 @@
-# Simplified design
+# Simplified Design Audit (`SIMPLIFIED_DESIGN.md` — Revision v4 Sync)
 
-## A. What was wrong
+## A. What Was Fixed From Legacy Baseline & External Review 3
 
-The external review scored a paper whose scripts (`revision/build_variant.py`, `build_run.py`, `eval_run.py`) and whose headline numbers (about 67,675 episodes; MG ₹397.24, B2 ₹371.38) were not in any branch of this repository. Those figures are not reproduced and are not used.
+Previous repository revisions and earlier drafts suffered from six core defects (`C1`, `C2`, `M3`–`M9`, `N1`–`N3`):
 
-Separate defects in the older design:
+- **Day-$t$ Shortlist & Same-Day Origin Leaks (`C1`, `M9`):** Candidate menus depended on a gitignored parquet built using arrival-day prices and subtracted same-day `local_price`.
+- **ERA5 Weather Leakage (`N1`):** Stored forecast rain equaled realized ERA5 rain on `66,222 / 67,135` (`98.64%`) 2025–2026 rows.
+- **Unfair Comparisons (`M3`, `M4`):** Hard-gated `MG` (`lag 1..3`) was compared against `B2_fresh` (`lag = 1`) at unmatched dispatch rates, and the `H2` Stage I test had crossed zero (`+₹6.13`, `p_holm = 0.2699`).
+- **Imprecise `ES10` & Incorrect Statutory Fee Base (`M9`):** Prior `cvar_10` took unweighted means below quantile cutoffs; fees were charged on `local_price` and diversion turns.
+- **Over-Engineered Black Boxes (`A15`):** Deprecated GBDT pickles (`scikit-learn 1.3.0`), pseudo-conformal theorems (`(n_loss+1)/(n_disp+1)`), and weather pipelines increased viva difficulty (`4.3 / 5`) without outperforming simple cost arithmetic.
 
-- Decision rows often store a weather "forecast" that equals realized ERA5 rain (498,083 of 752,456 rows in 2025–26, 66%). ERA5 is not available the same morning, and lag-1 ERA5 is not a real-time feed either.
-- Settlement could look ahead up to two days for an exact price.
-- A missing exact-variety row was easy to describe as a closed market. It is not.
-- The downside number was a mean of points below a quantile, not an exact worst-10% mass.
-- The serious baseline was not tuned, and policies were not compared at matched dispatch rates.
-- Stage I versus the road rule was inconclusive. Grade-explicit apples failed. The missing-price penalty moved the older mean ranking.
+---
 
-## B. The design a student can defend
+## B. The Pocket-Calculator Revision v4 Design (`1.6 / 5` Difficulty)
 
-Three questions only. RQ1: how often a lagged gap above ₹100 loses money under the stated payoff. RQ2: whether a margin rule reduces simulated losses versus road rules at a similar dispatch rate. RQ3: how settlement, the missing-price multiple, and the crop move the answer.
+Three focused research questions only:
+1. **RQ1:** How often does chasing a strictly lagged screen gap above `₹100/qtl` lose money once road freight, statutory destination fees, reference spoilage, and sequential settlement apply?
+2. **RQ2:** Does weighting expected open-market gain against bounded return risk by past exact-variety reporting reliability (`RR-Abstain`, pre-registered `87a0b62`) cut loss frequency and worst-10% shortfall (`ES10`) against age- and dispatch-matched baselines?
+3. **RQ3:** How sensitive is that advantage to missing-quote diversion cost (`div`), freight/commission assumptions, sequential vs hindsight settlement, and crop splits (staple vegetables vs graded apples)?
 
-The rule uses a quote from yesterday, the day before, or the day before that. It subtracts road freight and the state fee. It dispatches if the remainder exceeds ₹200. That cutoff was frozen on January–May 2025. There is no live weather, no gradient-boosted model, and no conformal gate in the proposal.
+**The Minimal Operational Rule (`RR_Abstain_m0` / `RR_Abstain_matched`):**  
+Every morning uses ONLY prices dated `<= t - 1` (`dest_lag_age in 1..3`) and prior reporting rates `p_rep = 0.5 * rep28 + 0.5 * dow8`. Open-market net gain subtracts road freight (`35 + 0.45 * hp * km`), statutory destination fee (`0.5%–1.5%`, `0` if intra-district or diverted), and 20°C `NABCONS` reference spoilage. Missing-quote risk charges `-kappa * F - P_orig * s`. The convex score is:
 
-## C. Information, settlement, missing prices
+$$S_{\text{RR}}(c, t) = \hat{p}_{\text{rep}}\,\widehat{\Delta}_{\text{open}} + (1 - \hat{p}_{\text{rep}})\,(-\kappa\,F - P_{\text{orig}}\,s)$$
 
-Decision prices stop at day \(t-1\). Settlement is sequential: sell if today's exact variety is recorded, wait a day only if some variety of the crop is recorded, otherwise return. Hindsight is a comparison, not the main score. The return multiple 1.5 and the 10% other-variety discount are assumptions. The grid shows that ES10 moves by hundreds of rupees and the loss rate does not, inside 0 to 1.5.
+Zero live weather, zero pickled trees, and zero conformal theorem claims. Even in its **zero-threshold form (`RR_Abstain_m0`: dispatch iff $S_{\text{RR}} > 0$ with `kappa* = 5.0`)**, it requires only one parameter and pocket-calculator arithmetic.
 
-## D. What the new run actually says
+---
 
-Test N = 56,172. B1 loss rate 41.47%, mean ₹455.43, ES10 −₹530.85. Cautious rule: dispatch 73.73%, mean ₹490.52, loss rate 33.41%, ES10 −₹444.37. B2 at ₹100: dispatch 73.95%, mean ₹432.41, loss rate 30.82%, ES10 −₹419.36. Tuned B2 at ₹250: mean ₹424.23, loss rate 30.51%, ES10 −₹398.18. Paired mean gap versus tuned B2 is +₹66.29, interval about [+₹43, +₹94]. The road rules win on loss rate and on ES10. Straight-line versus road changes the cautious mean by ₹0.17. There is no untouched holdout.
+## C. Verified Headline Outcomes (`N = 58,676`, `exploratory: true`)
 
-## H. Difficulty to defend
-
-| Piece | Original | Simplified |
-|---|---|---|
-| Claim of a new phenomenon | High. Reviewers hear Jensen and Baulch. | Low. It is a label for an untradable gap. |
-| Mean versus the road rule | High. H2 interval crossed zero, and later text drifted. | Medium. The lagged mean gap is positive, and the tail comparison is negative. Both are in the table. |
-| Weather as a causal input | High. Forecast column matches ERA5 too often. | Low. Primary score uses the 20°C reference only. |
-| Settlement | High. Hindsight uses future quotes. | Medium. Sequential rule is simple; the penalty is still assumed. |
-| Missing row described as closed | High. The flag was wrong. | Low. The wording is "no exact-variety price recorded." |
-| ES10 | High. The old estimator was not exact 10% mass. | Low. One function, one test, one numeric example. |
-| Conformal risk control | High. The theorem does not apply. | Dropped from the proposal. |
-| Grade-explicit apples | High. The old rule lost to B2 and was not resimulated. | Still high if someone claims apples are solved. The paper says they are not. |
-| Reproducing the review's ₹397 table | Impossible from this repo. | Not claimed. |
+- **`B1_lagged_screen`** (`100.00%` disp): Mean `₹397.87/qtl`, EpLoss `45.21%`, `ES10 −₹641.26/qtl` (`28.98%` / `17,005` trips return without commodity trade).
+- **`B2_age_matched`** (`72.03%` disp, `lag 1..3`, val `₹200`): Mean `₹433.56/qtl`, EpLoss `26.72%`, `ES10 −₹525.25/qtl`.
+- **`MG_matched`** (`69.51%` disp, hard `T1..T4` gates): Mean `₹467.90/qtl`, EpLoss `18.57%`, `ES10 −₹512.78/qtl` (`+₹12.49` `ES10` vs `B2_age_matched`, CI `[−₹16.57, +₹39.97]`, `p_holm = 0.589` — **not significant**).
+- **`RR_Abstain_matched`** (`69.02%` disp, val `m* = ₹3.73`): Mean **`₹475.36/qtl`** (`+₹41.80`), EpLoss **`17.23%`** (`−9.49 pp`), `ES10` **`−₹460.72/qtl`** (**`+₹64.54` vs `B2_age_matched`**, **`+₹52.06` vs `MG_matched`**, Holm `p = 0.0020` under both `origin_x_2week` and `b2dest_or_origin_x_2week`). Zero-cutoff **`RR_Abstain_m0`** achieves **`₹475.76/qtl`**, `17.43%` EpLoss, `−₹461.74` `ES10`.
+- **Disclosed Non-Claims & Open Risk (`R6`, `R7`):** Non-Apple crops gain `+₹78.10/qtl` `ES10` (`N = 52,207`), while lagged HP graded apples (`N = 2,802`) still suffer `44.63%` conditional losses (`−₹2,165.73` `ES10`), and Gate J future bulk holdout remains `BLOCKED (disclosed)`.

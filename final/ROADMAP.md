@@ -1,3 +1,5 @@
+> **Archival Note (Superseded by `final/PROGRESS.md`):** This earlier roadmap recorded an intermediate Review-2 draft before Revision v4 (`build_hp_apple_lagged.py`, `eval_a10.py`, `make_figures.py`, `scripts/verify_traceability.py`, `final/AUDIT_V4.md`). See `final/PROGRESS.md` for the completed pipeline.
+
 # Roadmap (E)
 
 Order is the order the revision was built. Effort is relative to this codebase, not calendar time. Importance is for the defense.

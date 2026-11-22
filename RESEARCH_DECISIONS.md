@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Decision Log):** Preserved for provenance (`R8`). Candidate 4 Stage-II tree/CRC rules and ERA5 weather features referenced below were later simplified and replaced in Revision v4 (`RR-Abstain`, strictly `<= t - 1` quotes, `none_20C_reference`). See `final/DIFFICULTY.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md` for final active decisions.
+
 # Research & Architecture Decision Log — `MandiGuard`
 
 ## Candidate Research Direction Decision Matrix (Weighted Evaluation)

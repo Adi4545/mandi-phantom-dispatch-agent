@@ -234,3 +234,74 @@ def test_manuscript_and_viva_zero_untraceable_numbers() -> None:
     fails = verify_docs(ROOT)
     assert fails == [], f"Untraceable numbers found: {fails}"
 
+
+def test_repo_portability_citations_and_prereg_order() -> None:
+    import re
+    import subprocess
+
+    # 1. Zero hardcoded local /Users/ paths across active Revision v4 documentation, code, and configs
+    active_rel_dirs_and_files = [
+        "paper/manuscript.md",
+        "paper/12th_class_easy_reading_edition.md",
+        "NOVELTY_AUDIT.md",
+        "RESEARCH_DECISIONS.md",
+        "README.md",
+        "FINDINGS.md",
+        "PROJECT_STATE.md",
+        "REPRODUCIBILITY.md",
+        "Makefile",
+        ".github/workflows/ci.yml",
+    ]
+    for folder in ("final", "viva", "revision", "scripts"):
+        for p in (ROOT / folder).rglob("*"):
+            if p.is_file() and p.suffix in (".md", ".py"):
+                active_rel_dirs_and_files.append(str(p.relative_to(ROOT)))
+
+    bad_user_paths = []
+    home_path_re = re.compile(r"/(?:Users|home)/[A-Za-z0-9_.-]+/")
+    for rel in sorted(set(active_rel_dirs_and_files)):
+        p = ROOT / rel
+        if p.exists() and home_path_re.search(p.read_text(errors="ignore")):
+            bad_user_paths.append(rel)
+    assert bad_user_paths == [], f"Hardcoded local user directory path in active files: {bad_user_paths}"
+
+    # 2. All relative figure links in paper/manuscript.md resolve to existing PNGs
+    ms = (ROOT / "paper/manuscript.md").read_text()
+    img_links = re.findall(r"!\[[^\]]*\]\(([^)]+)\)", ms)
+    assert len(img_links) == 4
+    for link in img_links:
+        assert not link.startswith("file://"), f"Expected relative link, got {link}"
+        target = ((ROOT / "paper") / link).resolve()
+        assert target.exists() and target.stat().st_size > 1000, f"Missing figure target: {target}"
+
+    # 3. Every [key] citation in paper/manuscript.md exists in paper/references.bib
+    bib = (ROOT / "paper/references.bib").read_text()
+    bib_keys = set(re.findall(r"@\w+\s*\{\s*([^,\s]+)\s*,", bib))
+    ms_body = re.split(r"^##\s+References\b", ms, maxsplit=1, flags=re.M)[0]
+    cited = set()
+    for grp in re.findall(r"\[([^\[\]]+)\](?!\()", ms_body):
+        for tok in re.split(r"[;,]\s*", grp.strip()):
+            tok = tok.strip()
+            if re.match(r"^[a-z][a-z0-9_]*\d{2,}[a-z0-9_]*$", tok):
+                cited.add(tok)
+    missing_bib = sorted(cited - bib_keys)
+    assert missing_bib == [], f"Manuscript citations missing from references.bib: {missing_bib}"
+
+    # 4. Pre-registration commit order (R5): PREREG_A10.md committed strictly BEFORE revision/eval_a10.py
+    if (ROOT / ".git").exists():
+        c_prereg = subprocess.run(
+            ["git", "log", "--reverse", "--format=%H", "--", "final/PREREG_A10.md"],
+            cwd=ROOT, capture_output=True, text=True, check=False,
+        ).stdout.strip().splitlines()
+        c_eval = subprocess.run(
+            ["git", "log", "--reverse", "--format=%H", "--", "revision/eval_a10.py"],
+            cwd=ROOT, capture_output=True, text=True, check=False,
+        ).stdout.strip().splitlines()
+        if c_prereg and c_eval:
+            assert c_prereg[0] != c_eval[0], "PREREG_A10.md and eval_a10.py must not share initial commit"
+            is_anc = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", c_prereg[0], c_eval[0]],
+                cwd=ROOT, check=False,
+            )
+            assert is_anc.returncode == 0, f"PREREG_A10 ({c_prereg[0]}) is not an ancestor of eval_a10 ({c_eval[0]})"
+

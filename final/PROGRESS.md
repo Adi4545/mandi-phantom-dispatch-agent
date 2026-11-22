@@ -25,6 +25,12 @@
 - Rewrote `paper/manuscript.md` (with worked numeric examples for every equation), `final/VIVA_QA.md`, `final/DIFFICULTY.md` (`4.3 -> 1.6 / 5`), and `viva/00..03*.md` (`C2` fixed).
 - Built `scripts/verify_traceability.py` + `revision/results/verified_numbers.json` -> `0` untraceable numbers across all 6 documents; `32/32` pytest passed.
 
-## Step 8: Independent Audit (`A16`), `final/*` & Top-Level Sync (`M8`), Final Clean-Clone Check & PR #1 Push
+## Step 8: Independent Audit (`A16`), `final/*` & Top-Level Sync (`M8`) — Commit `73439b8`
 - Fixed `Min_Price` canonical market-minimum aggregation inside `scripts/a16_independent_audit.py` -> exact **`₹0.00`** discrepancy across all headline metrics (`B1`, `B2_age_matched`, `RR_Abstain_matched`, `RR_Abstain_m0`).
-- Generated `final/AUDIT_V4.md`, `CLAIM_MATRIX.md`, `ISSUE_REGISTER.md`, `RESPONSE_TO_REVIEW_3.md`, `LIMITATIONS.md`, `QUALITY_GATES.md`, `READINESS.md`, synchronized `README.md`, `FINDINGS.md`, `PROJECT_STATE.md`, `REPRODUCIBILITY.md`, ran final clean-clone `make reproduce` verification, and pushed `finalization` to update PR #1.
+- Generated `final/AUDIT_V4.md`, `CLAIM_MATRIX.md`, `ISSUE_REGISTER.md`, `RESPONSE_TO_REVIEW_3.md`, `LIMITATIONS.md`, `QUALITY_GATES.md`, `READINESS.md`, synchronized `README.md`, `FINDINGS.md`, `PROJECT_STATE.md`, `REPRODUCIBILITY.md`.
+
+## Step 9: Final Adversarial Loop, Clean-Clone Check & PR #1 Push
+- Converted `paper/manuscript.md` figure links to repo-relative `../figures/rev_fig*.png` and spotlighted threshold-free `RR_Abstain_m0` (`S_RR > 0`, 1 scalar parameter).
+- Rewrote `final/SLIDE_OUTLINE.md`, `final/SIMPLIFIED_DESIGN.md`, and `paper/12th_class_easy_reading_edition.md` to Revision v4 verified truth, and added archival banners to superseded pre-v4 logs (`M8`).
+- Expanded `scripts/verify_traceability.py` across all `9/9` active documents (`0` untraceable numbers) and locked portability (zero local user paths), figure-target existence, BibTeX key sync, and `R5` pre-registration git commit order in pytest (`33/33` passing).
+- Executed final clean-clone `make reproduce` (`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`) and pushed `finalization` to `origin` (PR #1).
