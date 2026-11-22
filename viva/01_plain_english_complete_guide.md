@@ -1,6 +1,6 @@
 # MandiGuard Revision v5 — Plain-English Complete Guide (Class-12 Level)
 
-> **Note (`C2` & `R2`):** This guide aligns strictly with `paper/manuscript.md` (`Revision v5`). All legacy `cvar_10`, ML pickles, leaked weather, and even tuned `kappa*=5.0` formulas have been replaced by **zero-parameter Class-10 arithmetic**.
+> **Note (`C2` & `R2`):** This guide aligns strictly with `paper/manuscript.md` (`Revision v5`). All legacy quantile-mean proxies, ML pickles, leaked weather, and even tuned `kappa*=5.0` formulas have been replaced by **zero-parameter Class-10 arithmetic**.
 
 ## 1. The Everyday Problem
 Imagine checking AGMARKNET at 6 a.m.: local Tomato pays `₹1,500/qtl`, while a mandi `200 km` away listed `₹2,000/qtl` yesterday (`<= t - 1`). Yet across **`58,676`** test episodes (`2025-06-01..2026-04-08`), blindly chasing top spreads (`B1_lagged_screen`) loses money **`45.21%`** of the time (`mean ₹397.87/qtl`, worst-10% `ES10 −₹641.26/qtl`) because of road freight (`₹35 + ₹0.45 * hp * km`), destination APMC fees (`0.5%–1.5%`), transit spoilage, price swings (`dest_price_cv_28d`), and **`28.98%`** (`17,005` trips) encountering zero uploaded commodity trade on arrival day.

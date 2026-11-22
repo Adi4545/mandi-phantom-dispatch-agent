@@ -1,6 +1,6 @@
 # Curated Viva Questions & Verified Answers (`Revision v5` Synced)
 
-> **See [`final/VIVA_QA.md`](../final/VIVA_QA.md) and [`final/CLAIM_MATRIX.md`](../final/CLAIM_MATRIX.md) for full scripted-verified Q&A.** All legacy `cvar_10`, GBDT pickles, ERA5 features, `336`-cluster keys, and tuned-threshold workarounds have been retired.
+> **See [`final/VIVA_QA.md`](../final/VIVA_QA.md) and [`final/CLAIM_MATRIX.md`](../final/CLAIM_MATRIX.md) for full scripted-verified Q&A.** All legacy quantile-mean proxies, GBDT pickles, ERA5 features, `336`-cluster keys, and tuned-threshold workarounds have been retired.
 
 ### Summary Reference of Core Viva Topics (`N = 58,676`, Two-Sided Holm)
 1. **Data Cleaning Funnel (`260,043 -> 259,284 -> 256,997 -> 248,302 -> 58,676` test):** Drops `759` out-of-range quotes (`cleaning_counts.json`). Plus `N = 88,014` unconditional origin audit restoring `29,338` unreported day-$t$ origin episodes.

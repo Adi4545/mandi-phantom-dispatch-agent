@@ -2,7 +2,7 @@
 
 ## A. How Complexity & Magic Constants Were Eliminated Across Audits
 
-1. **Legacy Baseline (`4.3 / 5` Difficulty):** Relied on gitignored caches (`candidates_6state.parquet`), same-day price/weather leaks (`98.64%` ERA5 match), deprecated GBDT pickles (`scikit-learn 1.3.0`), pseudo-conformal theorems, unweighted quantile means (`cvar_10`), and unmatched baselines (`H2 +₹6.13`, `p = 0.2699`).
+1. **Legacy Baseline (`4.3 / 5` Difficulty):** Relied on gitignored caches (`candidates_6state.parquet`), same-day price/weather leaks (`98.64%` ERA5 match), deprecated GBDT pickles (`scikit-learn 1.3.0`), pseudo-conformal theorems, unweighted quantile means (legacy tail proxy), and unmatched baselines (`H2 +₹6.13`, `p = 0.2699`).
 2. **Audit Remediation (`A10` `RR-Abstain`, `1.6 / 5`):** Fixed timing/fee/ES10/age-matching bugs cleanly, yet `A17` + `A18` uncovered remaining defects: a bare `dest_market` string-prefix bug (`336` split clusters instead of `172`), one-sided Holm labels, grid-wall collision at $\kappa^* = 5.0$, Sunday holiday pollution inside `rep28`, missing price-volatility defense (`cv28`), and `div = 0.0` hidden spoilage losses.
 3. **Final Zero-Parameter Design (`PREREG_A18.md`, `1.2 / 5` Difficulty):** Removed **ALL** tuned thresholds, $\kappa$ grids, dual lookbacks, and Q10 biology parameters.
 

@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Report):** Preserved for provenance (`R8`). Superseded by Revision v5 independent `A17` post-remediation sign-off (`8.7/10`) in `final/AUDIT_V4.md` and `final/READINESS.md`.
+
 # Independent Post-Fix Thesis Examiner Review (`MandiGuard`)
 
 **Examiner Role:** Independent Statistical & Red-Team Reviewer (`statistical_and_redteam_reviewer`)  

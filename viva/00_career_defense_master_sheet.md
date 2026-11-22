@@ -1,6 +1,6 @@
 # MandiGuard Revision v5 — Career Defense Master Sheet (`C2` & `A17`/`A18` Verified)
 
-> **Audit Guarantee (`R2` & `C2`):** All Stage I unlagged `cvar_10`, Stage II pseudo-conformal bounds, `336` buggy cluster keys, and even tuned `kappa* = 5.0` workarounds have been superseded cleanly. Every number below traces verbatim to `revision/results/` (`0` untraceable numbers) or verified legacy Stage I files (`results/confirmatory_holm_summary.csv`).
+> **Audit Guarantee (`R2` & `C2`):** All Stage I unlagged quantile-mean proxies, Stage II pseudo-conformal bounds, `336` buggy cluster keys, and even tuned `kappa* = 5.0` workarounds have been superseded cleanly. Every number below traces verbatim to `revision/results/` (`0` untraceable numbers) or verified legacy Stage I files (`results/confirmatory_holm_summary.csv`).
 
 ---
 

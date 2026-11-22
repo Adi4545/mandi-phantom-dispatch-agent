@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Drafting Spec):** Preserved for provenance (`R8`). The active Revision v5 study guide parts (`part1..3.html`) and `scripts/build_master_study_guide_pdf.py` are compiled directly from Revision v5 canonical sources (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `figures/rev_fig1..4*.png`).
+
 # Shared Writing Spec for the MandiGuard Master Study Guide (3-agent build)
 
 Output: each agent writes ONE HTML fragment file (no <html>, <head>, <body>, <style> tags) into

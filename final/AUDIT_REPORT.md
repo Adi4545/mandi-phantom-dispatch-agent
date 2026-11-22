@@ -1,4 +1,4 @@
-> **Archival Note (Pre-Revision v4 Log):** This snapshot records an earlier pre-v4 audit baseline prior to `final/AUDIT_V4.md` (`8.4/10`, clean-clone rebuild, `M9` statutory fee-base fix, and `RR-Abstain` `A10`). For canonical Revision v4 results, see `final/AUDIT_V4.md` and `paper/manuscript.md`.
+> **Archival Note (Pre-Revision v5 Log):** This snapshot records an earlier pre-v4 audit baseline prior to **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10` in `final/AUDIT_V4.md`, clean-clone rebuild, and `M9` statutory fee-base fix). For canonical Revision v5 results, see `final/AUDIT_V4.md` and `paper/manuscript.md`.
 
 # Audit report
 

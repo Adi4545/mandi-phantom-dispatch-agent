@@ -348,3 +348,81 @@ def test_a18_zero_param_scorers_and_cluster_bounds() -> None:
         assert int(bdf["n_clusters"].max()) <= 178
         assert "p_holm_2s" in bdf.columns
 
+
+def test_compiled_deliverables_revision_v5_integrity() -> None:
+    import json
+    import re
+    from docx import Document
+    from pypdf import PdfReader
+
+    pdf_targets = [
+        ROOT / "paper" / "MandiGuard_Research_Paper.pdf",
+        ROOT / "paper" / "MandiGuard_Easy_Reading_Edition.pdf",
+        ROOT / "viva" / "MandiGuard_Viva_Defense_Slides.pdf",
+        ROOT / "docs" / "MandiGuard_First_Principles_and_Thesis_Defense_Handbook.pdf",
+        ROOT / "docs" / "MandiGuard_Master_Study_Guide.pdf",
+        ROOT / "docs" / "MandiGuard_Student_Study_Guide.pdf",
+    ]
+    forbidden = (
+        "B3_MLPoint",
+        "cvar_10",
+        "fig1_phantom_arbitrage",
+        "fig2_main_policy_comparison",
+        r"\frac",
+        r"\text{",
+        r"\Longleftrightarrow",
+        r"\Delta\text{Net}",
+        "≤ ft(",
+        r"\%",
+        "@@TOK",
+        "<br",
+        "**",
+        "`",
+        "/" + "Users/",
+    )
+    splits_df = pd.read_csv(ROOT / "revision" / "results" / "a18_crop_and_state_splits.csv")
+    for pdf_path in pdf_targets:
+        assert pdf_path.exists() and pdf_path.stat().st_size > 10_000, f"Missing or tiny PDF: {pdf_path}"
+        reader = PdfReader(str(pdf_path))
+        if pdf_path.name == "MandiGuard_Viva_Defense_Slides.pdf":
+            assert len(reader.pages) == 12, f"Expected 12 slides, got {len(reader.pages)}"
+            slide9_txt = reader.pages[8].extract_text() or ""
+            for st_name in ("Gujarat", "Himachal Pradesh", "Karnataka", "Madhya Pradesh", "Maharashtra", "Uttar Pradesh"):
+                sub = splits_df[(splits_df["slice_type"] == "State") & (splits_df["slice"] == st_name)]
+                b2_es10 = float(sub[sub["policy"] == "B2_age_matched"]["es10"].iloc[0])
+                safe_row = sub[sub["policy"] == "Safe_EV_Sunk_m0"].iloc[0]
+                rt_row = sub[sub["policy"] == "RT_2F_Min_m0"].iloc[0]
+                assert f"{float(safe_row['mean']):,.2f}" in slide9_txt, f"Slide 9 Safe_EV Mean mismatch for {st_name}"
+                assert f"{float(rt_row['mean']):,.2f}" in slide9_txt, f"Slide 9 RT_2F Mean mismatch for {st_name}"
+                assert f"{float(safe_row['es10']) - b2_es10:,.2f}" in slide9_txt, f"Slide 9 ES10 gain mismatch for {st_name}"
+        txt = "\n".join((pg.extract_text() or "") for pg in reader.pages)
+        for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "58,676", "344.09"):
+            assert req in txt, f"Missing `{req}` in {pdf_path.name}"
+        for bad in forbidden:
+            assert bad not in txt, f"Forbidden token `{bad}` leaked into {pdf_path.name}"
+
+    docx_path = ROOT / "paper" / "MandiGuard_Research_Paper.docx"
+    assert docx_path.exists() and docx_path.stat().st_size > 50_000, "Missing Research Paper DOCX"
+    doc = Document(str(docx_path))
+    docx_chunks = [p.text for p in doc.paragraphs] + [c.text for t in doc.tables for row in t.rows for c in row.cells]
+    docx_txt = "\n".join(docx_chunks)
+    for bad_docx in ("`", "**", "$", "B3_MLPoint", "cvar_10"):
+        assert bad_docx not in docx_txt, f"Forbidden token `{bad_docx}` leaked into {docx_path.name}"
+
+    tex_path = ROOT / "paper" / "manuscript.tex"
+    assert tex_path.exists() and tex_path.stat().st_size > 5_000, "Missing LaTeX manuscript.tex"
+    tex_txt = tex_path.read_text(encoding="utf-8")
+    bib_keys = set(re.findall(r"@\w+\s*\{\s*([^,\s]+)\s*,", (ROOT / "paper" / "references.bib").read_text()))
+    for grp in re.findall(r"\\cite\{([^}]+)\}", tex_txt):
+        for k in [p.strip() for p in grp.split(",")]:
+            assert k in bib_keys, f"LaTeX citation `{k}` missing from references.bib"
+    for rel_fig in re.findall(r"\\includegraphics\[[^\]]+\]\{([^}]+)\}", tex_txt):
+        assert ((ROOT / "paper") / rel_fig).resolve().exists(), f"Missing LaTeX graphic: {rel_fig}"
+
+    for nb_name in ("10_finalization_reproduction.ipynb", "colab_standalone_reproduction.ipynb"):
+        nb_raw = (ROOT / "notebooks" / nb_name).read_text(encoding="utf-8")
+        nb_obj = json.loads(nb_raw)
+        assert len(nb_obj.get("cells", [])) >= 4
+        assert "Safe_EV_Sunk_m0" in nb_raw
+        assert "B3_MLPoint" not in nb_raw and "colab_data_pack.tar.gz" not in nb_raw
+

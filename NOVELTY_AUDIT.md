@@ -1,4 +1,4 @@
-> **Archival Note (Superseded Stage-I/II Audit):** This historical audit predates Revision v4 (`RR-Abstain`, `DIFFICULTY.md`, stripped ERA5 weather/GBDT/conformal claims). For the active canonical novelty classification, see `final/NOVELTY_V2.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md`.
+> **Archival Note (Superseded Stage-I/II Audit):** This historical audit predates **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10`, `DIFFICULTY.md`, stripped ERA5 weather/GBDT/conformal claims). For the active canonical novelty classification, see `final/NOVELTY_V2.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md`.
 
 > **Superseded downside numbers.** Any CVaR, worst-10%, or `cvar_10` figure in this file is the mean of points below a sample quantile. It is not ES10. The current definition and the current tables are `revision/es10.py` and `revision/results/`. The Stage I comparison with the road rule remains inconclusive.
 

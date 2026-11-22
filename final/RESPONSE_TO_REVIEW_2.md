@@ -1,4 +1,4 @@
-> **Archival Note (Pre-Revision v4 Review-2 Response):** Preserved for git history completeness (`R8`). Every internal gap listed here (`N = 56,172`, lagged HP apples, `make reproduce`, `RR-Abstain`) was subsequently rebuilt and superseded in Revision v4 — see `final/RESPONSE_TO_REVIEW_3.md` and `final/AUDIT_V4.md`.
+> **Archival Note (Pre-Revision v5 Review-2 Response):** Preserved for git history completeness (`R8`). Every internal gap listed here (`N = 56,172`, lagged HP apples, `make reproduce`) was rebuilt and superseded by **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10`) — see `final/RESPONSE_TO_REVIEW_3.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md`.
 
 # Response to the external review (6.5/10, major revision)
 

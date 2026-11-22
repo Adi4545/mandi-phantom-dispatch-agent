@@ -1,4 +1,4 @@
-> **Archival Note (Superseded by `final/PROGRESS.md`):** This earlier roadmap recorded an intermediate Review-2 draft before Revision v4 (`build_hp_apple_lagged.py`, `eval_a10.py`, `make_figures.py`, `scripts/verify_traceability.py`, `final/AUDIT_V4.md`). See `final/PROGRESS.md` for the completed pipeline.
+> **Archival Note (Superseded by `final/PROGRESS.md`):** This earlier roadmap recorded an intermediate Review-2 draft before **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10`, `eval_a18.py`, `make_figures.py`, `scripts/verify_traceability.py`, `final/AUDIT_V4.md`). See `final/PROGRESS.md` for the completed pipeline.
 
 # Roadmap (E)
 

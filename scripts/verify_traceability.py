@@ -29,7 +29,7 @@ STRUCTURAL_ALLOWLIST: Set[float] = {
     1.3, 1.35, 1.45, 1.5, 1.64, 1.75, 1.96, 2.0, 2.58, 3.0, 3.25, 3.73, 4.0, 5.0, 6.0,
     7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 20.0, 23.0, 24.0, 25.0, 28.0,
     30.0, 33.0, 35.0, 36.0, 37.0, 48.0, 50.0, 60.0, 65.0, 70.0, 80.0, 100.0, 150.0, 173.0,
-    178.0, 200.0, 220.0, 250.0, 300.0, 336.0, 350.0, 400.0, 500.0, 700.0, 2000.0, 5000.0,
+    178.0, 200.0, 220.0, 250.0, 300.0, 336.0, 350.0, 400.0, 500.0, 700.0, 1000.0, 2000.0, 5000.0,
     # Years, report IDs, citation volumes/pages, and documented structural parameters
     1970.0, 1979.0, 1990.0, 1997.0, 2000.0, 2002.0, 2007.0, 2010.0, 2012.0, 2015.0, 2016.0,
     2017.0, 2018.0, 2019.0, 2020.0, 2021.0, 2022.0, 2023.0, 2024.0, 2025.0, 2026.0,
@@ -214,6 +214,20 @@ DEFAULT_DOC_REL_PATHS = [
     "viva/01_plain_english_complete_guide.md",
     "viva/02_50_viva_questions_and_answers.md",
     "viva/03_spoken_pitches_1m_5m_15m.md",
+    "README.md",
+    "FINDINGS.md",
+    "PROJECT_STATE.md",
+    "REPRODUCIBILITY.md",
+    "final/AUDIT_V4.md",
+    "final/CLAIM_MATRIX.md",
+    "final/DIFFICULTY.md",
+    "final/ISSUE_REGISTER.md",
+    "final/LIMITATIONS.md",
+    "final/NOVELTY_V2.md",
+    "final/PROGRESS.md",
+    "final/QUALITY_GATES.md",
+    "final/READINESS.md",
+    "final/RESPONSE_TO_REVIEW_3.md",
 ]
 
 

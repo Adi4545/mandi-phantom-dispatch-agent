@@ -1,7 +1,7 @@
 # MandiGuard (Revision v5): Leak-Free Wholesale Arbitrage Audit & Zero-Parameter Dispatch Rules
 
 [![Python 3.11.5](https://img.shields.io/badge/Python-3.11.5-blue.svg)](environment/requirements.txt)
-[![Tests](https://img.shields.io/badge/pytest-34%20passed-brightgreen.svg)](Makefile)
+[![Tests](https://img.shields.io/badge/pytest-35%20passed-brightgreen.svg)](Makefile)
 
 **`MandiGuard` Revision v5** (branch `finalization`, PR #1) audits when online AGMARKNET price spreads between Indian wholesale *mandis* fail under realistic transport costs, destination-base statutory APMC fees, biological decay, daily auction volatility, and strictly sequential arrival settlement across six states and four crops (`Onion`, `Potato`, `Tomato`, `Apple`).
 
@@ -29,4 +29,17 @@ pip install -r environment/requirements.txt
 make reproduce
 ```
 
-Runs `build_variant`, `build_hp_apple_lagged`, `eval_run`, `sensitivity_a8`, `eval_a10`, `eval_a18`, `make_figures`, cleanroom [`scripts/a16_independent_audit.py`](scripts/a16_independent_audit.py) (`₹0.00` discrepancy across 8 policies + cluster invariants), [`scripts/verify_traceability.py`](scripts/verify_traceability.py) (`0` untraceable numbers across all `9/9` docs), and `pytest -v` (`34/34` passing).
+Runs `build_variant`, `build_hp_apple_lagged`, `eval_run`, `sensitivity_a8`, `eval_a10`, `eval_a18`, `make_figures`, cleanroom [`scripts/a16_independent_audit.py`](scripts/a16_independent_audit.py) (`₹0.00` discrepancy across 8 policies + cluster invariants), [`scripts/verify_traceability.py`](scripts/verify_traceability.py) (`0` untraceable numbers across all `23/23` active docs), and `pytest -v` (`35/35` passing).
+
+## Compiled Revision v5 Deliverables Index (`make deliverables`)
+
+| Deliverable | Format | Source & Scope |
+|---|---|---|
+| [`paper/MandiGuard_Research_Paper.pdf`](paper/MandiGuard_Research_Paper.pdf) | PDF / [`.html`](paper/MandiGuard_Research_Paper.html) | Full Revision v5 research manuscript (`paper/manuscript.md`) with equations, tables & `rev_fig1..4` |
+| [`paper/manuscript.tex`](paper/manuscript.tex) & [`paper/MandiGuard_Research_Paper.docx`](paper/MandiGuard_Research_Paper.docx) | LaTeX & Word | Compile-ready LaTeX (`27` cited keys from `48` in [`paper/references.bib`](paper/references.bib)) & Word bundle |
+| [`paper/MandiGuard_Easy_Reading_Edition.pdf`](paper/MandiGuard_Easy_Reading_Edition.pdf) | PDF / [`.html`](paper/MandiGuard_Easy_Reading_Edition.html) | Class-12 pocket-calculator companion guide |
+| [`viva/MandiGuard_Viva_Defense_Slides.pdf`](viva/MandiGuard_Viva_Defense_Slides.pdf) | 12-Slide PDF / [`.html`](viva/MandiGuard_Viva_Defense_Slides.html) | 16:9 widescreen M.Tech viva presentation (`final/SLIDE_OUTLINE.md`) |
+| [`docs/MandiGuard_First_Principles_and_Thesis_Defense_Handbook.pdf`](docs/MandiGuard_First_Principles_and_Thesis_Defense_Handbook.pdf) | PDF / [`.html`](docs/MandiGuard_First_Principles_and_Thesis_Defense_Handbook.html) | Complete first-principles & viva compendium |
+| [`docs/MandiGuard_Master_Study_Guide.pdf`](docs/MandiGuard_Master_Study_Guide.pdf) | PDF / [`.html`](docs/MandiGuard_Master_Study_Guide.html) | Structured 3-part master study guide (`docs/study_guide_v2_parts/`) |
+| [`docs/MandiGuard_Student_Study_Guide.pdf`](docs/MandiGuard_Student_Study_Guide.pdf) | PDF / [`.html`](docs/MandiGuard_Student_Study_Guide.html) | Plain-English beginner & Class 10–12 study guide |
+| [`notebooks/10_finalization_reproduction.ipynb`](notebooks/10_finalization_reproduction.ipynb) & [`colab_standalone_reproduction.ipynb`](notebooks/colab_standalone_reproduction.ipynb) | Executed / Colab `.ipynb` | End-to-end reproduction notebooks from tracked files only (`00..09` archived) |

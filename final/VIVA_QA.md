@@ -23,7 +23,7 @@ It doesn't replace the phone call—it **prevents alert overload before the call
 ---
 
 ### Q4. Explain exact `ES10` and what cluster-key bug your own adversarial review caught (`A17` #1).
-Unweighted below-quantile averages (`cvar_10`) broke whenever `₹0` abstentions tied at the 10% boundary. Exact `ES10` sorts all `N` episodes worst-first (`₹0` on abstentions), sets fractional mass $m = 0.10 N = k + f$, sums the worst `k` observations plus fraction `f` of `(k + 1)`, and divides by `m`.  
+Unweighted below-quantile averages (the legacy truncated quantile-mean estimator) broke whenever `₹0` abstentions tied at the 10% boundary. Exact `ES10` sorts all `N` episodes worst-first (`₹0` on abstentions), sets fractional mass $m = 0.10 N = k + f$, sums the worst `k` observations plus fraction `f` of `(k + 1)`, and divides by `m`.  
 On clustering: earlier runs forgot `State + "|"` on bare `dest_market`, splitting physical markets into `336` duplicate strings instead of `172`. Fixing `State + "|"` and adding policy-specific destination clustering yields exact **`173`**, **`172`**, and **`170–173`** clusters (`23` 2-week blocks) and uses **strict two-sided Holm-Bonferroni (`p_holm_2s = 0.0040`)**—all primary hypotheses still hold cleanly across all 3 schemes.
 
 ---
@@ -64,4 +64,4 @@ Yes, and we explicitly audit and test it! Conditioning primary episodes on `sett
 ---
 
 ### Q10. How do examiners independently verify every number?
-Clone `finalization` and run `make reproduce`: zero gitignored files needed, `scripts/a16_independent_audit.py` independently matches `₹0.00` across all 8 policies from raw parquets, `scripts/verify_traceability.py` verifies `0` untraceable numbers across all 9 docs, and `pytest -v` passes all `34` tests.
+Clone `finalization` and run `make reproduce`: zero gitignored files needed, `scripts/a16_independent_audit.py` independently matches `₹0.00` across all 8 policies from raw parquets, `scripts/verify_traceability.py` verifies `0` untraceable numbers across all `23/23` active docs, and `pytest -v` passes all `35` tests.

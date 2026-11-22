@@ -1,0 +1,378 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=22mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,array,xcolor}
+\title{When Online Mandi Prices Mislead: A Leak-Free Audit and Zero-Parameter Risk-Aware Dispatch Rules for Indian Wholesale Markets}
+\author{M.Tech Research Thesis --- MandiGuard Revision v5 (Branch: finalization)}
+\date{April 2026 (Exploratory Audit \& Cleanroom Freeze)}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Farmers and farmer producer organizations (FPOs) routinely compare local harvest prices against wholesale prices posted on government portals such as AGMARKNET before hiring a truck. On a portal screen, a Rs.\,500 per quintal price difference between an origin mandi and a neighboring yard looks like immediate cash. It is not. This paper audits Indian daily wholesale records for onion, potato, tomato, and apple across 178 core markets (plus 42 graded-apple yards) in six states from 1 January 2024 to 1 September 2026 under a strict chronological timing firewall (\texttt{<= t - 1}) and a realistic sequential day-by-day arrival settlement model.
+
+Across 58,676 lagged test episodes (1 June 2025 to 8 April 2026) showing a raw \texttt{<= t - 1} price gap above Rs.\,100 per quintal, naive screen-chasing (\texttt{B1\_lagged\_screen}, \texttt{100.00\%} dispatch) loses money on \textbf{45.21\%} of trips (\texttt{mean Rs.\,397.87/qtl}, exact worst-10\% expected shortfall \textbf{\texttt{ES10 = -Rs.\,641.26/qtl}}). Conditioning on sequential portal arrivals is crucial: under baseline missing-quote return assumptions (\texttt{div = 1.5}), \textbf{28.98\%} (\texttt{17,005} trips) find zero commodity trading recorded on arrival and turn back; scoring the identical trips with 3-day hindsight drops apparent loss incidence to 31.35\%.
+
+Building up from fair age-matched road baselines (\texttt{B2\_age\_matched}, \texttt{lag 1..3}) and pre-registered tuned reliability-weighted abstention (\texttt{RR\_Abstain\_matched}, $\kappa^* = 5.0$), we discover an \textbf{even simpler, zero-hyperparameter rule (\texttt{Safe\_EV\_Sunk\_m0})}: multiply the 1-standard-deviation conservative spread ($G_{\text{1SD}}$) by the yard's historical arrival-weekday reporting frequency ($p_{\text{dow}}$), and dispatch iff $p_{\text{dow}} G_{\text{1SD}} - F_{\text{road}} > 0$ (equivalently, safe spread-to-freight ratio $G_{\text{1SD}} / F_{\text{road}} > 1 / p_{\text{dow}}$). Without tuning ANY threshold or $\kappa$ grid, \textbf{\texttt{Safe\_EV\_Sunk\_m0}} (\texttt{63.27\%} dispatch) achieves \texttt{mean Rs.\,465.59/qtl} (+Rs.\,32.03 vs \texttt{B2\_age\_matched}), cuts episode loss incidence to \textbf{\texttt{14.93\%}} (-11.79 pp, two-sided Holm \texttt{p = 0.0040}), and strengthens \textbf{\texttt{ES10} to \texttt{-Rs.\,344.09/qtl}}---a \textbf{+Rs.\,181.17/qtl tail improvement over \texttt{B2\_age\_matched}} (\texttt{p\_holm\_2s = 0.0040}), \textbf{+Rs.\,168.69/qtl over hard-gated \texttt{MG\_matched}}, and \textbf{+Rs.\,116.63/qtl over tuned \texttt{RR\_Abstain\_matched}} across all three spatiotemporal clustering schemes (170--173 market clusters $\times$ 23 fortnights) and \textbf{every single state and crop} including graded apples (\texttt{-Rs.\,1,454.86} vs \texttt{-Rs.\,2,392.12} on HP apples). A stripped 4-function phone-calculator rule dropping volatility (\texttt{RT\_2F\_Min\_m0}, $p_{\min} G > 2 F_{\text{road}}$) raises mean net gain to \textbf{\texttt{Rs.\,478.38/qtl}} (+Rs.\,44.82 vs \texttt{B2}, \texttt{p\_holm\_2s = 0.0040}) with zero free parameters. Across strict counterfactual tests, \texttt{Safe\_EV\_Sunk\_m0} maintains strong \texttt{ES10} and loss reductions even when diversion penalties vanish (\texttt{exact\_zero\_divert\_payoff\_0}: +Rs.\,169.79/qtl \texttt{ES10}, \texttt{p\_2s = 0.002}) and under open-yard Missing-At-Random portal omissions (\texttt{+Rs.\,190.00/qtl} \texttt{ES10}), though \texttt{B2} earns higher mean payoff (+Rs.\,102.58/qtl) when blank portal rows represent unrecorded open sales---establishing that algorithmic triage helps FPOs filter screen noise prior to live trader confirmation, while not replacing phone verification or field trials. All results remain exploratory wrt prior calendar exposure (\texttt{make reproduce}, \texttt{0} untraceable numbers).
+\end{abstract}
+
+\section{Three Research Questions and Honest Methodological Scope}
+
+Indian wholesale agricultural markets (\textit{mandis}) publish daily minimum, modal, and maximum prices by variety on AGMARKNET. A widely held premise in agricultural informatics is that surfacing remote portal prices unlocks spatial arbitrage for farmers \cite{jensen2007digital,goyal2010information}. In practice, four operational barriers stand between an online spread and cash in hand:
+
+\begin{enumerate}
+  \item \textbf{Decision-Time Reporting Lag:} At 6 a.m. dispatch time $t$---when FPO managers decide whether to load a truck or suppress an alert---same-day auction prices are not settled, and thin yards publish intermittently (\texttt{1..7} days late).
+  \item \textbf{Transfer, Statutory Destination Fees, and Spoilage:} Road freight, hill terrain, out-of-district APMC seller fees levied on destination auction value, and ambient transit decay shrink paper spreads \cite{baulch1997transfer,nabcons2022phl}.
+  \item \textbf{Price Dispersion and Arrival Execution Risk:} A single high lagged modal quote on a volatile yard (\texttt{dest\_price\_cv\_28d}) frequently reverts toward mean on arrival day $t + \tau$, and an empty arrival board (\texttt{settle\_any\_min\_dw = NaN}) means no transaction record exists in the portal \cite{deka2026missing}.
+  \item \textbf{Role of Automated Triage vs Live Phone Calls:} Farmers hauling a 30-quintal truck typically confirm live yard openings via a 30-second phone call to a destination \textit{arhtiya} (commission agent) \cite{jensen2007digital}. Automated dispatch scoring serves as a \textbf{6 a.m. alert-triage filter} preventing FPO managers from chasing hundreds of noisy portal spreads before dialing traders.
+\end{enumerate}
+
+We ask three focused questions across six Indian states (Maharashtra, Uttar Pradesh, Karnataka, Madhya Pradesh, Gujarat, Himachal Pradesh) and four crops (Onion, Potato, Tomato, Apple):
+
+\begin{itemize}
+  \item \textbf{RQ1 (Screen-Chasing Loss Incidence):} Under a \texttt{<= t - 1} price firewall and non-anticipative sequential arrival settlement, how often do attractive lagged price spreads (\texttt{> Rs.\,100/qtl}) lose money, and how severely do 3-day hindsight settlement and ex-post day-$t$ origin conditioning distort perceived performance?
+  \item \textbf{RQ2 (Can Zero-Parameter Expected-Value Rules Beat Both Fair Baselines and Tuned Heuristics?):} On equal candidate menus and equal quote ages (\texttt{1..3} days), can threshold-free, zero-hyperparameter rules (\texttt{Safe\_EV\_Sunk\_m0} and 4-function calculator \texttt{RT\_2F\_Min\_m0}) improve episode loss incidence and worst-10\% \texttt{ES10} compared with age-matched road rules (\texttt{B2\_age\_matched}), hard-gated heuristics (\texttt{MG\_matched}), and our tuned \texttt{kappa*=5.0} extension (\texttt{RR\_Abstain})?
+  \item \textbf{RQ3 (Identification Bounds, Subgroup Generalizability, and Structural Robustness):} How sensitive are conclusions across full Manski/MAR missing-quote regimes (\texttt{open\_yard\_MAR\_lagged\_price}, \texttt{exact\_zero\_divert\_payoff\_0}, \texttt{div = 0..2}), frozen vs re-scored freight/commission tornados, exact-geocoded corridors vs district centroids, unconditional origin panels restoring unreported day-$t$ origin rows, all six states, individual crops, and high-dispersion Himachal Pradesh graded apples?
+\end{itemize}
+
+\subsection{Explicit Protocol Chronology (\texttt{Stage I} $\to$ \texttt{A10} $\to$ \texttt{A18} Zero-Parameter Evolution)}
+
+\begin{enumerate}
+  \item \textbf{Stage I Legacy Baseline (\texttt{e421d15}):} An unlagged gradient-boosted tree system (\texttt{HistGradientBoostingRegressor}) with ERA5 weather and conformal bands proved \textbf{inconclusive against same-day road dispatch \texttt{B2}} on confirmatory \texttt{H2} (+Rs.\,6.13/qtl, 95\% CI [-Rs.\,17.02, +Rs.\,25.02], Holm \texttt{p = 0.2699}) and failed on HP graded apples. We preserve those negative results cleanly.
+  \item \textbf{Audit Remediation (\texttt{A10}, Commit \texttt{87a0b62}):} Eliminated all day-$t$ shortlist/origin price leaks, removed \texttt{98.64\%} ERA5-identical forecast weather, fixed APMC fee bases (\texttt{M9}), fixed quantile-mean \texttt{ES10} math, and tested reliability-weighted \texttt{RR-Abstain}. However, critical re-examination revealed four structural issues: a destination cluster-key string mismatch (\texttt{336} split clusters instead of \texttt{172} physical markets), one-sided unlabeled Holm p-values, hitting the validation grid ceiling at $\kappa^* = 5.0$ (disguising an implicit threshold shift rather than a true \texttt{m=0} zero-parameter rule), and missing subgroup/sensitivity coverage for \texttt{RR}.
+  \item \textbf{Final Zero-Parameter Simplification (\texttt{PREREG\_A18.md}, Commit \texttt{4cbb02d}):} Strictly keeping test outcomes quarantined during rule design on validation (\texttt{2025-01-01..2025-05-31}), we committed five zero-hyperparameter closed-form formulas plus the full \texttt{A17} stress suite before running \texttt{revision/eval\_a18.py}. Because calendar \texttt{2025-06-01..2026-04-08} and HP apples appeared earlier in repo history, \textbf{all post-Stage-I tests remain strictly exploratory (\texttt{exploratory: true}) wrt calendar exposure} [R5].
+\end{enumerate}
+
+\section{Data Provenance, Cleaning Funnel, and Causal Information Audit}
+
+\subsection{Tracked Official Data Sources (Zero Gitignored Files Required)}
+
+All tables and figures build deterministically from six tracked repository artifacts:
+
+\begin{enumerate}
+  \item \textbf{AGMARKNET 6-State 4-Crop Panel (\texttt{data/raw/agmarknet\_6state\_top\_apple\_2024\_2026.parquet}):} Cleaned daily market-variety-grade records from Government of India AGMARKNET releases spanning 1 January 2024 to 13 April 2026 (\texttt{260,043} rows, \texttt{178} core markets, Open Govt Data NDSAP license). Verified against official XML parity records in legacy \texttt{Exp 14} (\texttt{100.0\%} modal parity on graded apples).
+  \item \textbf{HP Grade-Explicit Apple Panel (\texttt{data/raw/hp\_apple\_daily\_2025\_2026.csv}):} \texttt{4,427} official daily records across \texttt{42} Himachal Pradesh yards (7 November 2025 to 1 September 2026) with explicit commercial grades.
+  \item \textbf{Static OSRM Corridor Matrix (\texttt{data/processed/osrm\_corridor\_matrix.parquet}):} \texttt{8,147} directed corridors (\texttt{15.19} km to \texttt{499.43} km) across \texttt{220} yards (\texttt{150} exact market geocodes, \texttt{70} district centroids, OSM ODbL; \texttt{1.35x} truck speed, \texttt{1.25x} hill speed, \texttt{+4}h buffer) \cite{luxen2011osrm}. Exact-geocoded corridors cover \texttt{58.29\%} of shortlisted test rows (\texttt{41.71\%} touch at least one centroid endpoint---explicitly tested in Section 4.3).
+  \item \textbf{Statutory Fee \& NABCONS Decay Schedules (\texttt{data/processed/state\_apmc\_and\_loss\_parameters.csv}):} Seller market fees from PIB \texttt{relid=154554} (\texttt{0.5\%} KA/GJ/HP-veg, \texttt{1.0\%} MH/HP-apple, \texttt{1.5\%} MP/UP; \texttt{0\%} intra-district) and 24-hour market-level decay rates from MoFPI / NABCONS (2022) Annexure-II Table-2 (PIB \texttt{PRID=2151371}: Tomato \texttt{3.25\%}, Onion \texttt{1.96\%}, Apple \texttt{1.64\%}, Potato \texttt{0.86\%}) \cite{nabcons2022phl}.
+  \item \textbf{Pre-Split Weather Audit (\texttt{data/processed/mandi\_weather\_2024\_2026.parquet}):} Auditing \texttt{67,135} rows (\texttt{2025-01-01..2026-04-08}) showed \texttt{fc\_rain\_mm == era5\_rain\_mm} on \texttt{66,222} rows (\texttt{98.64\%}) and humidity within 1\% on \texttt{67,091} rows (\texttt{99.93\%}) \cite{hersbach2020era5}. Live/ERA5 weather is completely excluded from primary analysis (\texttt{none\_20C\_reference} primary), with \texttt{< 2025-01-01} 2024 state-month averages tested only as sensitivity.
+  \item \textbf{Government Economic Benchmarks:} Heavy-truck corridor floor \texttt{Rs.\,2.58/tonne-km} (\texttt{Rs.\,0.258/qtl-km}) from NITI Aayog \& RMI (2021) \cite{nitiaayog2021freight}, smallholder \texttt{30}-quintal reference loads and \texttt{Rs.\,3,798/mo} net crop income from MoSPI NSS Report 587 (\texttt{PRID=1753856}), HP \texttt{91.59\%} single-lane hill road share (\texttt{39,465 / 43,091} km) from GoHP Economic Survey 2025--26, and \textit{arhtiya} commission ranges from RBI Working Paper 08/2024 \cite{rbi2024top}.
+\end{enumerate}
+
+\subsection{Reconciled Cleaning Funnel \& Day-$t$ Origin Conditioning Disclosure}
+
+Table 1 traces every row from raw portal files through canonical variety consolidation (\texttt{Modal = median}, \texttt{Min = min}) and strictly \texttt{<= t - 1} shortlisting. Earlier docs under-reported or failed to drop \texttt{759} out-of-range quotes (\texttt{Modal < Min} or \texttt{Modal > Max}), which are now cleanly removed before episode construction.
+
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lrrl}
+\toprule
+Pipeline Stage & 6-State Panel Count & HP Graded Apple Count & Exact Integer Check / Disclosure \\
+\midrule
+Raw daily records & \texttt{260,043} & \texttt{4,427} & \texttt{2024-01-01..2026-04-13} (6-state); \texttt{2025-11-07..2026-09-01} (HP) \\
+Dropped: invalid (\texttt{Modal < Min} or \texttt{Modal > Max}) & \texttt{759} & \texttt{0} & \texttt{0} nonpositive/NaN prices \\
+Valid cleaned records retained & \texttt{259,284} & \texttt{4,427} & \texttt{260,043 - 759 = 259,284} \\
+Raw 7-column key deduplication (\texttt{median} modal, \texttt{min} floor) & \texttt{256,997} & \texttt{4,427} & \texttt{2,287} excess duplicate rows (\texttt{2,254} groups, \texttt{1,484} conflicting modals) \\
+Canonical \texttt{(State, Market, Commodity, Variety\_Key, Date)} rows & \texttt{248,302} & \texttt{4,427} & \texttt{8,695} variant/grade merges (\texttt{259,284 - 10,982 = 248,302}) \\
+Origin variety-days inside evaluation window & \texttt{131,366} & \texttt{4,165} & \texttt{2025-01-01..2026-04-08} (ensures \texttt{[t+tau, t+tau+2] <= 2026-04-13}) \\
+With strictly prior origin quote (\texttt{origin\_lag\_age} 1--7d) & \texttt{129,023} & \texttt{3,921} & \texttt{98.22\%} origin coverage strictly \texttt{<= t - 1} \\
+Reachable \texttt{(origin, dest)} corridors (\texttt{15--500} km) & \texttt{3,942,896} & \texttt{250,958} & Inner join with \texttt{osrm\_corridor\_matrix.parquet} \\
+Candidate pairs with strictly prior dest quote (\texttt{1--7}d) \& \texttt{lag\_spread > 100} & \texttt{518,467} & \texttt{8,442} & Across \texttt{95,074} (6-state) / \texttt{2,802} (HP) episodes \\
+\textbf{Top-5 shortlisted candidate rows (\texttt{val} + \texttt{test})} & \textbf{\texttt{324,992}} & \textbf{\texttt{7,753}} & Tie-broken deterministically by \texttt{(-lag\_spread, road\_km, dest\_market)} \\
+\textbf{Validation / Test episodes (\texttt{2025-01..05} / \texttt{2025-06..2026-04})} & \textbf{\texttt{36,398} / \texttt{58,676}} & \texttt{0} / \textbf{\texttt{2,802}} & Exploratory wrt prior calendar exposure \\
+\textit{Unconditional test origin panel (without day-$t$ origin filter)} & \textbf{\texttt{88,014}} \textit{(test)} & --- & Restores \textbf{\texttt{29,338}} test episodes lacking day-$t$ origin upload (Section 4.3) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{Ex-Post Day-$t$ Origin Conditioning Disclosure (\texttt{A17}):} Constructing primary episodes on observed day-$t$ origin records (\texttt{settle\_local\_price\_d0} present) excludes active origin days whose local exact-variety modal failed to publish on day $t$ (\texttt{29,338} out of \texttt{88,014} unconditional shortlisted test episodes) and leaves abstention with \texttt{0\%} non-reporting risk versus \texttt{\textasciitilde{}28\%} on dispatched trips. In Section 4.3 we explicitly evaluate the full \texttt{88,014}-episode unconditional panel (\texttt{unconditional\_orig\_panel\_d0\_or\_lag}---where \texttt{origin\_lag\_price} serves symmetrically as the local benchmark when \texttt{settle\_local\_price\_d0} is missing, alongside \texttt{outside\_origin\_lag} everywhere) to prove that primary conclusions hold without day-$t$ sample selection. Moreover, filtering on \texttt{lag\_spread > 100} creates classic winner's curse reversion: across \texttt{origin\_lag\_age in 1..7}, \texttt{origin\_lag} prices sit slightly below day-$t$ local prices while stale \texttt{dest\_lag} prices fall sharply by arrival day; keeping \texttt{origin\_lag\_age} up to 7d affects \texttt{2,028} test episodes, tested directly in Section 4.3.
+
+\subsection{Causal Timing Firewall and Feature Availability}
+
+At morning decision time $t$, \textbf{every} feature entering scoring or shortlisting predates day $t$ (\texttt{dest\_quote\_date < date}, \texttt{origin\_quote\_date < date}). Realized \texttt{settle\_local\_price\_d0} and arrival columns \texttt{settle\_dest\_modal\_d0..d2}, \texttt{settle\_any\_min\_d0..d2} exist exclusively for payoff settlement. \texttt{tests/test\_timing\_and\_leakage\_r3.py} corrupts \textit{all} prices on days $\ge t^*$ (inserting Rs.\,99,999/qtl at excluded yards, halving day-$t^*$ local prices, and deleting active candidates on days $\ge t^*$) and asserts bit-for-bit equality of the candidate menu and all decision features on $t \le t^*$.
+
+\section{Payoff Physics, Sequential Settlement, and Decision Rules (With Numeric Examples)}
+
+\subsection{Physical Freight, Statutory Destination Fee (\texttt{M9}), and Spoilage}
+
+For corridor $c = (o \to d)$ in state $s$ and commodity $k$:
+
+\begin{equation}
+\text{Freight}_{\text{road}}(c) = 35.0 + 0.45 \cdot h_s \cdot \text{road\_km}(c)
+\end{equation}
+
+where $h_s = 1.45$ in Himachal Pradesh (\texttt{91.59\%} single-lane roads) and $1.0$ elsewhere. Reference 20$^\circ$C / 65\% RH biological decay over transit \texttt{truck\_hours} plus waiting days $w \in \{0, 1, 2\}$ \cite{kader2002postharvest,gross2016usda66} is:
+
+\begin{equation}
+s(k, w) = \min\!\left(0.55,\; b_k \cdot \frac{\max(1,\; \text{truck\_hours} + 24 w)}{24}\right)
+\end{equation}
+
+with NABCONS 24h rates $b_k \in \{0.0325 \text{ Tomato},\; 0.0196 \text{ Onion},\; 0.0164 \text{ Apple},\; 0.0086 \text{ Potato}\}$ \cite{nabcons2022phl}. Statutory APMC seller fees $\tau_{\text{fee}}(c) \in \{0, 0.005, 0.010, 0.015\}$ (\texttt{0} if \texttt{same\_district}) apply strictly to \textbf{post-spoilage destination gross sales}, and equal \texttt{0} if the truck returns home unsold.
+
+\begin{quote}
+\textbf{Worked Example 1 (Physical Freight, Spoilage \& Destination-Base Statutory Fee):} Consider an out-of-district \textbf{Tomato} trip in \textbf{Madhya Pradesh} (\texttt{fee\_rate = 1.5\%}, $h_s = 1.0$) with \texttt{road\_km = 200} km, \texttt{truck\_hours = 6} hours, and immediate arrival sale ($w = 0$) at \texttt{sale\_price = Rs.\,2,000/qtl}, vs local \texttt{settle\_local\_price\_d0 = Rs.\,1,500/qtl}:
+
+\begin{enumerate}
+  \item Freight: $F = 35.0 + 0.45 \times 1.0 \times 200 = \text{Rs.\,}125.00/\text{qtl}$.
+  \item 20$^\circ$C spoilage: $s(0) = 0.0325 \times (6 / 24) = 0.008125$ ($0.8125\%$).
+  \item Post-spoilage gross auction revenue: $\text{Rs.\,}2,000 \times (1 - 0.008125) = \text{Rs.\,}1,983.75/\text{qtl}$.
+  \item Net after 1.5\% statutory fee: $\text{Rs.\,}1,983.75 \times 0.985 = \text{Rs.\,}1,953.99/\text{qtl}$.
+  \item Modeled net dispatch gain: $\text{Rs.\,}1,953.99 - \text{Rs.\,}125.00 - \text{Rs.\,}1,500.00 = +\text{Rs.\,}328.99/\text{qtl}$.
+\end{enumerate}
+
+\end{quote}
+
+\subsection{Sequential Non-Anticipative Settlement vs Hindsight Lookahead}
+
+Starting at $w = 0$ on arrival day $t_{\text{arr}} = t + \tau$ (\texttt{tau\_days in 1..3}), settlement advances day by day without future knowledge:
+
+\begin{itemize}
+  \item \textbf{Sell exact:} If exact-variety \texttt{Modal\_Price} is reported on day $w$, sell: $\Delta\text{Net}_{\text{sell}}(w) = P_{\text{sale}}(1 - s(k, w))(1 - \tau_{\text{fee}}) - F - 25 w - P_{\text{loc}, d0}$.
+  \item \textbf{Wait ($w < 2$):} If exact variety is missing on day $w$ but another variety of the crop trades (\texttt{settle\_any\_min\_dw > 0}), wait 1 day (\texttt{Rs.\,25/qtl-day} detention + 24h decay).
+  \item \textbf{Turn back / distress fallback:} If no variety of the commodity is recorded on day $w$, divert home with zero APMC fee: $\Delta\text{Net}_{\text{divert}}(w) = -\text{div}\cdot F - P_{\text{loc}, d0}\cdot s(k, w) - 25 w$ (baseline \texttt{div = 1.5}; if day $w = 2$ still shows another variety, sell at \texttt{0.90 * settle\_any\_min\_d2} after fee and \texttt{Rs.\,50} detention).
+\end{itemize}
+
+By contrast, \textbf{3-day hindsight settlement} peeks ahead across \texttt{d0..d2} even when day 0 shows zero commodity trade.
+
+\begin{quote}
+\textbf{Worked Example 2 (Sequential No-Lookahead vs 3-Day Hindsight):} On our MP Tomato trip ($F = \text{Rs.\,}125$, $P_{\text{loc}, d0} = \text{Rs.\,}1,500$), suppose destination Tomato is completely absent on arrival day 0 (\texttt{settle\_any\_min\_d0 = NaN}), though exact-variety trades at \texttt{Rs.\,2,000} on day +1:
+
+\begin{itemize}
+  \item \textbf{Sequential (realistic):} Seeing an empty tomato auction on day 0, the truck diverts at $w = 0$ (zero fee): $\Delta\text{Net} = -1.5 \times 125 - 1,500 \times 0.008125 = -\text{Rs.\,}199.69/\text{qtl}$.
+  \item \textbf{3-day hindsight:} Clairvoyant waiting ($w = 1$, $s(1) = 0.040625$, detention \texttt{Rs.\,25}) records $+\text{Rs.\,}239.97/\text{qtl}$---a Rs.\,439.66/qtl hindsight distortion.
+\end{itemize}
+
+\end{quote}
+
+\subsection{Equal-Menu Baselines, \texttt{RR-Abstain}, and Zero-Parameter Simplification (\texttt{Safe-EV} \& \texttt{RT-2F})}
+
+Every rule evaluates the same Top-5 lagged menu (\texttt{lag\_spread > 100}) and selects at most one corridor (else abstain with $\Delta\text{Net} = 0$). Baselines match \texttt{dest\_lag\_age in 1..3} (\texttt{R4}):
+
+\begin{enumerate}
+  \item \textbf{\texttt{B1\_lagged\_screen}:} Highest raw \texttt{lag\_spread} across \texttt{age 1..7} (\texttt{100\%} dispatch).
+  \item \textbf{\texttt{B2\_age\_matched}:} Road-adjusted score $G(c, t) - F_{\text{road}}(c) > \text{Rs.\,}200/\text{qtl}$ (where $G = P_{\text{dest,lag}}(1 - \tau_{\text{fee}}) - P_{\text{orig,lag}}$, tuned on validation \texttt{70.71\%} dispatch).
+  \item \textbf{\texttt{B\_simple\_activity\_matched} \& \texttt{MG\_matched}:} Adds 14-day reporting (\texttt{rep14 >= 0.50}) or dual hard gates (\texttt{rep14 >= 0.50 \& dow8 >= 0.35}) plus 20$^\circ$C spoilage, matched to validation \texttt{70.71\%} dispatch (\texttt{m\_mg\_match = Rs.\,131.26}).
+  \item \textbf{Tuned \texttt{RR\_Abstain} (\texttt{A10}, Commit \texttt{87a0b62}):} Mixes open-market payoff $\widehat{\Delta}_{\text{open}}$ and a bounded loss $-\kappa F_{\text{road}} - P_{\text{orig,lag}} s_{\text{ref},0}$ weighted by $\hat{p}_{\text{rep}} = 0.5\,\text{rep}_{28} + 0.5\,\text{dow}_8$. \textbf{Critical Limitation Caught by \texttt{A17}/\texttt{A18}:} \texttt{val} optimization hit the grid wall $\kappa^* = 5.0$ ($3.33\times$ physical diversion \texttt{1.5}), compensating for two missing signals: \texttt{rep28} over-predicted Sunday mandi closures, and \texttt{RR} omitted auction price volatility. Raising $\kappa$ further up to \texttt{20.0} drives the matched cutoff down to \texttt{-Rs.\,328.99/qtl} (showing $\kappa = 5.0$ acted as an implicit grid-tuned threshold shift, NOT a pure threshold-free constant).
+\end{enumerate}
+
+To eliminate $\kappa$ tuning, \texttt{rep28} holiday pollution, and Q10 spoilage lookups simultaneously, \textbf{Agent \texttt{A18}} designed and locked (\texttt{PREREG\_A18.md}, \textbf{0 free parameters, fixed \texttt{S > 0}}):
+
+\begin{enumerate}
+  \item \textbf{\texttt{Safe\_EV\_Sunk\_m0} (Zero-Parameter Scientific Champion):} Combines weekday-specific Laplace reporting frequency $p_{\text{dow}} = \text{dest\_dow\_exact\_rep\_8w} \in \{\frac{1}{10}, \dots, \frac{9}{10}\}$ with 1-standard-deviation conservative price spread $G_{\text{1SD}}(c, t) = P_{\text{dest,lag}}(1 - \text{cv}_{28})(1 - \tau_{\text{fee}}) - P_{\text{orig,lag}}$ against sunk one-way freight $F_{\text{road}}$:
+\end{enumerate}
+
+\begin{equation}
+S_{\text{Safe-EV}}(c, t) = p_{\text{dow}}(c, t) \cdot G_{\text{1SD}}(c, t) - F_{\text{road}}(c) > 0 \quad \Longleftrightarrow \quad \frac{G_{\text{1SD}}}{F_{\text{road}}} > \frac{1}{p_{\text{dow}}}
+\end{equation}
+
+\textit{(And its exact physical counterpart \texttt{Safe\_EV\_Phys\_m0} using simulator \texttt{div = 1.5}: $p_{\text{dow}}(G_{\text{1SD}} - F) - (1 - p_{\text{dow}}) 1.5 F > 0$, zero tuning!)}
+
+\begin{enumerate}
+  \item \textbf{\texttt{RT\_2F\_Min\_m0} \& \texttt{RT\_2F\_Dow\_m0} (Class-8 Phone-Calculator Rule, NO \texttt{cv28}, NO \texttt{spoil}):} Using plain fee-adjusted spread $G$ and $p_{\min} = \min(\text{rep}_{28}, p_{\text{dow}})$ (or $p_{\text{dow}}$ alone), dispatch iff expected revenue clears \textbf{round-trip freight (\texttt{2F})}:
+\end{enumerate}
+
+\begin{equation}
+S_{\text{RT-2F-Min}}(c, t) = p_{\min}(c, t) \cdot G(c, t) - 2\,F_{\text{road}}(c) > 0 \quad \Longleftrightarrow \quad \frac{G}{2\,F_{\text{road}}} > \frac{1}{p_{\min}}
+\end{equation}
+
+\begin{quote}
+\textbf{Worked Example 3 (Zero-Parameter \texttt{Safe\_EV\_Sunk\_m0} and Class-8 \texttt{RT\_2F\_Min\_m0} in 10 Seconds):} Take our MP Tomato route ($P_{\text{orig,lag}} = \text{Rs.\,}1,500$, $P_{\text{dest,lag}} = \text{Rs.\,}2,000$, $\tau_{\text{fee}} = 1.5\%$, $F_{\text{road}} = \text{Rs.\,}125$, \texttt{cv28 = 0.15}), so $G = 2,000(0.985) - 1,500 = +\text{Rs.\,}470.00/\text{qtl}$ and 1-SD safe spread $G_{\text{1SD}} = 2,000(0.85)(0.985) - 1,500 = +\text{Rs.\,}174.50/\text{qtl}$.
+
+\begin{itemize}
+  \item \textbf{Steady Yard A (\texttt{dow8 = 0.90}, \texttt{rep28 = 0.85}, so $p_{\min} = 0.85$):}
+  \item \texttt{Safe\_EV\_Sunk}: $0.90 \times 174.50 - 125 = +\text{Rs.\,}32.05 > 0 \implies$ \textbf{DISPATCH} (Ratio $174.5/125 = 1.40 > 1/0.90 = 1.11$).
+  \item \texttt{RT\_2F\_Min} (no SD needed): $0.85 \times 470.00 - 250 = +\text{Rs.\,}149.50 > 0 \implies$ \textbf{DISPATCH}.
+  \item \textbf{Sunday / Thin Yard B (\texttt{dow8 = 0.20}, \texttt{rep28 = 0.60}, $p_{\min} = 0.20$):} Notice \texttt{B2\_age\_matched} scores Yard B \texttt{+Rs.\,345} (\texttt{+Rs.\,470 - Rs.\,125}) identically to Yard A and dispatches! Yet both zero-parameter rules abstain instantly: \texttt{Safe\_EV\_Sunk}: $0.20 \times 174.50 - 125 = -\text{Rs.\,}90.10 < 0$; \texttt{RT\_2F\_Min}: $0.20 \times 470 - 250 = -\text{Rs.\,}156.00 < 0 \implies$ \textbf{STAY HOME}.
+\end{itemize}
+
+\end{quote}
+
+\subsection{Exact Tail Shortfall (\texttt{ES10}) and Corrected Three-Scheme Two-Way Cluster Inference}
+
+Following Acerbi--Tasche expected shortfall at $\alpha = 0.10$ (\texttt{revision/es10.py}), we sort all $n$ episode outcomes $x_{(1)} \le \dots \le x_{(n)}$ (\texttt{0} on abstention) with fractional mass $m = 0.10 n = k + f$ ($k = \lfloor m \rfloor$, $f = m - k$):
+
+\begin{equation}
+\text{ES10}(x) = \frac{1}{m}\left(\sum_{i=1}^{k} x_{(i)} + f \cdot x_{(k+1)}\right)
+\end{equation}
+
+\begin{quote}
+\textbf{Worked Example 4 (Exact Fractional \texttt{ES10}):} On $\{1, 2, \dots, 11\}$, $m = 1.1$ ($k = 1, f = 0.1$), giving $\text{ES10} = (1 + 0.1 \times 2)/1.1 = 1.2/1.1 \approx 1.09$, unlike unweighted below-quantile averaging (\texttt{1.50}).
+
+\end{quote}
+
+After fixing a key-prefixing bug uncovered during adversarial review (bare \texttt{dest\_market} previously lacked \texttt{State|} and split physical markets into \texttt{336} artificial clusters instead of \texttt{172}), \textbf{all CIs and tests use \texttt{2,000}-replicate paired two-way cluster bootstraps across ALL THREE corrected schemes} (\texttt{23} 2-week blocks; Phipson--Smyth $+1$ correction \cite{phipson2010permutation}):
+
+\begin{enumerate}
+  \item \textbf{\texttt{origin\_x\_2week}:} \texttt{173} origin \texttt{State|Market} clusters;
+  \item \textbf{\texttt{b2dest\_or\_origin\_x\_2week}:} \texttt{172} State-prefixed \texttt{B2} destination (or origin) clusters;
+  \item \textbf{\texttt{policy\_dest\_or\_origin\_x\_2week}:} \texttt{170--173} policy-specific chosen destination (or origin) clusters.
+\end{enumerate}
+
+Crucially, \textbf{all Holm-Bonferroni FWER adjustments (\texttt{p\_holm\_2s}) reported throughout this paper are standard TWO-SIDED p-values} \cite{holm1979simple} (\texttt{p\_value\_two\_sided}), never unlabeled one-sided p-values.
+
+\section{Results}
+
+\subsection{RQ1: Screen-Chasing Loss Incidence and Arrival Outcomes}
+
+Across \texttt{N = 58,676} test episodes, blindly chasing top lagged spreads > Rs.\,100 (\texttt{B1\_lagged\_screen}, \texttt{100.00\%} dispatch) loses money on \textbf{45.21\%} of all episodes (\texttt{mean Rs.\,397.87/qtl}, \texttt{ES10 -Rs.\,641.26/qtl}, Table 2). \texttt{a18\_outcome\_mix.csv} confirms that \texttt{69.47\%} (\texttt{40,765} trips) sell exact variety on arrival day 0, \texttt{0.49\%} wait 1--2 days to sell, \texttt{1.05\%} sell another variety on day 2, and \textbf{28.98\%} (\texttt{17,005} trips) encounter zero recorded trade of the commodity (\texttt{27.99\%} day 0, \texttt{0.64\%} day 1, \texttt{0.35\%} day 2) and incur the return branch. Scoring identical trips with 3-day hindsight drops \texttt{B1} loss incidence artificially from \texttt{45.21\%} to \texttt{31.35\%} (\texttt{mean Rs.\,538.96/qtl}).
+
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Policy (\texttt{N = 58,676} Test Episodes) & Free Params & Dispatch (\%) & Mean Net (Rs.\,/qtl) & Ep. Loss (\%) & Cond. Loss (\%) & Exact \texttt{ES10} (Rs.\,/qtl) & Loss Given Loss & Mean km \\
+\midrule
+\textbf{\texttt{B1\_lagged\_screen}} (\texttt{lag 1..7}, spread \texttt{> 100}) & 1 & \texttt{100.00\%} & \texttt{Rs.\,397.87} & \texttt{45.21\%} & \texttt{45.21\%} & \texttt{-Rs.\,641.26} & \texttt{-Rs.\,271.24} & \texttt{224.33} \\
+\textbf{\texttt{B2\_age\_matched}} (\texttt{lag 1..3}, val \texttt{Rs.\,200}) & 1 & \texttt{72.03\%} & \texttt{Rs.\,433.56} & \texttt{26.72\%} & \texttt{37.10\%} & \texttt{-Rs.\,525.25} & \texttt{-Rs.\,293.73} & \texttt{206.80} \\
+\textbf{\texttt{B\_simple\_activity\_matched}} (\texttt{rep14>=0.5}, \texttt{Rs.\,168.04}) & 2 & \texttt{70.73\%} & \texttt{Rs.\,440.97} & \texttt{23.48\%} & \texttt{33.20\%} & \texttt{-Rs.\,506.28} & \texttt{-Rs.\,298.77} & \texttt{206.83} \\
+\textbf{\texttt{MG\_matched}} (hard \texttt{T1..T4}, val \texttt{Rs.\,131.26}) & 4 & \texttt{69.51\%} & \texttt{Rs.\,467.90} & \texttt{18.57\%} & \texttt{26.71\%} & \texttt{-Rs.\,512.78} & \texttt{-Rs.\,331.27} & \texttt{204.08} \\
+\textbf{\texttt{RR\_Abstain\_matched}} (\texttt{k*=5.0}, \texttt{m*=Rs.\,3.73}) & 2 & \texttt{69.02\%} & \texttt{Rs.\,475.36} & \texttt{17.23\%} & \texttt{24.96\%} & \texttt{-Rs.\,460.72} & \texttt{-Rs.\,308.18} & \texttt{182.69} \\
+\textbf{\texttt{RR\_Abstain\_m0}} (\texttt{k*=5.0}, \texttt{S\_RR > 0}) & 1 & \texttt{69.52\%} & \texttt{Rs.\,475.76} & \texttt{17.43\%} & \texttt{25.07\%} & \texttt{-Rs.\,461.74} & \texttt{-Rs.\,306.48} & \texttt{182.67} \\
+\textbf{\texttt{RR\_Abstain\_phys15\_matched}} (\texttt{k=1.5}, \texttt{Rs.\,87.63}) & 1 & \texttt{69.75\%} & \texttt{Rs.\,477.95} & \texttt{18.82\%} & \texttt{26.98\%} & \texttt{-Rs.\,483.69} & \texttt{-Rs.\,311.14} & \texttt{193.42} \\
+\textbf{\texttt{Safe\_EV\_Sunk\_m0}} \textit{(0-param champion)} & \textbf{0} & \textbf{\texttt{63.27\%}} & \textbf{\texttt{Rs.\,465.59}} & \textbf{\texttt{14.93\%}} & \textbf{\texttt{23.61\%}} & \textbf{\texttt{-Rs.\,344.09}} & \textbf{\texttt{-Rs.\,260.05}} & \texttt{196.29} \\
+\textbf{\texttt{Safe\_EV\_Sunk\_matched}} (val-match \texttt{70.71\%}) & 1 & \texttt{70.90\%} & \texttt{Rs.\,469.94} & \texttt{18.51\%} & \texttt{26.11\%} & \texttt{-Rs.\,366.41} & \texttt{-Rs.\,243.04} & \texttt{194.46} \\
+\textbf{\texttt{Safe\_EV\_Phys\_m0}} (\texttt{1.5F}, 0 tuned params) & \textbf{0} & \texttt{60.85\%} & \texttt{Rs.\,462.16} & \texttt{13.73\%} & \texttt{22.57\%} & \texttt{-Rs.\,333.57} & \texttt{-Rs.\,264.64} & \texttt{194.59} \\
+\textbf{\texttt{Safe\_EV\_Phys\_matched}} (val-match \texttt{70.71\%}) & 1 & \texttt{70.54\%} & \texttt{Rs.\,469.68} & \texttt{17.98\%} & \texttt{25.49\%} & \texttt{-Rs.\,360.29} & \texttt{-Rs.\,241.32} & \texttt{193.00} \\
+\textbf{\texttt{RT\_2F\_Min\_m0}} \textit{(Class-8 keypad, NO \texttt{cv28})} & \textbf{0} & \texttt{64.92\%} & \textbf{\texttt{Rs.\,478.38}} & \texttt{16.26\%} & \texttt{25.05\%} & \texttt{-Rs.\,468.32} & \texttt{-Rs.\,325.70} & \texttt{177.24} \\
+\textbf{\texttt{RT\_2F\_Dow\_m0}} \textit{(1-lookback, NO \texttt{cv28})} & \textbf{0} & \texttt{67.36\%} & \texttt{Rs.\,476.72} & \texttt{17.52\%} & \texttt{26.01\%} & \texttt{-Rs.\,484.97} & \texttt{-Rs.\,321.75} & \texttt{179.37} \\
+\textbf{\texttt{EV\_RT\_Min\_m0}} \textit{(exact 2-state round-trip)} & \textbf{0} & \texttt{77.20\%} & \texttt{Rs.\,484.82} & \texttt{20.46\%} & \texttt{26.50\%} & \texttt{-Rs.\,515.77} & \texttt{-Rs.\,308.52} & \texttt{190.91} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{RQ2: Zero-Parameter \texttt{Safe\_EV\_Sunk\_m0} \& \texttt{RT\_2F\_Min\_m0} vs Fair Baselines, Hard Gates \& Tuned \texttt{RR-Abstain}}
+
+Tables 2, 3, and 4 establish a clean progression across complexity reduction and statistical rigor:
+
+\begin{enumerate}
+  \item \textbf{Hard-Gated \texttt{MG\_matched} Fails Tail Risk (\texttt{p\_holm\_2s = 1.000}):} At matched \texttt{\textasciitilde{}70\%} dispatch, \texttt{MG\_matched} lifts mean over \texttt{B2\_age\_matched} (\texttt{+Rs.\,34.34/qtl}, two-sided Holm \texttt{p = 0.0120} origin / \texttt{0.0550} B2-dest) and cuts episode losses (\texttt{-8.15 pp}, \texttt{p\_holm\_2s = 0.0120}), \textbf{but worst-10\% \texttt{ES10} does not improve} (\texttt{-Rs.\,512.78} vs \texttt{-Rs.\,525.25}, diff \texttt{+Rs.\,12.48/qtl}, CI \texttt{[-Rs.\,16.57, +Rs.\,39.97]}, \texttt{p\_holm\_2s = 1.000}). Even tuning \texttt{MG}'s hard gates directly for validation \texttt{ES10} (\texttt{rep28 >= 0.75, dow8 >= 0.35}) reaches only \texttt{ES10 -Rs.\,445.92} at a severe mean crash (\texttt{Rs.\,358.44/qtl}, \texttt{a18\_fair\_ablations.csv}).
+  \item \textbf{Tuned \texttt{RR\_Abstain} Improves \texttt{ES10}, Yet Exposes Ceiling Artifact \& Severity-When-Wrong:} \texttt{RR\_Abstain\_matched} (\texttt{k*=5.0}) improves \texttt{ES10} (\texttt{-Rs.\,460.72}: \texttt{+Rs.\,64.54} vs \texttt{B2\_age\_matched} and \texttt{+Rs.\,52.06} vs \texttt{MG\_matched}, \texttt{p\_holm\_2s = 0.0040} origin/B2-dest and \texttt{0.0060} RR-dest), \textbf{yet hits the grid ceiling \texttt{kappa = 5.0}}, shows worse average severity on losing trips (\texttt{loss\_given\_loss -Rs.\,308.18} vs \texttt{B1 -Rs.\,271.24} and \texttt{B2 -Rs.\,293.73}), and fails to reach statistical significance on its \texttt{+Rs.\,7.46} mean gap vs \texttt{MG\_matched} (\texttt{p\_2s = 0.241..0.477}) while leaving \texttt{H\_A10} Apple \texttt{ES10} tied. Extending \texttt{kappa} up to \texttt{20.0} drives \texttt{val ES10} to \texttt{-Rs.\,371.53} only by forcing \texttt{m\_val = -Rs.\,328.99} and losing \texttt{Rs.\,24.14/qtl} test mean (\texttt{Rs.\,475.36 $\to$ Rs.\,451.22}).
+  \item \textbf{Zero-Parameter \texttt{Safe\_EV\_Sunk\_m0} Crushes \texttt{ES10} Without Tuning Anything (Table 3):} By replacing tuned \texttt{kappa=5.0} with \texttt{p\_dow} weekday reliability and adaptive price-drop protection \texttt{1 - cv28} against sunk freight \texttt{F} (where the \texttt{< 2}-observation \texttt{0.05} \texttt{cv28} fallback affects only \texttt{86 / 37,122 = 0.23\%} of dispatched rows), \textbf{\texttt{Safe\_EV\_Sunk\_m0} (\texttt{0} free params) strengthens \texttt{ES10} to \texttt{-Rs.\,344.09/qtl} (+Rs.\,181.17/qtl over \texttt{B2\_age\_matched}, \texttt{p\_holm\_2s = 0.0040} on all 3 schemes), cuts episode loss to \texttt{14.93\%} (\texttt{-11.79 pp}, \texttt{p\_holm\_2s = 0.0040}), lifts mean gain by \texttt{+Rs.\,32.03/qtl} (\texttt{Rs.\,465.59}), and cuts losing-trip severity below every baseline (\texttt{loss\_given\_loss -Rs.\,260.05} vs \texttt{-Rs.\,293.73} \texttt{B2} / \texttt{-Rs.\,308.18} \texttt{RR})!} At equal validation-matched \texttt{70.90\%} dispatch, \texttt{Safe\_EV\_Sunk\_matched} beats \texttt{RR\_Abstain\_matched} by \textbf{\texttt{+Rs.\,94.31/qtl} on \texttt{ES10}} (\texttt{p\_holm\_2s = 0.0040} on ALL 3 cluster schemes).
+  \item \textbf{Class-8 Phone-Calculator \texttt{RT\_2F\_Min\_m0} Leads on Mean Without \texttt{cv28} or Spoilage:} Dropping volatility \texttt{cv28} and NABCONS spoilage completely leaves \texttt{p\_min * G > 2F}, delivering \textbf{\texttt{Rs.\,478.38/qtl} mean} (\texttt{+Rs.\,44.82/qtl} vs \texttt{B2\_age\_matched}, \texttt{p\_holm\_2s = 0.0040} on all 3 schemes---beating \texttt{RR\_Abstain\_matched} \texttt{Rs.\,475.36}) and \texttt{16.26\%} losses!
+  \item \textbf{Fair Feature, Volatility, and Exact Test-Dispatch Controls (Table 4 \& Figure 2):} Against \texttt{B2} forced to \textbf{identical test dispatch (\texttt{63.27\%})} (\texttt{ES10 -Rs.\,500.75}, \texttt{ep\_loss 23.27\%}), \texttt{Safe\_EV\_Sunk\_m0} STILL gains \textbf{\texttt{+Rs.\,156.66/qtl} \texttt{ES10} and \texttt{-8.34 pp} losses}, proving zero dependence on abstention drift. Against a static 10\% haircut (\texttt{Safe\_EV\_fixed10pct\_m0}, \texttt{ES10 -Rs.\,444.75}), adaptive \texttt{1 - cv28} adds \textbf{\texttt{+Rs.\,100.66/qtl} \texttt{ES10}}. Substituting \texttt{1.20 * euclid\_km} alters \texttt{Safe\_EV\_Sunk\_m0} mean by just \texttt{-Rs.\,0.39} (\texttt{Rs.\,465.20}) and adding 2024 climatology shifts mean by \texttt{-Rs.\,2.93} (\texttt{Rs.\,462.66}, \texttt{ES10 -Rs.\,335.36}).
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lrlll}
+\toprule
+Pre-Registered Hypothesis / Contrast (\texttt{N = 58,676}) & Estimate & \texttt{origin\_x\_2week} (\texttt{173$\times$23}) CI (\texttt{p\_holm\_2s}) & \texttt{b2dest\_or\_origin} (\texttt{172$\times$23}) CI (\texttt{p\_holm\_2s}) & \texttt{policy\_dest\_or\_origin} (\texttt{171--173$\times$23}) CI (\texttt{p\_holm\_2s}) \\
+\midrule
+\textbf{\texttt{H\_A18\_1}:} \texttt{ES10(Safe\_EV\_Sunk\_m0) - ES10(B2)} & \textbf{+Rs.\,181.17} & \texttt{[+Rs.\,124.77, +Rs.\,252.29]} (\textbf{0.0040}) & \texttt{[+Rs.\,109.76, +Rs.\,296.29]} (\textbf{0.0040}) & \texttt{[+Rs.\,122.97, +Rs.\,265.45]} (\textbf{0.0040}) \\
+\textbf{\texttt{H\_A18\_2}:} \texttt{ES10(Safe\_EV\_matched) - ES10(RR\_matched)} & \textbf{+Rs.\,94.31} & \texttt{[+Rs.\,41.96, +Rs.\,158.72]} (\textbf{0.0040}) & \texttt{[+Rs.\,32.30, +Rs.\,201.07]} (\textbf{0.0040}) & \texttt{[+Rs.\,38.55, +Rs.\,172.92]} (\textbf{0.0040}) \\
+\textbf{\texttt{H\_A18\_3}:} \texttt{EpLoss(Safe\_EV\_Sunk\_m0) - EpLoss(B2)} & \textbf{-11.79 pp} & \texttt{[-13.47, -10.20] pp} (\textbf{0.0040}) & \texttt{[-14.78, -9.28] pp} (\textbf{0.0040}) & \texttt{[-14.38, -9.51] pp} (\textbf{0.0040}) \\
+\textbf{\texttt{H\_A18\_4}:} \texttt{Mean(RT\_2F\_Min\_m0) - Mean(B2)} & \textbf{+Rs.\,44.82} & \texttt{[+Rs.\,30.35, +Rs.\,60.62]} (\textbf{0.0040}) & \texttt{[+Rs.\,21.89, +Rs.\,72.88]} (\textbf{0.0040}) & \texttt{[+Rs.\,25.20, +Rs.\,67.97]} (\textbf{0.0040}) \\
+Secondary: \texttt{Mean(Safe\_EV\_Sunk\_m0) - Mean(B2)} & \textbf{+Rs.\,32.03} & \texttt{[+Rs.\,11.71, +Rs.\,52.00]} (\texttt{p\_2s=0.004}) & \texttt{[+Rs.\,2.41, +Rs.\,66.89]} (\texttt{p\_2s=0.043}) & \texttt{[+Rs.\,5.67, +Rs.\,62.82]} (\texttt{p\_2s=0.014}) \\
+Secondary: \texttt{ES10(Safe\_EV\_Sunk\_m0) - ES10(RR\_matched)} & \textbf{+Rs.\,116.63} & \texttt{[+Rs.\,63.41, +Rs.\,181.36]} (\texttt{p\_2s=0.001}) & \texttt{[+Rs.\,53.88, +Rs.\,223.03]} (\texttt{p\_2s=0.001}) & \texttt{[+Rs.\,62.28, +Rs.\,194.04]} (\texttt{p\_2s=0.001}) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lrrrrl}
+\toprule
+Fair Control Ablation (\texttt{a18\_fair\_ablations.csv}) & Disp (\%) & Mean (Rs.\,/qtl) & Ep. Loss (\%) & Exact \texttt{ES10} (Rs.\,/qtl) & Control Question Answered \\
+\midrule
+\texttt{B2\_test\_matched\_to\_SafeM0} (\texttt{th=Rs.\,298.92}) & \texttt{63.27\%} & \texttt{Rs.\,427.08} & \texttt{23.27\%} & \texttt{-Rs.\,500.75} & \texttt{Safe\_EV\_Sunk\_m0} beats equal-test-dispatch \texttt{B2} by \textbf{\texttt{+Rs.\,156.66 ES10}} \\
+\texttt{B2\_dist\_penalty\_3F\_matched} (no \texttt{p\_rep}) & \texttt{72.98\%} & \texttt{Rs.\,438.01} & \texttt{26.67\%} & \texttt{-Rs.\,489.25} & Distance penalty alone achieves \texttt{Rs.\,489.25}, far short of \texttt{-Rs.\,344.09} \\
+\texttt{MG\_val\_es10\_tuned\_matched} (\texttt{rep28>=0.75}) & \texttt{66.55\%} & \texttt{Rs.\,358.44} & \texttt{17.91\%} & \texttt{-Rs.\,445.92} & Even \texttt{val-ES10}-tuned hard gates crash Mean (\texttt{-Rs.\,107} vs \texttt{Safe\_EV}) \\
+\texttt{RR\_rep14\_only\_matched} (equal 14d info) & \texttt{68.94\%} & \texttt{Rs.\,457.63} & \texttt{19.86\%} & \texttt{-Rs.\,461.32} & \texttt{RR} drops \texttt{-Rs.\,17.73} mean when restricted to 14d window \\
+\texttt{Safe\_EV\_fixed10pct\_m0} (\texttt{drop = 10\%}) & \texttt{63.63\%} & \texttt{Rs.\,467.87} & \texttt{16.84\%} & \texttt{-Rs.\,444.75} & Adaptive \texttt{1 - cv28} outperforms static 10\% haircut by \textbf{\texttt{+Rs.\,100.66 ES10}} \\
+\texttt{Safe\_EV\_euclid120\_m0} (\texttt{1.20 * euclid\_km}) & \texttt{64.32\%} & \texttt{Rs.\,465.20} & \texttt{15.52\%} & \texttt{-Rs.\,353.68} & Simple straight-line \texttt{$\times$1.20} preserves Mean within \texttt{Rs.\,0.39/qtl} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\linewidth]{../figures/rev_fig1_risk_coverage_ci.png}
+\caption{Risk-coverage curves with 95\% cluster confidence bands across B2\_age\_matched, hard-gated MG, RR\_Abstain, and zero-parameter Safe\_EV\_Sunk alongside B1 and RT\_2F\_Min}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\linewidth]{../figures/rev_fig2_ablations_and_crops.png}
+\caption{Fair ablations against Safe\_EV\_Sunk\_m0 and RT\_2F\_Min\_m0 (left) and worst-10\% ES10 comparison across Onion, Potato, Tomato, NonApple, and Apple subsets (right)}
+\end{figure}
+
+\subsection{RQ3: Identification Bounds, Subgroup Generalizability, and Stress Audits}
+
+\begin{enumerate}
+  \item \textbf{Full Manski \& Missing-Quote Regimes (\texttt{A17} Fix --- Table 5 \& Figure 3 Right):} Earlier drafts inaccurately called \texttt{div = 0.0} "zero missing-quote penalty" even though code still charged \texttt{-local * spoil < 0}. Under \texttt{div\_0.0\_spoil\_only}, \texttt{RR\_Abstain\_matched}'s \texttt{ES10} diff over \texttt{B2} collapses to statistically insignificant noise (\texttt{+Rs.\,9.81}, CI \texttt{[-Rs.\,23.70, +Rs.\,45.94]}, \texttt{p\_2s = 0.603}), trailing \texttt{B\_simple\_activity} (\texttt{-Rs.\,349.35} vs \texttt{-Rs.\,347.95}). Under literal \texttt{exact\_zero\_divert\_payoff\_0}, \texttt{RR} has \textit{worse} episode loss than \texttt{B2} (\texttt{7.40\%} vs \texttt{6.55\%}, \texttt{p\_2s = 0.032}). \textbf{By contrast, zero-parameter \texttt{Safe\_EV\_Sunk\_m0} thrives across EVERY non-MAR missingness regime} (\texttt{+Rs.\,173.65 ES10} at \texttt{div\_0.0\_spoil\_only}; \texttt{+Rs.\,169.79 ES10} and \texttt{4.52\%} vs \texttt{6.55\%} losses at \texttt{exact\_zero\_divert\_payoff\_0}, both \texttt{p\_2s = 0.002}). Importantly, under the upper Manski bound where every blank portal row clears as an open auction at \texttt{dest\_lag\_price} (\texttt{open\_yard\_MAR\_lagged\_price}), we disclose openly that \textbf{\texttt{B2\_age\_matched} earns +Rs.\,102.58/qtl higher mean} (\texttt{Rs.\,722.66} vs \texttt{Rs.\,620.08}, \texttt{p\_2s = 0.002})---while \texttt{Safe\_EV\_Sunk\_m0} STILL lowers loss incidence (\texttt{4.78\%} vs \texttt{7.08\%}) and boosts \texttt{ES10} by \textbf{+Rs.\,190.00/qtl} (\texttt{-Rs.\,191.91} vs \texttt{-Rs.\,381.91}, \texttt{p\_2s = 0.002}). Similarly, restricted purely to realized open \texttt{exact\_d0} auctions (\texttt{n=30,831} \texttt{Safe\_EV} vs \texttt{30,062} \texttt{B2}), \texttt{Safe\_EV\_Sunk\_m0} cuts \texttt{ES10} in half (\texttt{-Rs.\,307.70} vs \texttt{-Rs.\,623.62}) and nearly matches \texttt{B2}'s mean (\texttt{Rs.\,924.65} vs \texttt{Rs.\,930.65}), whereas \texttt{RR} trails \texttt{B2} by \texttt{-Rs.\,94.44}.
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering
+\small
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllll}
+\toprule
+Missing-Quote Counterfactual Regime (\texttt{a18\_missing\_regimes.csv}) & \texttt{B2\_age} (Mean / EpL / \texttt{ES10}) & \texttt{RR\_matched} (Mean / EpL / \texttt{ES10}) & \texttt{Safe\_EV\_Sunk\_m0} (Mean / EpL / \texttt{ES10}) & \texttt{RT\_2F\_Min\_m0} (Mean / EpL / \texttt{ES10}) \\
+\midrule
+\texttt{div\_2.0\_disc\_0.10} \textit{(Harsh diversion)} & \texttt{Rs.\,419.73} / \texttt{26.72\%} / \texttt{-Rs.\,593.52} & \texttt{Rs.\,469.43} / \texttt{17.23\%} / \texttt{-Rs.\,506.17} & \texttt{Rs.\,458.92} / \textbf{\texttt{14.93\%}} / \textbf{\texttt{-Rs.\,400.99}} & \textbf{\texttt{Rs.\,472.57}} / \texttt{16.26\%} / \texttt{-Rs.\,513.26} \\
+\texttt{div\_1.5\_disc\_0.10\_base} \textit{(Baseline)} & \texttt{Rs.\,433.56} / \texttt{26.72\%} / \texttt{-Rs.\,525.25} & \texttt{Rs.\,475.36} / \texttt{17.23\%} / \texttt{-Rs.\,460.72} & \texttt{Rs.\,465.59} / \textbf{\texttt{14.93\%}} / \textbf{\texttt{-Rs.\,344.09}} & \textbf{\texttt{Rs.\,478.38}} / \texttt{16.26\%} / \texttt{-Rs.\,468.32} \\
+\texttt{div\_0.0\_spoil\_only} \textit{(Still \texttt{-loc*sp})} & \texttt{Rs.\,475.80} / \texttt{26.67\%} / \texttt{-Rs.\,359.17} & \texttt{Rs.\,493.37} / \texttt{17.21\%} / \texttt{-Rs.\,349.35} \textit{(NS)} & \texttt{Rs.\,485.92} / \textbf{\texttt{14.92\%}} / \textbf{\texttt{-Rs.\,185.52}} & \textbf{\texttt{Rs.\,496.01}} / \texttt{16.25\%} / \texttt{-Rs.\,352.72} \\
+\texttt{exact\_zero\_divert\_payoff\_0} \textit{(Literal \texttt{Rs.\,0})} & \texttt{Rs.\,477.14} / \texttt{6.55\%} / \texttt{-Rs.\,349.01} & \texttt{Rs.\,494.14} / \texttt{7.40\%} / \texttt{-Rs.\,343.03} \textit{(NS)} & \texttt{Rs.\,486.50} / \textbf{\texttt{4.52\%}} / \textbf{\texttt{-Rs.\,179.22}} & \textbf{\texttt{Rs.\,496.73}} / \texttt{6.58\%} / \texttt{-Rs.\,346.08} \\
+\texttt{open\_yard\_MAR\_lagged\_price} \textit{(MAR open)} & \textbf{\texttt{Rs.\,722.66}} / \texttt{7.08\%} / \texttt{-Rs.\,381.91} & \texttt{Rs.\,641.41} / \texttt{7.71\%} / \texttt{-Rs.\,359.16} & \texttt{Rs.\,620.08} / \textbf{\texttt{4.78\%}} / \textbf{\texttt{-Rs.\,191.91}} & \texttt{Rs.\,630.70} / \texttt{6.87\%} / \texttt{-Rs.\,361.51} \\
+\texttt{realized\_exact\_d0\_dispatched\_only} \textit{(Open)} & \textbf{\texttt{Rs.\,930.65}} / \texttt{12.10\%} / \texttt{-Rs.\,623.62} & \texttt{Rs.\,836.21} / \texttt{12.33\%} / \texttt{-Rs.\,563.99} & \texttt{Rs.\,924.65} / \textbf{\texttt{8.31\%}} / \textbf{\texttt{-Rs.\,307.70}} & \texttt{Rs.\,900.16} / \texttt{11.74\%} / \texttt{-Rs.\,608.10} \\
+\texttt{het\_adversarial\_lowrep\_ok\_highrep\_harsh} & \texttt{Rs.\,435.33} / \texttt{26.69\%} / \texttt{-Rs.\,569.44} & \texttt{Rs.\,470.54} / \texttt{17.23\%} / \texttt{-Rs.\,503.84} & \texttt{Rs.\,463.12} / \textbf{\texttt{14.93\%}} / \textbf{\texttt{-Rs.\,385.31}} & \textbf{\texttt{Rs.\,474.43}} / \texttt{16.26\%} / \texttt{-Rs.\,508.53} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{enumerate}
+  \item \textbf{All 6 Individual States \& All 5 Crop Slices (\texttt{a18\_crop\_and\_state\_splits.csv}):} Unlike \texttt{RR\_Abstain\_matched} (whose \texttt{ES10} CIs cross zero in Maharashtra \texttt{[-Rs.\,68.87, +Rs.\,68.33]} and HP \texttt{[-Rs.\,19.98, +Rs.\,169.84]}), \textbf{\texttt{Safe\_EV\_Sunk\_m0} achieves strictly positive 95\% \texttt{ES10} CIs in EVERY ONE of all 6 states}: Gujarat \texttt{[+Rs.\,138.05, +Rs.\,369.11]}, HP \texttt{[+Rs.\,59.18, +Rs.\,637.28]}, Karnataka \texttt{[+Rs.\,58.23, +Rs.\,184.08]}, MP \texttt{[+Rs.\,139.94, +Rs.\,303.97]}, Maharashtra \texttt{[+Rs.\,48.71, +Rs.\,303.07]}, and UP \texttt{[+Rs.\,48.00, +Rs.\,139.86]}, and across \textbf{all 5 crop slices} (\texttt{NonApple} \texttt{N = 52,207}: \texttt{+Rs.\,135.58} CI \texttt{[+Rs.\,108.37, +Rs.\,165.94]}; Onion \texttt{+Rs.\,123.49}; Potato \texttt{+Rs.\,72.31}; Tomato \texttt{+Rs.\,195.65}; generic Apple \texttt{N = 6,469}: \texttt{+Rs.\,561.37} CI \texttt{[+Rs.\,172.22, +Rs.\,1,216.91]}). Transparently, on \textbf{mean net gain} vs \texttt{B2\_age\_matched}, \texttt{Safe\_EV\_Sunk\_m0}'s 95\% CIs cross zero in Gujarat (\texttt{Rs.\,344.63} vs \texttt{Rs.\,346.29}, CI \texttt{[-Rs.\,49.29, +Rs.\,36.56]}), Maharashtra (\texttt{CI [-Rs.\,5.58, +Rs.\,36.32]}), UP (\texttt{CI [-Rs.\,3.18, +Rs.\,27.00]}), Tomato (\texttt{Rs.\,461.42} vs \texttt{Rs.\,462.27}, CI \texttt{[-Rs.\,34.58, +Rs.\,28.50]}), and Apple (\texttt{CI [-Rs.\,24.81, +Rs.\,245.04]}) due to conservative high-volatility abstention---whereas zero-parameter \textbf{\texttt{RT\_2F\_Min\_m0}} beats \texttt{B2}'s point mean in all 6 states and all 5 crop slices (\texttt{Tomato Rs.\,504.35}).
+  \item \textbf{18-Scenario Frozen \& Re-Scored Tornado (\texttt{a18\_tornado.csv}):} Across all 18 scenarios (\texttt{NITI Rs.\,0.258/km} floor, LCV \texttt{Rs.\,0.75/km}, steep \texttt{Rs.\,1.20/km}, HP \texttt{1.00--1.75}, \textit{arhtiya} \texttt{2--6\%}, \texttt{buyer\_paid\_0\%}, \texttt{spoil 0.5--2x}, \texttt{detention 0--100}, \texttt{joint\_optimistic}, \texttt{joint\_harsh}, \texttt{outside\_origin\_lag}) under BOTH frozen decisions and re-scored policies (\texttt{36} cells), \textbf{\texttt{Safe\_EV\_Sunk\_m0} beats \texttt{B2\_age\_matched} in 36 of 36 cells on BOTH Mean (\texttt{+Rs.\,13.31} to \texttt{+Rs.\,61.11}) AND \texttt{ES10} (\texttt{+Rs.\,144.94} to \texttt{+Rs.\,329.37})}, with ZERO sign flips.
+  \item \textbf{Structural Integrity \& Unconditional Origin Panel (\texttt{a18\_settlement\_and\_robustness.csv}):} \texttt{Safe\_EV\_Sunk\_m0} dominates \texttt{B2\_age\_matched} across \texttt{exact\_geocode\_corridors\_only} (\texttt{N = 40,690} episodes retaining exact-geocoded corridors after dropping centroid candidates: \texttt{ES10 -Rs.\,364.46} vs \texttt{-Rs.\,556.97}, ep\_loss \texttt{13.33\%} vs \texttt{24.38\%}; all-5 exact episodes \texttt{N = 18,189} behave similarly), \texttt{non\_conflicting\_dup\_episodes\_only} (\texttt{N = 56,857}: \texttt{-Rs.\,343.85} vs \texttt{-Rs.\,520.66}), \texttt{origin\_lag\_age\_1\_3\_only} (\texttt{N = 56,648}: \texttt{-Rs.\,339.91} vs \texttt{-Rs.\,522.40}), \texttt{hindsight\_3d} (\texttt{-Rs.\,281.99} vs \texttt{-Rs.\,591.16}), and critically on the \textbf{\texttt{N = 88,014} unconditional origin panel} restoring all \texttt{29,338} unreported day-$t$ origin episodes (\texttt{Safe\_EV\_Sunk\_m0}: Mean \texttt{Rs.\,483.03} vs \texttt{Rs.\,445.37}, EpLoss \texttt{15.22\%} vs \texttt{28.10\%}, \textbf{\texttt{ES10 -Rs.\,335.04} vs \texttt{-Rs.\,515.93}}; \texttt{RT\_2F\_Min\_m0}: Mean \textbf{\texttt{Rs.\,493.15}}).
+  \item \textbf{HP Graded Apples (\texttt{a18\_hp\_apple.csv} --- \texttt{R6} Stress Check):} Across \texttt{N = 2,802} lagged HP graded-apple episodes (\texttt{2025-11..2026-08}), zero-parameter \textbf{\texttt{Safe\_EV\_Sunk\_m0} (\texttt{67.45\%} disp) resolves \texttt{MG\_matched} vs \texttt{RR} tradeoffs cleanly}: it achieves Mean \textbf{\texttt{Rs.\,1,354.85}} (vs \texttt{B2} \texttt{Rs.\,1,199.31}, \texttt{MG\_matched} \texttt{Rs.\,1,028.05}, \texttt{RR} \texttt{Rs.\,1,318.60}) and cuts \texttt{ES10} to \textbf{\texttt{-Rs.\,1,454.86}} (\texttt{+Rs.\,937.26} over \texttt{B2} \texttt{-Rs.\,2,392.12}, \texttt{+Rs.\,498.34} over \texttt{MG\_matched} \texttt{-Rs.\,1,953.20}, \texttt{+Rs.\,710.87} over \texttt{RR} \texttt{-Rs.\,2,165.73}---and \texttt{Safe\_EV\_Phys\_m0} hits \texttt{-Rs.\,1,376.71}), holding into June--August 2026 (\texttt{Rs.\,2,010.20} mean, \texttt{-Rs.\,2,479.28} vs \texttt{B2 -Rs.\,4,071.95} and \texttt{MG -Rs.\,2,720.72}). Still, \texttt{41.38\%} of dispatched HP apple trips lose money (\texttt{-Rs.\,1,454.86} tail), so high-variance graded apples require live buyer confirmation before dispatch.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\linewidth]{../figures/rev_fig3_sensitivity_tornado_and_missing.png}
+\caption{Re-scored parameter sensitivity tornado across 10 freight/commission scenarios (left) and ES10 across complete missing-quote and Open-MAR identification bounds (right)}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\linewidth]{../figures/rev_fig4_settlement_and_hp_apple.png}
+\caption{ES10 across sequential, hindsight, exact-geocode, and N=88,014 unconditional origin panels (left) and lagged HP graded-apple holdout performance (right)}
+\end{figure}
+
+\section{Related Work and Surviving Novelty Claim}
+
+Prior agricultural economics literature established that spreads below transfer costs yield no arbitrage \cite{baulch1997transfer} and that raw price SMS blasts frequently underdeliver when transport or intermediary barriers bind \cite{fafchamps2012sms,mitra2018asymmetric,mahajan2021covid}, whereas real-time phone coordination reduces price waste \cite{jensen2007digital}. Applied agricultural CS studies forecast portal prices \cite{madaan2019price,guo2020mandi} or impute blank rows via matrix/factor models \cite{ma2019price,deka2026missing}, minimizing forecast RMSE without pricing sequential non-reporting arrival risk or tail expected shortfall. Reject-option classification \cite{chow1970optimum,franc2023optimal}, partial identification bounds \cite{manski1990bounds,horowitz2000nonparametric,kallus2021minimax}, and cost-sensitive operational optimization \cite{ban2019bigdata} provide the underlying mathematical building blocks, while conformal selection/CRC methods \cite{jin2023selection,angelopoulos2024conformal} require exchangeable data and action-independent risk denominators absent here.
+
+\textbf{Minimal Surviving Applied Contribution (\texttt{A18} + \texttt{A12}):} Claiming zero new mathematical theorems or neural architectures, this study proves in a leak-free (\texttt{<= t - 1}), sequentially settled retrospective audit (\texttt{N = 58,676}, plus \texttt{N = 88,014} unconditional origin robustness) that \textbf{replacing black-box trees, hard activity cutoffs, and tuned penalties with two zero-hyperparameter expected-value rules---weekday-reliability-weighted 1-SD spread minus sunk freight (\texttt{Safe\_EV\_Sunk\_m0}, $p_{\text{dow}} G_{\text{1SD}} > F$) and round-trip spread rule (\texttt{RT\_2F\_Min\_m0}, $p_{\min} G > 2F$)---eliminates tuning parameters while cutting \texttt{ES10} losses by \texttt{+Rs.\,181.17/qtl} over equal-age road dispatch (\texttt{p\_holm\_2s = 0.0040}) and \texttt{+Rs.\,116.63/qtl} over tuned \texttt{RR-Abstain} across every state and crop}.
+
+\section{Explicit Limitations and Non-Claims (\texttt{R6} \& \texttt{R7})}
+
+Eight binding boundaries govern interpretation and deployment:
+
+\begin{enumerate}
+  \item \textbf{Modeled Payoffs $\ne$ Farmer Cash Income (\texttt{R7}):} Zero physical freight bills, weighment losses, or mandi auction \textit{patti} slips exist in AGMARKNET; freight, loading (\texttt{Rs.\,35}), detention (\texttt{Rs.\,25}), and \texttt{Q10} decay are survey-anchored approximations (\texttt{NITI Aayog}, \texttt{NABCONS}, \texttt{GoHP}), not household cash profits.
+  \item \textbf{A Missing Portal Quote $\ne$ A Locked Yard (\texttt{R7}):} Blank arrival rows show no uploaded record, not physical closure. Under upper-bound Open-MAR upload omissions, \texttt{B2} earns \texttt{+Rs.\,102.58/qtl} higher mean than \texttt{Safe\_EV\_Sunk\_m0}, though \texttt{Safe\_EV} still cuts losses (\texttt{4.78\%} vs \texttt{7.08\%}) and boosts \texttt{ES10} (\texttt{+Rs.\,190.00}).
+  \item \textbf{Alert-Triage Scope Prior to Phone Confirmation (\texttt{A17} \#10):} Because a 30-second phone call to a destination \textit{arhtiya} can resolve whether a yard is trading before departure---leaving pure open-market price risk where \texttt{B2} and \texttt{Safe\_EV\_Sunk\_m0} earn similar open-auction means (\texttt{Rs.\,930.65} vs \texttt{Rs.\,924.65}, though \texttt{Safe\_EV} cuts open \texttt{ES10} in half)---our rules act as an \textbf{upstream portal-alert filter}, not a substitute for human trader confirmation.
+  \item \textbf{Exploratory Calendar Exposure (\texttt{Gate J = BLOCKED}):} Bulk official archives end \texttt{2026-04-13} (\texttt{api.agmarknet.gov.in} exposes only a 7-day rolling modal snippet), so \texttt{PREREG\_A10.md} and \texttt{PREREG\_A18.md} are \textbf{locked exploratory follow-up protocols} on a previously exposed 2025--2026 calendar, not untouched prospective trials.
+  \item \textbf{Day-$t$ Origin Conditioning Disclosed:} Primary tables condition on day-$t$ origin publication (\texttt{58,676} of \texttt{88,014} unconditional shortlisted test episodes); we report the full \texttt{88,014}-episode unconditional panel cleanly alongside primary results (\texttt{Safe\_EV\_Sunk\_m0} \texttt{ES10 -Rs.\,335.04} vs \texttt{-Rs.\,515.93}).
+  \item \textbf{Residual Graded-Apple \& Tomato Volatility (\texttt{R6}):} Although \texttt{Safe\_EV\_Sunk\_m0} slashes HP Apple \texttt{ES10} from \texttt{-Rs.\,2,392.12} to \texttt{-Rs.\,1,454.86}, \texttt{41.38\%} of dispatched apple trips still lose money; on \texttt{Tomato}, \texttt{Safe\_EV\_Sunk\_m0} leaves mean flat (\texttt{Rs.\,461.42} vs \texttt{Rs.\,462.27}) while slashing tail risk (\texttt{+Rs.\,195.65 ES10}).
+  \item \textbf{District Centroids, Conflicts, \& Partial Equilibrium:} \texttt{41.71\%} of rows touch district-centroid coordinates and \texttt{3,096} episodes touch conflicting duplicates (verified stable when restricted to exact geocodes and clean keys); mass simultaneous FPO coordination would also induce price slippage not modeled here.
+  \item \textbf{Validation Calibration / Zero-Param Heuristic $\ne$ Conformal Guarantee (\texttt{R7}):} Zero conformal coverage guarantees are claimed (\texttt{Stage I H2} inconclusive at \texttt{+Rs.\,6.13}, \texttt{p\_holm = 0.2699}).
+\end{enumerate}
+
+\section{Conclusion and Full Cleanroom Reproducibility}
+
+Tempting online mandi spreads lose money nearly half the time (\texttt{45.21\%}) under strict lagged decision timing and sequential arrival settlement. Stripping away black-box pickles, weather leaks, conformal overclaims, and tuned \texttt{kappa} multipliers yields \textbf{\texttt{Safe\_EV\_Sunk\_m0}} ($p_{\text{dow}} G_{\text{1SD}} > F$) and Class-8 \textbf{\texttt{RT\_2F\_Min\_m0}} ($p_{\min} G > 2F$)---zero-hyperparameter rules verifiable on any calculator that reduce worst-10\% tail losses (\texttt{+Rs.\,181.17/qtl}, \texttt{p\_holm\_2s = 0.0040}) across all six states and crops under \textbf{1-command clean-clone reproduction (\texttt{make reproduce}, \texttt{0.0000} numeric discrepancy, \texttt{0} untraceable numbers)}, ready for prospective FPO field piloting.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+\end{document}

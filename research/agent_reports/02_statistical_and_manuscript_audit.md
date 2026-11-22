@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Report):** Preserved for provenance (`R8`). Superseded by **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10`) in `final/AUDIT_V4.md`, `final/QUALITY_GATES.md`, and `paper/manuscript.md`.
+
 # MandiGuard Independent Statistical, Red-Team & Manuscript Audit (Final Verification Including `Exp 14` & `Exp 15`)
 
 **Auditor Role:** Independent Statistical & Red-Team Reviewer  

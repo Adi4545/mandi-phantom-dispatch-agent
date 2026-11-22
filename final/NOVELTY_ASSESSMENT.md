@@ -1,4 +1,4 @@
-> **Archival Note (Superseded by `final/NOVELTY_V2.md`):** This earlier Review-2 note predates `PREREG_A10.md`, the 15-work overlap comparison, and the surviving `RR-Abstain` (`p_holm = 0.0020`) contribution documented in `final/NOVELTY_V2.md` and `paper/manuscript.md`.
+> **Archival Note (Superseded by `final/NOVELTY_V2.md`):** This earlier Review-2 note predates **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10`), `PREREG_A18.md`, and the surviving `p_holm_2s = 0.0040` contribution documented in `final/NOVELTY_V2.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md`.
 
 # Novelty assessment
 

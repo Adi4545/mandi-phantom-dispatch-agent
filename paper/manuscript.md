@@ -75,7 +75,7 @@ For corridor $c = (o \to d)$ in state $s$ and commodity $k$:
 
 $$\text{Freight}_{\text{road}}(c) = 35.0 + 0.45 \cdot h_s \cdot \text{road\_km}(c)$$
 
-where $h_s = 1.45$ in Himachal Pradesh (`91.59%` single-lane roads) and $1.0$ elsewhere. Reference 20°C / 65% RH biological decay over transit `truck_hours` plus waiting days $w \in \{0, 1, 2\}$ is:
+where $h_s = 1.45$ in Himachal Pradesh (`91.59%` single-lane roads) and $1.0$ elsewhere. Reference 20°C / 65% RH biological decay over transit `truck_hours` plus waiting days $w \in \{0, 1, 2\}$ [kader2002postharvest, gross2016usda66] is:
 
 $$s(k, w) = \min\!\left(0.55,\; b_k \cdot \frac{\max(1,\; \text{truck\_hours} + 24 w)}{24}\right)$$
 
