@@ -1,39 +1,34 @@
-# Independent Final Audit (`AUDIT_V4.md` — Agent `A16`)
+# Independent Audit Report (`AUDIT_V4.md` — Agents `A16`, `A17`, & `A18` Revision v5)
 
-**Auditor Role:** Independent Adversarial Final Auditor (`A16`), using `scripts/a16_independent_audit.py` (ZERO imports from `revision/build_variant.py`, `revision/eval_run.py`, or `revision/eval_a10.py`, reading ONLY tracked raw files).  
-**Branch & Base Audit Point:** `finalization` (remediated from Review-3 base SHA `b3bb46f8fee131218d6154898f4d0659b3018fa4`, PR #1).  
-**Headline Score & Verdict:** **8.4 / 10 — CONDITIONAL PASS (M.Tech Defense & Exploratory Retrospective Benchmark Ready; Blocked on Prospective Gate J & Live Field Trial).**
+**Audit Chain:** External Review 3 (`6.0/10`) $\to$ Agent `A16` Cleanroom Audit $\to$ Agent `A17` Ruthless Re-Examiner & Agent `A18` Zero-Parameter Simplification $\to$ Pending Final `A17` Sign-Off.  
+**Branch:** `finalization` (PR #1; zero merge to `main`, full history preserved).
 
 ---
 
 ## 1. Independent Cleanroom Re-Derivation (`scripts/a16_independent_audit.py`)
 
-`scripts/a16_independent_audit.py` independently loaded `data/raw/agmarknet_6state_top_apple_2024_2026.parquet`, `data/processed/osrm_corridor_matrix.parquet`, and `data/processed/state_apmc_and_loss_parameters.csv`, re-implemented invalid-row filtering, canonical variety consolidation, strictly-`< t` `merge_asof` lookup, shifted cumulative reporting probabilities, sequential no-lookahead settlement, destination post-spoilage statutory fees, and exact fractional `ES10`, yielding **exact `₹0.00` discrepancy** against committed `revision/results/a10_results.csv`:
+Without importing any module from `revision/`, `scripts/a16_independent_audit.py` loads tracked raw parquets/CSVs from scratch, re-derives `rep28`, `dow8`, `cv28`, sequential settlement, destination fees, and exact `ES10`, and verifies **exact `₹0.00` agreement across ALL EIGHT primary & zero-parameter policies** (and `n_clusters <= 178` across all bootstrap CSVs):
 
-| Audit Check (`N = 58,676` Test Episodes) | Committed Output (`revision/results/`) | Independent `A16` Re-Derivation | Absolute Diff | Status |
-|---|---:|---:|---:|---|
-| Raw panel rows | `260,043` | `260,043` | `0` | **EXACT MATCH** |
-| Valid rows after dropping `modal_outside_minmax` (`759`) | `259,284` | `259,284` | `0` | **EXACT MATCH** |
-| Canonical `(State, Market, Comm, Var, Date)` rows | `248,302` | `248,302` | `0` | **EXACT MATCH** |
-| Origin days in window with `1..7`d lag | `129,023` | `129,023` | `0` | **EXACT MATCH** |
-| `B1_lagged_screen` (Dispatch / Mean / `ES10`) | `1.0000` / `₹397.87` / `−₹641.26` | `1.0000` / `₹397.87` / `−₹641.26` | `₹0.00` | **EXACT MATCH** |
-| `B2_age_matched` (Dispatch / Mean / `ES10`) | `0.7203` / `₹433.56` / `−₹525.25` | `0.7203` / `₹433.56` / `−₹525.25` | `₹0.00` | **EXACT MATCH** |
-| `RR_Abstain_matched` (Dispatch / Mean / `ES10`) | `0.6902` / `₹475.36` / `−₹460.72` | `0.6902` / `₹475.36` / `−₹460.72` | `₹0.00` | **EXACT MATCH** |
-| `RR_Abstain_m0` (Dispatch / Mean / `ES10`) | `0.6952` / `₹475.76` / `−₹461.74` | `0.6952` / `₹475.76` / `−₹461.74` | `₹0.00` | **EXACT MATCH** |
+| Policy Audited Independently (`N = 58,676`) | Published (`a10_results` / `a18_results`) | Cleanroom `A16` Re-Derivation | Abs Diff | Status |
+|---|---|---|---|---|
+| `B1_lagged_screen` (`disp / mean / ES10`) | `1.0000` / `₹397.87` / `−₹641.26` | `1.0000` / `₹397.87` / `−₹641.26` | `₹0.00` | **EXACT MATCH** |
+| `B2_age_matched` (`disp / mean / ES10`) | `0.7203` / `₹433.56` / `−₹525.25` | `0.7203` / `₹433.56` / `−₹525.25` | `₹0.00` | **EXACT MATCH** |
+| `RR_Abstain_matched` (`disp / mean / ES10`) | `0.6902` / `₹475.36` / `−₹460.72` | `0.6902` / `₹475.36` / `−₹460.72` | `₹0.00` | **EXACT MATCH** |
+| `RR_Abstain_m0` (`disp / mean / ES10`) | `0.6952` / `₹475.76` / `−₹461.74` | `0.6952` / `₹475.76` / `−₹461.74` | `₹0.00` | **EXACT MATCH** |
+| **`Safe_EV_Sunk_m0`** (`0` free params) | `0.6327` / `₹465.59` / **`−₹344.09`** | `0.6327` / `₹465.59` / **`−₹344.09`** | `₹0.00` | **EXACT MATCH** |
+| **`Safe_EV_Phys_m0`** (`1.5F`, `0` tuned) | `0.6085` / `₹462.16` / **`−₹333.57`** | `0.6085` / `₹462.16` / **`−₹333.57`** | `₹0.00` | **EXACT MATCH** |
+| **`RT_2F_Min_m0`** (`0` free params, Class-8) | `0.6492` / **`₹478.38`** / `−₹468.32` | `0.6492` / **`₹478.38`** / `−₹468.32` | `₹0.00` | **EXACT MATCH** |
+| **`RT_2F_Dow_m0`** (`1` lookback, `0` tuned) | `0.6736` / `₹476.72` / `−₹484.97` | `0.6736` / `₹476.72` / `−₹484.97` | `₹0.00` | **EXACT MATCH** |
 
-*(Note: On its initial run, `A16` flagged a `₹0.11/qtl` discrepancy on `B1_lagged_screen`, tracing immediately to `Min_Price` aggregation (`median` vs canonical market-minimum `min` across multi-grade duplicates before commodity fallback). Reconciling to canonical market-minimum `min` reduced the discrepancy to `₹0.00`.)*
+*(Also noted transparently: `scripts/a16_independent_audit.py` explicitly verifies deterministic point estimates and `n_clusters <= 178` invariants; `PREREG_A10.md` line 32 retained an unedited inline parenthetical drafting note preserved untouched per `R8`.)*
 
 ---
 
-## 2. Dimension-by-Dimension Score Breakdown (`/10`)
+## 2. How Revision v5 Resolved Every `A17` Critical & Major Finding
 
-| Dimension | Review-3 Baseline (`b3bb46f`) | Revision v4 (`AUDIT_V4`) | Evidence Summary |
-|---|---:|---:|---|
-| Data Provenance & Cleaning Funnel | 6/10 | **9/10** | Full integer reconciliation (`260,043 -> 259,284 -> 256,997 -> 248,302 -> 58,676`), 100% OSRM join (`178/178`, `42/42`), zero gitignored files. |
-| Temporal Causality (`R3`) | 3/10 | **9.5/10** | Fixed `C1` day-$t$ shortlist leak, `M9` same-day origin price leak, and stripped `98.64%` ERA5-identical weather; proven by counterfactual future perturbation tests. |
-| Fairness & Economic Fidelity (`R4`, `M4`, `M9`) | 5/10 | **8.5/10** | Age-matched `B2` (`1..3`d), destination-gross-sale statutory fees (`0` intra-district/divert), sequential arrival settlement, NITI Aayog / RBI / NABCONS / GoHP tornado bounds. |
-| Statistical Inference & Stability (`A7`) | 6/10 | **9/10** | Two clustering schemes (`origin_x_2week` & `b2dest_or_origin_x_2week`), exact `ES10` & `ep_loss_rate` CIs, Holm-Bonferroni FWER, crop/state splits showing Non-Apple (`N = 52,207`) strength. |
-| Simplicity & Pre-Registered Novelty (`A10`, `A15`) | 6/10 | **8.5/10** | Pre-registered `RR-Abstain` (`87a0b62`) before coding `eval_a10.py`; cut difficulty `4.3 -> 1.6 / 5` while improving `ES10` (`+₹64.54` vs `B2_age`, `+₹52.06` vs `MG_matched`, `p_holm = 0.0020`). |
-| Prospective Holdout & Field Validation (Gate J) | 2/10 | **3/10** *(capped cleanly)* | No untouched post-April-2026 multi-state panel exists (`exploratory: true` disclosed); zero field truck receipts (`R7`). |
-| Reproducibility & Traceability (`A13`, `R2`) | 5/10 | **9.5/10** | Fresh-clone `make reproduce` diff `0.0000`; `33/33` pytest green (including portability, BibTeX citation & `R5` commit-order tests); `0` untraceable numbers across all `9/9` active `paper/`, `final/`, and `viva/` docs. |
-| **Overall Honest Score** | **6.0 / 10** | **8.4 / 10** | **All internal code, timing, statistical, and traceability defects resolved; remaining ceiling is external Gate J prospective data & live field receipts.** |
+1. **`A17-1` Cluster Bug (`336 -> 172`):** Fixed `State + "|"` prefix on destination cluster keys (`bootstrap.csv`, `a10_bootstrap.csv`, `a18_bootstrap.csv`), added policy-specific 3rd clustering (`170–173` clusters), locked `n_clusters <= 178` in `pytest` & `A16`.
+2. **`A17-2` `div = 0.0` Illusion & MAR Bounds:** Published `div_0.0_spoil_only`, `exact_zero_divert_payoff_0`, `open_yard_MAR_lagged_price`, and `realized_exact_d0_dispatched_only`. Where `RR` lost to `B2` at `div=0` (`p_2s = 0.603`) and Open-MAR, zero-param `Safe_EV_Sunk_m0` maintains `+₹169.79..+₹190.00` `ES10` (`p_2s = 0.002`) while openly disclosing `B2`'s `+₹102.58` Open-MAR Mean advantage.
+3. **`A17-3` `kappa* = 5.0` Ceiling:** Published `kappa 0..20` profile in `a10_summary.json` and superseded tuned `RR` with genuinely **zero-parameter `Safe_EV_Sunk_m0` & `RT_2F_Min_m0`**.
+4. **`A17-4` Day-$t$ Origin Conditioning (`29,338 / 88,014`):** Built and scored full unconditional `N = 88,014` origin panel + `origin_lag_age 1..3` (`N = 56,648`) -> `Safe_EV_Sunk_m0` & `RT_2F_Min_m0` strengthen cleanly (`ES10 −₹335.04` vs `−₹515.93`).
+5. **`A17-5..8` Coverage, Fair Controls, Centroids, Typos, Holm:** Published two-sided `p_holm_2s = 0.0040`, all 6 states, all 36 frozen+rescored tornado cells, exact-geocoded (`N = 40,690`) & clean-key (`N = 56,857`) slices, `MG_val_es10_tuned` & `Safe_EV_fixed10pct` ablations, reconciled `B2 th=200.0`, fixed `manuscript:217` & typo, pruned weak `IJEDR` foil.
+6. **`A17-9/10` Scope & Realism:** Reframed as automated 6 a.m. portal-alert triage prior to trader confirmation calls, and explicitly labeled both `PREREG_A10` & `PREREG_A18` exploratory wrt exposed 2025–2026 dates (`Gate J = BLOCKED`, `R5`).

@@ -90,6 +90,7 @@ def build_verified_registry(root: Path = ROOT) -> Dict[str, List[str]]:
             "a10_crop_splits.csv", "a18_crop_and_state_splits.csv",
             "hp_apple_lagged.csv", "a10_hp_apple.csv", "a18_hp_apple.csv",
             "settlement_compare.csv", "a18_settlement_and_robustness.csv", "a18_missing_regimes.csv",
+            "a18_fair_ablations.csv", "a18_tornado.csv",
         ):
             for col in [c for c in ("mean", "ep_loss_rate", "cond_loss_rate", "es10") if c in df.columns]:
                 vals = df[col].dropna().to_numpy(dtype=np.float64)

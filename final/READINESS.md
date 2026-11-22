@@ -1,22 +1,18 @@
-# Final Readiness Assessment (`READINESS.md` — Agents `A1` & `A16`)
+# Final Readiness Assessment (`READINESS.md` — Revision v5)
 
-**Verdict: CONDITIONAL PASS — READY for M.Tech Thesis Defense & Submission as a Reproducible Exploratory Policy Audit; NOT READY for Unqualified Causal Income Claims or Production Field Rollout Without Prospective Pilot Validation.**
-
-**Audit Score:** **8.4 / 10** (`final/AUDIT_V4.md`; up from `6.0 / 10` at Review-3 baseline `b3bb46f`).
+**Verdict:** **CONDITIONAL PASS (Pending Final Independent `A17` Re-Audit Score; READY for M.Tech Defense & Exploratory Reproducible Policy Audit, NOT READY for Unqualified Field Rollout or Causal Income Claims Without Prospective Validation).**
 
 ---
 
-## 1. What Is 100% Ready and Verified
-- Every internal critical and major defect from Review 3 (`C1`, `C2`, `M3`–`M9`, `N1`, `N3`) is resolved, tested (`33/33` pytest passing including portability, BibTeX sync & `R5` commit-order assertions), independently re-derived within `₹0.00` (`scripts/a16_independent_audit.py`), and reproduced from a clean clone without gitignored inputs (`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`).
-- Paper (`paper/manuscript.md`), Class-12 companion (`paper/12th_class_easy_reading_edition.md`), slides (`final/SLIDE_OUTLINE.md`), simplified design (`final/SIMPLIFIED_DESIGN.md`), difficulty audit (`final/DIFFICULTY.md`), and all viva guides (`final/VIVA_QA.md`, `viva/00..03*.md`) are aligned on one verified, plain-English story with `0` untraceable numbers across all `9/9` active documents (`scripts/verify_traceability.py`).
+## 1. What Is Verified and Ready
+- Every internal critical and major defect from Review 3 (`C1`, `C2`, `M3`–`M9`, `N1`, `N3`) AND **all 10 findings from Adversarial Examiner `A17`** (`State|` `336 -> 172` cluster bug, two-sided `p_holm_2s`, `kappa 0..20` ceiling artifact, `div = 0` spoil-only vs literal `exact_zero_divert` & `open_yard_MAR` bounds, `N = 88,014` unconditional origin panel, full 36-cell frozen+rescored tornado, 6-state & crop splits, exact-geocode `N = 40,690` / non-conflict `N = 56,857` / `olag 1..3` `N = 56,648` robustness, fair test-matched & `val-ES10`-tuned `MG` ablations, HP Apple honesty, phone-call triage scope) are fixed in code and documents.
+- complexity reduced **`4.3 -> 1.2 / 5`** via zero-parameter **`Safe_EV_Sunk_m0`** ($p_{\text{dow}} G_{\text{1SD}} > F$) and Class-8 **`RT_2F_Min_m0`** ($p_{\min} G > 2F$).
+- Independent cleanroom `scripts/a16_independent_audit.py` matches **`₹0.00`** across all 8 policies + cluster bounds (`<= 178`), `scripts/verify_traceability.py` verifies **`0` untraceable numbers** across all `9/9` active docs, and `pytest -v` passes **`34/34`**.
 
 ## 2. Why Status Remains `CONDITIONAL` (Single External Blocker)
-- **Gate J (`BLOCKED`, honestly disclosed):** No untouched post-April-2026 multi-state bulk AGMARKNET panel exists in official archives. While `A10` (`RR-Abstain`) was strictly pre-registered (`87a0b62`) before coding `eval_a10.py`, prospective validation on future arrivals and field cost validation require live pilot collection (`R5`, `R7`).
+- **Gate J (`BLOCKED`, honestly disclosed):** Bulk official AGMARKNET files stop `2026-04-13` (`2025-06..2026-04` and HP Apples were exposed earlier in repo commits). Prospective multi-state evaluation and physical truck-slip receipts require live field deployment (`R5`, `R7`).
 
 ## 3. External Checklist Before Submission / Field Action (For User)
-1. **Supervisor / Department Review:**
-   - Review `paper/manuscript.md` (`~10–12 pp`), `final/AUDIT_V4.md`, and `final/DIFFICULTY.md`; confirm supervisor alignment on presenting Stage I (`H2` inconclusive) cleanly alongside Revision v4 (`RR-Abstain`, exploratory calendar exposure).
-2. **Institutional Formatting & PDF Build:**
-   - Export `paper/manuscript.md` + `paper/references.bib` + `figures/rev_fig1..4*.png` into your university/venue LaTeX/DOCX thesis template and inspect rendered page count (`10–12` pages) and figure placement.
-3. **Field Validation Pilot (Required to Unblock Gate J & Real Income Inference):**
-   - Log live 6 a.m. dispatch advisories alongside actual Farmer Producer Organization (FPO) truck receipts, *arhtiya* commission slips, weighment losses, and physical arrival market-status logs across 1–2 harvests (`Onion`/`Potato`/`Tomato`) before live deployment; exclude high-dispersion graded `Apple` lots until grade-level arrivals are captured live.
+1. **Supervisor / Department Review:** Review [`paper/manuscript.md`](../paper/manuscript.md), [`final/AUDIT_V4.md`](AUDIT_V4.md), and [`final/DIFFICULTY.md`](DIFFICULTY.md); confirm alignment on zero-parameter `Safe_EV_Sunk_m0` / `RT_2F_Min_m0`, exploratory status, and visible failures (`Stage I H2`, `Open-MAR` mean reversal, `HP Apple` `41.38%` cond loss).
+2. **Institutional Formatting & PDF Build:** Export `paper/manuscript.md` + `paper/references.bib` + `figures/rev_fig1..4*.png` into university/venue LaTeX/DOCX template and verify layout.
+3. **Live FPO Alert-Triage Pilot (Required to Unblock Gate J):** Log 6 a.m. portal alerts (`Safe_EV_Sunk_m0` vs `RT_2F_Min_m0` vs `B2_age_matched`), *arhtiya* phone-call outcomes, actual auction *patti* slips, and truck bills over 1–2 staple vegetable seasons before operational scale-up.
