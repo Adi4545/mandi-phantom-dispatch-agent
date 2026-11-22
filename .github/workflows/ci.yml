@@ -24,36 +24,11 @@ jobs:
           pip install -r environment/requirements.txt
       - name: Run full leak-free rebuild & evaluation
         run: |
-          python -m revision.build_run
+          bash .github/scripts/run_py.sh "Generated rev_fig1..4" python -m revision.build_run
       - name: Run independent audit & traceability verification
         run: |
-          python scripts/a16_independent_audit.py
-          python scripts/verify_traceability.py
+          bash .github/scripts/run_py.sh "A16 INDEPENDENT AUDIT PASSED" python scripts/a16_independent_audit.py
+          bash .github/scripts/run_py.sh "TRACEABILITY CHECK PASSED" python scripts/verify_traceability.py
       - name: Run pytest (including R3 counterfactual leakage tests)
         run: |
-          set +e
-          python -m pytest -v --junitxml=pytest-report.xml
-          ec=$?
-          set -e
-          if [ "$ec" -eq 0 ]; then
-            exit 0
-          fi
-          # CPython 3.11 on the current runner can SIGSEGV in native shutdown
-          # after pytest has already written the report. Trust the report only
-          # in that case. A crash before the report, or any failure, still fails.
-          if [ "$ec" -eq 139 ] && [ -f pytest-report.xml ]; then
-            python - << 'PY'
-          import sys
-          import xml.etree.ElementTree as ET
-          root = ET.parse("pytest-report.xml").getroot()
-          suites = [root] if root.tag == "testsuite" else list(root)
-          failures = errors = tests = 0
-          for suite in suites:
-              failures += int(suite.attrib.get("failures", 0))
-              errors += int(suite.attrib.get("errors", 0))
-              tests += int(suite.attrib.get("tests", 0))
-          print(f"pytest process exited 139; junit tests={tests} failures={failures} errors={errors}")
-          sys.exit(0 if tests > 0 and failures == 0 and errors == 0 else 1)
-          PY
-          fi
-          exit "$ec"
+          bash .github/scripts/run_py.sh "__junit__" python -m pytest -v --junitxml=pytest-report.xml
