@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # History tests read the pre-registration commits. The default
+          # depth of 1 makes every file look like it was added in the tip commit.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -27,4 +31,29 @@ jobs:
           python scripts/verify_traceability.py
       - name: Run pytest (including R3 counterfactual leakage tests)
         run: |
-          python -m pytest -v
+          set +e
+          python -m pytest -v --junitxml=pytest-report.xml
+          ec=$?
+          set -e
+          if [ "$ec" -eq 0 ]; then
+            exit 0
+          fi
+          # CPython 3.11 on the current runner can SIGSEGV in native shutdown
+          # after pytest has already written the report. Trust the report only
+          # in that case. A crash before the report, or any failure, still fails.
+          if [ "$ec" -eq 139 ] && [ -f pytest-report.xml ]; then
+            python - << 'PY'
+          import sys
+          import xml.etree.ElementTree as ET
+          root = ET.parse("pytest-report.xml").getroot()
+          suites = [root] if root.tag == "testsuite" else list(root)
+          failures = errors = tests = 0
+          for suite in suites:
+              failures += int(suite.attrib.get("failures", 0))
+              errors += int(suite.attrib.get("errors", 0))
+              tests += int(suite.attrib.get("tests", 0))
+          print(f"pytest process exited 139; junit tests={tests} failures={failures} errors={errors}")
+          sys.exit(0 if tests > 0 and failures == 0 and errors == 0 else 1)
+          PY
+          fi
+          exit "$ec"
