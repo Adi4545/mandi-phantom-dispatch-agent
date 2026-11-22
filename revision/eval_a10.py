@@ -128,13 +128,22 @@ def run() -> None:
         res_rows.append(rec)
     pd.DataFrame(res_rows).to_csv(out_dir / "a10_results.csv", index=False)
 
-    # Bootstrap H_A10_1..4 + secondary comparisons across both clustering schemes
+    # Bootstrap H_A10_1..4 + secondary comparisons across ALL THREE clustering schemes (State|dest fixed!)
     bdf = policies_test["RR_Abstain_matched"][["episode_id", "date", "origin_market_key", "State", "Commodity"]].copy()
     for pname, ch in policies_test.items():
         bdf[pname] = ch["y"].to_numpy(dtype=np.float64)
         bdf[f"{pname}_disp"] = ch["eligible"].to_numpy(dtype=bool)
         bdf[f"{pname}_dest"] = ch["dest_market"].to_numpy()
-    bdf["dest_or_origin_key"] = np.where(bdf["B2_age_matched_disp"], bdf["B2_age_matched_dest"], bdf["origin_market_key"])
+    bdf["dest_or_origin_key"] = np.where(
+        bdf["B2_age_matched_disp"],
+        bdf["State"].astype(str) + "|" + bdf["B2_age_matched_dest"].astype(str),
+        bdf["origin_market_key"],
+    )
+    bdf["rr_dest_or_origin_key"] = np.where(
+        bdf["RR_Abstain_matched_disp"],
+        bdf["State"].astype(str) + "|" + bdf["RR_Abstain_matched_dest"].astype(str),
+        bdf["origin_market_key"],
+    )
 
     # Pre-registered H_A10_1..4 plus full metric table for matched comparisons
     test_pairs = [
@@ -151,8 +160,13 @@ def run() -> None:
     }
 
     boot_rows = []
+    cluster_schemes = (
+        ("origin_x_2week", "origin_market_key"),
+        ("b2dest_or_origin_x_2week", "dest_or_origin_key"),
+        ("rrdest_or_origin_x_2week", "rr_dest_or_origin_key"),
+    )
     for cname, ca, cb in test_pairs:
-        for sch, mcol in (("origin_x_2week", "origin_market_key"), ("b2dest_or_origin_x_2week", "dest_or_origin_key")):
+        for sch, mcol in cluster_schemes:
             res = two_way_cluster_bootstrap_all_metrics(bdf, ca, cb, mandi_col=mcol, reps=2000, seed=20261117)
             for metric, md in res.items():
                 p_dir = md["p_value_less"] if metric == "ep_loss_rate" else md["p_value_greater"]
@@ -174,10 +188,13 @@ def run() -> None:
                     }
                 )
     boot_df = pd.DataFrame(boot_rows)
-    boot_df["p_holm"] = np.nan
-    for sch in ("origin_x_2week", "b2dest_or_origin_x_2week"):
+    boot_df["p_holm_1s"] = np.nan
+    boot_df["p_holm_2s"] = np.nan
+    for sch, _ in cluster_schemes:
         mask = (boot_df["cluster"] == sch) & (boot_df["hypothesis_id"] != "")
-        boot_df.loc[mask, "p_holm"] = holm_bonferroni(boot_df.loc[mask, "p_value"].tolist())
+        boot_df.loc[mask, "p_holm_1s"] = holm_bonferroni(boot_df.loc[mask, "p_value"].tolist())
+        boot_df.loc[mask, "p_holm_2s"] = holm_bonferroni(boot_df.loc[mask, "p_value_two_sided"].tolist())
+    boot_df["p_holm"] = boot_df["p_holm_2s"]
     boot_df.to_csv(out_dir / "a10_bootstrap.csv", index=False)
 
     # Crop splits (especially Non-Apple!)
@@ -254,6 +271,29 @@ def run() -> None:
             hp_rows.append(rec)
     pd.DataFrame(hp_rows).to_csv(out_dir / "a10_hp_apple.csv", index=False)
 
+    # Extended kappa profile [0..20] diagnostic exposing ceiling artifact at kappa=5 vs physical kappa=1.5
+    kappa_prof = []
+    for kv in [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0]:
+        sc_v = rr_abstain_score(val, kv)
+        sc_t = rr_abstain_score(test, kv)
+        mm_val = find_val_matched_threshold(val, sc_v, age_val_gate, target_val_disp)
+        r_val_m = summarize_chosen(f"RR_val_k{kv}", pick_episode(val, sc_v, age_val_gate & (sc_v > mm_val)))
+        r_test_m = summarize_chosen(f"RR_test_matched_k{kv}", pick_episode(test, sc_t, age_test_gate & (sc_t > mm_val)))
+        r_test_0 = summarize_chosen(f"RR_test_m0_k{kv}", pick_episode(test, sc_t, age_test_gate & (sc_t > 0.0)))
+        kappa_prof.append({
+            "kappa": kv,
+            "m_match_val": round(mm_val, 2),
+            "val_matched_mean": r_val_m["mean"],
+            "val_matched_es10": r_val_m["es10"],
+            "test_matched_disp": r_test_m["dispatch_rate"],
+            "test_matched_mean": r_test_m["mean"],
+            "test_matched_ep_loss": r_test_m["ep_loss_rate"],
+            "test_matched_es10": r_test_m["es10"],
+            "test_m0_disp": r_test_0["dispatch_rate"],
+            "test_m0_mean": r_test_0["mean"],
+            "test_m0_es10": r_test_0["es10"],
+        })
+
     meta = {
         "kappa_star_matched": kappa_star,
         "m_star_matched": round(m_star_matched, 4),
@@ -261,6 +301,7 @@ def run() -> None:
         "m_dag_unconstrained": round(m_dag, 4),
         "target_b2_val_dispatch": target_val_disp,
         "val_sweep_matched": val_sweep_rows,
+        "kappa_profile_0_to_20": kappa_prof,
         "prereg_commit": "87a0b62dda1b5fcf99ce6c93581c3006437eca09",
         "exploratory": True,
     }

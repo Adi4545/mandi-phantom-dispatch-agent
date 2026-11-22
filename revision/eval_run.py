@@ -377,7 +377,10 @@ def run() -> None:
         for pname, role, skey, gfn, _ in policy_specs:
             if pname == "B1_lagged_screen":
                 continue
-            th_m = find_val_matched_threshold(val, val_f[skey], gfn(val_f), tgt)
+            if tname == "B2_age_matched_val" and pname == "B2_age_matched":
+                th_m = float(tuned_thresholds["B2_age_matched"])
+            else:
+                th_m = find_val_matched_threshold(val, val_f[skey], gfn(val_f), tgt)
             ch_m = pick_episode(test, test_f[skey], gfn(test_f) & (test_f[skey] > th_m))
             rec = summarize_chosen(pname, ch_m)
             rec["match_target"] = tname
@@ -385,7 +388,7 @@ def run() -> None:
             rec["calibrated_threshold"] = round(th_m, 2)
             matched_rows.append(rec)
             if tname == "B2_age_matched_val" and pname == "B2_age_matched":
-                matched_chosen_b2 = ch_m
+                matched_chosen_b2 = chosen_test["B2_age_matched"]
             if tname == "B2_age_matched_val" and pname == "MG_T1_T2_T3_T4":
                 matched_chosen_mg = ch_m
     pd.DataFrame(matched_rows).to_csv(out_dir / "matched_dispatch.csv", index=False)
@@ -400,8 +403,12 @@ def run() -> None:
     base_df["MG_matched"] = matched_chosen_mg["y"].to_numpy(dtype=np.float64)
     base_df["B2_matched"] = matched_chosen_b2["y"].to_numpy(dtype=np.float64)
 
-    # Second cluster key: B2_age_matched chosen destination (or origin when B2 abstains)
-    base_df["dest_or_origin_key"] = np.where(base_df["B2_age_matched_disp"], base_df["B2_age_matched_dest"], base_df["origin_market_key"])
+    # Second cluster key: State-prefixed B2_age_matched chosen destination (or origin when B2 abstains)
+    base_df["dest_or_origin_key"] = np.where(
+        base_df["B2_age_matched_disp"],
+        base_df["State"].astype(str) + "|" + base_df["B2_age_matched_dest"].astype(str),
+        base_df["origin_market_key"],
+    )
 
     contrasts = [
         ("MG_vs_B1", "MG_T1_T2_T3_T4", "B1_lagged_screen", True),
@@ -434,11 +441,14 @@ def run() -> None:
                     }
                 )
     boot_df = pd.DataFrame(boot_rows)
-    # Apply Holm-Bonferroni within each clustering scheme over the declared primary family
-    boot_df["p_holm"] = np.nan
+    # Apply BOTH two-sided Holm-Bonferroni (primary p_holm) and directional 1-sided Holm (p_holm_1s)
+    boot_df["p_holm_1s"] = np.nan
+    boot_df["p_holm_2s"] = np.nan
     for sch in ("origin_x_2week", "b2dest_or_origin_x_2week"):
         mask = (boot_df["cluster"] == sch) & (boot_df["in_holm_family"])
-        boot_df.loc[mask, "p_holm"] = holm_bonferroni(boot_df.loc[mask, "p_value"].tolist())
+        boot_df.loc[mask, "p_holm_1s"] = holm_bonferroni(boot_df.loc[mask, "p_value"].tolist())
+        boot_df.loc[mask, "p_holm_2s"] = holm_bonferroni(boot_df.loc[mask, "p_value_two_sided"].tolist())
+    boot_df["p_holm"] = boot_df["p_holm_2s"]
     boot_df.to_csv(out_dir / "bootstrap.csv", index=False)
 
     # Risk-coverage curve WITH 95% CIs at key thresholds for B2_age_matched & MG_T1_T2_T3_T4
