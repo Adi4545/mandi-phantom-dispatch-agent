@@ -10,7 +10,7 @@ A cautious rule keeps quotes that are one to three days old and dispatches only 
 
 Two further results bound the claim. Scoring the same chosen trips with hindsight — using a later exact price that the traveler could not have known when deciding to wait — lifts the screen-chasing loss rate from 41.47% to 26.57%. And ES10 moves by about ₹245 per quintal for the cautious rule when the missing-price return penalty goes from zero to 1.5 times freight. The loss rate barely moves. There is no untouched holdout beyond this split. An older same-day comparison of a heavier rule with the road heuristic was inconclusive (about +₹6 per quintal, interval crossing zero). Grade-explicit Himachal apples, in that older run, were a failure for the heavier rule. Live weather is not used: stored "forecast" rain matches realized ERA5 on 66% of the 2025–26 decision rows, and ERA5 is not a same-day public forecast.
 
-Code and tables: `revision/build_run.py`, commit `COMMIT_SHA`.
+Code and tables: `revision/build_run.py`, in commit `eef9c98938969354136be7396e6854e3abedf034`.
 
 ## 1. Three questions
 

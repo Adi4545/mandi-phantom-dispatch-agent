@@ -11,7 +11,7 @@ Do not defend: a conformal theorem, a field-income gain, "closed markets," the u
 ## Checklist
 
 - [x] Lagged replay code committed under `revision/`.
-- [x] Paper names that code and will name the commit SHA.
+- [x] Paper names `revision/build_run.py` and commit `eef9c98938969354136be7396e6854e3abedf034`.
 - [x] ES10 defined, tested, and used in the new tables.
 - [x] Old quantile-tail means labeled as not ES10.
 - [x] H2 left inconclusive. Apple failure left standing. Penalty dependence reported.

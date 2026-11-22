@@ -1,6 +1,6 @@
 # Response to the external review (6.5/10, major revision)
 
-The review described a paper that cited `revision/build_variant.py`, `build_run.py`, `eval_run.py`, and `revision/results/`, and a table with about 67,675 episodes and means MG ₹397.24, B2 ₹371.38, B2-matched ₹367.07, B1 ₹301.22, B3 ₹246.67. Those files and those rupee figures were not on `main` or on `finalization`. They are not treated as results. The files now in `revision/` are a new lagged replay. The paper cites that replay and commit `COMMIT_SHA`.
+The review described a paper that cited `revision/build_variant.py`, `build_run.py`, `eval_run.py`, and `revision/results/`, and a table with about 67,675 episodes and means MG ₹397.24, B2 ₹371.38, B2-matched ₹367.07, B1 ₹301.22, B3 ₹246.67. Those files and those rupee figures were not on `main` or on `finalization`. They are not treated as results. The files now in `revision/` are a new lagged replay. The paper cites that replay. The tables were produced in commit `eef9c98938969354136be7396e6854e3abedf034`.
 
 ## P0
 
