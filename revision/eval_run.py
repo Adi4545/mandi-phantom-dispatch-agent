@@ -1,392 +1,561 @@
-"""Evaluate lagged dispatch rules.
+"""Evaluate strictly lagged dispatch rules under sequential settlement (Step 3 / A4-A7).
 
-Primary settlement is sequential: on each arrival day the rule sells if an
-exact-variety price is recorded, waits one day if any variety of the commodity
-is recorded, and otherwise returns. It does not look ahead. The hindsight
-settlement, which uses the first exact price within three days, is reported
-only as a comparison.
+Primary settlement is strictly sequential over arrival days d in {0, 1, 2}:
+  - Sell if exact-variety Modal_Price is recorded on day d (wait_days = d).
+  - Wait 1 day only if exact variety is missing AND some other variety of the same
+    commodity traded on day d (adds ₹25/qtl detention and 24h spoilage).
+  - Return / divert immediately if no variety of the commodity traded on day d.
+Statutory APMC seller fees are charged strictly on destination post-spoilage gross
+sale realization (`fee_rate * sale_price * (1 - sp)`), and are 0 on same-district
+or no-sale diversion turns (`M9` fix).
 
-Weather in the primary score and payoff is the NABCONS 20C reference (no live
-forecast and no ERA5). A 2024 state-month climatology is a sensitivity.
-Live ERA5 is not treated as known at decision time.
-
-Thresholds are chosen on 2025-01-01..2025-05-31 and then frozen.
+Thresholds are tuned ONLY on 2025-01-01..2025-05-31 (`val`). Because 2025-06-01..2026-04-08
+(`test`) was previously inspected in repo history, `summary.json` explicitly sets
+`exploratory: true` (`R5`).
 """
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
 
+from revision.build_variant import spoil_frac_ref
 from revision.es10 import es10
-from src.evaluation.bootstrap import two_way_mandi_week_bootstrap
+from revision.stats_utils import ci95_single_metric, two_way_cluster_bootstrap_all_metrics
+from src.evaluation.bootstrap import holm_bonferroni
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = {"Tomato": 0.0325, "Onion": 0.0196, "Apple": 0.0164, "Potato": 0.0086}
-THETAS = [100, 150, 200, 250, 300, 400, 500]
-MARGINS = [0, 50, 100, 150, 200, 250, 300, 400]
+THRESH_GRID = [0.0, 50.0, 100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 500.0]
 
 
-def spoil_frac(commodity: np.ndarray, hours: np.ndarray, wait: np.ndarray, tmax, rh, rain) -> np.ndarray:
-    base = np.array([BASE.get(c, 0.02) for c in commodity], dtype=np.float64)
-    t_eff = np.clip(tmax, 5.0, 48.0)
-    rh_eff = np.clip(rh, 20.0, 100.0)
-    q10 = 2.0 ** ((t_eff - 20.0) / 10.0)
-    rh_f = 1.0 + 0.25 * np.maximum(0.0, (rh_eff - 70.0) / 30.0)
-    total_h = np.maximum(1.0, hours + 24.0 * np.maximum(wait, 0))
-    bio = base * (total_h / 24.0) * q10 * rh_f
-    bio = bio + np.where(rain >= 35.0, 0.02, 0.0)
-    return np.clip(bio, 0.0, 0.55)
-
-
-def _wx(df: pd.DataFrame, mode: str):
+def _wx(df: pd.DataFrame, mode: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     n = len(df)
     if mode == "none":
         return np.full(n, 20.0), np.full(n, 65.0), np.zeros(n)
-    if mode == "clim":
+    if mode == "clim2024":
         return (
-            df["clim_tmax"].fillna(20.0).to_numpy(dtype=np.float64),
-            df["clim_rh"].fillna(65.0).to_numpy(dtype=np.float64),
-            df["clim_rain"].fillna(0.0).to_numpy(dtype=np.float64),
+            df["clim_tmax_2024"].fillna(20.0).to_numpy(dtype=np.float64),
+            df["clim_rh_2024"].fillna(65.0).to_numpy(dtype=np.float64),
+            df["clim_rain_2024"].fillna(0.0).to_numpy(dtype=np.float64),
         )
     raise ValueError(mode)
 
 
-def settle(df: pd.DataFrame, how: str, weather: str, div: float, disc: float) -> np.ndarray:
-    """Return modeled net gain versus selling locally, INR/qtl, one value per row."""
+def settle_candidates(
+    df: pd.DataFrame,
+    how: str = "sequential",
+    weather: str = "none",
+    div: float = 1.5,
+    disc: float = 0.10,
+    freight_base: float = 35.0,
+    freight_per_km: float = 0.45,
+    hp_km_mult: float = 1.45,
+    fee_mult: float = 1.0,
+    arhtiya_rate: float = 0.0,
+    spoil_mult: float = 1.0,
+    detention_per_day: float = 25.0,
+    outside_option: str = "d0",
+    return_outcomes: bool = False,
+) -> np.ndarray | Tuple[np.ndarray, np.ndarray]:
+    """Return modeled net gain (INR/qtl) vs selling locally under sequential or hindsight settlement."""
     n = len(df)
     comm = df["Commodity"].to_numpy()
     hours = df["truck_hours"].to_numpy(dtype=np.float64)
-    freight = df["freight_road"].to_numpy(dtype=np.float64)
-    local = df["local_price"].to_numpy(dtype=np.float64)
+    hp = np.where(df["State"].to_numpy() == "Himachal Pradesh", hp_km_mult, 1.0)
+    f_road = freight_base + freight_per_km * hp * df["road_km"].to_numpy(dtype=np.float64)
+
+    base_fee_rate = df["fee_rate"].to_numpy(dtype=np.float64)
+    same = df["same_district"].to_numpy(dtype=bool)
+    stat_rate = np.where(same, 0.0, fee_mult * base_fee_rate)
+    sale_fee_rate = np.clip(stat_rate + arhtiya_rate, 0.0, 0.30)
+
+    if outside_option == "d0":
+        local = df["settle_local_price_d0"].to_numpy(dtype=np.float64)
+    elif outside_option == "lag":
+        local = df["origin_lag_price"].to_numpy(dtype=np.float64)
+    else:
+        raise ValueError(outside_option)
+
     tmax, rh, rain = _wx(df, weather)
-    p = [df[c].to_numpy(dtype=np.float64) for c in ("dest_modal_d0", "dest_modal_d1", "dest_modal_d2")]
-    pmin = [df[c].to_numpy(dtype=np.float64) for c in ("dest_min_d0", "dest_min_d1", "dest_min_d2")]
-    any_min = [df[c].to_numpy(dtype=np.float64) for c in ("any_min_d0", "any_min_d1", "any_min_d2")]
+    p_ex = [df[f"settle_dest_modal_d{d}"].to_numpy(dtype=np.float64) for d in (0, 1, 2)]
+    p_an = [df[f"settle_any_min_d{d}"].to_numpy(dtype=np.float64) for d in (0, 1, 2)]
+
     out = np.empty(n, dtype=np.float64)
+    otypes = np.empty(n, dtype=object)
 
-    def exact_delta(i, wait):
-        sp = spoil_frac(comm[i], hours[i], np.full(i.sum(), wait), tmax[i], rh[i], rain[i])
-        sale = p[wait][i]
-        # No live rain blend in none/clim modes (rain is 0 or a climatology, not that day's ERA5).
-        return sale * (1.0 - sp) - freight[i] - 25.0 * wait - local[i]
+    def _sp(idx: np.ndarray, wait: int) -> np.ndarray:
+        raw_sp = spoil_frac_ref(
+            comm[idx],
+            hours[idx],
+            np.full(int(idx.sum()), wait, dtype=np.float64),
+            tmax[idx],
+            rh[idx],
+            rain[idx],
+        )
+        return np.clip(spoil_mult * raw_sp, 0.0, 0.55)
 
-    def missing_delta(i, wait, day):
-        sp = spoil_frac(comm[i], hours[i], np.full(i.sum(), wait), tmax[i], rh[i], rain[i])
-        amin = any_min[day][i]
-        use_other = np.isfinite(amin) & (amin > 0)
-        delta = np.empty(i.sum(), dtype=np.float64)
-        sale = amin * (1.0 - disc)
-        delta[use_other] = sale[use_other] * (1.0 - sp[use_other]) - freight[i][use_other] - 25.0 * wait - local[i][use_other]
-        delta[~use_other] = -div * freight[i][~use_other] - local[i][~use_other] * sp[~use_other] - 25.0 * wait
-        return delta
+    def _sell_delta(idx: np.ndarray, sale_p: np.ndarray, wait: int) -> np.ndarray:
+        sp = _sp(idx, wait)
+        gross_sale = sale_p * (1.0 - sp)
+        net_after_fee = gross_sale * (1.0 - sale_fee_rate[idx])
+        return net_after_fee - f_road[idx] - detention_per_day * wait - local[idx]
+
+    def _divert_delta(idx: np.ndarray, wait: int) -> np.ndarray:
+        sp = _sp(idx, wait)
+        # Zero yard sale -> zero destination statutory/commission fee (`M9` fixed!)
+        return -div * f_road[idx] - local[idx] * sp - detention_per_day * wait
 
     if how == "hindsight":
         taken = np.zeros(n, dtype=bool)
-        for w in range(3):
-            ok = (~taken) & np.isfinite(p[w]) & (p[w] > 0)
-            out[ok] = exact_delta(ok, w)
-            taken |= ok
+        for w in (0, 1, 2):
+            ok = (~taken) & np.isfinite(p_ex[w]) & (p_ex[w] > 0)
+            if ok.any():
+                out[ok] = _sell_delta(ok, p_ex[w][ok], w)
+                otypes[ok] = f"exact_d{w}"
+                taken |= ok
         rest = ~taken
-        # Original hindsight missing branch does not add detention.
-        sp = spoil_frac(comm[rest], hours[rest], np.zeros(rest.sum()), tmax[rest], rh[rest], rain[rest])
-        amin = any_min[0][rest]
-        use_other = np.isfinite(amin) & (amin > 0)
-        delta = np.empty(rest.sum(), dtype=np.float64)
-        sale = amin * (1.0 - disc)
-        delta[use_other] = sale[use_other] * (1.0 - sp[use_other]) - freight[rest][use_other] - local[rest][use_other]
-        delta[~use_other] = -div * freight[rest][~use_other] - local[rest][~use_other] * sp[~use_other]
-        out[rest] = delta
-        return out
+        if rest.any():
+            amin0 = p_an[0]
+            use_other = rest & np.isfinite(amin0) & (amin0 > 0)
+            no_other = rest & ~use_other
+            if use_other.any():
+                out[use_other] = _sell_delta(use_other, amin0[use_other] * (1.0 - disc), 0)
+                otypes[use_other] = "other_var_distress_d0"
+            if no_other.any():
+                out[no_other] = _divert_delta(no_other, 0)
+                otypes[no_other] = "no_comm_divert_d0"
+        return (out, otypes) if return_outcomes else out
 
     if how != "sequential":
         raise ValueError(how)
-    # Day by day. Wait only if some variety of this commodity is recorded that day.
+
     taken = np.zeros(n, dtype=bool)
-    for day in range(3):
-        exact = (~taken) & np.isfinite(p[day]) & (p[day] > 0)
-        out[exact] = exact_delta(exact, day)
-        taken |= exact
-        if day == 2:
+    for d in (0, 1, 2):
+        exact = (~taken) & np.isfinite(p_ex[d]) & (p_ex[d] > 0)
+        if exact.any():
+            out[exact] = _sell_delta(exact, p_ex[d][exact], d)
+            otypes[exact] = f"exact_d{d}" if d == 0 else f"exact_wait_d{d}"
+            taken |= exact
+        if d == 2:
             rest = ~taken
-            out[rest] = missing_delta(rest, 2, 2)
+            if rest.any():
+                amin2 = p_an[2]
+                use_other = rest & np.isfinite(amin2) & (amin2 > 0)
+                no_other = rest & ~use_other
+                if use_other.any():
+                    out[use_other] = _sell_delta(use_other, amin2[use_other] * (1.0 - disc), 2)
+                    otypes[use_other] = "other_var_distress_d2"
+                if no_other.any():
+                    out[no_other] = _divert_delta(no_other, 2)
+                    otypes[no_other] = "no_comm_divert_d2"
             break
-        active = np.isfinite(any_min[day]) & (any_min[day] > 0)
-        give_up = (~taken) & (~active)
-        out[give_up] = missing_delta(give_up, day, day)
-        taken |= give_up
-    return out
+        active_any = np.isfinite(p_an[d]) & (p_an[d] > 0)
+        give_up = (~taken) & (~active_any)
+        if give_up.any():
+            out[give_up] = _divert_delta(give_up, d)
+            otypes[give_up] = f"no_comm_divert_d{d}"
+            taken |= give_up
+
+    return (out, otypes) if return_outcomes else out
 
 
-def _pick(df: pd.DataFrame, score: np.ndarray, eligible: np.ndarray) -> pd.DataFrame:
-    """One row per episode. Ineligible rows stay in the table so the episode is counted as a refusal."""
-    work = df[["episode_id", "date", "origin_market_key", "State", "Commodity", "dest_market"]].copy()
-    work["score"] = np.where(eligible, score, -1e18)
-    work["eligible"] = eligible
-    work["_i"] = np.arange(len(df))
-    work = work.sort_values(["episode_id", "score"], ascending=[True, False])
-    top = work.groupby("episode_id", as_index=False).head(1)
-    y = df["y"].to_numpy(dtype=np.float64)
-    top["y"] = y[top["_i"].to_numpy()]
+def compute_decision_features(df: pd.DataFrame) -> Dict[str, np.ndarray]:
+    """Precompute strictly < t decision score arrays from lagged columns ONLY (zero settle_* access)."""
+    p_dest = df["dest_lag_price"].to_numpy(dtype=np.float64)
+    p_orig = df["origin_lag_price"].to_numpy(dtype=np.float64)
+    f_road = df["freight_road"].to_numpy(dtype=np.float64)
+    f_euc = df["freight_euclid"].to_numpy(dtype=np.float64)
+    fee_r = df["fee_rate"].to_numpy(dtype=np.float64)
+    sp0 = df["spoil_ref_0"].to_numpy(dtype=np.float64)
+
+    sp_clim = spoil_frac_ref(
+        df["Commodity"].to_numpy(),
+        df["truck_hours"].to_numpy(dtype=np.float64),
+        np.zeros(len(df), dtype=np.float64),
+        df["clim_tmax_2024"].fillna(20.0).to_numpy(dtype=np.float64),
+        df["clim_rh_2024"].fillna(65.0).to_numpy(dtype=np.float64),
+        df["clim_rain_2024"].fillna(0.0).to_numpy(dtype=np.float64),
+    )
+
+    net_road_fee = p_dest * (1.0 - fee_r) - p_orig - f_road
+    net_road_fee_spoil = p_dest * (1.0 - sp0) * (1.0 - fee_r) - p_orig - f_road
+    net_euc_fee_spoil = p_dest * (1.0 - sp0) * (1.0 - fee_r) - p_orig - f_euc
+    net_clim_fee_spoil = p_dest * (1.0 - sp_clim) * (1.0 - fee_r) - p_orig - f_road
+
+    return {
+        "lag_spread": df["lag_spread"].to_numpy(dtype=np.float64),
+        "age": df["dest_lag_age"].to_numpy(dtype=np.float64),
+        "rep14": df["dest_exact_rep_14d"].to_numpy(dtype=np.float64),
+        "rep28": df["dest_exact_rep_28d"].to_numpy(dtype=np.float64),
+        "dow8": df["dest_dow_exact_rep_8w"].to_numpy(dtype=np.float64),
+        "net_road_fee": net_road_fee,
+        "net_road_fee_spoil": net_road_fee_spoil,
+        "net_euc_fee_spoil": net_euc_fee_spoil,
+        "net_clim_fee_spoil": net_clim_fee_spoil,
+    }
+
+
+def pick_episode(df: pd.DataFrame, score: np.ndarray, eligible: np.ndarray, y_col: str = "y") -> pd.DataFrame:
+    """Pick the highest-scoring eligible candidate per episode; retain episode with eligible=False if all pruned."""
+    work = pd.DataFrame(
+        {
+            "episode_id": df["episode_id"].to_numpy(),
+            "date": df["date"].to_numpy(),
+            "origin_market_key": df["origin_market_key"].to_numpy(),
+            "State": df["State"].to_numpy(),
+            "Commodity": df["Commodity"].to_numpy(),
+            "dest_market": df["dest_market"].to_numpy(),
+            "road_km": df["road_km"].to_numpy(dtype=np.float64),
+            "eligible": eligible.astype(bool),
+            "eff_score": np.where(eligible, score, -1e18),
+            "y_raw": df[y_col].to_numpy(dtype=np.float64),
+            "_i": np.arange(len(df), dtype=np.int64),
+        }
+    )
+    if "outcome_type" in df.columns:
+        work["outcome_type"] = df["outcome_type"].to_numpy()
+    work = work.sort_values(
+        ["episode_id", "eligible", "eff_score", "road_km", "dest_market"],
+        ascending=[True, False, False, True, True],
+        kind="mergesort",
+    )
+    top = work.groupby("episode_id", as_index=False).head(1).reset_index(drop=True)
+    top["y"] = np.where(top["eligible"], top["y_raw"], 0.0)
     return top
 
 
-def summarize(name: str, chosen: pd.DataFrame, dnet: np.ndarray) -> dict:
-    loss = dnet < 0
-    dispatched = chosen["eligible"].to_numpy()
-    # Abstain -> 0. The chosen row still carries a destination score; replace with 0.
-    y = np.where(dispatched, dnet, 0.0)
+def summarize_chosen(name: str, chosen: pd.DataFrame, y_override: np.ndarray | None = None) -> dict:
+    dispatched = chosen["eligible"].to_numpy(dtype=bool)
+    y_raw = chosen["y_raw"].to_numpy(dtype=np.float64) if y_override is None else y_override
+    y = np.where(dispatched, y_raw, 0.0)
+    n_ep = int(len(y))
     n_d = int(dispatched.sum())
+    cond_loss = (y_raw[dispatched] < 0)
+    ep_loss = (y < 0)
     return {
         "policy": name,
-        "n": int(len(y)),
-        "dispatch_rate": round(float(dispatched.mean()), 4) if len(y) else None,
+        "n": n_ep,
+        "dispatch_rate": round(float(dispatched.mean()), 4) if n_ep else None,
         "n_dispatch": n_d,
-        "mean": round(float(y.mean()), 2) if len(y) else None,
-        "loss_rate": round(float(loss[dispatched].mean()), 4) if n_d else None,
-        "es10": round(es10(y), 2),
-        "loss_given_loss": round(float(y[dispatched & loss].mean()), 2) if np.any(dispatched & loss) else None,
+        "mean": round(float(y.mean()), 2) if n_ep else None,
+        "cond_mean": round(float(y_raw[dispatched].mean()), 2) if n_d else None,
+        "ep_loss_rate": round(float(ep_loss.mean()), 4) if n_ep else None,
+        "cond_loss_rate": round(float(cond_loss.mean()), 4) if n_d else None,
+        "es10": round(float(es10(y)), 2) if n_ep else None,
+        "loss_given_loss": round(float(y[ep_loss].mean()), 2) if ep_loss.any() else None,
     }
 
 
-def attach_payoffs(df: pd.DataFrame, how: str, weather: str, div: float, disc: float) -> pd.DataFrame:
-    out = df.copy()
-    out["y"] = settle(out, how, weather, div, disc)
-    return out
+def tune_threshold_on_val(
+    val_df: pd.DataFrame,
+    val_feat: Dict[str, np.ndarray],
+    score_key: str,
+    gate_fn: Callable[[Dict[str, np.ndarray]], np.ndarray],
+    grid: List[float] = THRESH_GRID,
+    min_dispatch: float = 0.25,
+) -> Tuple[float, dict]:
+    """Tune cutoff strictly on val minimizing episode loss rate (tie-break max mean) with min_dispatch floor."""
+    gate = gate_fn(val_feat)
+    score = val_feat[score_key]
+    best = None
+    best_fb = None
+    for th in grid:
+        chosen = pick_episode(val_df, score, gate & (score > th))
+        rec = summarize_chosen("tune", chosen)
+        fb_key = (rec["cond_loss_rate"] if rec["cond_loss_rate"] is not None else 1.0, -(rec["mean"] if rec["mean"] is not None else -1e9))
+        if best_fb is None or fb_key < best_fb[0]:
+            best_fb = (fb_key, float(th), rec)
+        if rec["dispatch_rate"] is not None and rec["dispatch_rate"] >= min_dispatch:
+            key = (rec["cond_loss_rate"], -rec["mean"])
+            if best is None or key < best[0]:
+                best = (key, float(th), rec)
+    picked = best if best is not None else best_fb
+    return picked[1], picked[2]
+
+
+def find_val_matched_threshold(
+    val_df: pd.DataFrame,
+    score: np.ndarray,
+    gate: np.ndarray,
+    target_dispatch: float,
+) -> float:
+    """Compute exact threshold on validation episode-max eligible scores matching target_dispatch on val."""
+    work = pd.DataFrame(
+        {
+            "episode_id": val_df["episode_id"].to_numpy(),
+            "eff": np.where(gate, score, -1e18),
+        }
+    )
+    ep_max = work.groupby("episode_id", sort=False)["eff"].max().to_numpy(dtype=np.float64)
+    # Probability(ep_max > th) == target_dispatch -> th = quantile at (1 - target_dispatch)
+    q = float(np.clip(1.0 - target_dispatch, 0.0, 1.0))
+    return float(np.quantile(ep_max, q))
 
 
 def run() -> None:
-    root = ROOT
-    path = root / "revision" / "results" / "lagged_candidates.parquet"
-    df = pd.read_parquet(path)
+    out_dir = ROOT / "revision" / "results"
+    df = pd.read_parquet(out_dir / "lagged_candidates.parquet")
     df["date"] = pd.to_datetime(df["date"])
-    # Top 5 by lagged spread among quotes that are actually lagged.
-    df = df[df["lag_price"].notna() & (df["lag_spread"] > 100)].copy()
-    df = df.sort_values(["episode_id", "lag_spread"], ascending=[True, False])
-    df["_rk"] = df.groupby("episode_id").cumcount()
-    df = df[df["_rk"] < 5].copy()
-    df["split"] = np.where(df["date"] <= "2025-05-31", "val", "test")
-    df = attach_payoffs(df, "sequential", "none", 1.5, 0.10)
+    df["split"] = np.where(df["date"] <= pd.Timestamp("2025-05-31"), "val", "test")
 
-    def eval_split(sub: pd.DataFrame, b2_theta: float, margin: float, score_col: str) -> dict:
-        # Map row payoff. score_col is the decision score already on the frame.
-        b1 = _pick(sub, sub["lag_spread"].to_numpy(), np.ones(len(sub), dtype=bool))
-        y_b1 = b1
-        age = sub["lag_age"].to_numpy()
-        net = (sub["lag_price"] - sub["local_price"] - sub["freight_road"]).to_numpy()
-        b2_ok = (age <= 1) & (net > b2_theta)
-        b2 = _pick(sub, net, b2_ok)
-        y_b2 = b2
-        if score_col == "net_road":
-            sc = net
-            ok = (age >= 1) & (age <= 3) & (sc > margin)
-        elif score_col == "net_euclid":
-            sc = (sub["lag_price"] - sub["local_price"] - sub["freight_euclid"]).to_numpy()
-            ok = (age >= 1) & (age <= 3) & (sc > margin)
-        elif score_col == "net_clim":
-            # Expected spoil cost at 2024 climatology, zero wait, subtracted from the lagged net.
-            sp = spoil_frac(
-                sub["Commodity"].to_numpy(),
-                sub["truck_hours"].to_numpy(dtype=np.float64),
-                np.zeros(len(sub)),
-                sub["clim_tmax"].fillna(20).to_numpy(dtype=np.float64),
-                sub["clim_rh"].fillna(65).to_numpy(dtype=np.float64),
-                sub["clim_rain"].fillna(0).to_numpy(dtype=np.float64),
-            )
-            sc = net - sub["lag_price"].to_numpy(dtype=np.float64) * sp
-            ok = (age >= 1) & (age <= 3) & (sc > margin)
+    y_seq, otypes = settle_candidates(df, how="sequential", weather="none", div=1.5, disc=0.10, return_outcomes=True)
+    df["y"] = y_seq
+    df["outcome_type"] = otypes
+
+    val = df[df["split"] == "val"].copy().reset_index(drop=True)
+    test = df[df["split"] == "test"].copy().reset_index(drop=True)
+    val_f = compute_decision_features(val)
+    test_f = compute_decision_features(test)
+
+    # Fair equal-menu policy family specs: (name, role, score_key, gate_fn, fixed_threshold_or_None)
+    policy_specs = [
+        ("B1_lagged_screen", "baseline_screen", "lag_spread", lambda f: np.ones(len(f["age"]), dtype=bool), 100.0),
+        ("B2_fresh_100", "baseline_fresh_fixed100", "net_road_fee", lambda f: f["age"] <= 1, 100.0),
+        ("B2_fresh_val", "baseline_fresh_val_tuned", "net_road_fee", lambda f: f["age"] <= 1, None),
+        ("B2_age_matched", "baseline_age1_3_val_tuned", "net_road_fee", lambda f: (f["age"] >= 1) & (f["age"] <= 3), None),
+        ("B2_age7_val", "baseline_age1_7_val_tuned", "net_road_fee", lambda f: (f["age"] >= 1) & (f["age"] <= 7), None),
+        ("B_simple_activity", "baseline_simple_activity", "net_road_fee", lambda f: (f["age"] >= 1) & (f["age"] <= 3) & (f["rep14"] >= 0.50), None),
+        ("Abl_T2_only", "ablation_T2_road_fee", "net_road_fee", lambda f: (f["age"] >= 1) & (f["age"] <= 3), None),
+        ("Abl_T2_T3", "ablation_T2_T3_spoil", "net_road_fee_spoil", lambda f: (f["age"] >= 1) & (f["age"] <= 3), None),
+        ("Abl_T1_T2_noT3", "ablation_T1_T2_no_spoil", "net_road_fee", lambda f: (f["age"] >= 1) & (f["age"] <= 3) & (f["rep14"] >= 0.50) & (f["dow8"] >= 0.35), None),
+        ("MG_T1_T2_T3_T4", "cautious_T1_T2_T3_T4", "net_road_fee_spoil", lambda f: (f["age"] >= 1) & (f["age"] <= 3) & (f["rep14"] >= 0.50) & (f["dow8"] >= 0.35), None),
+        ("Abl_euclid_freight", "ablation_euclid_distance", "net_euc_fee_spoil", lambda f: (f["age"] >= 1) & (f["age"] <= 3) & (f["rep14"] >= 0.50) & (f["dow8"] >= 0.35), None),
+        ("Abl_clim2024_spoil", "ablation_2024_clim_spoil", "net_clim_fee_spoil", lambda f: (f["age"] >= 1) & (f["age"] <= 3) & (f["rep14"] >= 0.50) & (f["dow8"] >= 0.35), None),
+    ]
+
+    main_rows = []
+    chosen_test: Dict[str, pd.DataFrame] = {}
+    tuned_thresholds: Dict[str, float] = {}
+    val_summaries: Dict[str, dict] = {}
+
+    for pname, role, skey, gfn, fixed_th in policy_specs:
+        if fixed_th is None:
+            th, vrec = tune_threshold_on_val(val, val_f, skey, gfn)
         else:
-            raise ValueError(score_col)
-        mg = _pick(sub, sc, ok)
-        y_mg = mg
-        # Align to the episode list of this split (episodes that have a lagged shortlist).
-        return {
-            "B1": summarize("B1", y_b1, y_b1["y"].to_numpy()),
-            "B2": summarize("B2", y_b2, y_b2["y"].fillna(0).to_numpy()),
-            "MG": summarize("MG", y_mg, y_mg["y"].fillna(0).to_numpy()),
-            "frames": {"B1": y_b1, "B2": y_b2, "MG": y_mg},
-        }
+            th = float(fixed_th)
+            vrec = summarize_chosen(pname, pick_episode(val, val_f[skey], gfn(val_f) & (val_f[skey] > th)))
+        tuned_thresholds[pname] = th
+        val_summaries[pname] = vrec
 
-    val = df[df["split"] == "val"]
-    # Tune conservative B2 and the cautious margin on validation only.
-    best_b2 = None
-    for th in THETAS:
-        rec = eval_split(val, th, 100.0, "net_road")["B2"]
-        key = (rec["loss_rate"] if rec["loss_rate"] is not None else 1.0, -(rec["mean"] or -1e9))
-        if best_b2 is None or key < best_b2[0]:
-            best_b2 = (key, th, rec)
-    b2_theta = best_b2[1]
-    best_m = None
-    for m in MARGINS:
-        rec = eval_split(val, b2_theta, m, "net_road")["MG"]
-        if rec["dispatch_rate"] is None or rec["dispatch_rate"] < 0.25:
-            continue
-        key = (rec["loss_rate"], -(rec["mean"]))
-        if best_m is None or key < best_m[0]:
-            best_m = (key, m, rec)
-    if best_m is None:
-        # Fall back to the margin with the lowest loss rate, ignoring the dispatch floor.
-        for m in MARGINS:
-            rec = eval_split(val, b2_theta, m, "net_road")["MG"]
-            key = (rec["loss_rate"] if rec["loss_rate"] is not None else 1.0, -(rec["mean"] or -1e9))
-            if best_m is None or key < best_m[0]:
-                best_m = (key, m, rec)
-    margin = best_m[1]
+        t_gate = gfn(test_f)
+        t_elig = t_gate & (test_f[skey] > th)
+        ch = pick_episode(test, test_f[skey], t_elig)
+        chosen_test[pname] = ch
+        row = summarize_chosen(pname, ch)
+        row["role"] = role
+        row["val_threshold"] = th
+        row["val_dispatch_rate"] = vrec["dispatch_rate"]
+        main_rows.append(row)
 
-    test = df[df["split"] == "test"]
-    primary = eval_split(test, b2_theta, margin, "net_road")
-    # Also the pre-registered-style B2 at theta 100, not the tuned one.
-    b2_100 = eval_split(test, 100.0, margin, "net_road")
-    euclid = eval_split(test, b2_theta, margin, "net_euclid")
-    clim = eval_split(test, b2_theta, margin, "net_clim")
+    main_df = pd.DataFrame(main_rows)
+    main_df.to_csv(out_dir / "main_table.csv", index=False)
 
-    # Hindsight settlement on the same chosen trips (positional index into `test`).
-    hind = attach_payoffs(test, "hindsight", "none", 1.5, 0.10)
-    hind_y = hind["y"].to_numpy(dtype=np.float64)
+    # Outcome mix across B1, B2_age_matched, B_simple_activity, MG_T1_T2_T3_T4
+    om_rows = []
+    for pname in ("B1_lagged_screen", "B2_fresh_val", "B2_age_matched", "B_simple_activity", "MG_T1_T2_T3_T4"):
+        ch = chosen_test[pname]
+        disp = ch[ch["eligible"]]
+        vc = disp["outcome_type"].value_counts()
+        tot = len(ch)
+        for otype, cnt in vc.items():
+            om_rows.append({"policy": pname, "outcome_type": str(otype), "count": int(cnt), "pct_episodes": round(100.0 * cnt / tot, 2), "pct_dispatched": round(100.0 * cnt / max(1, len(disp)), 2)})
+        abstain = int((~ch["eligible"]).sum())
+        om_rows.append({"policy": pname, "outcome_type": "ABSTAIN_HOME", "count": abstain, "pct_episodes": round(100.0 * abstain / tot, 2), "pct_dispatched": 0.0})
+    pd.DataFrame(om_rows).to_csv(out_dir / "outcome_mix.csv", index=False)
 
-    def rescore(frame: pd.DataFrame) -> dict:
-        yy = hind_y[frame["_i"].to_numpy()]
-        return summarize("x", frame, yy)
+    # Matched-dispatch calibration strictly from validation percentiles (R4 / M3 fix)
+    target_b2_val_disp = float(val_summaries["B2_age_matched"]["dispatch_rate"])
+    matched_targets = [("B2_age_matched_val", target_b2_val_disp), ("60pct_val", 0.60), ("70pct_val", 0.70), ("75pct_val", 0.75)]
+    matched_rows = []
+    matched_chosen_b2 = None
+    matched_chosen_mg = None
+    for tname, tgt in matched_targets:
+        for pname, role, skey, gfn, _ in policy_specs:
+            if pname == "B1_lagged_screen":
+                continue
+            th_m = find_val_matched_threshold(val, val_f[skey], gfn(val_f), tgt)
+            ch_m = pick_episode(test, test_f[skey], gfn(test_f) & (test_f[skey] > th_m))
+            rec = summarize_chosen(pname, ch_m)
+            rec["match_target"] = tname
+            rec["target_val_dispatch"] = round(tgt, 4)
+            rec["calibrated_threshold"] = round(th_m, 2)
+            matched_rows.append(rec)
+            if tname == "B2_age_matched_val" and pname == "B2_age_matched":
+                matched_chosen_b2 = ch_m
+            if tname == "B2_age_matched_val" and pname == "MG_T1_T2_T3_T4":
+                matched_chosen_mg = ch_m
+    pd.DataFrame(matched_rows).to_csv(out_dir / "matched_dispatch.csv", index=False)
 
-    settlement_rows = []
-    for label, frame in primary["frames"].items():
-        a = summarize(label, frame, frame["y"].fillna(0).to_numpy())
-        a["settlement"] = "sequential"
-        b = rescore(frame)
-        b["policy"] = label
-        b["settlement"] = "hindsight"
-        settlement_rows.extend([a, b])
+    # Paired two-way cluster bootstrap across TWO schemes for Mean, EpLossRate, and exact ES10 + Holm
+    boot_rows = []
+    base_df = chosen_test["MG_T1_T2_T3_T4"][["episode_id", "date", "origin_market_key", "State", "Commodity"]].copy()
+    for pname, ch in chosen_test.items():
+        base_df[pname] = ch["y"].to_numpy(dtype=np.float64)
+        base_df[f"{pname}_disp"] = ch["eligible"].to_numpy(dtype=bool)
+        base_df[f"{pname}_dest"] = ch["dest_market"].to_numpy()
+    base_df["MG_matched"] = matched_chosen_mg["y"].to_numpy(dtype=np.float64)
+    base_df["B2_matched"] = matched_chosen_b2["y"].to_numpy(dtype=np.float64)
 
-    # Risk-coverage for the cautious rule and for B2.
-    curve = []
-    for m in list(range(0, 801, 25)):
-        rec = eval_split(test, 100.0, float(m), "net_road")["MG"]
-        rec["knob"] = m
-        rec["family"] = "MG_margin"
-        curve.append(rec)
-    for th in list(range(0, 801, 25)):
-        rec = eval_split(test, float(th), margin, "net_road")["B2"]
-        rec["knob"] = th
-        rec["family"] = "B2_theta"
-        curve.append(rec)
+    # Second cluster key: B2_age_matched chosen destination (or origin when B2 abstains)
+    base_df["dest_or_origin_key"] = np.where(base_df["B2_age_matched_disp"], base_df["B2_age_matched_dest"], base_df["origin_market_key"])
 
-    # Missing-price grid on the frozen choices, by crop and overall.
-    sens = []
-    for div in (0.0, 0.5, 1.0, 1.5):
-        for disc in (0.0, 0.05, 0.10):
-            alt = attach_payoffs(test, "sequential", "none", div, disc)
-            # evaluate using alt y
-            backed = test.copy()
-            backed["y"] = alt["y"]
-            # monkeypatch by replacing test y
-            saved = test["y"].copy()
-            test["y"] = alt["y"].to_numpy()
-            rec = eval_split(test, b2_theta, margin, "net_road")
-            for pol in ("B1", "B2", "MG"):
-                row = dict(rec[pol])
-                row["div"] = div
-                row["disc"] = disc
-                row["slice"] = "ALL"
-                sens.append(row)
-            for crop, g in test.groupby("Commodity"):
-                rg = eval_split(g, b2_theta, margin, "net_road")
-                for pol in ("B1", "B2", "MG"):
-                    row = dict(rg[pol])
-                    row["div"] = div
-                    row["disc"] = disc
-                    row["slice"] = str(crop)
-                    sens.append(row)
-            for state, g in test.groupby("State"):
-                rg = eval_split(g, b2_theta, margin, "net_road")
-                row = dict(rg["MG"])
-                row["div"] = div
-                row["disc"] = disc
-                row["slice"] = "state:" + str(state)
-                sens.append(row)
-            test["y"] = saved
+    contrasts = [
+        ("MG_vs_B1", "MG_T1_T2_T3_T4", "B1_lagged_screen", True),
+        ("MG_vs_B2_age_matched", "MG_T1_T2_T3_T4", "B2_age_matched", True),
+        ("MG_vs_B_simple_activity", "MG_T1_T2_T3_T4", "B_simple_activity", True),
+        ("MG_vs_B2_fresh_val", "MG_T1_T2_T3_T4", "B2_fresh_val", False),
+        ("MG_matched_vs_B2_age_matched", "MG_matched", "B2_matched", True),
+        ("B2_age_matched_vs_B1", "B2_age_matched", "B1_lagged_screen", False),
+    ]
+    for cname, ca, cb, in_holm in contrasts:
+        for sch_name, mcol in (("origin_x_2week", "origin_market_key"), ("b2dest_or_origin_x_2week", "dest_or_origin_key")):
+            res = two_way_cluster_bootstrap_all_metrics(base_df, ca, cb, mandi_col=mcol, reps=2000, seed=20261117)
+            for metric, mdict in res.items():
+                # Directional primary hypothesis: Mean > 0 ('greater'), EpLossRate < 0 ('less'), ES10 > 0 ('greater')
+                p_dir = mdict["p_value_less"] if metric == "ep_loss_rate" else mdict["p_value_greater"]
+                boot_rows.append(
+                    {
+                        "contrast": cname,
+                        "cluster": sch_name,
+                        "metric": metric,
+                        "in_holm_family": in_holm,
+                        "estimate": round(mdict["estimate"], 4),
+                        "ci95_low": round(mdict["ci95_low"], 4),
+                        "ci95_high": round(mdict["ci95_high"], 4),
+                        "p_value": p_dir,
+                        "p_value_two_sided": mdict["p_value_two_sided"],
+                        "n": mdict["n"],
+                        "n_clusters": mdict["n_clusters"],
+                        "n_blocks": mdict["n_blocks"],
+                    }
+                )
+    boot_df = pd.DataFrame(boot_rows)
+    # Apply Holm-Bonferroni within each clustering scheme over the declared primary family
+    boot_df["p_holm"] = np.nan
+    for sch in ("origin_x_2week", "b2dest_or_origin_x_2week"):
+        mask = (boot_df["cluster"] == sch) & (boot_df["in_holm_family"])
+        boot_df.loc[mask, "p_holm"] = holm_bonferroni(boot_df.loc[mask, "p_value"].tolist())
+    boot_df.to_csv(out_dir / "bootstrap.csv", index=False)
 
-    # Crop and state at the primary penalty, with bootstrap CIs for MG-B2 and MG-B1.
-    frames = primary["frames"]
-    base = frames["MG"][["episode_id", "date", "origin_market_key", "State", "Commodity", "eligible", "dest_market"]].copy()
-    base["mg"] = np.where(frames["MG"]["eligible"], frames["MG"]["y"], 0.0)
-    b2y = frames["B2"][["episode_id", "eligible", "y", "dest_market"]].rename(
-        columns={"eligible": "b2_disp", "y": "b2y", "dest_market": "b2_dest"}
-    )
-    b1y = frames["B1"][["episode_id", "eligible", "y"]].rename(columns={"eligible": "b1_disp", "y": "b1y"})
-    paired = base.merge(b2y, on="episode_id").merge(b1y, on="episode_id")
-    paired["b2"] = np.where(paired["b2_disp"], paired["b2y"], 0.0)
-    paired["b1"] = np.where(paired["b1_disp"], paired["b1y"], 0.0)
-    boot = []
-    for label, a, b in (("MG_minus_B2", "mg", "b2"), ("MG_minus_B1", "mg", "b1")):
-        res = two_way_mandi_week_bootstrap(paired, a, b, reps=2000, seed=20261117, direction="greater")
-        boot.append({"contrast": label, "cluster": "origin_x_2week", **{k: res[k] for k in ("estimate", "ci95_low", "ci95_high", "p_value", "p_value_basic", "n")}})
-    # Destination x week, using B2's destination when it dispatched, else origin.
-    paired["dest_key"] = np.where(paired["b2_disp"], paired["b2_dest"], paired["origin_market_key"])
-    for label, a, bcol in (("MG_minus_B2", "mg", "b2"), ("MG_minus_B1", "mg", "b1")):
-        res = two_way_mandi_week_bootstrap(
-            paired, a, bcol, mandi_col="dest_key", reps=2000, seed=20261117, direction="greater"
-        )
-        boot.append({"contrast": label, "cluster": "b2dest_or_origin_x_2week", **{k: res[k] for k in ("estimate", "ci95_low", "ci95_high", "p_value", "p_value_basic", "n")}})
+    # Risk-coverage curve WITH 95% CIs at key thresholds for B2_age_matched & MG_T1_T2_T3_T4
+    rc_rows = []
+    for fam, skey, gfn in (
+        ("MG_T1_T2_T3_T4", "net_road_fee_spoil", lambda f: (f["age"] >= 1) & (f["age"] <= 3) & (f["rep14"] >= 0.50) & (f["dow8"] >= 0.35)),
+        ("B2_age_matched", "net_road_fee", lambda f: (f["age"] >= 1) & (f["age"] <= 3)),
+    ):
+        g_test = gfn(test_f)
+        for kn in range(0, 701, 50):
+            ch = pick_episode(test, test_f[skey], g_test & (test_f[skey] > float(kn)))
+            rec = summarize_chosen(fam, ch)
+            cis = ci95_single_metric(ch, "y", reps=500, seed=20261117 + kn)
+            rec["knob"] = kn
+            rec["family"] = fam
+            rec["mean_ci95_low"] = round(cis["mean"][0], 2)
+            rec["mean_ci95_high"] = round(cis["mean"][1], 2)
+            rec["ep_loss_ci95_low"] = round(cis["ep_loss_rate"][0], 4)
+            rec["ep_loss_ci95_high"] = round(cis["ep_loss_rate"][1], 4)
+            rec["es10_ci95_low"] = round(cis["es10"][0], 2)
+            rec["es10_ci95_high"] = round(cis["es10"][1], 2)
+            rc_rows.append(rec)
+    pd.DataFrame(rc_rows).to_csv(out_dir / "risk_coverage.csv", index=False)
 
-    by = []
-    for col in ("Commodity", "State"):
-        for gval, g in paired.groupby(col):
-            by.append(
+    # Crop & State splits with paired bootstrap CIs (MG_T1_T2_T3_T4 vs B2_age_matched)
+    by_rows = []
+    for stype in ("Commodity", "State"):
+        for sval, grp in base_df.groupby(stype, sort=True):
+            res = two_way_cluster_bootstrap_all_metrics(grp, "MG_T1_T2_T3_T4", "B2_age_matched", reps=1000, seed=20261117)
+            by_rows.append(
                 {
-                    "slice_type": col,
-                    "slice": gval,
-                    "n": int(len(g)),
-                    "mg_mean": round(float(g["mg"].mean()), 2),
-                    "b2_mean": round(float(g["b2"].mean()), 2),
-                    "b1_mean": round(float(g["b1"].mean()), 2),
-                    "mg_minus_b2": round(float((g["mg"] - g["b2"]).mean()), 2),
-                    "mg_es10": round(es10(g["mg"].to_numpy()), 2),
-                    "b2_es10": round(es10(g["b2"].to_numpy()), 2),
-                    "mg_loss_rate": round(float(((g["mg"] < 0)).mean()), 4),
+                    "slice_type": stype,
+                    "slice": str(sval),
+                    "n": int(len(grp)),
+                    "mg_disp_rate": round(float(grp["MG_T1_T2_T3_T4_disp"].mean()), 4),
+                    "b2_disp_rate": round(float(grp["B2_age_matched_disp"].mean()), 4),
+                    "mg_mean": round(float(grp["MG_T1_T2_T3_T4"].mean()), 2),
+                    "b2_mean": round(float(grp["B2_age_matched"].mean()), 2),
+                    "b1_mean": round(float(grp["B1_lagged_screen"].mean()), 2),
+                    "mg_minus_b2_mean": round(res["mean"]["estimate"], 2),
+                    "mean_diff_ci95_low": round(res["mean"]["ci95_low"], 2),
+                    "mean_diff_ci95_high": round(res["mean"]["ci95_high"], 2),
+                    "mg_es10": round(es10(grp["MG_T1_T2_T3_T4"].to_numpy()), 2),
+                    "b2_es10": round(es10(grp["B2_age_matched"].to_numpy()), 2),
+                    "es10_diff_ci95_low": round(res["es10"]["ci95_low"], 2),
+                    "es10_diff_ci95_high": round(res["es10"]["ci95_high"], 2),
+                    "mg_ep_loss_rate": round(float((grp["MG_T1_T2_T3_T4"] < 0).mean()), 4),
+                    "b2_ep_loss_rate": round(float((grp["B2_age_matched"] < 0).mean()), 4),
                 }
             )
+    pd.DataFrame(by_rows).to_csv(out_dir / "by_crop_state.csv", index=False)
 
-    out = root / "revision" / "results"
-    pd.DataFrame([primary["B1"], primary["B2"], primary["MG"], b2_100["B2"]]).assign(note="primary_sequential_noweather").to_csv(
-        out / "main_table.csv", index=False
-    )
-    # Fix B2_100 label
-    main = pd.DataFrame(
-        [
-            {**primary["B1"], "role": "B1_lagged_screen"},
-            {**b2_100["B2"], "role": "B2_theta100"},
-            {**primary["B2"], "role": "B2_val_conservative"},
-            {**primary["MG"], "role": "cautious_T1_T2_T4"},
-            {**euclid["MG"], "role": "ablation_euclid_instead_of_road"},
-            {**clim["MG"], "role": "ablation_plus_2024_climatology"},
-        ]
-    )
-    main.to_csv(out / "main_table.csv", index=False)
-    pd.DataFrame(settlement_rows).to_csv(out / "settlement_compare.csv", index=False)
-    pd.DataFrame(curve).to_csv(out / "risk_coverage.csv", index=False)
-    pd.DataFrame(sens).to_csv(out / "missing_sensitivity.csv", index=False)
-    pd.DataFrame(by).to_csv(out / "by_crop_state.csv", index=False)
-    pd.DataFrame(boot).to_csv(out / "bootstrap.csv", index=False)
-    meta = {
-        "b2_theta_frozen_on_val": b2_theta,
-        "margin_frozen_on_val": margin,
-        "val_b2": best_b2[2],
-        "val_mg": best_m[2],
-        "test_n_episodes": int(paired["episode_id"].nunique()),
+    # Settlement & outside-option comparisons
+    y_hind = settle_candidates(test, how="hindsight", weather="none", div=1.5, disc=0.10)
+    y_lag_out = settle_candidates(test, how="sequential", weather="none", div=1.5, disc=0.10, outside_option="lag")
+    y_clim_out = settle_candidates(test, how="sequential", weather="clim2024", div=1.5, disc=0.10)
+    sc_rows = []
+    for pname in ("B1_lagged_screen", "B2_fresh_val", "B2_age_matched", "B_simple_activity", "MG_T1_T2_T3_T4"):
+        ch = chosen_test[pname]
+        idx = ch["_i"].to_numpy()
+        for s_label, y_arr in (
+            ("sequential_20C_d0_outside", ch["y_raw"].to_numpy(dtype=np.float64)),
+            ("hindsight_20C_d0_outside", y_hind[idx]),
+            ("sequential_20C_lag_outside", y_lag_out[idx]),
+            ("sequential_clim2024_d0_outside", y_clim_out[idx]),
+        ):
+            r = summarize_chosen(pname, ch, y_override=y_arr)
+            r["settlement_mode"] = s_label
+            sc_rows.append(r)
+    pd.DataFrame(sc_rows).to_csv(out_dir / "settlement_compare.csv", index=False)
+
+    # Lagged HP Grade-Explicit Apple benchmark (zero HP re-tuning -> frozen 6-state thresholds!)
+    hp_df = pd.read_parquet(out_dir / "lagged_hp_apple_candidates.parquet")
+    hp_df["date"] = pd.to_datetime(hp_df["date"])
+    hp_df["y"] = settle_candidates(hp_df, how="sequential", weather="none", div=1.5, disc=0.10)
+    hp_rows = []
+    for w_label, sub_hp in (("ALL_2025_2026", hp_df), ("POST_JUNE_2026", hp_df[hp_df["date"] >= pd.Timestamp("2026-06-01")].reset_index(drop=True))):
+        hf = compute_decision_features(sub_hp)
+        for pname, _, skey, gfn, _ in policy_specs:
+            if pname not in ("B1_lagged_screen", "B2_fresh_val", "B2_age_matched", "B_simple_activity", "MG_T1_T2_T3_T4"):
+                continue
+            th = tuned_thresholds[pname]
+            ch_hp = pick_episode(sub_hp, hf[skey], gfn(hf) & (hf[skey] > th))
+            rec = summarize_chosen(pname, ch_hp)
+            rec["window"] = w_label
+            rec["threshold_used"] = th
+            hp_rows.append(rec)
+    pd.DataFrame(hp_rows).to_csv(out_dir / "hp_apple_lagged.csv", index=False)
+
+    summary = {
+        "val_window": "2025-01-01..2025-05-31",
+        "test_window": "2025-06-01..2026-04-08",
+        "val_n_episodes": int(val["episode_id"].nunique()),
+        "test_n_episodes": int(test["episode_id"].nunique()),
+        "hp_apple_lagged_n_episodes": int(hp_df["episode_id"].nunique()),
+        "tuned_thresholds_on_val": tuned_thresholds,
+        "val_summaries": val_summaries,
         "weather_primary": "none_20C_reference",
         "settlement_primary": "sequential",
+        "fee_base": "destination_post_spoilage_gross_sale_zero_on_divert_or_same_district",
         "div_primary": 1.5,
         "disc_primary": 0.10,
-        "exploratory": False,
-        "note": "Thresholds frozen on Jan-May 2025. Jun 2025-Apr 2026 is the test window. No untouched window remains beyond this split. Stage I H2 on the old same-day design stays inconclusive and is not re-opened here.",
+        "exploratory": True,
+        "note": "Thresholds frozen on Jan-May 2025. Jun 2025-Apr 2026 was previously exposed in repo history, so test evaluation is explicitly exploratory (R5). Zero dependence on gitignored candidates_6state.parquet.",
     }
-    (out / "summary.json").write_text(json.dumps(meta, indent=2, default=float))
-    print(main.to_string(index=False))
-    print(json.dumps(meta, indent=2, default=float))
-    print(pd.DataFrame(boot).to_string(index=False))
+    (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=float))
+    print("=== MAIN TABLE (test N =", summary["test_n_episodes"], ") ===")
+    print(main_df[["policy", "dispatch_rate", "mean", "ep_loss_rate", "cond_loss_rate", "es10", "val_threshold"]].to_string(index=False))
+    print("\n=== MATCHED DISPATCH (target val B2 =", round(target_b2_val_disp, 4), ") ===")
+    m_sub = pd.DataFrame(matched_rows)
+    print(m_sub[m_sub["match_target"] == "B2_age_matched_val"][["policy", "dispatch_rate", "mean", "ep_loss_rate", "cond_loss_rate", "es10", "calibrated_threshold"]].to_string(index=False))
+    print("\n=== BOOTSTRAP HOLM (origin_x_2week) ===")
+    print(boot_df[boot_df["cluster"] == "origin_x_2week"][["contrast", "metric", "estimate", "ci95_low", "ci95_high", "p_value", "p_holm"]].to_string(index=False))
+    print("\n=== BY CROP (MG vs B2_age_matched) ===")
+    print(pd.DataFrame(by_rows)[["slice_type", "slice", "n", "mg_mean", "b2_mean", "mg_minus_b2_mean", "mg_es10", "b2_es10"]].to_string(index=False))
+    print("\n=== HP APPLE LAGGED (ALL) ===")
+    print(pd.DataFrame(hp_rows)[pd.DataFrame(hp_rows)["window"] == "ALL_2025_2026"][["policy", "n", "dispatch_rate", "mean", "ep_loss_rate", "es10"]].to_string(index=False))
 
 
 if __name__ == "__main__":

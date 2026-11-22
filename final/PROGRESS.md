@@ -30,3 +30,20 @@ Step 1 [A1 PI Snapshot]
 ```
 
 - **Step 1 Acceptance Test:** Branch `finalization` checked out at `b3bb46f`, Python 3.11.5 + `sklearn 1.3.0` verified, `forecaster_2024.pkl` checked, baseline `pytest` (`25 passed, 1 failed`) recorded cleanly. **PASSED.**
+
+## Step 2: Data Forensics & Timing Firewall (`A2`/`A3`) — Commit `f08c875`
+- Rebuilt `revision/build_variant.py` and `revision/build_hp_apple_lagged.py` strictly from tracked primary files (`agmarknet_6state_top_apple_2024_2026.parquet`, `hp_apple_daily_2025_2026.csv`, `osrm_corridor_matrix.parquet`, `state_apmc_and_loss_parameters.csv`, `mandi_coordinates.parquet`, and `mandi_weather_2024_2026.parquet` strictly `< 2025-01-01`). Zero dependency on gitignored `candidates_6state.parquet`.
+- Cleaned funnel (`revision/results/cleaning_counts.json`): `260,043` raw -> dropped `759` `modal_outside_minmax` -> `259,284` valid -> `256,997` unique raw keys (`2,287` dup excess) -> `248,302` canonical variety-day rows (`8,695` variety/grade merges) -> `95,074` Top-5 shortlisted episodes (`36,398` val, `58,676` test).
+- Fixed `M7` (`tests/test_decade_and_creative_innovations.py`) and added `tests/test_timing_and_leakage_r3.py` (including counterfactual day `>= t*` price-perturbation invariance proof).
+- **Step 2 Acceptance Test:** `pytest -v` -> **30 passed in 2.96s**.
+
+## Steps 3 & 4: Sequential Settlement, Equal-Menu Baselines, Matched Ablations, Inference & Sensitivity (`A4`–`A8`)
+- Implemented `revision/stats_utils.py`, `revision/eval_run.py`, and `revision/sensitivity_a8.py` with destination-gross-sale statutory fees (`0` on same-district or divert, `M9` fixed), equal quote-age baselines (`B2_age_matched`, `B_simple_activity`), matched-dispatch `T1`–`T4` ablations, paired two-way cluster bootstrap across `origin_x_2week` and `b2dest_or_origin_x_2week` for Mean, EpLossRate, and exact `ES10` with Holm-Bonferroni correction, `by_crop_state.csv`, `hp_apple_lagged.csv`, and primary-source `A8` sensitivity (`NITI Aayog 2021`, `RBI WP 08/2024`, `NABCONS 2022`, `GoHP Economic Survey 2025-26`, `PIB 154554`).
+- Key empirical findings on `test` (`N = 58,676`, `exploratory: true`):
+  - `B1_lagged_screen` (100% disp): mean `₹397.87/qtl`, ep_loss `45.21%`, `ES10` `-₹641.26/qtl`.
+  - At val-tuned cutoffs: `B2_age_matched` (`th=200`, `72.03%` disp) mean `₹433.56`, ep_loss `26.72%`, `ES10` `-₹525.25`; `MG_T1_T2_T3_T4` (`m*=500`, `41.09%` disp) mean `₹426.90` (`-₹6.66` vs `B2_age_matched`, `p_holm=1.0`), ep_loss `9.84%`, `ES10` `-₹396.88`.
+  - At val-calibrated matched dispatch (`~70%`): `MG` (`69.51%`, `m*=131.26`) gets `₹467.90` (`+₹34.35`, `p_holm=0.006`), ep_loss `18.57%` (`-8.16 pp`, `p_holm=0.006`), `ES10` `-₹512.78` (`+₹12.49`, CI `[-₹16.57, +₹39.97]`, `p_holm=0.589` — not significant on `ES10` at matched dispatch!).
+  - `T1` activity/weekday filter (`rep14>=0.50 & dow8>=0.35`) drives virtually the entire matched gain (`Abl_T1_T2_noT3` `₹467.46`, `18.59%`), while `euclid*1.2` (`₹467.50`), `T3` reference spoilage (`+₹0.44`), and `2024` climatology (`-₹0.05`) add negligible matched mean gain.
+  - Lagged HP graded apples (`N = 2,802`): `MG` (`₹1,044.05`, `57.21%`) trails `B2_age_matched` (`₹1,199.31`, `89.47%`) on mean while reducing ep_loss (`19.20%` vs `49.54%`) and `ES10` (`-₹1,619` vs `-₹2,392`).
+  - `A8` stability boundary: `MG > B1` holds across all LCV/steep freight (`₹0.45..1.20/km`), arhtiya (`0..6%`), and spoilage (`0.5..2.0x`) stress tests, flipping only at the NITI Aayog bulk floor (`₹0.258/qtl-km`, `-₹14.23/qtl`) or `div=0` (`₹440.40` vs `₹459.38`).
+- **Steps 3 & 4 Acceptance Test:** All `revision/results/*.csv` and `summary.json` generated deterministically (`exploratory: true`). **PASSED.**
