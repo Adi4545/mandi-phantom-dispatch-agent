@@ -227,3 +227,10 @@ def test_sequential_settlement_fee_base_and_edge_cases() -> None:
     assert abs(sc[0] - (1500.0 * (1.0 - sp4) * 0.99 - 1000.0 - 80.0)) < 1e-9
     assert abs(sc[1] - (-1.5 * 80.0 - 1000.0 * sp4)) < 1e-9
 
+
+def test_manuscript_and_viva_zero_untraceable_numbers() -> None:
+    from scripts.verify_traceability import verify_docs
+
+    fails = verify_docs(ROOT)
+    assert fails == [], f"Untraceable numbers found: {fails}"
+

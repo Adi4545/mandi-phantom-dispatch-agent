@@ -1,0 +1,27 @@
+# Complexity & Difficulty Reduction Audit (`DIFFICULTY.md` — Agent `A15`)
+
+Every mathematical rule, code module, experiment, and viva defense point in `Revision v4` was stripped down to the minimum complexity justified by evidence. Below is the before-vs-after audit comparing the prior Stage I/II repo baseline (`b3bb46f` / legacy `main`) against `Revision v4`.
+
+## 1. Difficulty Scorecard (`1` = Class-12 / High-School Arithmetic, `5` = Graduate / Brittle Specialization)
+
+| Dimension | Legacy Stage I/II Baseline | Revision v4 (`RR-Abstain` + Sequential Replay) | What Changed & Why |
+|---|---:|---:|---|
+| **1. Conceptual Framing** | **4.5 / 5** | **1.5 / 5** | Replaced overloaded terms ("conformal risk control", "closed yard", "causal weather effect", "agentic cascade `T1..T4`") with plain concepts: yesterday's price gap vs return/no-quote risk weighted by past reporting frequency. |
+| **2. Mathematics & Equations** | **4.0 / 5** | **1.5 / 5** | Replaced gradient-boosted trees (`HistGradientBoostingRegressor`), quantile regression, and conditional CRC denominators `(n_loss+1)/(n_disp+1)` with 4 transparent linear arithmetic equations (`F_road`, `s_ref`, `Delta_open`, and convex combination `S_RR`), every one accompanied by a step-by-step Class-12 numeric example. |
+| **3. Codebase & Reproducibility** | **4.5 / 5** | **1.5 / 5** | Eliminated gitignored `candidates_6state.parquet`, scikit-learn 1.3.0 pickle fragility (`forecaster_2024.pkl`), and live ERA5 weather coupling (`98.64%` identical to forecast). Added 1-command `make reproduce` from tracked primary files (`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`). |
+| **4. Experimental Design & Fairness** | **4.0 / 5** | **2.0 / 5** | Replaced post-hoc holdout redesign, unequal quote ages (`age=1` vs `1..3`), and unmatched dispatch (`73.7%` vs `60.1%`) with equal-menu, age-matched (`1..3d`), validation-calibrated matched dispatch (`~70%`), pre-registered `A10` hypotheses (`87a0b62`), and two clustering schemes (`origin_x_2week` & `b2dest_or_origin_x_2week`). |
+| **5. Oral Viva Defensibility** | **4.5 / 5** | **1.5 / 5** | Every claim in `final/VIVA_QA.md` and `viva/` is machine-checked (`scripts/verify_traceability.py`) against `revision/results/`, Stage I `H2` inconclusive and graded-apple volatility stay openly visible (`R6`), and no theorem is claimed (`R7`). |
+| **Overall Mean Difficulty** | **4.3 / 5** | **1.6 / 5** | **Net reduction: −2.7 points (−63% complexity)** while strictly **improving** matched-dispatch `ES10` (`+₹52.06/qtl` over hard-gated `MG_matched`, Holm `p = 0.0020`). |
+
+---
+
+## 2. Complexity Stripped Out Because Evidence Did Not Support It (`A6` & `A15`)
+
+| Removed / Demoted Component | Prior Complexity Role | Empirical Ablation / Audit Evidence | Disposition |
+|---|---|---|---|
+| **Legacy `forecaster_2024.pkl` GBDT (`HistGradientBoostingRegressor`)** | Black-box return predictor & `B3` / `T4` interval head | Failed `H3` risk in Stage I (`45.28%` loss rate in `B3`), broke under newer scikit-learn (`cp312`), added opaque overfitting without beating lagged cost arithmetic. | **Removed** from primary Revision v4 pipeline; linear calculator rule `RR-Abstain` outperforms hard-gated rules without ML trees. |
+| **Pseudo-"Conformal Risk Control (`CRC`)" Claim** | Theoretical finite-sample risk guarantee via `(n_loss+1)/(n_dispatch+1)` | Violates exchangeability (spatiotemporal panel) and uses action-dependent denominator (`Issue I5` `n_d=0`); post-hoc Stage II redesign used the holdout twice (`Issue I2`). | **Removed** cleanly; replaced with honest finite-grid validation calibration and two-way cluster bootstrap CIs (`R7`). |
+| **Live Forecast / ERA5 Transit Weather (`T3_weather`)** | Corridor-date NWP + ERA5 heat/rain adjustment | Audit (`cleaning_counts.json`) proved `fc_rain_mm == era5_rain_mm` on `66,222 / 67,135` (`98.64%`) 2025–2026 rows; `<2025` 2024 state-month climatology changed matched mean by only `−₹0.05/qtl` (`₹467.85` vs `₹467.90`). | **Stripped** live/ERA5 weather (`none_20C_reference` primary); 2024 climatology kept only as a null sensitivity (`R3`). |
+| **Separate Hard `T1` Cutoffs (`rep14 >= 0.50`, `dow8 >= 0.35`, `m* = 500`)** | Sequential hard-pruning cascade discarding viable corridors | Forced overly conservative validation threshold (`m*=500`, `41.09%` disp -> mean `-₹6.66` vs `B2_age_matched`); at matched `~70%` dispatch, `ES10` gain over `B2` was insignificant (`+₹12.49`, CI `[-₹16.57, +₹39.97]`, `p_holm=0.589`). | **Superseded** by one continuous soft-penalized expectation `RR-Abstain` (`p_rep * open + (1 - p_rep) * miss`), beating hard-gated `MG` by `+₹52.06` `ES10` (`p_holm=0.0020`). |
+| **OSRM vs Euclidean Distance Dependence** | Required external street-network routing server | `Abl_euclid_freight` (`1.20 * euclid_km`) matched OSRM `MG` within `₹0.40/qtl` (`₹467.50` vs `₹467.90` mean, `-₹511.39` vs `-₹512.78` `ES10`). | **Simplified / Documented**: OSRM retained for precision, but plain straight-line `×1.20` formula suffices almost identically in flat corridors (`A6`). |
+| **Inflationary "Stage II + Appendix" Narrative (`90-qtl`, `ZeroCloud`)** | Exploratory side experiments confused with thesis contributions | Cluttered viva defense and triggered test/reviewer rejections (`I1`, `I8`, `C2`). | **Relegated** strictly to historical legacy archive; excluded cleanly from primary manuscript claims (`test_creative_decade_results_files_non_empty`). |
