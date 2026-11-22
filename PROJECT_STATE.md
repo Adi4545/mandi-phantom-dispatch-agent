@@ -1,35 +1,18 @@
-> **Superseded downside numbers.** Any CVaR, worst-10%, or `cvar_10` figure in this file is the mean of points below a sample quantile. It is not ES10. The current definition and the current tables are `revision/es10.py` and `revision/results/`. The Stage I comparison with the road rule remains inconclusive.
+# Project State — MandiGuard Revision v4 (`finalization`, PR #1)
 
-# Project State — `MandiGuard`
+**Current Verdict:** **CONDITIONAL PASS (8.4 / 10)** — [`final/AUDIT_V4.md`](final/AUDIT_V4.md) & [`final/READINESS.md`](final/READINESS.md).  
+**Environment:** Python `3.11.5`, `numpy 1.24.3`, `pandas 2.0.3`, `scikit-learn 1.3.0`, `scipy 1.11.1`, `pyarrow 11.0.0`, `pytest 7.4.0`.
 
-**Last Updated:** 2026-11-18 (Stage-I Confirmatory + Stage-II Mechanistic Autopsy & `MandiGuard-CRC` + Dual-Tier `Exp 14` Complete)  
-**Active Project Directory:** `/Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent`  
-**Status:** Core Stage-I (`Exp 1`–`Exp 10b`, `Exp 15`) + Dual-Tier Official Provenance Audit (`Exp 14`) + Stage-II Mechanistic Autopsy & `MandiGuard-CRC` (`Exp 16`–`Exp 17`) + Appendix Illustrations (`Exp 11`–`Exp 13b`) + 50-Q&A Viva Suite + First-Principles PDF Textbook complete (22/22 unit tests passing for deterministic execution/schema/split hygiene, executed Colab notebook + `4.83 MB` `colab_data_pack.tar.gz`, 9 300-DPI PNG figures `fig1`–`fig9`, `paper/manuscript.md`, `paper/12th_class_easy_reading_edition.md`, and `viva/` suite).
-
----
-
-## Completed Datasets & Provenance
-1. **AGMARKNET 10-Year Archive Panel (2017-01-01 to 2026-04-13) + HP Apple Grade Panel (2025-11-07 to 2026-09-01):** 42,722,187 raw streamed CSV rows from a public archive mirror -> 883,406 balanced rows across 178 2024-ranked mandis (623,363 in 2017–2023 + 260,043 in 2024–2026) + 4,427 grade-explicit official AGMARKNET 2.0 HP Apple rows (42 mandis) + 22 live Nov-2026 `agmarknet.gov.in` queries (11/22 non-reporting over 7 days) + **Dual-Tier `Exp 14` Parity Audit**: (Tier 1) official `data.gov.in` Resource `9ef84268-d588-465a-a308-a864a43d0070` XML snapshot on `2023-10-18` (100.00% `Min`/`Max` and 99.42% `Modal` across 172 matched keys) AND (Tier 2) 149-day AGMARKNET 2.0 direct export overlap (`2025-11-07..2026-04-13`, `2,042` matched market-variety-grade-day rows, **100.00% `Min`/`Max`/`Modal` parity**).
-2. **OSRM Real Highway Matrix:** 220 district-validated geocoded mandis -> 8,147 intra-state road corridors (15–500 km, auction arrival lags 1–3 days).
-3. **Climate Dataset:** 141,955 daily rows (2024–2026, 145 `0.1°` grids, 0.0% missing: 145/145 ERA5 + 102/145 Open-Meteo Historical NWP + 43 causal nowcasts) plus 291,384 NASA POWER daily rows (2017–2023, 114 `0.5°` grids, 0.0% missing).
-4. **GoI Central & State Survey Parameters:** 8 archived `pib.gov.in` HTML/PDF releases + GoHP Economic Survey 2025–26 -> `data/processed/state_apmc_and_loss_parameters.csv`.
-5. **Episode & Candidate Panels:** 239,809 6-state 2024–2026 episodes (209,450 active shortlist, 1,457,515 candidate rows), 4,129 HP Apple grade episodes (3,923 active shortlist, 33,090 candidate rows), and 2,735,166 candidate rows across 516,428 2017–2023 episodes (661,192 total matched decade episodes across `Exp 10`).
-
----
-
-## Executed Validation, Decade, Sensitivity & Appendix Milestones
-* **Pre-Registration Commit (`e421d15`):** Locked `research/hypotheses.md` and `Val_2025H1`-frozen `safety_margin_inr = ₹50.0/qtl` (78.85% empirical conformal coverage) strictly before touching holdout (`>= 2025-06-01`).
-* **View 1 — Confirmatory Holdout Outcomes (`N = 69,526` shortlisted episodes; 174 origin mandis $\times$ 23 2-week blocks; $R = 5{,}000$ cluster bootstrap; 79.07% holdout LCB coverage):**
-  * `H1` (`MandiGuard > B1` Mean $\Delta\text{Net}$): **+₹102.78/qtl**, 95% CI [+₹48.66, +₹153.45], $p_{\text{Holm}} = 0.0012$ (`SUPPORTED`).
-  * `H2` (`MandiGuard > B2` Mean $\Delta\text{Net}$): +₹6.13/qtl, 95% CI [-₹17.02, +₹25.02], $p_{\text{Holm}} = 0.2699$ (`NOT_SUPPORTED` — `H2` failed on mean profit; `MandiGuard` reduces loss-trip rate from 18.11% to 9.97% and `CVaR_10%` from -₹436.67 to -₹37.89/qtl; an exploratory 4-state NWP check yields +₹31.82/qtl).
-  * `H3` (`MandiGuard < B3` Ep. Phantom Loss): **-37.29 pp**, 95% CI [-0.4019, -0.3424], $p_{\text{Holm}} = 0.0008$ (`SUPPORTED`).
-  * `H4` (`MandiGuard` Calls `< 0.75 * B4` Calls): **-3.05 calls** (8.75 vs 15.74 = 44.4% reduction), 95% CI [-3.44, -2.69], $p_{\text{Holm}} = 0.0008$ (`SUPPORTED` — an expected design consequence of cheap-first ordering; helpful under tight query caps like `B = 6`, while direct rupee API savings are minor relative to crop profit).
-* **View 2 — Fair Matched Complete-Observation Cohorts & Trap-Penalty Crossover (`Exp 15`):**
-  * Fair matched guaranteed-open cohort (`6_Fair_Matched_AllTopK_Observed_d0`, `N = 10,162` identical episodes across all 4 policies, zero simulated trap rules): `MandiGuard` earns ₹510.89/qtl (6.82% LTR, -₹36.07 `CVaR_10%`), beating `B1` (₹472.51, +₹38.38) and `B2` (₹469.99, +₹40.91), while unfiltered point-ML `B3` earns ₹553.22/qtl (+₹42.33 higher) at 2.2x higher LTR (14.77%) and 10x deeper tail losses (-₹362.40). On `7_Fair_Matched_AllTopK_Observed_3d` (`N = 16,849`), `MandiGuard` earns ₹592.53/qtl (7.74% LTR) vs `B1` ₹581.06 (+₹11.47), `B2` ₹572.09 (+₹20.44), and `B3` ₹670.38 (15.02% LTR).
-  * Trap-penalty crossover curve (`N = 69,526`, Regimes 1–5): `MandiGuard` leads `B1` and `B3` from `1.5x`/`10%` (+₹102.78 / +₹121.94), through `1.0x`/`10%` (+₹91.66 / +₹109.39) and `0.5x`/`5%` (+₹42.43 / +₹46.12), plus `₹0` break-even on missing-3d trips (+₹82.26 / +₹73.61), crossing below `B1`/`B3` on mean only at `0.0x` return freight and `0%` variety discount (-₹10.00 vs `B1`, -₹20.93 vs `B3`, while cutting LTR roughly three-fold to 6.09%).
-* **Core Decade & Provenance Extensions (`Exp 10`, `Exp 10b`, Dual-Tier `Exp 14`):** 6-regime decade stability (Loss-Trip Rate 8.78%–12.03%, +₹165.14/qtl over `B1` in 2024 El-Niño), 1-Yr vs 8-Yr scaling (₹452.79 -> ₹454.94/qtl), and Dual-Tier `Exp 14` (`172` XML keys at 100.00%/100.00%/99.42% + `2,042` 149-day AGMARKNET 2.0 keys at 100.00% `Min`/`Max`/`Modal` parity).
-* **Stage II — Mechanistic Autopsy & Validation-Calibrated `MandiGuard-CRC` (`Exp 16`–`Exp 17`, `[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]`):**
-  * `Exp 16` verifies: (1) complete-case `dropna(target_ret)` discards 55.83% of `Train_2024` corridors and understates Q20 downside drops by 1.82x–2.00x (Train) / up to 2.54x (Holdout); (2) pooled split conformal averages 88.91%–90.46% calm `Q1` over-coverage with 67.84%–67.80% volatile `Q4` under-coverage; and (3) `82.75%`/`77.82%` of HP Apple `MG_v1` refusals vs `B2` stemmed from `T1` sub-grade sparsity rather than `T4` width.
-  * `Exp 17` (`MandiGuard-CRC`, settled-2024 trained, `Val_2025H1` calibrated at $\lambda^* = 0.15$) achieves **₹479.17/qtl** (`10.48%` LTR, `-₹44.03` CVaR, `9.07` calls) on `Holdout_2025_2026` (`+₹129.16` vs `B1`, `+₹32.51` vs `B2` [$p = 0.0016$], `+₹26.38` vs `MG_v1` [$p = 0.0002$]), **₹533.75/qtl** (`7.14%` LTR) on trap-free `N=10,162` open yards, and **₹812.08/qtl** (`+34.2%` over `MG_v1`) on HP Graded Apples.
-* **Appendix Illustrations (`Exp 11`–`Exp 13b`, Exploratory — Not Main Contributions):** Plug-in predictors & NeurIPS'21 `ACI` (`Direct_Quantile_GBDT_Q20` ₹459.02, `Deep_MLP_Conformal` HP Apple ₹615.34, `MandiGuard_ACI` reducing HP Apple worst-10% loss from -₹102.76 to -₹74.42/qtl), `MandiGuard-ZeroCloud` + Satisficing (3.84–5.53 live calls, modeled API spend reduction up to 75.6% at ₹0.05/call), `FPO` 90-qtl pooling (₹477.28/qtl under 0.70x modeled freight), `Split_Top2_Portfolio` (9.85% traps), and $Q_{10}$ spoilage clock + SMS cards.
-* **Verification Scope:** 22/22 `pytest` tests pass, verifying **deterministic code execution, schema/checksum parity, and chronological split hygiene—not real-world economic truth** (trucking costs, $Q_{10}$ spoilage, and closed-yard penalties lack field weighment receipts or farmer survey validation).
+## Synchronized Inventory & Status
+1. **Tracked Primary Datasets:**
+   - `data/raw/agmarknet_6state_top_apple_2024_2026.parquet`: `260,043` raw rows -> `759` out-of-range invalid dropped -> `259,284` valid -> `256,997` raw-key unique -> `248,302` canonical variety-day rows -> `95,074` Top-5 lagged episodes (`36,398` val, `58,676` test). Zero dependency on gitignored `candidates_6state.parquet`.
+   - `data/raw/hp_apple_daily_2025_2026.csv`: `4,427` rows (`42` HP markets) -> `2,802` Top-5 lagged episodes.
+   - `data/processed/osrm_corridor_matrix.parquet`: `8,147` corridors (`15.19–499.43 km`), `100%` join (`178/178` core, `42/42` HP).
+   - `data/processed/mandi_weather_2024_2026.parquet`: audited `66,222 / 67,135` (`98.64%`) rain identity in `2025–2026`; strictly `< 2025-01-01` 2024 climatology used only as a sensitivity check (`−₹0.05` vs `none_20C_reference`).
+2. **Core Revision Pipeline (`revision/`):** `build_variant.py`, `build_hp_apple_lagged.py`, `eval_run.py`, `sensitivity_a8.py`, `eval_a10.py` (pre-registered at `87a0b62`), `make_figures.py`, `es10.py`, `stats_utils.py`, `build_run.py`.
+3. **Verification Gates Passed:**
+   - `make reproduce` in fresh clean clone: **`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`**.
+   - `scripts/a16_independent_audit.py`: independent cleanroom re-derivation matches all headline metrics to **`₹0.00`**.
+   - `scripts/verify_traceability.py`: **`0` untraceable empirical numbers** across `paper/manuscript.md`, `final/VIVA_QA.md`, and `viva/00..03*.md`.
+   - `pytest -v`: **`32 passed`**, including counterfactual future-perturbation `R3` property tests and all edge-case settlement/fee tests.
+4. **Open External Boundary (Gate J):** Shipped windows (`2025-06..2026-04` and HP Apple) were exposed in earlier commits (`exploratory: true`). Prospective holdout & field receipts await a live FPO pilot.

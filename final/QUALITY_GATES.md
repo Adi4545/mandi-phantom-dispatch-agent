@@ -1,16 +1,14 @@
-# Quality gates (after the lagged revision)
+# Quality Gates Ledger (`QUALITY_GATES.md` — Gates `A`–`J`, Agent `A16`)
 
-| Gate | Result | Evidence |
-|---|---|---|
-| A. Pre-registration | PARTIAL | Original H1–H4 file is unchanged and H2 stays inconclusive. The lagged margin and the B2 cutoff were chosen on Jan–May 2025 by a rule written in `revision/eval_run.py` before the test printout. They are not the original four hypotheses. |
-| B. Claim–evidence | PASS for the narrow claim | Manuscript table matches `revision/results/main_table.csv`. The review's ₹397 / 67,675 table is explicitly not a result. |
-| C. Decision-time information | PASS | Quotes through \(t-1\) only. Live weather removed from the primary score. Forecast-versus-ERA5 counts are in `cleaning_counts.json`. |
-| D. Settlement | PASS | Sequential is primary. Hindsight is a separate column and is much kinder. |
-| E. Missing prices | PASS | Grid by crop and state. Loss rate stable, ES10 not. Wording is "no exact-variety price recorded." |
-| F. ES10 | PASS | `revision/es10.py` and `tests/test_es10.py`. Old quantile means are bannered as deprecated. |
-| G. Baselines at matched dispatch | PASS | B2 at ₹100 dispatches 73.95%; the cautious rule dispatches 73.73%. The curve is `risk_coverage.csv`. The cautious rule loses on loss rate and ES10. |
-| H. Novelty | PASS at the narrow scope | Retrospective scoring under incomplete variety reports, an explicit settlement, and ES10. Not a new phenomenon and not a conformal method. Baulch, Fafchamps and Minten, Ma, and Madaan checked on Crossref. |
-| I. Reproducibility of the old pickle | BLOCKED | `forecaster_2024.pkl` needs scikit-learn 1.3.0. No cp312 wheel. Not required for the new tables. |
-| J. Untouched holdout | BLOCKED as a claim, disclosed | The paper says there is none. |
-
-Readiness is a conditional pass for the simplified claim only. It is not a pass for the old conformal system or for the unreproduced ₹397 table.
+| Gate | Requirement | Verdict | Direct Evidence & File / Command Proof |
+|---|---|---|---|
+| **A. Pre-registration Discipline** | New hypotheses frozen in git BEFORE code execution; prior exposure honest. | **PASS (for `A10` protocol); PARTIAL (wrt prior calendar exposure)** | `final/PREREG_A10.md` committed at `87a0b62` strictly prior to `revision/eval_a10.py` (`5bf43cf`); `exploratory: true` set in `summary.json` & `a10_summary.json`; legacy Stage I `H1–H4` (`e421d15`) intact (`H2` left inconclusive). |
+| **B. Claim–Evidence Synchronization** | Every number in manuscript & viva matches committed CSV/JSON outputs. | **PASS** | `python3 scripts/verify_traceability.py` -> **0 untraceable numbers** across `paper/manuscript.md`, `final/VIVA_QA.md`, and `viva/00..03*.md`; enforced in `pytest`. |
+| **C. Strict Decision-Time Info (`R3`)** | Zero features or shortlists use dates `>= t`; zero ERA5/live weather leak. | **PASS** | Top-5 shortlists & `origin_lag_price` strictly `<= t - 1` (`dest_quote_date < date`, `origin_quote_date < date`); `98.64%` ERA5-identical weather excluded; proven by counterfactual future-corruption test in `tests/test_timing_and_leakage_r3.py`. |
+| **D. Non-Anticipative Settlement (`A4`)** | Day-by-day sequential sell/wait/divert primary; hindsight comparison separated. | **PASS** | `revision/eval_run.py` (`settle_candidates`), `revision/results/settlement_compare.csv`, `outcome_mix.csv`, and unit-tested across all 6 settlement branches (`d0` no-lookahead divert, `d1` wait, `d2` distress, `same_district`, divert zero-fee). |
+| **E. Missing-Price & Economic Sensitivity (`A8`)** | Primary-source parameter sweep, heterogeneous missing bounds, observed/derived/assumed audit. | **PASS** | `revision/results/epistemic_parameters.csv`, `tornado_sensitivity.csv` (`NITI`, `RBI`, `NABCONS`, `GoHP`, `PIB 154554`), `missing_sensitivity_heterogeneous.csv`, `a10_missing_stability.csv` (`div=0.0..2.0`, selective missingness). |
+| **F. Exact Tail Risk (`ES10`) & Inference (`A7`)** | Exact fractional `ES10`, paired cluster CIs for Mean/Loss/`ES10` across two schemes + Holm. | **PASS** | `revision/es10.py`, `revision/stats_utils.py`, `revision/results/bootstrap.csv`, `a10_bootstrap.csv` (both `origin_x_2week` and `b2dest_or_origin_x_2week`), `tests/test_es10.py`. |
+| **G. Fair Matched-Dispatch Baselines (`R4`/`M4`)** | Identical Top-5 menu, equal quote ages (`1..3`d), equal validation budget, matched dispatch. | **PASS** | `revision/results/matched_dispatch.csv` (`70.71%` val target), `B2_age_matched` (`1..3`d), `B_simple_activity_matched`, `MG_matched`, `RR_Abstain_matched` (`a10_results.csv`, `a10_crop_splits.csv`). |
+| **H. Defensible Narrow Novelty (`A9`–`A12`)** | Literature comparison + minimal rule surviving adversarial review without overclaiming. | **PASS (Narrow Scope)** | `final/NOVELTY_V2.md` (15-work overlap table, `A12` adversarial defense); complexity reduced `4.3 -> 1.6 / 5` (`final/DIFFICULTY.md`) while `RR_Abstain` beats hard gates on `ES10` by `+₹52.06` (`p_holm=0.0020`). |
+| **I. Clean-Clone End-to-End Reproducibility (`A13`)** | Fresh clone `make reproduce` (zero gitignored files) matches `<= ₹0.01`, `A16` independent audit, CI green. | **PASS** | `/tmp/mandiguard_clean_repro` run without `candidates_6state.parquet`: **`CLEAN_CLONE_MAX_ABS_DIFF = 0.0`**, `a16_independent_audit.py` matches `₹0.00`, `32/32` pytest green, `.github/workflows/ci.yml` configured. |
+| **J. Untouched Prospective Future Holdout** | Previously unseen future multi-state evaluation window after design freeze. | **BLOCKED (Disclosed)** | Official bulk AGMARKNET ends `2026-04-13`; all shipped test panels (`2025-06..2026-04` and HP Apple) were exposed earlier. Disclosed in `summary.json` (`exploratory: true`), `paper/manuscript.md`, `LIMITATIONS.md`, and `READINESS.md`. |

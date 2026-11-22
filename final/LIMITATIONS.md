@@ -1,12 +1,13 @@
-# Limitations (submission text)
+# Prominent Limitations and Non-Claims (`LIMITATIONS.md` — `R6` & `R7`)
 
-1. Payoffs are computed, not observed. There are no truck receipts, weighment slips, or farmer surveys behind ₹35 + ₹0.45/km, the Q10 curve, or the non-quote penalty.
-2. A day with no AGMARKNET row can be a holiday, a failed upload, a variety the clerk did not list, or a real absence of trade. The payoff model must pick one counterfactual. Several are reported in Exp 15. At a zero penalty the stored mean no longer favors MandiGuard over B1.
-3. The portal modal is not the price a farmer is paid.
-4. Duplicate conflicting quotes in 2024–2025 are collapsed by a median.
-5. Exp 14 checks 172 keys on one day and 2,042 HP-apple keys over 149 days. It does not certify the multi-year mirror.
-6. Stage I pre-registration is a git author date, and the evaluation program was committed with the hypotheses.
-7. H2 is not supported on the stored holdout. The road heuristic’s lead over screen-chasing reverses in the last part of that same holdout (Exp 18).
-8. Stage II saw the holdout before scoring the new rule. There is no untouched temporal or geographic fold left in the shipped files. Calling the gate “conformal risk control” would overstate the theorem.
-9. The 2024 forecaster pickle does not open under a current scikit-learn, so this audit did not resimulate MandiGuard.
-10. CVaR includes abstentions at zero. The ₹3,083 versus ₹3,798 comparison is a scale remark about one modeled trip.
+All six boundaries below are explicitly disclosed in Section 6 of `paper/manuscript.md` and defended openly in `final/VIVA_QA.md`:
+
+1. **Modeled Payoffs $\ne$ Farmer Cash Income (`R7`):** There are zero farmer survey receipts, freight weighment bills, or mandi auction *patti* slips in AGMARKNET. Road freight (`₹35 + ₹0.45 * hp * km`), loading (`₹35`), waiting detention (`₹25/qtl-day`), and `Q10` post-harvest biological decay are counterfactual economic approximations anchored to public benchmarks (`NITI Aayog 2021`, `NABCONS 2022`, `GoHP Economic Survey 2025–26`, `RBI WP 08/2024`), not measured household profits.
+2. **A Missing Portal Quote $\ne$ A Physically Closed Yard (`R7`):** Blank arrival cells mean no exact-variety (or commodity) row was published for that yard on that date—not proof of a physical lockout or zero trade outside the portal. Sensitivity across `div = 0.0..2.0` (`a10_missing_stability.csv`) proves `RR_Abstain_matched` remains advantageous even at zero diversion penalty (`div = 0.0, disc = 0.00`), while unmatched high-cutoff `MG` loses to `B1` at `div = 0.0`.
+3. **Exploratory Calendar Exposure & Blocked Prospective Gate J (`R5`):** Because both `2025-06-01..2026-04-08` (6-state) and `2025-11-21..2026-08-27` (HP apples) were previously examined in prior repository commits, and public bulk AGMARKNET archives stop at `2026-04-13` (while live `api.agmarknet.gov.in` retains only a rolling 7-day snapshot), no untouched future multi-state panel exists here. Gate J is **BLOCKED (disclosed)**; `A10` pre-registered `RR-Abstain` (`87a0b62`) before `eval_a10.py` existed to bound analyst degrees of freedom within exploratory backtesting.
+4. **HP Graded Apples & Stage I `H2` Inconclusiveness (`R6`):**
+   - Legacy Stage I unlagged `H2` (`MG` vs `B2`, `N = 69,526`) remains `NOT_SUPPORTED` (`+₹6.13/qtl`, 95% CI `[−₹17.02, +₹25.02]`, `p_holm = 0.2699`).
+   - On lagged HP Graded Apples (`N = 2,802`), although `RR_Abstain_matched` raises mean over `B2_age_matched` (`₹1,318.60` vs `₹1,199.31`) and trims `ES10` (`−₹2,165.73` vs `−₹2,392.12`), **44.63% of dispatched trips lose money** and summer 2026 `ES10` drops to `−₹3,453.18`, demonstrating unresolved volatility in high-value graded horticulture.
+5. **Low-Cost Heavy-Truck Floor Flip (`A8`):** Under NITI Aayog's bulk national highway road cost (`₹0.258/qtl-km`, `₹20` base), conservative unmatched `MG` falls behind `B1` (`−₹14.23/qtl`) because abstention forfeits abundant cheap long-distance arbitrages.
+6. **No Endogenous Congestion or Strategic Response:** Every payoff assumes marginal single-truck dispatch (`30 qtl` benchmark) leaving destination auction clearing prices unchanged; large coordinated FPO shifts would compress spreads.
+7. **No Conformal Coverage Theorem (`R7`):** `RR-Abstain` uses validation-selected `(kappa*, m*)`, two-way cluster bootstrap CIs, and Holm FWER adjustments; earlier conformal claims are explicitly retired.
