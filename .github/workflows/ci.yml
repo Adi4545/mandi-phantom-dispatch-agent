@@ -1,4 +1,4 @@
-name: MandiGuard Revision v4 CI
+name: MandiGuard Revision v5 CI
 
 on:
   push:

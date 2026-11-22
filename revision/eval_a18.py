@@ -529,7 +529,6 @@ def run() -> None:
     mc = pd.read_parquet(ROOT / "data/processed/mandi_coordinates.parquet", columns=["State", "Market", "geocode_precision"]).drop_duplicates(["State", "Market"])
     exact_set = set(zip(mc.loc[mc["geocode_precision"] == "market_exact", "State"], mc.loc[mc["geocode_precision"] == "market_exact", "Market"]))
     test_exact_geo = np.array([((s, om) in exact_set) and ((s, dm) in exact_set) for s, om, dm in zip(test["State"], test["origin_market"], test["dest_market"])], dtype=bool)
-    ep_exact_geo = test.groupby("episode_id")["origin_market"].transform(lambda s: True).to_numpy()
     ep_no_conf = ~test.groupby("episode_id")["touches_conflicting_dup"].transform("any").to_numpy()
     ep_olag13 = test["origin_lag_age"].to_numpy() <= 3
 
@@ -665,7 +664,12 @@ def run() -> None:
     orig_eps = test.groupby("episode_id").first()
     olag_4_7 = int((orig_eps["origin_lag_age"] > 3).sum())
     exact_geo_row_frac = float(test_exact_geo.mean())
-    exact_geo_ep_frac = float(test.groupby("episode_id").apply(lambda g: bool(((g["State"].iloc[0], g["origin_market"].iloc[0]) in exact_set) and all((s, d) in exact_set for s, d in zip(g["State"], g["dest_market"])))).mean())
+    ep_all5_exact_mask = pd.Series(test_exact_geo).groupby(test["episode_id"]).all()
+    exact_geo_all5_eps = int(ep_all5_exact_mask.sum())
+
+    ch_safe_m0 = chosen_pols["Safe_EV_Sunk_m0"]
+    safe_disp_idx = ch_safe_m0.loc[ch_safe_m0["eligible"], "_i"].to_numpy()
+    safe_cnt28_fb = int((test.loc[safe_disp_idx, "dest_obs_cnt_28d"] < 2).sum())
 
     unc_test_only = unc_test[unc_test["date"] > pd.Timestamp("2025-05-31")]
     unc_eps_n = int(unc_test_only["episode_id"].nunique())
@@ -688,6 +692,9 @@ def run() -> None:
         "a17_forensic_counts": {
             "test_exact_geocode_row_pct": round(100.0 * exact_geo_row_frac, 2),
             "test_centroid_approx_row_pct": round(100.0 * (1.0 - exact_geo_row_frac), 2),
+            "test_all5_exact_geocode_episodes": exact_geo_all5_eps,
+            "safe_ev_sunk_m0_cnt28_fallback_dispatched": safe_cnt28_fb,
+            "safe_ev_sunk_m0_cnt28_fallback_pct": round(100.0 * safe_cnt28_fb / max(1, len(safe_disp_idx)), 2),
             "test_origin_lag_4_7_episodes": olag_4_7,
             "unconditional_origin_test_episodes": unc_eps_n,
             "unconditional_origin_missing_d0_episodes": unc_unrep_d0,

@@ -140898,6 +140898,7 @@
     "a18_tornado.csv:ep_loss_rate_diff"
   ],
   "0.23": [
+    "a18_summary.json.a17_forensic_counts.safe_ev_sunk_m0_cnt28_fallback_pct",
     "a10_results.csv:cond_loss_rate_diff",
     "a18_crop_and_state_splits.csv:ep_loss_rate_diff_pp",
     "a18_missing_regimes.csv:ep_loss_rate_diff_pp",
@@ -170059,6 +170060,7 @@
     "a18_tornado.csv:ep_loss_rate_diff_pp"
   ],
   "23.0": [
+    "a18_summary.json.a17_forensic_counts.safe_ev_sunk_m0_cnt28_fallback_pct*100",
     "a18_summary.json.missing_regime_bootstraps.div_0.0_spoil_only__RR_Abstain_matched_vs_B2.mean.n_blocks",
     "a18_summary.json.missing_regime_bootstraps.div_0.0_spoil_only__RR_Abstain_matched_vs_B2.ep_loss_rate.n_blocks",
     "a18_summary.json.missing_regime_bootstraps.div_0.0_spoil_only__RR_Abstain_matched_vs_B2.es10.n_blocks",
@@ -197292,6 +197294,7 @@
     "a18_tornado.csv:es10_diff"
   ],
   "86.0": [
+    "a18_summary.json.a17_forensic_counts.safe_ev_sunk_m0_cnt28_fallback_dispatched",
     "a18_outcome_mix.csv:count",
     "a18_tornado.csv:mean_diff",
     "official_govt_survey_parameters.json.nabcons_2022_post_harvest_losses.Potato.market_level_loss_pct*100"
@@ -256717,6 +256720,9 @@
   ],
   "18180.0": [
     "a18_outcome_mix.csv:count"
+  ],
+  "18189.0": [
+    "a18_summary.json.a17_forensic_counts.test_all5_exact_geocode_episodes"
   ],
   "18284.0": [
     "risk_coverage.csv:n_dispatch"

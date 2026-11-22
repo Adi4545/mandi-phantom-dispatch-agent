@@ -19,6 +19,9 @@
   "a17_forensic_counts": {
     "test_exact_geocode_row_pct": 58.29,
     "test_centroid_approx_row_pct": 41.71,
+    "test_all5_exact_geocode_episodes": 18189,
+    "safe_ev_sunk_m0_cnt28_fallback_dispatched": 86,
+    "safe_ev_sunk_m0_cnt28_fallback_pct": 0.23,
     "test_origin_lag_4_7_episodes": 2028,
     "unconditional_origin_test_episodes": 88014,
     "unconditional_origin_missing_d0_episodes": 29338,

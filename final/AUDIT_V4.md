@@ -1,6 +1,6 @@
 # Independent Audit Report (`AUDIT_V4.md` — Agents `A16`, `A17`, & `A18` Revision v5)
 
-**Audit Chain:** External Review 3 (`6.0/10`) $\to$ Agent `A16` Cleanroom Audit $\to$ Agent `A17` Ruthless Re-Examiner & Agent `A18` Zero-Parameter Simplification $\to$ Pending Final `A17` Sign-Off.  
+**Audit Chain:** External Review 3 (`6.0/10`) $\to$ Agent `A16` Cleanroom Audit (`8.4/10`) $\to$ Agent `A17` Adversarial Re-Examiner (`6.8/10` on v4) + Agent `A18` Zero-Parameter Simplification $\to$ **`A17` Post-Remediation Re-Audit (`Revision v5 @ 84cc435` + Minor Fixes): `8.7 / 10 — CONDITIONAL PASS` (`0` Critical, `0` Major defects; Ready / Strong Accept for M.Tech Defense & Exploratory Policy Audit, Conditional Externally on Gate J Prospective Field Pilot).**  
 **Branch:** `finalization` (PR #1; zero merge to `main`, full history preserved).
 
 ---

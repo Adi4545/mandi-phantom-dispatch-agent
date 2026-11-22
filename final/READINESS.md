@@ -1,6 +1,6 @@
 # Final Readiness Assessment (`READINESS.md` — Revision v5)
 
-**Verdict:** **CONDITIONAL PASS (Pending Final Independent `A17` Re-Audit Score; READY for M.Tech Defense & Exploratory Reproducible Policy Audit, NOT READY for Unqualified Field Rollout or Causal Income Claims Without Prospective Validation).**
+**Verdict:** **CONDITIONAL PASS (`8.7 / 10` Independent `A17` Post-Remediation Sign-Off — `0` Critical, `0` Major Defects; READY / STRONG ACCEPT for M.Tech Defense & Exploratory Reproducible Policy Audit, NOT READY for Unqualified Field Rollout or Causal Income Claims Without Prospective Validation).**
 
 ---
 
