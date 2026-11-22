@@ -1,0 +1,30 @@
+name: MandiGuard Revision v4 CI
+
+on:
+  push:
+    branches: [finalization]
+  pull_request:
+    branches: [main, finalization]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r environment/requirements.txt
+      - name: Run full leak-free rebuild & evaluation
+        run: |
+          python -m revision.build_run
+      - name: Run independent audit & traceability verification
+        run: |
+          python scripts/a16_independent_audit.py
+          python scripts/verify_traceability.py
+      - name: Run pytest (including R3 counterfactual leakage tests)
+        run: |
+          python -m pytest -v
