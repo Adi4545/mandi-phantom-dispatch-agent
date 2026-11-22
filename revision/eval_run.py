@@ -77,6 +77,9 @@ def settle_candidates(
         local = df["settle_local_price_d0"].to_numpy(dtype=np.float64)
     elif outside_option == "lag":
         local = df["origin_lag_price"].to_numpy(dtype=np.float64)
+    elif outside_option == "d0_or_lag":
+        d0_arr = df["settle_local_price_d0"].to_numpy(dtype=np.float64)
+        local = np.where(np.isfinite(d0_arr) & (d0_arr > 0), d0_arr, df["origin_lag_price"].to_numpy(dtype=np.float64))
     else:
         raise ValueError(outside_option)
 

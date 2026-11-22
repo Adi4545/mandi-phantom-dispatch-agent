@@ -134,6 +134,7 @@ def main() -> None:
 
     rep28 = np.empty(len(test), dtype=np.float64)
     dow8 = np.empty(len(test), dtype=np.float64)
+    cv28 = np.empty(len(test), dtype=np.float64)
     needed_groups = test.groupby(["State", "Commodity", "Var"], sort=False).groups
     canon_groups = {k: g for k, g in canon.groupby(["State", "Commodity", "Var"], sort=False)}
     for k_grp, idxs in needed_groups.items():
@@ -142,11 +143,32 @@ def main() -> None:
         mkts = sorted(cg["Market"].unique())
         m2i = {m: i for i, m in enumerate(mkts)}
         obs = np.zeros((len(all_dates), len(mkts)), dtype=np.float64)
-        obs[cg["Arrival_Date"].map(d2i).to_numpy(), cg["Market"].map(m2i).to_numpy()] = 1.0
+        pr_mat = np.zeros((len(all_dates), len(mkts)), dtype=np.float64)
+        pr2_mat = np.zeros((len(all_dates), len(mkts)), dtype=np.float64)
+        r_cg = cg["Arrival_Date"].map(d2i).to_numpy()
+        c_cg = cg["Market"].map(m2i).to_numpy()
+        pv = cg["Modal_Price"].to_numpy(dtype=np.float64)
+        obs[r_cg, c_cg] = 1.0
+        pr_mat[r_cg, c_cg] = pv
+        pr2_mat[r_cg, c_cg] = pv * pv
+
         cs = np.zeros((len(all_dates) + 1, len(mkts)), dtype=np.float64)
+        cs_x = np.zeros((len(all_dates) + 1, len(mkts)), dtype=np.float64)
+        cs_x2 = np.zeros((len(all_dates) + 1, len(mkts)), dtype=np.float64)
         cs[1:] = np.cumsum(obs, axis=0)
+        cs_x[1:] = np.cumsum(pr_mat, axis=0)
+        cs_x2[1:] = np.cumsum(pr2_mat, axis=0)
+
         ti = np.arange(len(all_dates))
-        r28_mat = (cs[ti] - cs[np.maximum(0, ti - 28)] + 1.0) / (np.minimum(ti, 28)[:, None] + 2.0)
+        t28 = np.maximum(0, ti - 28)
+        r28_mat = (cs[ti] - cs[t28] + 1.0) / (np.minimum(ti, 28)[:, None] + 2.0)
+        cnt28 = cs[ti] - cs[t28]
+        sx28 = cs_x[ti] - cs_x[t28]
+        sx228 = cs_x2[ti] - cs_x2[t28]
+        with np.errstate(divide="ignore", invalid="ignore"):
+            mu28 = np.where(cnt28 >= 2, sx28 / np.maximum(cnt28, 1.0), 1.0)
+            var28 = np.where(cnt28 >= 2, np.maximum(0.0, (sx228 - (sx28 * sx28) / np.maximum(cnt28, 1.0)) / np.maximum(cnt28 - 1.0, 1.0)), 0.0)
+            cv28_mat = np.where((cnt28 >= 2) & (mu28 > 0), np.clip(np.sqrt(var28) / mu28, 0.0, 1.0), 0.05)
 
         dow_mat = np.full((7, len(all_dates), len(mkts)), 0.5, dtype=np.float64)
         for w in range(7):
@@ -169,6 +191,7 @@ def main() -> None:
         j_c = test.loc[idx_np, "dest_market"].map(m2i).to_numpy()
         rep28[idx_np] = r28_mat[t_idx_arr[idx_np], j_c]
         dow8[idx_np] = dow_mat[arr_dow[idx_np], t_idx_arr[idx_np], j_c]
+        cv28[idx_np] = cv28_mat[t_idx_arr[idx_np], j_c]
 
     # Independent arrival lookup & sequential payoff
     fees = pd.read_csv(ROOT / "data/processed/state_apmc_and_loss_parameters.csv")
@@ -250,7 +273,40 @@ def main() -> None:
     eval_rule("B2_age_matched", net_b2, (age <= 3) & (net_b2 > 200.0))
     eval_rule("RR_Abstain_matched", sc_rr, (age <= 3) & (sc_rr > m_rr))
     eval_rule("RR_Abstain_m0", sc_rr, (age <= 3) & (sc_rr > 0.0))
-    print("A16 INDEPENDENT AUDIT PASSED WITHIN <= ₹0.01 ACROSS ALL HEADLINE POLICIES!")
+
+    # Independent audit of zero-parameter A18 policies against a18_results.csv + cluster invariants
+    if (res_dir / "a18_results.csv").exists():
+        pub_a18 = pd.read_csv(res_dir / "a18_results.csv").set_index("policy")
+        g_plain = p_dest_l * (1.0 - fee_r) - p_orig_l
+        g_1sd = p_dest_l * (1.0 - cv28) * (1.0 - fee_r) - p_orig_l
+        p_min = np.minimum(rep28, dow8)
+        sc_safe_sunk = dow8 * g_1sd - f_road
+        sc_safe_phys = dow8 * (g_1sd - f_road) - (1.0 - dow8) * 1.5 * f_road
+        sc_rt2f_min = p_min * g_plain - 2.0 * f_road
+        sc_rt2f_dow = dow8 * g_plain - 2.0 * f_road
+        for name_a18, sc_a18 in (
+            ("Safe_EV_Sunk_m0", sc_safe_sunk),
+            ("Safe_EV_Phys_m0", sc_safe_phys),
+            ("RT_2F_Min_m0", sc_rt2f_min),
+            ("RT_2F_Dow_m0", sc_rt2f_dow),
+        ):
+            w = test[["ep_id", "road_km", "dest_market", "y"]].copy()
+            w["elig"] = (age <= 3) & (sc_a18 > 0.0)
+            w["sc"] = np.where(w["elig"], sc_a18, -1e18)
+            top = w.sort_values(["ep_id", "elig", "sc", "road_km", "dest_market"], ascending=[True, False, False, True, True]).groupby("ep_id", as_index=False).head(1)
+            yy = np.where(top["elig"], top["y"], 0.0)
+            p_row = pub_a18.loc[name_a18]
+            assert abs(float(yy.mean()) - p_row["mean"]) <= 0.01
+            assert abs(indep_es10(yy) - p_row["es10"]) <= 0.01
+            assert abs(float((yy < 0).mean()) - p_row["ep_loss_rate"]) <= 0.0002
+            print(f"A16 PASS {name_a18:20s}: disp={float(top['elig'].mean()):.4f}, mean={float(yy.mean()):.2f} (pub {p_row['mean']:.2f}), es10={indep_es10(yy):.2f} (pub {p_row['es10']:.2f})")
+
+    for bname in ("bootstrap.csv", "a10_bootstrap.csv", "a18_bootstrap.csv"):
+        bp = res_dir / bname
+        if bp.exists():
+            bdf = pd.read_csv(bp)
+            assert int(bdf["n_clusters"].max()) <= 178, f"{bname} n_clusters > 178: {bdf['n_clusters'].max()}"
+    print("A16 INDEPENDENT AUDIT PASSED WITHIN <= ₹0.01 ACROSS ALL HEADLINE POLICIES AND CLUSTER INVARIANTS!")
 
 
 if __name__ == "__main__":

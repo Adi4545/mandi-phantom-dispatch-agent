@@ -84,8 +84,13 @@ def build_verified_registry(root: Path = ROOT) -> Dict[str, List[str]]:
                     for tok in re.findall(r"[-+]?\d+(?:\.\d+)?", s):
                         add_val(float(tok), f"{cp.name}:{col}")
 
-        # Add within-table pairwise diffs on main_table / a10_results / matched_dispatch / settlement_compare / hp_apple
-        if cp.name in ("main_table.csv", "a10_results.csv", "matched_dispatch.csv", "a10_crop_splits.csv", "hp_apple_lagged.csv", "a10_hp_apple.csv", "settlement_compare.csv"):
+        # Add within-table pairwise diffs on primary & A18 tables
+        if cp.name in (
+            "main_table.csv", "a10_results.csv", "a18_results.csv", "matched_dispatch.csv",
+            "a10_crop_splits.csv", "a18_crop_and_state_splits.csv",
+            "hp_apple_lagged.csv", "a10_hp_apple.csv", "a18_hp_apple.csv",
+            "settlement_compare.csv", "a18_settlement_and_robustness.csv", "a18_missing_regimes.csv",
+        ):
             for col in [c for c in ("mean", "ep_loss_rate", "cond_loss_rate", "es10") if c in df.columns]:
                 vals = df[col].dropna().to_numpy(dtype=np.float64)
                 for i in range(len(vals)):

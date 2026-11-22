@@ -326,6 +326,7 @@ def build_lagged_candidates_from_frames(
     min_lag_spread: float = 100.0,
     top_k: int = 5,
     params: SimParams = SimParams(),
+    include_unreported_origin_days: bool = False,
 ) -> Tuple[pd.DataFrame, dict]:
     """Pure, leak-free builder turning raw price rows + static corridors into Top-K lagged candidates."""
     panel = raw_df.copy()
@@ -343,12 +344,21 @@ def build_lagged_candidates_from_frames(
     hist_lookup = {(st, cm, vk): (mkts, ex14, ex28, any14, any28, cv28, cnt28, dow_r) for (st, cm, vk, mkts, ex14, ex28, any14, any28, cv28, cnt28, dow_r) in hist_chunks}
 
     # Origin lots strictly within evaluation window (day-t modal kept ONLY as settle_local_price_d0!)
-    orig = canon_df[
+    win_canon = canon_df[
         (canon_df["Arrival_Date"] >= pd.Timestamp(min_origin_date))
         & (canon_df["Arrival_Date"] <= pd.Timestamp(max_origin_date))
     ][["State", "Market", "Commodity", "Variety_Key", "Arrival_Date", "Modal_Price"]].rename(
         columns={"Market": "origin_market", "Arrival_Date": "date", "Modal_Price": "settle_local_price_d0"}
     ).copy()
+    if include_unreported_origin_days:
+        valid_orig_keys = canon_df[["State", "Market", "Commodity", "Variety_Key"]].drop_duplicates().rename(columns={"Market": "origin_market"})
+        orig_in_cor = corridors_df[["State", "origin_market"]].drop_duplicates()
+        valid_orig_keys = valid_orig_keys.merge(orig_in_cor, on=["State", "origin_market"], how="inner")
+        win_dates = pd.DataFrame({"date": pd.date_range(pd.Timestamp(min_origin_date), pd.Timestamp(max_origin_date), freq="D")})
+        grid = valid_orig_keys.assign(_k=1).merge(win_dates.assign(_k=1), on="_k").drop(columns=["_k"])
+        orig = grid.merge(win_canon, on=["State", "origin_market", "Commodity", "Variety_Key", "date"], how="left")
+    else:
+        orig = win_canon
     counts["origin_variety_days_in_window"] = int(len(orig))
 
     # Origin lagged quote strictly <= t - 1
@@ -521,9 +531,11 @@ def build_lagged_candidates_from_frames(
                 cands["State"], cands["origin_market"], cands["dest_market"], cands["Commodity"], odate, qdate, oqdate
             )
         ])
+        cands["touches_conflicting_dup"] = hit
         counts["shortlist_rows_touching_conflicting_dup"] = int(hit.sum())
         counts["shortlist_episodes_touching_conflicting_dup"] = int(cands.loc[hit, "episode_id"].nunique())
     else:
+        cands["touches_conflicting_dup"] = False
         counts["shortlist_rows_touching_conflicting_dup"] = 0
         counts["shortlist_episodes_touching_conflicting_dup"] = 0
 

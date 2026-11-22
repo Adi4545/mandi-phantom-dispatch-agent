@@ -305,3 +305,46 @@ def test_repo_portability_citations_and_prereg_order() -> None:
             )
             assert is_anc.returncode == 0, f"PREREG_A10 ({c_prereg[0]}) is not an ancestor of eval_a10 ({c_eval[0]})"
 
+        c_a18_prereg = subprocess.run(
+            ["git", "log", "--reverse", "--format=%H", "--", "final/PREREG_A18.md"],
+            cwd=ROOT, capture_output=True, text=True, check=False,
+        ).stdout.strip().splitlines()
+        c_a18_eval = subprocess.run(
+            ["git", "log", "--reverse", "--format=%H", "--", "revision/eval_a18.py"],
+            cwd=ROOT, capture_output=True, text=True, check=False,
+        ).stdout.strip().splitlines()
+        if c_a18_prereg and c_a18_eval:
+            assert c_a18_prereg[0] != c_a18_eval[0], "PREREG_A18.md and eval_a18.py must not share initial commit"
+            is_anc2 = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", c_a18_prereg[0], c_a18_eval[0]],
+                cwd=ROOT, check=False,
+            )
+            assert is_anc2.returncode == 0, f"PREREG_A18 ({c_a18_prereg[0]}) is not an ancestor of eval_a18 ({c_a18_eval[0]})"
+
+
+def test_a18_zero_param_scorers_and_cluster_bounds() -> None:
+    from revision.eval_a18 import score_rt2f_min, score_safe_ev_sunk
+
+    row = pd.DataFrame([{
+        "dest_lag_price": 2000.0,
+        "origin_lag_price": 1500.0,
+        "dest_price_cv_28d": 0.10,
+        "fee_rate": 0.015,
+        "freight_road": 125.0,
+        "dest_dow_exact_rep_8w": 0.80,
+        "dest_exact_rep_28d": 0.70,
+    }])
+    # Safe_EV_Sunk: 0.80 * (2000*0.90*0.985 - 1500) - 125 = 0.80 * 273.0 - 125 = 93.40
+    assert abs(float(score_safe_ev_sunk(row)[0]) - 93.40) < 1e-9
+    # RT_2F_Min: 0.70 * (2000*0.985 - 1500) - 2*125 = 0.70 * 470 - 250 = 79.00
+    assert abs(float(score_rt2f_min(row)[0]) - 79.00) < 1e-9
+
+    # Ensure zero phantom cluster keys > 178 across all bootstrap result tables
+    res_dir = ROOT / "revision" / "results"
+    for bname in ("bootstrap.csv", "a10_bootstrap.csv", "a18_bootstrap.csv"):
+        bp = res_dir / bname
+        assert bp.exists(), f"Missing {bname}"
+        bdf = pd.read_csv(bp)
+        assert int(bdf["n_clusters"].max()) <= 178
+        assert "p_holm_2s" in bdf.columns
+
