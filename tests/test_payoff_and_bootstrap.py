@@ -66,8 +66,35 @@ def test_realized_outcome_open_vs_closed_trap() -> None:
         params=p,
     )
     assert closed_out["closed_or_no_variety_trap"]
+    assert closed_out["no_exact_variety_3d"] is True
+    assert closed_out["outcome_type"] == "closed_yard_divert"
     assert closed_out["delta_net_inr"] < 0.0
     assert np.isnan(closed_out["open_d0_delta_net_inr"])
+
+    # A later exact-variety quote is a realized sale, not a three-day absence.
+    # The trap flag is still True because wait_days > 0. Callers must not
+    # describe that flag as an observed market closure.
+    waited = compute_realized_dispatch_outcome(
+        state="Maharashtra",
+        commodity="Onion",
+        local_price=1500.0,
+        road_km=120.0,
+        truck_hours=4.0,
+        same_district=False,
+        arrival_lag_days=1,
+        dest_exact_prices=(np.nan, np.nan, 2100.0, 1900.0, np.nan, np.nan),
+        dest_any_var_min_d0=1800.0,
+        dest_any_open_d0=True,
+        route_tmax=28.0,
+        route_rh=60.0,
+        route_rain=0.0,
+        params=p,
+    )
+    assert waited["wait_days"] == 1
+    assert waited["outcome_type"] == "exact_wait_d1"
+    assert waited["closed_or_no_variety_trap"] is True
+    assert waited["no_exact_variety_3d"] is False
+    assert np.isfinite(waited["delta_net_inr"])
 
 
 def test_bootstrap_and_holm() -> None:
@@ -86,6 +113,8 @@ def test_bootstrap_and_holm() -> None:
     assert abs(res["estimate"] - 104.5) < 1e-9
     assert res["ci95_low"] > 90.0
     assert res["p_value"] < 0.01
+    assert res["p_value_basic"] < 0.05
+    assert res["p_value_percentile"] == res["p_value"]
 
 
 def test_temporal_firewall_guard() -> None:

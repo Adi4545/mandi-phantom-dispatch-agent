@@ -1,0 +1,12 @@
+parameter,epistemic_class,specification_and_range,primary_source
+"Daily wholesale prices (Min, Modal, Max), Variety, Grade",Observed,"AGMARKNET / HF clean extract (260,043 rows -> 259,284 valid)",data/manifests/agmarknet_extract_manifest.json; NDSAP Open Govt
+HP Grade-Explicit Apple prices (2025-11..2026-09),Observed,"AGMARKNET official daily records (4,427 rows, 42 markets)",data/raw/hp_apple_daily_2025_2026.csv
+Corridor road distance & truck duration,Derived,"OSRM routing on OSM (150 exact geocodes + 70 district centroids), 1.35x truck speed, 1.25x HP speed, +4h buffer",data/manifests/road_network_manifest.json; OSM ODbL
+24h market-level loss fractions at 20C,Observed_Anchored,"Tomato 3.25%, Onion 1.96%, Apple 1.64%, Potato 0.86%",MoFPI / NABCONS (2022) Annexure-II Table-2 (PIB PRID=2151371)
+Biological Q10 & RH transit spoilage scaling,Derived_Assumed,"Q10=2.0 per 10C from 20C ref + 0.25 excess above 70% RH, clipped [0, 0.55]",Kader (2002) / Gross et al. (2016) USDA-66 Q10 standard
+Statutory APMC seller market fee / user charge,Observed_Statutory,"KA/GJ/HP-veg 0.5%, MH/HP-apple 1.0%, MP/UP 1.5% on destination gross sale; 0% intra-district or on divert",GoI PIB relid=154554 (06afe797...); data/processed/state_apmc_and_loss_parameters.csv
+Freight cost per quintal-km & fixed base,Assumed_Bracketed,"Base: Rs 35/qtl + Rs 0.45/qtl-km; swept [0.258 NITI heavy truck, 0.45, 0.75 LCV, 1.20]",NITI Aayog & RMI (2021) Rs 2.58/tonne-km = Rs 0.258/qtl-km road average
+HP hill-road freight multiplier (1.45x),Assumed_Motivated,"1.45x on HP road km; swept [1.00, 1.25, 1.45, 1.75]",GoHP Economic Survey 2025-26 Table 28 (91.59% single-lane motorable roads)
+Commission agent (arhtiya) & secondary slippage,Assumed_Stressed,"0% incremental in base (or buyer-paid); swept +2%, +4%, +6% of dest sale","RBI Bulletin TOP Study (33-37% farmer share, APMC commission context)"
+Smallholder truckload benchmark (30 qtl),Observed_Anchored,Used strictly for per-truck narrative scaling; model outputs Rs/qtl,MoSPI NSS 77th Round Report 587 (PIB PRID=1753856)
+Detention on wait & no-quote return/distress penalty,Assumed_Scenario,Wait detention Rs 25/qtl-day; other-var min*(1-0.10); no-commodity divert -1.5x freight - local*spoil,Swept homogeneously & heterogeneously in missing_sensitivity_heterogeneous.csv

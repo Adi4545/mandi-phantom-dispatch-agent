@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I Confirmatory Protocol):** Preserved verbatim for provenance (`R8`). For subsequent exploratory Revisions (`A10` & Revision v5 zero-parameter `Safe_EV_Sunk_m0` / `RT_2F_Min_m0`), see `final/PREREG_A10.md`, `final/PREREG_A18.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md`.
+
 # Pre-Registered Confirmatory Hypotheses & Statistical Protocol — `MandiGuard`
 
 **Pre-Registration Timestamp Status:** Locked in Git **before** any evaluation script reads holdout test dates (`2025-06-01`..`2026-04-08` for the 6-state TOP+Apple benchmark; `2026-06-01`..`2026-08-27` for the grade-explicit HP Apple benchmark).  

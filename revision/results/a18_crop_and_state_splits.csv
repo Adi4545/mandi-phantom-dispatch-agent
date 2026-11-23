@@ -1,0 +1,67 @@
+slice_type,slice,n,policy,dispatch_rate,mean,ep_loss_rate,es10,diff_vs_B2_mean_ci95,diff_vs_B2_es10_ci95
+Commodity,Apple,6469,B2_age_matched,0.9004,1884.89,0.2863,-1533.29,,
+Commodity,Apple,6469,MG_matched,0.8244,1923.89,0.1827,-1650.47,,
+Commodity,Apple,6469,RR_Abstain_matched,0.8666,1983.03,0.2238,-1537.3,"[24.61, 195.96]","[-209.47, 160.84]"
+Commodity,Apple,6469,Safe_EV_Sunk_m0,0.7624,1972.46,0.1699,-971.92,"[-24.81, 245.04]","[172.22, 1216.91]"
+Commodity,Apple,6469,Safe_EV_Sunk_matched,0.7816,1977.28,0.1798,-990.18,,
+Commodity,Apple,6469,RT_2F_Min_m0,0.8603,2009.73,0.2068,-1632.41,,
+Commodity,Potato,14923,B2_age_matched,0.7009,199.56,0.2739,-316.28,,
+Commodity,Potato,14923,MG_matched,0.6576,233.12,0.172,-285.21,,
+Commodity,Potato,14923,RR_Abstain_matched,0.6446,231.84,0.1438,-227.37,"[8.43, 54.90]","[62.96, 113.95]"
+Commodity,Potato,14923,Safe_EV_Sunk_m0,0.6931,234.5,0.1697,-243.97,"[6.47, 60.45]","[46.84, 97.39]"
+Commodity,Potato,14923,Safe_EV_Sunk_matched,0.779,237.08,0.2091,-258.53,,
+Commodity,Potato,14923,RT_2F_Min_m0,0.6044,232.41,0.1427,-226.66,,
+Commodity,Onion,19820,B2_age_matched,0.5914,110.75,0.2359,-345.12,,
+Commodity,Onion,19820,MG_matched,0.5928,141.24,0.1662,-301.26,,
+Commodity,Onion,19820,RR_Abstain_matched,0.577,142.16,0.1459,-243.19,"[18.97, 45.10]","[67.58, 139.80]"
+Commodity,Onion,19820,Safe_EV_Sunk_m0,0.5662,151.43,0.1345,-221.63,"[26.73, 54.42]","[85.20, 164.57]"
+Commodity,Onion,19820,Safe_EV_Sunk_matched,0.6787,153.91,0.1878,-255.45,,
+Commodity,Onion,19820,RT_2F_Min_m0,0.5081,140.88,0.1313,-237.76,,
+Commodity,Tomato,17464,B2_age_matched,0.8164,462.27,0.2899,-513.97,,
+Commodity,Tomato,17464,MG_matched,0.7952,499.93,0.2205,-506.6,,
+Commodity,Tomato,17464,RR_Abstain_matched,0.7921,503.14,0.2073,-464.66,"[15.17, 63.18]","[17.25, 82.73]"
+Commodity,Tomato,17464,Safe_EV_Sunk_m0,0.6084,461.42,0.1412,-318.32,"[-34.58, 28.50]","[143.06, 252.84]"
+Commodity,Tomato,17464,Safe_EV_Sunk_matched,0.6568,469.25,0.1636,-339.64,,
+Commodity,Tomato,17464,RT_2F_Min_m0,0.7693,504.35,0.1988,-462.72,,
+Commodity,NonApple,52207,B2_age_matched,0.698,253.73,0.2648,-397.59,,
+Commodity,NonApple,52207,MG_matched,0.679,287.49,0.186,-369.39,,
+Commodity,NonApple,52207,RR_Abstain_matched,0.6683,288.55,0.1659,-319.49,"[23.89, 46.25]","[58.38, 99.51]"
+Commodity,NonApple,52207,Safe_EV_Sunk_m0,0.6166,278.87,0.1468,-262.01,"[9.62, 39.95]","[108.37, 165.94]"
+Commodity,NonApple,52207,Safe_EV_Sunk_matched,0.7001,283.17,0.1858,-285.75,,
+Commodity,NonApple,52207,RT_2F_Min_m0,0.623,288.63,0.1571,-316.5,,
+State,Gujarat,12418,B2_age_matched,0.8687,346.29,0.3163,-609.56,,
+State,Gujarat,12418,MG_matched,0.8663,383.84,0.2515,-605.47,,
+State,Gujarat,12418,RR_Abstain_matched,0.822,361.22,0.2268,-559.18,"[-2.10, 31.88]","[11.94, 94.30]"
+State,Gujarat,12418,Safe_EV_Sunk_m0,0.7401,344.63,0.1802,-374.41,"[-49.29, 36.56]","[138.05, 369.11]"
+State,Gujarat,12418,Safe_EV_Sunk_matched,0.7849,349.98,0.2,-387.56,,
+State,Gujarat,12418,RT_2F_Min_m0,0.8133,363.51,0.226,-563.99,,
+State,Himachal Pradesh,8007,B2_age_matched,0.8381,895.68,0.3733,-843.2,,
+State,Himachal Pradesh,8007,MG_matched,0.7844,936.46,0.234,-880.36,,
+State,Himachal Pradesh,8007,RR_Abstain_matched,0.7734,1014.41,0.2204,-765.69,"[48.91, 191.73]","[-19.98, 169.84]"
+State,Himachal Pradesh,8007,Safe_EV_Sunk_m0,0.6976,1004.01,0.1816,-556.3,"[24.39, 202.94]","[59.18, 637.28]"
+State,Himachal Pradesh,8007,Safe_EV_Sunk_matched,0.7556,1005.94,0.2131,-578.85,,
+State,Himachal Pradesh,8007,RT_2F_Min_m0,0.7446,1029.03,0.2014,-827.07,,
+State,Karnataka,5791,B2_age_matched,0.8128,300.94,0.3783,-417.84,,
+State,Karnataka,5791,MG_matched,0.688,354.48,0.1977,-365.9,,
+State,Karnataka,5791,RR_Abstain_matched,0.6182,359.28,0.1563,-312.19,"[12.59, 96.36]","[44.31, 177.73]"
+State,Karnataka,5791,Safe_EV_Sunk_m0,0.6374,364.02,0.1786,-310.42,"[39.33, 86.39]","[58.23, 184.08]"
+State,Karnataka,5791,Safe_EV_Sunk_matched,0.7025,366.9,0.2169,-325.69,,
+State,Karnataka,5791,RT_2F_Min_m0,0.623,367.1,0.1583,-316.06,,
+State,Madhya Pradesh,4944,B2_age_matched,0.7294,145.19,0.3481,-467.72,,
+State,Madhya Pradesh,4944,MG_matched,0.6669,180.72,0.2542,-433.88,,
+State,Madhya Pradesh,4944,RR_Abstain_matched,0.6381,203.14,0.216,-364.17,"[24.51, 87.02]","[31.93, 181.78]"
+State,Madhya Pradesh,4944,Safe_EV_Sunk_m0,0.5322,205.92,0.1541,-250.83,"[18.12, 97.55]","[139.94, 303.97]"
+State,Madhya Pradesh,4944,Safe_EV_Sunk_matched,0.6288,206.1,0.2138,-305.76,,
+State,Madhya Pradesh,4944,RT_2F_Min_m0,0.6224,206.89,0.2097,-371.56,,
+State,Maharashtra,13060,B2_age_matched,0.7741,602.75,0.2619,-467.6,,
+State,Maharashtra,13060,MG_matched,0.7336,637.51,0.1802,-493.12,,
+State,Maharashtra,13060,RR_Abstain_matched,0.675,629.69,0.1621,-455.43,"[9.73, 45.52]","[-68.87, 68.33]"
+State,Maharashtra,13060,Safe_EV_Sunk_m0,0.6808,617.23,0.1701,-308.39,"[-5.58, 36.32]","[48.71, 303.07]"
+State,Maharashtra,13060,Safe_EV_Sunk_matched,0.7535,622.92,0.206,-330.27,,
+State,Maharashtra,13060,RT_2F_Min_m0,0.6731,634.09,0.1667,-457.8,,
+State,Uttar Pradesh,14456,B2_age_matched,0.4387,251.46,0.0988,-293.16,,
+State,Uttar Pradesh,14456,MG_matched,0.4761,271.01,0.079,-232.24,,
+State,Uttar Pradesh,14456,RR_Abstain_matched,0.5912,275.01,0.0993,-236.77,"[7.19, 38.37]","[1.78, 120.70]"
+State,Uttar Pradesh,14456,Safe_EV_Sunk_m0,0.4934,263.77,0.0728,-199.61,"[-3.18, 27.00]","[48.00, 139.86]"
+State,Uttar Pradesh,14456,Safe_EV_Sunk_matched,0.608,269.42,0.1156,-243.19,,
+State,Uttar Pradesh,14456,RT_2F_Min_m0,0.4533,268.81,0.0685,-196.09,,

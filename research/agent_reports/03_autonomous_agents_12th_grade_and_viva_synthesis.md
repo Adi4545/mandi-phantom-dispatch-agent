@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Synthesis):** Preserved for provenance (`R8`). Active Revision v5 viva & plain-English guides live in `paper/12th_class_easy_reading_edition.md`, `final/VIVA_QA.md`, and `viva/00..03*.md`.
+
 # Autonomous Multi-Agent Class-12 Readability, Viva Stress-Test & Ground-Truth Synthesis (`MandiGuard`)
 
 ## Class-12 Readability Critic

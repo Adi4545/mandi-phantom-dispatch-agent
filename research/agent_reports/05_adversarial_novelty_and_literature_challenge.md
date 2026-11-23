@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Novelty Challenge):** Preserved for provenance (`R8`). Stage-II CRC/conformal claims were retired (`DIFFICULTY.md`); active surviving novelty is in `final/NOVELTY_V2.md` and `paper/manuscript.md`.
+
 # Adversarial Literature & Novelty Challenge — Stage-II Mechanistic Findings (`MandiGuard-CRC`)
 
 **Scope:** Bibliographic verification of the 6 primary Stage-II anchor citations and an adversarial prior-art challenge against **Finding A (Censored-Arrival Survivorship Bias)**, **Finding B (Heteroscedastic Coverage Illusion)**, and **Finding C (`MandiGuard-CRC`)**.  

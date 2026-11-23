@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Literature Matrix):** Preserved for provenance (`R8`). For the active verified 15-work overlap table and Revision v5 bibliography, see `final/NOVELTY_V2.md`, `paper/references.bib`, and `paper/manuscript.md`.
+
 # Verified Literature Matrix — `MandiGuard`
 
 **Project:** *Phantom Spatial Arbitrage in Indian Mandis — Stage I (`MandiGuard`) & Stage II (`MandiGuard-CRC`)*  

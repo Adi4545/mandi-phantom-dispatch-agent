@@ -1,30 +1,28 @@
-# Reproducibility & Verification Guide — `MandiGuard`
+# Reproducibility & Cleanroom Guide (`MandiGuard` Revision v6)
 
-## 1. Environment Requirements
-* **OS / Tested Hardware:** macOS (`arm64`), 8 GB RAM (`Python 3.11.5`), also portable cleanly to Linux / Google Colab.
-* **Packages (`environment/requirements.txt`):** `numpy`, `pandas`, `pyarrow`, `scikit-learn`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `requests`, `beautifulsoup4`, `pypdf`, `pytest`, `jupyter`, `nbconvert`.
+## 1. Pinned Environment (`environment/requirements.txt`)
+- Tested cleanly on macOS `arm64` and Linux CI (`Python 3.11.5`):
+  `numpy==1.24.3`, `pandas==2.0.3`, `pyarrow==11.0.0`, `scipy==1.11.1`, `scikit-learn==1.3.0`, `matplotlib==3.7.2`, `pytest==7.4.0`.
+- **Zero ML Pickles & Zero Gitignored Files Required:** `Safe_EV_Sunk_m0`, `Safe_EV_Phys_m0`, and `RT_2F_Min_m0` require zero ML models or checkpoints, rebuilding cleanly solely from tracked raw data (`data/raw/` and `data/processed/`).
 
-## 2. Deterministic Execution Order (End-to-End Pipeline)
-1. **Official Market & Geospatial Data (`src/data/`):**
-   * `extract_agmarknet_multistate.py`: Streams 2024–2026 daily AGMARKNET CSV archives (`14,443,770` raw rows -> `260,043` causally `2024`-ranked panel rows across `178` mandis + SHA-256 manifest).
-   * `live_agmarknet_api.py`: Executes 22 open unauthenticated Nov-2026 live API queries against `api.agmarknet.gov.in`.
-   * `build_road_network.py`: District-validated geocoding (`220` mandis) + OSRM public highway routing (`8,147` intra-state corridors `15–500 km`).
-   * `fetch_climate_data.py`: Combines `145/145` ECMWF ERA5 `0.1°` daily grids with `102/145` Open-Meteo Historical NWP grids + causal $\le t$ `2024`-trained Ridge nowcaster on the remaining `43` cells.
-   * `build_official_govt_survey_table.py`: Downloads & hashes 8 official open GoI PIB HTML/PDF documents + GoHP Economic Survey 2025–26 PDF -> `data/processed/state_apmc_and_loss_parameters.csv`.
-   * `build_dispatch_episodes.py`: Builds zero-leakage episode and candidate tables (`episodes_6state.parquet`, `candidates_6state.parquet`, `episodes_hp_apple.parquet`, `candidates_hp_apple_grade.parquet`).
-   * `extract_decade_2017_2023.py`: Streams historical 2017–2023 AGMARKNET archives (`42,722,187` cumulative raw rows `2017–2026` -> `883,406` rows in fixed 178-mandi panel) alongside `291,384` daily NASA POWER agroclimatology rows (`114` `0.5°` grids, `0.0%` missing).
-2. **Stage I Pre-Holdout Training & Calibration (`src/evaluation/calibration_and_pretest.py`):**
-   * Trains `CausalArrivalForecaster` strictly on `Train_2024` (`arrival_date <= 2024-12-31`).
-   * Freezes `safety_margin_inr = 50.0` solely on `Val_2025H1` (`2025-01-01..2025-05-31`).
-3. **Stage I Holdout, Decade, Parity & Sensitivity Experiments (`src/evaluation/`):**
-   * `run_all_experiments.py`: Evaluates `B0`–`B6`, `MandiGuard`, ablations `T1`–`T4`, budget frontier, $3\times 3$ sensitivity + fee ablation, live check + `R=5,000` Two-Way Origin-Mandi $\times$ 2-Week-Block Bootstrap (`seed=20261117`, Holm $m=4$).
-   * `run_creative_decade_and_modern_experiments.py`: Runs `Exp 10` (6 macro regimes `2017H2–2026`, `661,192` eps) & `Exp 10b` (`1-Yr / 3-Yr / 8-Yr` scaling) plus Appendix illustrations `Exp 11` (`ACI`/plug-in predictors), `Exp 12` (`ZeroCloud`), and `Exp 13/13b` (`FPO` pooling, `Split Top-2`, Spoilage Clock & SMS cards).
-   * `run_official_parity_and_open_yard_sensitivity.py`: Runs `Exp 14` Dual-Tier Parity Audit (Tier-1 `data.gov.in` XML `2023-10-18` `172` matched keys: `100.0%` Min/Max, `99.42%` Modal + Tier-2 149-day AGMARKNET 2.0 `hp_apple_daily_2025_2026.csv` `2,042` matched keys: `100.00%` Min/Max/Modal) and `Exp 15` (`5`-step trap-penalty crossover curve across `N = 69,526` + `2` fair matched cohorts at `N = 10,162` and `N = 16,849`).
-4. **Stage II Mechanistic Autopsy & Validation-Calibrated `MandiGuard-CRC` (`src/evaluation/run_mechanistic_autopsy_and_crc.py`):**
-   * Computes `Exp 16` (`results/exp16_censored_bias_and_coverage_illusion.csv`) proving censored-arrival bias, heteroscedastic coverage illusion, and HP Apple sub-grade `T1` sparsity.
-   * Trains `UncensoredCRCForecaster` strictly on settled 2024 outcomes (`arrival_date + 2d <= 2024-12-31`), calibrates $\lambda^* = 0.15$ strictly on `Val_2025H1`, and evaluates `Exp 17` (`results/exp17_uncensored_crc_validation.csv` & `results/exp17_crc_bootstrap_comparisons.csv`).
-5. **Figures, First-Principles PDF, Tests & Notebooks:**
-   * `src/visualization/make_figures.py`: Generates all 9 300-DPI PNG figures (`fig1`–`fig9`) in `figures/`.
-   * `scripts/build_first_principles_defense_pdf.py`: Compiles `docs/MandiGuard_First_Principles_and_Thesis_Defense_Handbook.html` and `.pdf` (via headless Chrome, `< 10 MB`).
-   * `PYTHONPATH=. python3 -m pytest -v tests`: Runs all automated anti-leakage, SHA-256 manifest, survey parameter, ZeroCloud/ACI, Dual-Tier official parity, sensitivity, and Stage-II `MandiGuard-CRC` unit tests (`100%` offline reproducible).
-   * `src/utils/build_notebooks.py` + `jupyter nbconvert --execute`: Builds & executes notebooks `00`–`09` plus standalone Google Colab bundle (`notebooks/colab_standalone_reproduction.ipynb` + `data/processed/colab_data_pack.tar.gz`, `4.83 MB < 10 MB`).
+## 2. One-Command Cleanroom Reproduction
+
+```bash
+pip install -r environment/requirements.txt
+make reproduce
+```
+
+`make reproduce` executes end-to-end:
+1. `revision.build_variant` & `revision.build_hp_apple_lagged` -> strictly `<= t - 1` `lagged_candidates.parquet`, `cleaning_counts.json`, `feature_availability_table.csv`, `lagged_hp_apple_candidates.parquet`.
+2. `revision.eval_run` -> baselines, ablations, fixed `State|` cluster keys (`172`/`173` clusters), two-sided Holm `p_holm_2s`, sequential vs hindsight settlement.
+3. `revision.sensitivity_a8` -> `epistemic_parameters.csv`, `tornado_sensitivity.csv`, `missing_sensitivity_heterogeneous.csv`.
+4. `revision.eval_a10` -> `PREREG_A10.md` (`87a0b62`) + `kappa 0..20` ceiling diagnostic (`a10_summary.json`).
+5. `revision.eval_a18` -> locked zero-parameter `Safe_EV_Sunk_m0`, `Safe_EV_Phys_m0` & `RT_2F_Min_m0` (`PREREG_A18.md`, `4cbb02d`) + 3-scheme bootstrap, 36-cell frozen/rescored tornado, Open-MAR/`exact_zero_divert` Manski regimes, `N = 88,014` unconditional origin panel, exact-geocode/non-conflict/`olag 1..3` robustness, 6-state splits, and lagged HP graded apples -> `a18_*.csv`, `a18_summary.json`.
+6. `revision.eval_v6` -> strict `2024`-only `171`-market panel (`N = 57,634`), `100.0%`-covered realized ERA5 arrival-weather settlement (zero weather in decisions, closed & open-MAR), exact algebraically verified break-even silent-market thresholds (`resid = 0.0`), and `R = 5,000` paired cluster bootstraps across all 3 `State|` clusterings + 1-, 2-, and 4-week calendar blocks -> `v6_upgrades.csv`, `v6_breakeven.csv`, `v6_bootstrap_5000.csv`, `v6_summary.json`.
+7. `revision.make_figures` -> generates `figures/rev_fig1..4*.png`.
+8. `scripts/a16_independent_audit.py` -> independent zero-import cleanroom verification within `<= ₹0.01` across all 8 headline policies (`₹0.00`) + `n_clusters <= 178`.
+9. `scripts/verify_traceability.py` -> verifies `0` untraceable empirical numbers across all `23/23` active docs.
+10. `pytest -v` -> runs all `36` automated unit, leakage, portability, `49/49` citation parity, `R5` commit-order, `v6` break-even/ERA5/`171`-market, and compiled-deliverable integrity tests.
+
+## 3. Google Colab Notebook & Verification Scope
+Run [`notebooks/10_finalization_reproduction.ipynb`](notebooks/10_finalization_reproduction.ipynb) or [`notebooks/colab_standalone_reproduction.ipynb`](notebooks/colab_standalone_reproduction.ipynb) directly after cloning branch `finalization`. Clean-clone reproduction certifies **deterministic execution, chronological `<= t - 1` integrity, and internal numerical traceability**—not observed farm-gate income (see [`final/LIMITATIONS.md`](final/LIMITATIONS.md)).

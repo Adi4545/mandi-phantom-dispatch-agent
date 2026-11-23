@@ -1,0 +1,46 @@
+column,information_timestamp,role,description
+episode_id,t,key,"Deterministic episode key from (State, Commodity, Variety_Key, origin_market, date)"
+State,static,decision_allowed,Primary AGMARKNET / OSRM state label
+Commodity,static,decision_allowed,"Crop name (Onion, Potato, Tomato, Apple)"
+Variety_Key,static,decision_allowed,Canonicalized variety (or Variety | Grade for HP Apple)
+date,t,decision_allowed,Morning dispatch decision date t
+arrival_date,t + tau,key,Expected truck arrival date t + tau_days
+origin_market,static,decision_allowed,Origin AGMARKNET mandi name
+origin_market_key,static,decision_allowed,State|origin_market clustering identifier
+dest_market,static,decision_allowed,Candidate destination AGMARKNET mandi name
+tau_days,static,decision_allowed,OSRM physical transit days (1..3)
+road_km,static,decision_allowed,OSRM road distance (km)
+euclid_km,static,decision_allowed,Great-circle distance (km)
+truck_hours,static,decision_allowed,OSRM corridor truck hours
+same_district,static,decision_allowed,True iff origin_district == dest_district
+fee_rate,static,decision_allowed,"Statutory APMC seller rate (0 if same_district, else PIB 154554 state rate)"
+freight_road,static,decision_allowed,Assumed transport freight (35 + 0.45 * hp_mult * road_km)
+freight_euclid,static,decision_allowed,Euclidean distance freight ablation (35 + 0.45 * hp_mult * 1.2 * euclid_km)
+spoil_ref_0,static_20C,decision_allowed,NABCONS (2022) 20C reference spoilage fraction at wait=0
+origin_quote_date,<= t - 1,decision_allowed,Latest exact-variety origin modal quote date strictly before t
+origin_lag_age,>= 1,decision_allowed,"(date - origin_quote_date).days in [1, 7]"
+origin_lag_price,<= t - 1,decision_allowed,Latest exact-variety origin modal price strictly before t
+dest_quote_date,<= t - 1,decision_allowed,Latest exact-variety destination modal quote date strictly before t
+dest_lag_age,>= 1,decision_allowed,"(date - dest_quote_date).days in [1, 7]"
+dest_lag_price,<= t - 1,decision_allowed,Latest exact-variety destination modal price strictly before t
+lag_spread,<= t - 1,decision_allowed,dest_lag_price - origin_lag_price (> 100 INR/qtl menu screen)
+dest_exact_rep_14d,<= t - 1,decision_allowed,"Laplace-smoothed exact-variety reporting rate over [t-14, t-1]"
+dest_exact_rep_28d,<= t - 1,decision_allowed,"Laplace-smoothed exact-variety reporting rate over [t-28, t-1]"
+dest_any_rep_14d,<= t - 1,decision_allowed,"Laplace-smoothed any-variety reporting rate over [t-14, t-1]"
+dest_any_rep_28d,<= t - 1,decision_allowed,"Laplace-smoothed any-variety reporting rate over [t-28, t-1]"
+dest_dow_exact_rep_8w,<= t - 1,decision_allowed,Laplace-smoothed exact-variety reporting rate on arrival weekday over last <=8 prior occurrences < t
+dest_price_cv_28d,<= t - 1,decision_allowed,"Sample CV of exact-variety dest modal over [t-28, t-1] (0.05 fallback if < 2 obs)"
+dest_obs_cnt_28d,<= t - 1,decision_allowed,"Count of exact-variety destination quotes in [t-28, t-1]"
+clim_tmax_2024,< 2025-01-01,decision_allowed_sens,2024 state-month mean ERA5 Tmax (sensitivity only)
+clim_rh_2024,< 2025-01-01,decision_allowed_sens,2024 state-month mean ERA5 RH (sensitivity only)
+clim_rain_2024,< 2025-01-01,decision_allowed_sens,2024 state-month mean ERA5 rain (sensitivity only)
+settle_local_price_d0,t,settlement_only,Realized day-t origin auction modal outside option (NEVER in decisions)
+settle_dest_modal_d0,t + tau,settlement_only,Realized exact-variety modal price on arrival day d=0
+settle_dest_min_d0,t + tau,settlement_only,Realized exact-variety min price on arrival day d=0
+settle_dest_modal_d1,t + tau + 1,settlement_only,Realized exact-variety modal price on arrival day d=1
+settle_dest_min_d1,t + tau + 1,settlement_only,Realized exact-variety min price on arrival day d=1
+settle_dest_modal_d2,t + tau + 2,settlement_only,Realized exact-variety modal price on arrival day d=2
+settle_dest_min_d2,t + tau + 2,settlement_only,Realized exact-variety min price on arrival day d=2
+settle_any_min_d0,t + tau,settlement_only,Realized any-variety commodity min price on arrival day d=0
+settle_any_min_d1,t + tau + 1,settlement_only,Realized any-variety commodity min price on arrival day d=1
+settle_any_min_d2,t + tau + 2,settlement_only,Realized any-variety commodity min price on arrival day d=2

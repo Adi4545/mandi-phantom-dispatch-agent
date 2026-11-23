@@ -1,3 +1,5 @@
+> **Archival Note (Historical Stage-I/II Sign-Off):** Preserved for provenance (`R8`). Superseded by **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10` sign-off) in `final/AUDIT_V4.md` and `final/READINESS.md`.
+
 # Final Independent Red-Team & Thesis Examiner Sign-Off (`06`)
 
 ## 1. Independent Multi-Agent Review Sign-Off Summary

@@ -1,0 +1,11 @@
+policy,n,dispatch_rate,n_dispatch,mean,cond_mean,ep_loss_rate,cond_loss_rate,es10,loss_given_loss,mean_road_km,divert_rate_among_disp,note
+MG_val_es10_tuned_matched,58676,0.6655,39049,358.44,538.59,0.1791,0.2692,-445.92,-282.49,199.87,0.1038,"rep28>=0.75, dow8>=0.35, th=-32.97"
+RR_rep14_only_matched,58676,0.6894,40453,457.63,663.78,0.1986,0.2881,-461.32,-287.93,182.56,0.1904,"equal 14d info to B_simple, th=14.86"
+B2_dist_penalty_3F_matched,58676,0.7298,42821,438.01,600.19,0.2667,0.3655,-489.25,-264.1,163.85,0.2685,"no p_rep, pure distance penalty, th=-154.82"
+Safe_EV_fixed10pct_m0,58676,0.6363,37333,467.87,735.35,0.1684,0.2647,-444.75,-308.28,195.47,0.172,"fixed 10% haircut, m=0"
+Safe_EV_fixed10pct_matched,58676,0.7244,42504,472.82,652.72,0.2065,0.2851,-470.1,-288.54,192.65,0.1843,"fixed 10% haircut, th=-52.84"
+Safe_EV_euclid120_m0,58676,0.6432,37740,465.2,723.27,0.1552,0.2413,-353.68,-260.58,199.05,0.1668,1.20 * euclid_km freight
+RR_Abstain_euclid120,58676,0.7016,41166,475.81,678.2,0.1774,0.2529,-471.22,-309.3,185.96,0.1442,1.20 * euclid_km freight
+Safe_EV_clim2024_m0,58676,0.6194,36344,462.66,746.94,0.145,0.2342,-335.36,-258.44,193.53,0.1655,with 2024 ERA5 state-mo clim spoil
+B2_test_matched_to_RR_69pct,58676,0.6902,40496,431.66,625.45,0.2556,0.3703,-516.06,-295.72,207.62,0.2821,exact test-matched B2 th=234.21
+B2_test_matched_to_SafeM0,58676,0.6327,37122,427.08,675.05,0.2327,0.3679,-500.75,-300.99,208.07,0.2836,exact test-matched B2 th=298.92

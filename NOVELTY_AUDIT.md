@@ -1,8 +1,12 @@
+> **Archival Note (Superseded Stage-I/II Audit):** This historical audit predates **Revision v5** (`Safe_EV_Sunk_m0`, `RT_2F_Min_m0`, `8.7/10`, `DIFFICULTY.md`, stripped ERA5 weather/GBDT/conformal claims). For the active canonical novelty classification, see `final/NOVELTY_V2.md`, `final/AUDIT_V4.md`, and `paper/manuscript.md`.
+
+> **Superseded downside numbers.** Any CVaR, worst-10%, or `cvar_10` figure in this file is the mean of points below a sample quantile. It is not ES10. The current definition and the current tables are `revision/es10.py` and `revision/results/`. The Stage I comparison with the road rule remains inconclusive.
+
 # Adversarial Novelty Audit — `MandiGuard`
 
 **Project Title:** *Empirical Measurement of Phantom Spatial Arbitrage in Indian Mandis and a Four-Step Risk-Gated Dispatch Decision-Support System (`MandiGuard`)*  
 **Purpose of Document:** This audit strictly classifies what is **genuinely novel and defensible** for an M.Tech thesis versus what is **borrowed or applied** from existing literature, ensuring zero exaggerated algorithmic claims during peer review or thesis viva defense.  
-**Literature Anchor:** Grounded in [literature_matrix.md](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/research/literature_matrix.md) and the multi-state extraction scope implemented in [extract_agmarknet_multistate.py](file:///Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent/src/data/extract_agmarknet_multistate.py).
+**Literature Anchor:** Grounded in [research/literature_matrix.md](research/literature_matrix.md) and the multi-state extraction scope implemented in [src/data/extract_agmarknet_multistate.py](src/data/extract_agmarknet_multistate.py).
 
 ---
 
