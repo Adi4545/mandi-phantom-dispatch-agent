@@ -1,28 +1,32 @@
-# Reproducibility & Cleanroom Guide (`MandiGuard` Revision v6)
+# Deterministic Reproducibility Guide (Revision v7 — Finalized Clean Audit)
 
-## 1. Pinned Environment (`environment/requirements.txt`)
-- Tested cleanly on macOS `arm64` and Linux CI (`Python 3.11.5`):
-  `numpy==1.24.3`, `pandas==2.0.3`, `pyarrow==11.0.0`, `scipy==1.11.1`, `scikit-learn==1.3.0`, `matplotlib==3.7.2`, `pytest==7.4.0`.
-- **Zero ML Pickles & Zero Gitignored Files Required:** `Safe_EV_Sunk_m0`, `Safe_EV_Phys_m0`, and `RT_2F_Min_m0` require zero ML models or checkpoints, rebuilding cleanly solely from tracked raw data (`data/raw/` and `data/processed/`).
+All Revision v7 CSV tables, Phase 6 stress-audit CSVs (`v7_exp*.csv`), JSON summaries, publication figures, `7` compiled PDFs, `manuscript.tex`, and `MandiGuard_Research_Paper.docx` regenerate deterministically from tracked repository artifacts (`data/raw/*`, `data/processed/*`, `revision/*`, `scripts/*`).
 
-## 2. One-Command Cleanroom Reproduction
+## 1. Tracked Inputs (Zero External Downloads Needed; 100% Offline)
+- `data/raw/agmarknet_6state_top_apple_2024_2026.parquet` (`260,043` raw rows superset; strict `2024`-active `171`-market primary slice = `257,576` raw rows; `172` Tier-1 markets minus `1` >500 km OSRM-excluded corridor yard)
+- `data/raw/agmarknet_6state_decade_2017_2026.parquet` (`2017–2023` offline archive: `623,363` raw rows across `173` legacy yards; after excluding `7` post-2024 lookahead yards and enforcing exact `171 ∩ 173`, yields `166` clean non-lookahead markets / `N = 383,952` episodes, plus `115` clean `2017`-active markets / `N = 325,993` episodes; original `173` = `389,357` retained solely for provenance reconciliation)
+- `data/raw/hp_apple_daily_2025_2026.csv` (`4,427` rows across `42` HP yards)
+- `data/processed/osrm_corridor_matrix.parquet` (`8,147` road corridors within `2024`-active OSRM Top-30 frame, `15.19–499.43` km)
+- `data/processed/state_apmc_and_loss_parameters.csv` (stylized APMC seller-fee tiers & NABCONS cumulative post-harvest loss parameters; see Table 2 provenance labels)
+- `data/processed/mandi_weather_2024_2026.parquet` (settlement-only realized ERA5 `0.1°` reanalysis, `100.0%` coverage) and `data/processed/nasa_power_climate_2017_2023.parquet` (NASA POWER `0.5°` climate grid for `2018–2023` audit)
 
+> **Offline Scope Note:** `make reproduce` runs strictly offline on the tracked datasets above and does not stream the live `2017–2023` raw HuggingFace universe (`647` markets) at runtime; the `166` clean-decade intersection remains inside the pre-built `2024` OSRM top-30 corridor frame.
+
+## 2. Step-by-Step Build & Verification Targets
+Run inside the repository root (`Python 3.11+`, dependencies in `environment/requirements.txt`):
 ```bash
-pip install -r environment/requirements.txt
-make reproduce
+# 1. Rebuild Revision v7 primary (171-mkt), clean decade (166-mkt), Phase 6 stress suite, & figures
+python3 -m revision.build_run
+make v7_stress
+
+# 2. Rebuild all 7 PDFs, LaTeX, DOCX, and viva slides
+make deliverables
+
+# 3. Run leakage firewall, Revision v7 integrity tests, cleanroom independent audit & traceability gate
+python3 -m pytest -v
+python3 scripts/a16_independent_audit.py
+python3 scripts/verify_traceability.py
 ```
 
-`make reproduce` executes end-to-end:
-1. `revision.build_variant` & `revision.build_hp_apple_lagged` -> strictly `<= t - 1` `lagged_candidates.parquet`, `cleaning_counts.json`, `feature_availability_table.csv`, `lagged_hp_apple_candidates.parquet`.
-2. `revision.eval_run` -> baselines, ablations, fixed `State|` cluster keys (`172`/`173` clusters), two-sided Holm `p_holm_2s`, sequential vs hindsight settlement.
-3. `revision.sensitivity_a8` -> `epistemic_parameters.csv`, `tornado_sensitivity.csv`, `missing_sensitivity_heterogeneous.csv`.
-4. `revision.eval_a10` -> `PREREG_A10.md` (`87a0b62`) + `kappa 0..20` ceiling diagnostic (`a10_summary.json`).
-5. `revision.eval_a18` -> locked zero-parameter `Safe_EV_Sunk_m0`, `Safe_EV_Phys_m0` & `RT_2F_Min_m0` (`PREREG_A18.md`, `4cbb02d`) + 3-scheme bootstrap, 36-cell frozen/rescored tornado, Open-MAR/`exact_zero_divert` Manski regimes, `N = 88,014` unconditional origin panel, exact-geocode/non-conflict/`olag 1..3` robustness, 6-state splits, and lagged HP graded apples -> `a18_*.csv`, `a18_summary.json`.
-6. `revision.eval_v6` -> strict `2024`-only `171`-market panel (`N = 57,634`), `100.0%`-covered realized ERA5 arrival-weather settlement (zero weather in decisions, closed & open-MAR), exact algebraically verified break-even silent-market thresholds (`resid = 0.0`), and `R = 5,000` paired cluster bootstraps across all 3 `State|` clusterings + 1-, 2-, and 4-week calendar blocks -> `v6_upgrades.csv`, `v6_breakeven.csv`, `v6_bootstrap_5000.csv`, `v6_summary.json`.
-7. `revision.make_figures` -> generates `figures/rev_fig1..4*.png`.
-8. `scripts/a16_independent_audit.py` -> independent zero-import cleanroom verification within `<= ₹0.01` across all 8 headline policies (`₹0.00`) + `n_clusters <= 178`.
-9. `scripts/verify_traceability.py` -> verifies `0` untraceable empirical numbers across all `23/23` active docs.
-10. `pytest -v` -> runs all `36` automated unit, leakage, portability, `49/49` citation parity, `R5` commit-order, `v6` break-even/ERA5/`171`-market, and compiled-deliverable integrity tests.
-
-## 3. Google Colab Notebook & Verification Scope
-Run [`notebooks/10_finalization_reproduction.ipynb`](notebooks/10_finalization_reproduction.ipynb) or [`notebooks/colab_standalone_reproduction.ipynb`](notebooks/colab_standalone_reproduction.ipynb) directly after cloning branch `finalization`. Clean-clone reproduction certifies **deterministic execution, chronological `<= t - 1` integrity, and internal numerical traceability**—not observed farm-gate income (see [`final/LIMITATIONS.md`](final/LIMITATIONS.md)).
+## 3. Clean-Clone Parity Check
+`Makefile` includes a standalone `reproduce` target that clones `HEAD` into a clean directory, runs the full `build`, `eval`, `sensitivity`, `a10`, `a18`, `v6`, `v7`, `v7_stress`, `figures`, `audit`, `verify`, and `test` sequence, and verifies `0.0` maximum absolute numeric difference across every generated CSV file under `revision/results/`. Note that `final/PREREG_A10.md` and `final/PREREG_A18.md` remain untouched (`git diff` empty), and any local `data/interim/omega_lab_*.parquet` caches remain untracked and excluded from the production pipeline.

@@ -321,7 +321,7 @@ In `Exp 13`, a marginal `10-qtl` farmer facing `1.60x` freight earns `₹409.53/
 
 # MandiGuard Ground-Truth Reference Sheet
 
-All values below are exact, unrounded values verified directly from files in `/Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent`.
+All values below are exact, unrounded values verified directly from files in `<repo_root>`.
 
 ---
 

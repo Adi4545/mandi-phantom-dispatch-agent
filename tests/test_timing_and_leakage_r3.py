@@ -362,12 +362,21 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
         ROOT / "docs" / "MandiGuard_First_Principles_and_Thesis_Defense_Handbook.pdf",
         ROOT / "docs" / "MandiGuard_Master_Study_Guide.pdf",
         ROOT / "docs" / "MandiGuard_Student_Study_Guide.pdf",
+        ROOT / "docs" / "MandiGuard_Ultra_Simplified_Concept_and_Key_Papers_Guide.pdf",
     ]
     forbidden = (
         "B3_MLPoint",
         "cvar_10",
         "fig1_phantom_arbitrage",
         "fig2_main_policy_comparison",
+        "[jensen2007digital]",
+        "[baulch1997transfer]",
+        "exploratory: true",
+        "make reproduce",
+        "Brinjal",
+        "Cabbage",
+        "ICPAR",
+        "4.2/qtl",
         r"\frac",
         r"\text{",
         r"\Longleftrightarrow",
@@ -389,10 +398,12 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
         "slashes",
         "slashing",
     )
-    splits_df = pd.read_csv(ROOT / "revision" / "results" / "a18_crop_and_state_splits.csv")
+    splits_df = pd.read_csv(ROOT / "revision" / "results" / "v7_splits_171.csv")
     for pdf_path in pdf_targets:
         assert pdf_path.exists() and pdf_path.stat().st_size > 10_000, f"Missing or tiny PDF: {pdf_path}"
         reader = PdfReader(str(pdf_path))
+        if pdf_path.name == "MandiGuard_Research_Paper.pdf":
+            assert len(reader.pages) <= 15, f"Paper PDF too long: {len(reader.pages)} pages (> 15)"
         if pdf_path.name == "MandiGuard_Viva_Defense_Slides.pdf":
             assert len(reader.pages) == 12, f"Expected 12 slides, got {len(reader.pages)}"
             slide9_txt = reader.pages[8].extract_text() or ""
@@ -405,7 +416,7 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
                 assert f"{float(rt_row['mean']):,.2f}" in slide9_txt, f"Slide 9 RT_2F Mean mismatch for {st_name}"
                 assert f"{float(safe_row['es10']) - b2_es10:,.2f}" in slide9_txt, f"Slide 9 ES10 gain mismatch for {st_name}"
         txt = "\n".join((pg.extract_text() or "") for pg in reader.pages)
-        for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "58,676", "344.09"):
+        for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952"):
             assert req in txt, f"Missing `{req}` in {pdf_path.name}"
         for bad in forbidden:
             assert bad not in txt, f"Forbidden token `{bad}` leaked into {pdf_path.name}"
@@ -417,14 +428,14 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
     doc = Document(str(docx_path))
     docx_chunks = [p.text for p in doc.paragraphs] + [c.text for t in doc.tables for row in t.rows for c in row.cells]
     docx_txt = "\n".join(docx_chunks)
-    for bad_docx in ("`", "**", "$", "B3_MLPoint", "cvar_10"):
+    for bad_docx in ("`", "**", "$", "B3_MLPoint", "cvar_10", "[jensen2007digital]", "exploratory: true", "make reproduce"):
         assert bad_docx not in docx_txt, f"Forbidden token `{bad_docx}` leaked into {docx_path.name}"
 
     tex_path = ROOT / "paper" / "manuscript.tex"
     assert tex_path.exists() and tex_path.stat().st_size > 5_000, "Missing LaTeX manuscript.tex"
     tex_txt = tex_path.read_text(encoding="utf-8")
     bib_keys = set(re.findall(r"@\w+\s*\{\s*([^,\s]+)\s*,", (ROOT / "paper" / "references.bib").read_text()))
-    for grp in re.findall(r"\\cite\{([^}]+)\}", tex_txt):
+    for grp in re.findall(r"\\citep?\{([^}]+)\}", tex_txt):
         for k in [p.strip() for p in grp.split(",")]:
             assert k in bib_keys, f"LaTeX citation `{k}` missing from references.bib"
     for rel_fig in re.findall(r"\\includegraphics\[[^\]]+\]\{([^}]+)\}", tex_txt):
@@ -493,5 +504,73 @@ def test_v6_zero_lookahead_era5_and_breakeven() -> None:
     assert len(ref_list) >= 45
     abs_words = len(ms.split("## Abstract", 1)[1].split("---", 1)[0].strip().split())
     assert abs_words <= 245, f"Abstract too long ({abs_words} words)"
+
+
+def test_v7_primary_171_and_decade_2018_2023() -> None:
+    import json
+    import re
+    from scripts.verify_traceability import DEFAULT_DOC_REL_PATHS
+
+    res = ROOT / "revision" / "results"
+    s7 = json.loads((res / "v7_summary.json").read_text())
+    assert s7["strict_2024_markets_count"] == 171
+    assert s7["counts_171"]["shortlist_test_episodes"] == 57634
+    dec = s7["decade_2018_2023"]
+    assert dec["clean_166_markets_count"] == 166
+    assert dec["counts_166clean"]["episodes_with_lag_spread_gt_100"] == 383952
+    assert dec["n_episodes_166clean"] == 383952
+    assert dec["markets_2017_clean_ge50d"] == 115
+    assert dec["counts_115clean2017"]["episodes_with_lag_spread_gt_100"] == 325993
+    assert dec["n_episodes_115clean2017"] == 325993
+
+    b2k = pd.read_csv(res / "v7_bootstrap_prereg_2000.csv")
+    reg = b2k[b2k["registered_prereg_a18"] == True]
+    assert len(reg) == 12
+    assert set(reg["hypothesis_id"].unique()) == {"H_A18_1", "H_A18_2", "H_A18_3", "H_A18_4"}
+    assert (reg["reps"] == 2000).all()
+    assert float(reg["p_holm_2s_prereg4"].max()) <= 0.0041
+    assert int(b2k["n_clusters"].max()) <= 171
+
+    by = pd.read_csv(res / "v7_decade_by_year.csv")
+    for yr in range(2018, 2024):
+        sub = by[by["year"] == yr].set_index("policy")
+        assert float(sub.loc["Safe_EV_Sunk_m0", "mean"]) > float(sub.loc["B2_age_matched", "mean"])
+        assert float(sub.loc["Safe_EV_Sunk_m0", "ep_loss_rate"]) < float(sub.loc["B2_age_matched", "ep_loss_rate"])
+        assert float(sub.loc["Safe_EV_Sunk_m0", "es10"]) > float(sub.loc["B2_age_matched", "es10"])
+        assert float(sub.loc["Safe_EV_Sunk_m0", "cond_es10"]) > float(sub.loc["B2_age_matched", "cond_es10"])
+
+    by_boot = pd.read_csv(res / "v7_decade_by_year_boot_2000.csv")
+    for yr in (2020, 2023):
+        p_mean = float(by_boot[(by_boot["year"] == yr) & (by_boot["policy_a"] == "Safe_EV_Sunk_m0") & (by_boot["policy_b"] == "B2_age_matched") & (by_boot["metric"] == "mean")]["p_value_two_sided"].iloc[0])
+        assert p_mean > 0.05
+
+    rec = pd.read_csv(res / "v7_era5_and_reconcile.csv").set_index("policy")
+    b1 = rec.loc["B1_lagged_screen"]
+    assert abs(float(b1["shift_market_178_to_171_20C"]) - (-13.26)) < 1e-6
+    assert abs(float(b1["shift_weather_20C_to_ERA5_171"]) - (-17.90)) < 1e-6
+    assert abs(float(b1["shift_total_178_20C_to_171_ERA5"]) - (-31.16)) < 1e-6
+
+    # Phase 6 stress summary & CSV invariants + 59-citation bijection + zero /Users/ paths
+    exp_sum = json.loads((res / "v7_exp_summary.json").read_text())
+    assert exp_sum["exp1_latency_t2"]["t2_leakage_test_passed"] is True
+    exp1 = pd.read_csv(res / "v7_exp1_latency_t2.csv")
+    t2_safe = exp1[(exp1["window"] == "t2_age_2_3") & (exp1["policy"] == "Safe_EV_Sunk_m0")].iloc[0]
+    assert float(t2_safe["diff_B2_es10_p2s"]) <= 0.002 and float(t2_safe["diff_B2_cond_es10_p2s"]) <= 0.002
+    exp2 = pd.read_csv(res / "v7_exp2_bio_s6_condmar.csv")
+    s6_cm = exp2[(exp2["experiment"] == "S6_Smallholder_4pctArh_USDA_ERA5_Frozen") & (exp2["missing_regime"] == "Stoch_CondMAR_p1.00")].set_index("policy")
+    assert float(s6_cm.loc["Safe_EV_Sunk_m0", "cond_es10"]) - float(s6_cm.loc["B2_age_matched", "cond_es10"]) > 300.0
+    exp3 = pd.read_csv(res / "v7_exp3_manski_and_open.csv")
+    assert len(exp3) >= 9
+    exp4 = pd.read_csv(res / "v7_exp4_ml_pareto_and_formula.csv")
+    pareto = exp4[exp4["group"] == "ml_or_pareto"].set_index("policy")
+    assert float(pareto.loc["ZeroParam_Safe_EV_Sunk_m0", "cond_es10"]) > float(pareto.loc["OR_Vargas_MeanVar_g0002", "cond_es10"])
+    exp5 = pd.read_csv(res / "v7_exp5_hygiene_sutva_inference.csv")
+    assert len(exp5[exp5["slice_check"] == "PureAll5_ExactGeocode_N19362"]) == 4
+
+    bib_keys = set(re.findall(r"@\w+\s*\{\s*([^,\s]+)\s*,", (ROOT / "paper" / "references.bib").read_text()))
+    assert len(bib_keys) == 59
+    for rel in DEFAULT_DOC_REL_PATHS:
+        assert ("/" + "Users/") not in (ROOT / rel).read_text(encoding="utf-8"), f"/Users/ found in {rel}"
+
 
 

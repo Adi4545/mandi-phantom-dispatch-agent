@@ -3,7 +3,7 @@
 # Independent Post-Fix Thesis Examiner Review (`MandiGuard`)
 
 **Examiner Role:** Independent Statistical & Red-Team Reviewer (`statistical_and_redteam_reviewer`)  
-**Repository:** `/Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent`  
+**Repository:** `<repo_root>`  
 **Audit Date:** 2026-11-17 (Post-Fix Verification against uncommitted cleanup on top of `4fa3948`)  
 **Verdict:** **`NEEDS_POLISH`** *(All core Checklist 1–3 statistical, numerical, BibTeX, figure, pytest, file-size, and secret checks **PASS 100%** across the 11 primary documents; verdict is `NEEDS_POLISH` solely due to 1 stale `Exp 15` line in top-level `REPRODUCIBILITY.md:22` plus 3 minor wording/numbering nits noted in Section 5.)*
 
@@ -20,7 +20,7 @@
 | **2b. Hype Phrase Scan** | Same 11 core documents | **PASS** | **`0` hits** for `crushed`, `knockouts`, `knockout`, `undeniable`, `provably superior`, `massive`, `shockingly`, `catastrophic`, `blazing`, `jackpot`, `100% verified`, `100% authentic`, `82.6x`, `82x`. |
 | **3a. BibTeX Citation Integrity** | `paper/references.bib` vs `paper/manuscript.md` | **PASS** | **`31/31` BibTeX keys cited** (`Missing: set()`, `Extra: set()`). |
 | **3b. Figure Link & Disk Integrity** | `paper/manuscript.md` & `paper/12th_class_easy_reading_edition.md` | **PASS** | **`8/8` `../figures/fig*.png` links** present and valid on disk in both documents. |
-| **3c. Automated Test Suite** | `PYTHONPATH=. /Users/adityasharma/anaconda3/bin/python3 -m pytest -v tests` | **PASS** | **`19 passed, 0 failed in 10.03s`**. |
+| **3c. Automated Test Suite** | `PYTHONPATH=. python3 -m pytest -v tests` | **PASS** | **`19 passed, 0 failed in 10.03s`**. |
 | **3d. File-Size Cap & Secrets** | `git ls-files --cached --others --exclude-standard` (`132` trackable files) | **PASS** | **`0` files `> 10 MB`** (largest: `data/processed/colab_data_pack.tar.gz`, `4.82 MiB`); **`0` secret token hits** (`DATA_GOV_IN_API_KEY` or GitHub PAT prefixes). |
 | **4. Temporal Firewall & Inference** | `src/data/build_dispatch_episodes.py`, `src/models/arrival_forecaster.py`, `src/evaluation/bootstrap.py` | **PASS** | Strict `<= t` features/forecasts, `Train 2024` / `Val 2025-01..05` / `Holdout 2025-06..2026-04` + `HP Apple Summer 2026`, causal `arrival_date <= decision_date` LCB maturation, `R=5,000` (`seed=20261117`) Two-Way Bootstrap, Holm `m=4`. |
 | **5. Repo-Wide Companion Docs** | `REPRODUCIBILITY.md`, `RESEARCH_DECISIONS.md`, `viva/02`, `paper/manuscript.md` formatting | **NEEDS_POLISH** | Stale `Exp 15` wording at `REPRODUCIBILITY.md:22`; typo at `viva/02:40`; unnumbered table at `paper/manuscript.md:123`; stale `Exp 2c` label at `RESEARCH_DECISIONS.md:14`. |
@@ -67,7 +67,7 @@ Programmatic cross-checking across all **11 target documents** (`paper/manuscrip
 2. **Hype Phrase Scan (11 target files):** **`0` hits** (`crushed`, `knockouts`, `knockout`, `undeniable`, `provably superior`, `massive`, `shockingly`, `catastrophic`, `blazing`, `jackpot`, `100% verified`, `100% authentic`, `82.6x`, `82x`). *(Code-only note: `src/agents/mandiguard_agent.py:80` contains the comment `# Pre-extract arrays for blazing speed...`, outside documentation prose.)*
 3. **BibTeX Citations:** **`31/31` keys** in `paper/references.bib` cited in `paper/manuscript.md` (`Missing: set()`, `Extra: set()`).
 4. **Figures:** **`8/8` `../figures/fig*.png` links** valid and present on disk in both `paper/manuscript.md` and `paper/12th_class_easy_reading_edition.md`.
-5. **Pytest Suite:** Executed `PYTHONPATH=. /Users/adityasharma/anaconda3/bin/python3 -m pytest -v tests` $\to$ **`19 passed in 10.03s` (`0` failed, `0` skipped)**.
+5. **Pytest Suite:** Executed `PYTHONPATH=. python3 -m pytest -v tests` $\to$ **`19 passed in 10.03s` (`0` failed, `0` skipped)**.
 6. **File Size & Secret Scan (`git ls-files --cached --others --exclude-standard`):**
    - `132` trackable files; **`0` files `> 10 MB`** (largest: `data/processed/colab_data_pack.tar.gz`, `5,049,010` bytes = `4.82 MiB`).
    - **`0` leaked secret tokens** (`DATA_GOV_IN_API_KEY` or GitHub PAT prefixes).

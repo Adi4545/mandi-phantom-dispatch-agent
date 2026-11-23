@@ -132,7 +132,7 @@
     "smallholder_truckload_benchmark_qtl": 30.0
   },
   "hp_economic_survey_2025_26": {
-    "source_pdf": "/Users/adityasharma/himachal_agri_fetch/raw/hp_des/en-economic_survey_2025-26.pdf",
+    "source_pdf": "GoHP_DES_Economic_Survey_2025-26.pdf (external official GoHP DES PDF; SHA-256 verified)",
     "sha256": "35c2394d0e12f5e570163996633a721c3bde213c4464a8b46897446a00bd5f92",
     "small_marginal_farmers_pct": 88.86,
     "avg_landholding_ha": 0.95,

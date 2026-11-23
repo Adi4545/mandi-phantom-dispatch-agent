@@ -1,17 +1,14 @@
-# Project State — MandiGuard Revision v6 (`finalization`, PR #1)
+# Project State — MandiGuard (Revision v7)
 
-**Current Status:** **CONDITIONAL PASS — Unified Publication-Grade `Revision v6` Freeze (`0` untraceable numbers across `23/23` active docs; `49/49` verified bibliography citations; `₹0.00` `A16` audit match across 8 policies; `36/36` tests passing; `R = 5,000` paired cluster bootstrap across 1-, 2-, 4-week blocks; strict `2024`-only `171`-market panel & realized ERA5 arrival-weather settlement verified; `Gate J = BLOCKED` honestly disclosed).**  
-**Environment:** Python `3.11.5`, `numpy 1.24.3`, `pandas 2.0.3`, `scikit-learn 1.3.0`, `scipy 1.11.1`, `pyarrow 11.0.0`, `pytest 7.4.0`.
-
-## Synchronized Inventory & Status
-1. **Tracked Primary Datasets:**
-   - `data/raw/agmarknet_6state_top_apple_2024_2026.parquet`: `260,043` raw rows -> `759` out-of-range invalid dropped -> `259,284` -> `256,997` -> `248,302` canonical rows -> `95,074` Top-5 episodes (`36,398` val, `58,676` test) + strict `2024`-only `171`-market zero-lookahead test panel (`N = 57,634`) + `N = 88,014` unconditional origin robustness (`29,338` missing-d0 eps).
-   - `data/raw/hp_apple_daily_2025_2026.csv`: `4,427` rows (`42` HP markets) -> `2,802` Top-5 lagged episodes.
-   - `data/processed/osrm_corridor_matrix.parquet`: `8,147` corridors (`15.19–499.43 km`), `58.29%` exact-geocoded test rows (`40,690` episodes retaining exact-geocoded corridors; `18,189` all-5 exact).
-   - `data/processed/mandi_weather_2024_2026.parquet`: excluded completely from all decisions; used strictly inside settlement for `Revision v6` realized ERA5 robustness (`100.0%` arrival coverage across `d0..d2`).
-2. **Core Revision Pipeline (`revision/`):** `build_variant.py`, `build_hp_apple_lagged.py`, `eval_run.py`, `sensitivity_a8.py`, `eval_a10.py` (`87a0b62`), `eval_a18.py` (`4cbb02d`), **`eval_v6.py`**, `make_figures.py`, `es10.py`, `stats_utils.py`, `build_run.py`.
-3. **Automated Gates Passing (`Revision v6`):**
-   - `scripts/a16_independent_audit.py`: exact **`₹0.00`** discrepancy across `B1`, `B2_age_matched`, `RR_Abstain_matched`, `RR_Abstain_m0`, `Safe_EV_Sunk_m0`, `Safe_EV_Phys_m0`, `RT_2F_Min_m0`, `RT_2F_Dow_m0`, plus `n_clusters <= 178`.
-   - `scripts/verify_traceability.py`: **`0` untraceable numbers across ALL `23/23` active docs**.
-   - `pytest -v`: **`36 passed`**, including portability, `49/49` BibTeX citation sync, `R5` commit ancestry for `PREREG_A10` & `PREREG_A18`, `v6` `171`-market / realized-ERA5 / break-even (`resid < 1e-6`) / `R = 5,000` assertions, and compiled PDF/DOCX/LaTeX/Slides/Notebooks integrity checks.
-4. **Open External Boundary (Gate J):** Bulk AGMARKNET stops `2026-04-13` (`exploratory: true`); live FPO pilot required for future holdout and field receipts.
+- **Branch & Status:** `finalization` (PR #1; `main` untouched). Revision v7 + 16-Agent Finalization complete across pipeline (`revision/eval_v7.py`, `revision/eval_v7_stress_experiments.py`, `revision/make_figures.py`), manuscript (`paper/manuscript.md`), deliverables (`7` PDFs, `manuscript.tex`, `.docx`, `12` slides), tests, cleanroom audit (`scripts/a16_independent_audit.py`), and traceability gate (`scripts/verify_traceability.py`).
+- **Author & Supervision:** Aditya Sharma (M.Tech Thesis Research, supervised by **Dr. Sonia**) — Shoolini University, Solan, Himachal Pradesh, India.
+- **Primary Evaluation Panel:** Strict `2024`-selected zero-lookahead `171`-market panel (`N_val = 35,870`, `N_test = 57,634`, `166` clusters $\times$ `23` fortnights, exploratory calendar `2025-06-01..2026-04-08`).
+- **Locked Pre-Registered Family:** `PREREG_A18.md` (`4` contrasts `H_A18_1..4`, exact `R = 2,000`) passes with `p_holm_2s_prereg4 = 0.0040` across all `3` clusterings; post-hoc `R = 5,000` (`1w/2w/4w`) stands separately at `p = 0.0024–0.0036`.
+- **Headline Primary Numbers (`v7_main_171.csv`):**
+  - `B1_lagged_screen`: `₹384.61` Mean, `45.07%` EpLoss, `−₹642.15` `ES10` (`28.67%` / `16,524` divert).
+  - `B2_age_matched` (`71.73%`): `₹419.62` Mean, `26.43%` EpLoss, `−₹524.78` `ES10`, `−₹628.37` `cond_ES10`.
+  - `Safe_EV_Sunk_m0` (`0` params, `63.23%`): `₹452.74` Mean (`+₹33.12`), `14.88%` EpLoss (`−11.56 pp`), **`−₹345.53` `ES10`** (`+₹179.24` vs `B2`; `+₹91.67` matched vs `RR`), **`−₹447.48` `cond_ES10`** (`+₹180.89`).
+  - `Safe_EV_Phys_m0` (`0` params, `60.84%`): `₹449.52` Mean, `13.70%` EpLoss, `−₹334.80` `ES10` (`+₹189.97`), `−₹447.33` `cond_ES10`.
+  - `RT_2F_Min_m0` (`0` params, `64.79%`): **`₹463.98` Mean** (`+₹44.36`), `16.21%` EpLoss, `−₹464.84` `ES10`, `−₹618.35` `cond_ES10`.
+- **Clean `166`-Mkt `2018–2023` Archive (`N = 383,952`) & Phase 6 (`v7_exp1..5`):** Zero-retuning clean `166`-mkt `2018–2023` (`115`-mkt `N = 325,993`) yields `Safe_EV` `+₹169.27 ES10` & `+₹155.08 cond_ES10` (`p = 0.001`), winning `ES10`/`cond_ES10` in `6/6` years (`2020/2023` Mean NS); Phase 6 verifies `<= t-2` (`p = 0.001`), `S6_Frozen x Stoch_CondMAR_p1.00` (`+₹366.85 cond_ES10`), clean ML/OR Pareto, and SUTVA crowding (`k <= 2`).
+- **Pre-Registration, Citations & Repo Hygiene:** `59/59` verified citations; `final/PREREG_A10.md` and `final/PREREG_A18.md` untouched (`Gate J = BLOCKED` prospectively); gitignored `data/interim/omega_lab_*.parquet` kept untracked on disk.

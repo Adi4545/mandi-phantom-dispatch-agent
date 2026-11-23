@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -52,15 +53,17 @@ GOVT_URLS = {
     "PIB_2248987_Agri_Hort_2024_25": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248987&reg=3&lang=1",
 }
 
-HP_ECON_SURVEY_LOCAL = Path("/Users/adityasharma/himachal_agri_fetch/raw/hp_des/en-economic_survey_2025-26.pdf")
+HP_ECON_SURVEY_LOCAL = Path(
+    os.environ.get("HP_ECON_SURVEY_PDF", "data/raw/govt_surveys/en-economic_survey_2025-26.pdf")
+)
 
-# Statutory seller-side APMC / handling / user-charge friction schedule grounded in
-# GoI PIB relid=154554 & respective State APMC Rules:
-#  - Karnataka & Gujarat: market fee exempted for F&V; only yard user/weighment charge (~0.5%)
-#  - Himachal Pradesh: F&V mandi fee exempted EXCEPT Apple (Apple 1.0% regulated fee; vegetables 0.5% service charge)
-#  - Maharashtra: direct outside-yard deregulated; traditional APMC yard supervision/weighment ~1.0%
-#  - Madhya Pradesh: exempt outside notified yard; regulated inside notified mandi yards ~1.5%
-#  - Uttar Pradesh: regulated Mandi Adhiniyam yard cess/charges ~1.5%
+# Assumed_Stylized destination market-friction schedule anchored qualitatively to GoI PIB relid=154554
+# (and UP Krishi Utpadan Mandi Adhiniyam, since PIB relid=154554 omits UP and lists qualitative
+# exemption status rather than numeric percentage tables; statutory APMC fees legally fall on buyers):
+#  - Karnataka & Gujarat: market fee exempted for F&V; stylized 0.5% user/weighment friction
+#  - Himachal Pradesh: F&V mandi fee exempted EXCEPT Apple; stylized 1.0% Apple / 0.5% veg friction
+#  - Maharashtra: deregulated outside notified yards; stylized 1.0% yard supervision/weighment
+#  - Madhya Pradesh & Uttar Pradesh: stylized 1.5% regulated-yard fee/friction tier
 STATE_APMC_REGIME = {
     "Karnataka": {
         "apmc_fv_status": "Market fee exempted; yard user charges permitted (Jan 2014 APMC Amendment)",
@@ -168,6 +171,7 @@ def _parse_nss77(text: str) -> Dict[str, float]:
         "avg_outstanding_loan_inr": int(m_loan.group(1).replace(",", "")),
         "jan_jun_2019_potato_harvest_kg_per_hh": int(m_potato.group(1).replace(",", "")),
         "jan_jun_2019_onion_harvest_kg_per_hh": int(m_onion.group(1).replace(",", "")),
+        # Assumed_Benchmark 3-tonne LCV reference lot for narrative INR/lot scaling (NOT from NSS 587)
         "smallholder_truckload_benchmark_qtl": 30.0,
     }
 
@@ -191,7 +195,7 @@ def _parse_hp_econ_survey(pdf_path: Path) -> Dict[str, object]:
     single_km = int(m_single.group(1).replace(",", ""))
     tot_km = int(m_tot_rd.group(1).replace(",", ""))
     return {
-        "source_pdf": str(pdf_path),
+        "source_pdf": "GoHP_DES_Economic_Survey_2025-26.pdf (external official GoHP DES PDF; SHA-256 verified)",
         "sha256": sha,
         "small_marginal_farmers_pct": float(m_sm.group(1)),
         "avg_landholding_ha": float(m_sm.group(2)),

@@ -1,0 +1,7 @@
+policy,n,dispatch_rate,n_dispatch,mean,cond_mean,ep_loss_rate,cond_loss_rate,es10,loss_given_loss,mean_road_km,divert_rate_among_disp,cond_es10,cond_es05,note
+B2_test_matched_to_SafeM0,57634,0.6323,36441,413.34,653.72,0.2312,0.3656,-501.23,-301.63,208.39,0.2806,-644.95,-963.18,exact test-matched B2 th=295.00
+B2_dist_penalty_3F_matched,57634,0.7279,41951,423.4,581.69,0.2649,0.364,-489.44,-264.65,163.8,0.2665,-588.44,-892.18,"no p_rep, pure distance penalty, th=-154.57"
+MG_val_es10_tuned_matched,57634,0.6568,37856,352.73,537.02,0.1709,0.2601,-441.91,-289.62,199.01,0.1035,-576.54,-890.67,"rep28>=0.75, dow8>=0.35, th=-14.84"
+RR_rep14_only_matched,57634,0.6862,39551,445.47,649.14,0.1967,0.2867,-459.18,-287.98,182.94,0.1893,-576.34,-887.28,"equal 14d info, th=16.50"
+Safe_EV_fixed10pct_m0,57634,0.635,36595,453.62,714.41,0.1674,0.2637,-444.73,-309.06,195.63,0.1708,-586.3,-902.15,"fixed 10% haircut, m=0"
+Safe_EV_euclid120_m0,57634,0.6423,37020,452.35,704.23,0.1543,0.2402,-355.3,-262.35,199.33,0.1658,-454.35,-664.43,1.20 * euclid_km freight

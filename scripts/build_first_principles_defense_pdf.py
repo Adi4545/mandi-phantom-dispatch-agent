@@ -78,10 +78,10 @@ CHAPTERS = [
     ("Part 2 • First-Principles Intuition", "Class-12 Pocket-Calculator Walkthrough", "paper/12th_class_easy_reading_edition.md"),
     ("Part 3 • Difficulty Reduction Audit", "How Complexity Dropped 4.3 → 1.2 / 5 (A15 + A18)", "final/DIFFICULTY.md"),
     ("Part 4 • Simplified Equations", "Zero-Parameter Safe_EV_Sunk_m0 & RT_2F_Min_m0", "final/SIMPLIFIED_DESIGN.md"),
-    ("Part 5 • Complete Scientific Paper", "Revision v6 Full Manuscript (178 & 171 Mkts, ERA5, R=5,000)", "paper/manuscript.md"),
-    ("Part 6 • Literature & Novelty Defense", "15-Work Overlap Matrix & Surviving Claim (NOVELTY_V2)", "final/NOVELTY_V2.md"),
+    ("Part 5 • Complete Scientific Paper", "Revision v7 Full Manuscript (171 Mkts, R=2,000, ERA5, 2018–2023)", "paper/manuscript.md"),
+    ("Part 6 • Literature & Novelty Defense", "18-Work Overlap Matrix & Surviving Claim (NOVELTY_V2)", "final/NOVELTY_V2.md"),
     ("Part 7 • Cleanroom & Examiner Sign-Off", "A16 Parity (₹0.00) & Independent Audit Record", "final/AUDIT_V4.md"),
-    ("Part 8 • Prominent Boundaries (R6 & R7)", "Eight Binding Non-Claims & Open-MAR / Break-Even Disclosures", "final/LIMITATIONS.md"),
+    ("Part 8 • Prominent Boundaries (R6 & R7)", "Eight Binding Non-Claims & Open-MAR / Break-Even / Negative-Mean Disclosures", "final/LIMITATIONS.md"),
     ("Part 9 • Examiner Viva Bank", "Scripted-Verified Q&A (C2 & R2 Clean)", "final/VIVA_QA.md"),
     ("Part 10 • Oral Defense Scripts", "1-Minute, 5-Minute & 15-Minute Spoken Pitches", "viva/03_spoken_pitches_1m_5m_15m.md"),
 ]
@@ -101,19 +101,19 @@ def build() -> None:
 
     cover = """
     <div class="cover">
-      <span class="meta-pill">Thesis Defense Compendium &bull; Revision v6 Verified</span>
+      <span class="meta-pill">Thesis Defense Compendium &bull; Revision v7 Audited</span>
       <h1>MandiGuard: First-Principles &amp; Thesis Defense Handbook</h1>
-      <div class="sub">Aditya Sharma &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0 Across 58,676 Lagged Wholesale Episodes (<code>171</code>-Mkt Strict 2024, Realized ERA5, <code>N = 88,014</code> Unconditional)</div>
+      <div class="sub">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0 Across Primary 171-Mkt (N=57,634) &amp; Clean 166-Mkt 2018&ndash;2023 (N=383,952) Panels</div>
       <div class="badge-row">
         <span class="badge">0 Free Parameters</span>
-        <span class="badge">4.3 &rarr; 1.2 / 5 Difficulty</span>
-        <span class="badge">R = 5,000 Bootstrap</span>
-        <span class="badge">Two-Sided Holm p = 0.0024</span>
-        <span class="badge">49 Verified Citations</span>
-        <span class="badge">make reproduce &bull; &#8377;0.00 Audit</span>
+        <span class="badge">171-Mkt Primary (N=57,634)</span>
+        <span class="badge">166-Mkt 2018&ndash;2023 (N=383,952)</span>
+        <span class="badge">Locked R = 2,000 Holm p = 0.0040</span>
+        <span class="badge">59 (Author, Year) Citations</span>
+        <span class="badge">Phase 6 Stress + Cleanroom &#8377;0.00</span>
       </div>
       <div class="worked-box">
-        <p><strong>Canonical Scope Notice:</strong> Every metric, equation, cluster count, and figure in this handbook is compiled directly from Revision v6 canonical sources on branch <code>finalization</code>. Stage-I/II ML trees (<code>HistGradientBoostingRegressor</code>), weather leaks in decisions (<code>98.64%</code> ERA5 match), unweighted quantile-mean proxies, bare 336-market clusters, and tuned <code>kappa* = 5.0</code> thresholds have been retired in favor of zero-parameter pocket-calculator formulas verified across strict <code>2024</code>-only <code>171</code> markets, realized ERA5 arrival-weather settlement, exact silent-market break-even, <code>make reproduce</code> (<code>0.0</code> clean-clone max diff), and <code>verify_traceability.py</code> (<code>0</code> untraceable numbers).</p>
+        <p><strong>Canonical Scope Notice (Revision v7):</strong> Every metric, equation, cluster count, and figure in this handbook is compiled directly from Revision v7 canonical sources on branch <code>finalization</code>. The zero-lookahead <code>2024</code>-selected <code>171</code>-market panel (<code>N = 57,634</code>) serves as primary analysis alongside the clean non-lookahead <code>166</code>-market <code>2018&ndash;2023</code> backtest (<code>N = 383,952</code>; <code>115</code>-mkt <code>N = 325,993</code>), locked 4-test <code>R = 2,000</code> inference (<code>p<sub>holm,2s</sub> = 0.0040</code>, conditional <code>cond_ES10 &minus;&#8377;447.48</code>), realized ERA5 / NASA POWER settlement, Phase 6 adversarial stress tests (<code>&le; t&minus;2</code>, coupled <code>S6_Frozen &times; Stoch_CondMAR</code>, SUTVA <code>k &le; 2</code>), explicit stylized PIB/NABCONS calibration disclosures, and full reporting of all non-significant (including <code>2020/2023</code> Means, <code>HP B=12</code> &amp; Apple <code>cond_ES10</code>) and Open-MAR reversed Mean contrasts.</p>
       </div>
     </div>
     """
@@ -136,7 +136,7 @@ def build() -> None:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>MandiGuard First-Principles &amp; Thesis Defense Handbook (Revision v6)</title>
+<title>MandiGuard First-Principles &amp; Thesis Defense Handbook (Revision v7)</title>
 <style>{PAPER_CSS}\n{HANDBOOK_EXTRA_CSS}</style>
 </head>
 <body>{''.join(sections)}</body>
@@ -146,8 +146,8 @@ def build() -> None:
     render_pdf(HTML_OUT, PDF_OUT)
 
     txt = "\n".join((pg.extract_text() or "") for pg in PdfReader(str(PDF_OUT)).pages)
-    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "58,676", "344.09"):
-        assert req in txt, f"Missing expected Revision v5 token `{req}` in {PDF_OUT.name}"
+    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952"):
+        assert req in txt, f"Missing expected Revision v7 token `{req}` in {PDF_OUT.name}"
     for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22"]:
         assert bad not in txt, f"Forbidden string `{bad}` found in {PDF_OUT.name}"
     print(f"Wrote {HTML_OUT.name} & {PDF_OUT.name} ({len(PdfReader(str(PDF_OUT)).pages)} pages, clean)")

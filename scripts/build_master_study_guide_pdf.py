@@ -103,30 +103,30 @@ figure.fig-card figcaption { font-size: 8.2pt; color: #475569; margin-top: 3px; 
 
 COVER = """
 <div class="cover">
-  <h1>MandiGuard &mdash; Master Study Guide (Revision v6)</h1>
-  <div class="sub">Aditya Sharma &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Dispatch Filtering (Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0)<br/>
+  <h1>MandiGuard &mdash; Master Study Guide (Revision v7)</h1>
+  <div class="sub">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Dispatch Filtering (Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0)<br/>
   Explained from first principles so a motivated student can verify, present, and defend every equation and number</div>
-  <span class="pill">Data Provenance &amp; Cleaning</span><span class="pill">Timing Firewall (&le; t&minus;1)</span>
-  <span class="pill">Sequential &amp; Realized ERA5 Settlement</span><span class="pill">Zero-Parameter Rules</span>
-  <span class="pill">R = 5,000 Cluster Bootstrap</span><span class="pill">Break-Even &amp; Open-MAR Bounds</span>
-  <span class="pill">49 Verified Citations</span><span class="pill">Viva Defense Bank</span>
+  <span class="pill">Primary 171-Mkt Zero-Lookahead</span><span class="pill">Timing Firewall (&le; t&minus;1 / t&minus;2)</span>
+  <span class="pill">Clean 166-Mkt 2018&ndash;2023 (N=383,952)</span><span class="pill">Zero-Parameter Rules</span>
+  <span class="pill">Locked R = 2,000 Holm p = 0.0040</span><span class="pill">Break-Even &amp; Phase 6 Stress</span>
+  <span class="pill">59 (Author, Year) Citations</span><span class="pill">Viva Defense Bank</span>
   <div class="box key" style="margin-top:12px;"><strong>The thesis in four sentences:</strong>
-  Online AGMARKNET spreads tempt dispatchers, yet chasing top lagged spreads (<code>B1_lagged_screen</code>) across 58,676 test episodes loses money on 45.21% of dispatches (worst-10% <code>ES10 &minus;&#8377;641.26/qtl</code>, with 28.98% turning back sequentially). Earlier black-box trees, weather leaks, and tuned <code>kappa* = 5.0</code> thresholds were audited and retired. Replacing them with zero-parameter <code>Safe_EV_Sunk_m0</code> (weekday reporting probability &times; 1-SD safe spread exceeding sunk freight), settlement-matched <code>Safe_EV_Phys_m0</code> (1.5F), and Class-8 <code>RT_2F_Min_m0</code> lowers losses to 14.93% and strengthens <code>ES10</code> to &minus;&#8377;344.09/qtl (+&#8377;181.17 vs road baseline <code>B2_age_matched</code>, two-sided Holm <code>p = 0.0024</code> at <code>R = 5,000</code> across all 3 clusterings, 1/2/4-week blocks, strict 2024-only 171 markets, realized ERA5 settlement, and all 6 states). These rules act transparently as an upstream 6 a.m. alert filter ahead of live <em>arhtiya</em> phone confirmation while disclosing exact silent-market break-even (+&#8377;328.37/qtl above turn-back; 23.79% Open-MAR share), Open-MAR mean bounds, 41.38% HP apple conditional losses, and blocked future Gate J.</div>
+  Online AGMARKNET spreads tempt dispatchers, yet chasing top lagged spreads (<code>B1_lagged_screen</code>) across 57,634 zero-lookahead 171-market test episodes loses money on 45.07% of dispatches (worst-10% <code>ES10 &minus;&#8377;642.15/qtl</code>, with 28.67% turning back sequentially). Earlier black-box trees, weather leaks, and tuned <code>kappa* = 5.0</code> thresholds were audited and retired. Replacing them with zero-parameter <code>Safe_EV_Sunk_m0</code> (weekday reporting probability &times; 1-SD safe spread exceeding sunk freight), settlement-matched <code>Safe_EV_Phys_m0</code> (1.5F), and Class-8 <code>RT_2F_Min_m0</code> lowers losses to 14.88% and strengthens <code>ES10</code> to &minus;&#8377;345.53/qtl (+&#8377;179.24 vs road baseline <code>B2_age_matched</code>; <code>cond_ES10 &minus;&#8377;447.48</code> vs <code>&minus;&#8377;628.37</code>; locked 4-test <code>R = 2,000</code> Holm <code>p = 0.0040</code> across all 3 clusterings, all 6 states on <code>ES10</code>, realized ERA5 / NASA POWER settlement, Phase 6 stress runs including <code>&le; t&minus;2</code> lag and coupled <code>S6_Frozen &times; Stoch_CondMAR</code>, and clean <code>166</code>-market <code>2018&ndash;2023</code>, N = 383,952 &amp; <code>115</code>-mkt N = 325,993). These rules act transparently as an upstream 6 a.m. alert filter ahead of live <em>arhtiya</em> phone calls while disclosing exact silent-market break-even (+&#8377;348.61/qtl above turn-back; 25.45% Open-MAR share), Open-MAR / free-return / hindsight Mean bounds, <code>2020/2023</code> and HP <code>B=12</code> / Apple <code>cond_ES10</code> non-significance, 41.38% HP apple conditional losses, SUTVA crowding bounds (<code>k &le; 2</code>), and blocked future Gate J.</div>
 </div>
 
 <h2>Three-Part Roadmap</h2>
 <div class="flow">
   <div class="fbox c1"><strong>Part 1</strong><span>Problem, Epistemic Table 1, Data Funnel, Firewall &amp; Settlement</span></div><div class="farrow">&#10140;</div>
-  <div class="fbox c2"><strong>Part 2</strong><span>Zero-Parameter Formulas, Results, 171-Mkt / ERA5 / Break-Even</span></div><div class="farrow">&#10140;</div>
-  <div class="fbox c3"><strong>Part 3</strong><span>49 Citations, Novelty Overlap, Limitations, Audit &amp; Viva Bank</span></div>
+  <div class="fbox c2"><strong>Part 2</strong><span>Zero-Parameter Formulas, 171-Mkt / Phase 6 Stress &amp; 166-Mkt 2018&ndash;2023</span></div><div class="farrow">&#10140;</div>
+  <div class="fbox c3"><strong>Part 3</strong><span>59 Citations, 18-Work Novelty Overlap, Limitations &amp; Viva Bank</span></div>
 </div>
 """
 
 CLOSING = """
 <div class="pb"></div>
-<h1>Closing Verification Note (Revision v6)</h1>
+<h1>Closing Verification Note (Revision v7)</h1>
 <div class="box key">
-  Every metric in this study guide traces directly to committed outputs in <code>revision/results/</code> regenerated via <code>make reproduce</code> (clean-clone discrepancy <code>0.0</code> across 31 CSV tables, independent <code>A16</code> parity <code>&#8377;0.00</code>, <code>0</code> untraceable numbers across all <code>23/23</code> active markdown documents, <code>36/36</code> pytest passing, <code>49/49</code> verified citations). See <code>final/READINESS.md</code> for the three external items: supervisor review, venue layout check, and prospective live FPO piloting.
+  Every metric in this study guide traces directly to committed outputs in <code>revision/results/</code> regenerated via the single-command deterministic pipeline (clean-clone discrepancy <code>0.0</code> across all CSV tables, independent <code>A16</code> parity <code>&#8377;0.00</code>, <code>0</code> untraceable numbers across all <code>23/23</code> active markdown documents, <code>pytest</code> passing, and <code>59/59</code> verified citations). See <code>final/READINESS.md</code> for prospective live FPO piloting next steps.
 </div>
 <p class="small">Canonical Sources: paper/manuscript.md, final/SIMPLIFIED_DESIGN.md, final/DIFFICULTY.md, final/NOVELTY_V2.md, final/AUDIT_V4.md, final/LIMITATIONS.md, final/VIVA_QA.md. Rebuild cleanly with: python3 scripts/build_master_study_guide_pdf.py</p>
 """
@@ -140,7 +140,7 @@ def _strip_h1(md: str) -> str:
 
 
 def regenerate_parts() -> None:
-    """Regenerate docs/study_guide_v2_parts/part1..3.html from canonical Revision v6 markdown sources."""
+    """Regenerate docs/study_guide_v2_parts/part1..3.html from canonical Revision v7 markdown sources."""
     PARTS_DIR.mkdir(parents=True, exist_ok=True)
     bib = (ROOT / "paper" / "references.bib").read_text(encoding="utf-8")
     bib_keys = set(re.findall(r"@\w+\{([^,\s]+),", bib))
@@ -174,7 +174,7 @@ def regenerate_parts() -> None:
         p2_raw = p2_raw.replace(b64_img(fn), ph)
     p3_html = (
         '<div class="pb"></div>\n'
-        "<h2>Part 3: Related Work (49 Citations), Limitations, Novelty Overlap &amp; Viva Defense Bank</h2>\n"
+        "<h2>Part 3: Related Work (59 Citations), Limitations, Novelty Overlap &amp; Viva Defense Bank</h2>\n"
         + markdown_to_html_body(ms_part3, bib_keys=bib_keys, base_dir=ROOT / "paper")
         + "\n<hr>\n"
         + markdown_to_html_body(nov_md, bib_keys=bib_keys, base_dir=ROOT / "final")
@@ -224,15 +224,15 @@ def main() -> None:
             body = body.replace(ph, "data:image/png;base64," + data)
 
     doc_html = (
-        '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>MandiGuard - Master Study Guide (Revision v6)</title>'
+        '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>MandiGuard - Master Study Guide (Revision v7)</title>'
         "<style>" + CSS + "</style></head><body>" + body + "</body></html>"
     )
     HTML_OUT.write_text(doc_html, encoding="utf-8")
     render_pdf(HTML_OUT, PDF_OUT)
 
     txt = "\n".join((pg.extract_text() or "") for pg in PdfReader(str(PDF_OUT)).pages)
-    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "58,676", "344.09"):
-        assert req in txt, f"Missing expected Revision v5 token `{req}` in {PDF_OUT.name}"
+    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952"):
+        assert req in txt, f"Missing expected Revision v7 token `{req}` in {PDF_OUT.name}"
     for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22"]:
         assert bad not in txt, f"Forbidden string `{bad}` found in {PDF_OUT.name}"
     print(f"Wrote {HTML_OUT.name} & {PDF_OUT.name} ({len(PdfReader(str(PDF_OUT)).pages)} pages, clean)")
