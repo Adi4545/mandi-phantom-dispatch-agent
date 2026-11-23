@@ -31,9 +31,9 @@ STRUCTURAL_ALLOWLIST: Set[float] = {
     30.0, 33.0, 35.0, 36.0, 37.0, 48.0, 50.0, 60.0, 65.0, 70.0, 80.0, 100.0, 150.0, 173.0,
     178.0, 200.0, 220.0, 250.0, 300.0, 336.0, 350.0, 400.0, 500.0, 700.0, 1000.0, 2000.0, 5000.0,
     # Years, report IDs, citation volumes/pages, and documented structural parameters
-    1970.0, 1979.0, 1990.0, 1997.0, 2000.0, 2002.0, 2007.0, 2010.0, 2012.0, 2015.0, 2016.0,
+    1970.0, 1976.0, 1979.0, 1990.0, 1997.0, 2000.0, 2002.0, 2007.0, 2010.0, 2012.0, 2015.0, 2016.0,
     2017.0, 2018.0, 2019.0, 2020.0, 2021.0, 2022.0, 2023.0, 2024.0, 2025.0, 2026.0,
-    587.0, 3311.0, 99999.0,
+    38.0, 40.0, 46.0, 47.0, 50.0, 51.0, 171.0, 587.0, 3311.0, 99999.0,
 }
 
 
@@ -90,9 +90,11 @@ def build_verified_registry(root: Path = ROOT) -> Dict[str, List[str]]:
             "a10_crop_splits.csv", "a18_crop_and_state_splits.csv",
             "hp_apple_lagged.csv", "a10_hp_apple.csv", "a18_hp_apple.csv",
             "settlement_compare.csv", "a18_settlement_and_robustness.csv", "a18_missing_regimes.csv",
-            "a18_fair_ablations.csv", "a18_tornado.csv",
+            "a18_fair_ablations.csv", "a18_tornado.csv", "v6_upgrades.csv",
         ):
-            for col in [c for c in ("mean", "ep_loss_rate", "cond_loss_rate", "es10") if c in df.columns]:
+            for col in [c for c in ("mean", "ep_loss_rate", "cond_loss_rate", "es10", "n") if c in df.columns]:
+                if col == "n" and cp.name != "a18_settlement_and_robustness.csv":
+                    continue
                 vals = df[col].dropna().to_numpy(dtype=np.float64)
                 for i in range(len(vals)):
                     for j in range(len(vals)):

@@ -301,7 +301,7 @@ def main() -> None:
             assert abs(float((yy < 0).mean()) - p_row["ep_loss_rate"]) <= 0.0002
             print(f"A16 PASS {name_a18:20s}: disp={float(top['elig'].mean()):.4f}, mean={float(yy.mean()):.2f} (pub {p_row['mean']:.2f}), es10={indep_es10(yy):.2f} (pub {p_row['es10']:.2f})")
 
-    for bname in ("bootstrap.csv", "a10_bootstrap.csv", "a18_bootstrap.csv"):
+    for bname in ("bootstrap.csv", "a10_bootstrap.csv", "a18_bootstrap.csv", "v6_bootstrap_5000.csv"):
         bp = res_dir / bname
         if bp.exists():
             bdf = pd.read_csv(bp)

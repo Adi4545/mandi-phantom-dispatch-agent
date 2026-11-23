@@ -1,6 +1,6 @@
-# MandiGuard (Class-12 Pocket-Calculator Edition — Revision v5 Verified)
+# MandiGuard (Class-12 Pocket-Calculator Edition — Revision v6 Verified)
 
-> **Verified Edition Note:** Synced 100% to `paper/manuscript.md` (`Revision v5`, **`8.7 / 10`** independent audit sign-off, `0` Critical / `0` Major defects, zero untraceable numbers). Earlier black-box ML trees (`HistGradientBoostingRegressor`), pseudo-conformal theorems, leaked ERA5 weather, and even our intermediate tuned multiplier (`kappa* = 5.0`) have been **completely eliminated** in favor of two **zero-parameter** equations any farmer or Class-10 student can verify with a pocket calculator (`final/DIFFICULTY.md`: difficulty cut `4.3 -> 1.2 / 5`).
+> **Verified Edition Note:** Synced 100% to `paper/manuscript.md` (`Revision v6`, Aditya Sharma, Shoolini University, Solan, HP; zero untraceable numbers across `23/23` active docs). Earlier black-box ML trees (`HistGradientBoostingRegressor`), pseudo-conformal theorems, leaked ERA5 weather in decisions, and even our intermediate tuned multiplier (`kappa* = 5.0`) have been **completely eliminated** in favor of zero-parameter equations any farmer or Class-10 student can verify with a pocket calculator (`final/DIFFICULTY.md`: difficulty cut `4.3 -> 1.2 / 5`).
 
 ---
 
@@ -52,8 +52,9 @@ Both rules work on identical `1..3`-day lagged quotes without live weather, ML p
 | **`Safe_EV_Sunk_m0`** (`p_dow * G_1SD > F`) | **0** | **`63.27%`** | **`₹465.59`** | **`14.93%`** | **`−₹344.09`** |
 | **`RT_2F_Min_m0`** (`p_min * G > 2F`) | **0** | `64.92%` | **`₹478.38`** | `16.26%` | `−₹468.32` |
 
-- **`Safe_EV_Sunk_m0` wins every benchmark (`H_A18_1..4`):** Cuts `ES10` tail losses by **`+₹181.17/qtl` vs `B2_age_matched`** (`−₹344.09` vs `−₹525.25`, `p_holm_2s = 0.0040`), **`+₹168.69/qtl` vs hard-gated `MG_matched`**, and **`+₹116.63/qtl` vs tuned `RR_Abstain_matched`**, winning in **all 6 states**, all crops on `ES10` (`NonApple +₹135.58`, `Apple +₹561.37`), all 36 tornado cells, exact-geocoded corridors (`N = 40,690`), the **`N = 88,014` unconditional origin panel**, zero diversion (`exact_zero_divert_payoff_0`: `+₹169.79`), and **HP Graded Apples** (`−₹1,454.86` vs `−₹2,392.12`).
-- **`RT_2F_Min_m0` wins on Mean (`₹478.38/qtl`, `+₹44.82`, `p_holm_2s = 0.0040`)** with Class-8 math and zero parameters.
+- **`Safe_EV_Sunk_m0` wins every primary benchmark (`R = 5,000` bootstrap):** Improves `ES10` tail losses by **`+₹181.17/qtl` vs `B2_age_matched`** (`−₹344.09` vs `−₹525.25`, `p_holm_2s = 0.0024`; Mean `+₹32.03`, `p_holm_2s = 0.0028–0.0436`; settlement-matched `Safe_EV_Phys_m0` reaches `−₹333.57`, `+₹191.69`; descriptive unmatched gains `+₹168.69/qtl` vs hard-gated `MG_matched` and `+₹116.63/qtl` vs tuned `RR_Abstain_matched`), holding vs `B2` in **all 6 states**, all crops on `ES10` (`NonApple +₹135.58`, `Apple +₹561.37`; disclosing Potato `−₹16.60` vs `RR`), freshly rebuilt strict `2024`-only `171` markets (`N = 57,634`, `+₹187.80` under ERA5), `100.0%`-covered realized ERA5 arrival-weather settlement (`+₹190.43` `ES10` on `178` markets), all 36 tornado cells, exact-geocoded corridors (`N = 40,690`), the **`N = 88,014` unconditional origin panel**, zero diversion (`exact_zero_divert_payoff_0`: `+₹169.79`), and **HP Graded Apples** (`−₹1,454.86` vs `−₹2,392.12`).
+- **`RT_2F_Min_m0` leads on Mean (`₹478.38/qtl`, `+₹44.82` vs `B2`, `p_holm_2s = 0.0024`)** with Class-8 math and zero parameters.
+- **Exact Silent-Market Break-Even:** For `B2_age_matched` to catch `Safe_EV_Sunk_m0` on Mean, silent arrival markets would need to average **`+₹328.37/qtl` uniform shift above turn-back** (or **`+₹95.97/qtl`** under a separate flat constant-payoff counterfactual, or **`23.79%`** homogeneous Open-MAR share; `+₹363.74` / `+₹119.16` / `26.65%` under the fresh `171`-market ERA5 rebuild).
 
 ---
 

@@ -1,6 +1,6 @@
-# Viva Defense Q&A — Plain-English Answers Backed by Exact Verification (`Revision v5`)
+# Viva Defense Q&A — Plain-English Answers Backed by Exact Verification (`Revision v6`)
 
-*(All numbers verified strictly from `revision/results/`, reproduced cleanly via `make reproduce`, zero untraceable numbers (`scripts/verify_traceability.py`), independent `A16` match within `₹0.00` across all 8 policies.)*
+*(All numbers verified strictly from `revision/results/`, reproduced cleanly via `make reproduce`, zero untraceable numbers (`scripts/verify_traceability.py`), independent `A16` match within `₹0.00` across all 8 policies, `R = 5,000` paired cluster bootstrap across all 3 `State|` clusterings and 1-, 2-, 4-week blocks.)*
 
 ---
 
@@ -13,7 +13,7 @@ An online AGMARKNET spread looks like instant profit (`> ₹100/qtl`), yet acros
 Adversarial review (`A17` + `A18`) uncovered three clean flaws in `RR-Abstain`:
 1. **`kappa* = 5.0` hit the grid wall:** Extending the grid to `20.0` pushed the matched threshold down to `−₹328.99/qtl` (showing `kappa = 5.0` worked as a disguised cutoff shift rather than a physical `1.5×` return factor).
 2. **`rep28` over-predicted Sunday closings:** Mandis closed regularly on Sundays still scored `0.75` under a 28-day rolling average, inflating `0.5*rep28 + 0.5*dow8`. Using weekday-only `dow8` (`(k+1)/10` over the last 8 same-weekdays) fixed Sunday prediction directly.
-3. **Price swings (`cv28`) were ignored:** High lagged prices regress downward on arrival (`Apple` / `Tomato`). Subtracting 1 standard deviation (`dest_price_cv_28d`) gives **`Safe_EV_Sunk_m0`** ($p_{\text{dow}}\cdot G_{\text{1SD}} - F > 0$ — **0 free params**, cuts `ES10` from `−₹525.25` to **`−₹344.09/qtl`**, `+₹181.17` vs `B2`, **`p_holm_2s = 0.0040`** on all 3 clustering schemes, positive in all 6 states and HP apples). Dropping `cv28` altogether leaves Class-8 **`RT_2F_Min_m0`** ($p_{\min}\cdot G > 2F$ — **0 free params**, **`₹478.38/qtl` mean**, `+₹44.82` vs `B2`, `p_holm_2s = 0.0040`).
+3. **Price swings (`cv28`) were ignored:** High lagged prices regress downward on arrival (`Apple` / `Tomato`). Subtracting 1 standard deviation (`dest_price_cv_28d`) gives **`Safe_EV_Sunk_m0`** ($p_{\text{dow}}\cdot G_{\text{1SD}} - F > 0$ — **0 free params**, cuts `ES10` from `−₹525.25` to **`−₹344.09/qtl`**, `+₹181.17` vs `B2`, **`p_holm_2s = 0.0024`** at `R = 5,000` on all 3 clustering schemes and 1-, 2-, 4-week blocks; Mean `+₹32.03`, `p_holm_2s = 0.0028–0.0436`; positive `ES10` vs `B2` in all 6 states and HP apples). Dropping `cv28` altogether leaves Class-8 **`RT_2F_Min_m0`** ($p_{\min}\cdot G > 2F$ — **0 free params**, **`₹478.38/qtl` mean**, `+₹44.82` vs `B2`, `p_holm_2s = 0.0024`).
 
 ---
 
@@ -24,7 +24,7 @@ It doesn't replace the phone call—it **prevents alert overload before the call
 
 ### Q4. Explain exact `ES10` and what cluster-key bug your own adversarial review caught (`A17` #1).
 Unweighted below-quantile averages (the legacy truncated quantile-mean estimator) broke whenever `₹0` abstentions tied at the 10% boundary. Exact `ES10` sorts all `N` episodes worst-first (`₹0` on abstentions), sets fractional mass $m = 0.10 N = k + f$, sums the worst `k` observations plus fraction `f` of `(k + 1)`, and divides by `m`.  
-On clustering: earlier runs forgot `State + "|"` on bare `dest_market`, splitting physical markets into `336` duplicate strings instead of `172`. Fixing `State + "|"` and adding policy-specific destination clustering yields exact **`173`**, **`172`**, and **`170–173`** clusters (`23` 2-week blocks) and uses **strict two-sided Holm-Bonferroni (`p_holm_2s = 0.0040`)**—all primary hypotheses still hold cleanly across all 3 schemes.
+On clustering: earlier runs forgot `State + "|"` on bare `dest_market`, splitting physical markets into `336` duplicate strings instead of `172`. Fixing `State + "|"` and adding policy-specific destination clustering yields exact **`173`**, **`172`**, and **`171–173`** clusters (`1`-week `45`, `2`-week `23`, and `4`-week `12` calendar blocks) and uses **strict two-sided Holm-Bonferroni at `R = 5,000`** (`p_holm_2s = 0.0024` for tail/loss/`RT`-mean; `0.0028–0.0436` for `Safe_EV` mean vs `B2`)—all primary hypotheses still hold cleanly across all 3 schemes.
 
 ---
 
@@ -32,7 +32,7 @@ On clustering: earlier runs forgot `State + "|"` on bare `dest_market`, splittin
 We directly tested **five stronger sensitivity regimes (`a18_missing_regimes.csv`)**:
 - Even at `div_0.0_spoil_only` (where `RR`'s `ES10` diff collapsed to NS `+₹9.81`, `p_2s = 0.603`), **`Safe_EV_Sunk_m0` STILL beats `B2` by `+₹173.65/qtl` `ES10`** (`−₹185.52` vs `−₹359.17`, `p_2s = 0.002`)!
 - Even at literal zero diversion payoff (`exact_zero_divert_payoff_0`, payoff `₹0` on blank arrival), **`Safe_EV_Sunk_m0` beats `B2` by `+₹169.79/qtl` `ES10` (`p_2s = 0.002`)** and cuts episode losses (`4.52%` vs `6.55%`).
-- Only under upper-bound **`open_yard_MAR_lagged_price`** (pretending 100% of blank portal rows actually cleared open at yesterday's price) does `B2` beat `Safe_EV_Sunk_m0` on Mean (`₹722.66` vs `₹620.08`)—yet `Safe_EV_Sunk_m0` STILL reduces losses (`4.78%` vs `7.08%`) and beats `B2` on `ES10` (`+₹190.00`). That directly exposes exact boundaries without hiding anything!
+- Only under upper-bound **`open_yard_MAR_lagged_price`** (pretending 100% of blank portal rows actually cleared open at yesterday's price) does `B2` beat `Safe_EV_Sunk_m0` on Mean (`₹722.66` vs `₹620.08`; `₹707.04` vs `₹606.48` under realized ERA5)—yet `Safe_EV_Sunk_m0` STILL reduces losses (`4.78%` vs `7.08%`) and beats `B2` on `ES10` (`+₹190.00` at `20°C`; `+₹196.38` under ERA5). Moreover, exact algebraic break-even (`v6_breakeven.csv`, residual `0.0`) shows `B2` catches `Safe_EV_Sunk_m0` on Mean only if silent yards average **`+₹328.37/qtl` uniform shift above turn-back** (or **`+₹95.97/qtl`** under a separate flat constant-payoff counterfactual where every silent trip yields one constant value, or **`23.79%`** homogeneous Open-MAR share; `+₹363.74` / `+₹119.16` / `26.65%` on the fresh `171`-market ERA5 rebuild), and `RT_2F_Min_m0` break-even requires **`+₹427.54/qtl`** (`+₹186.84` flat constant payoff; `32.77%` MAR share). That directly exposes exact boundaries without hiding anything!
 
 ---
 
@@ -43,14 +43,15 @@ Yes, and we explicitly audit and test it! Conditioning primary episodes on `sett
 
 ### Q7. How does `Safe_EV_Sunk_m0` perform across all 6 states, all crops, and HP Graded Apples (`R6`)?
 - **All 6 States (`100%` pass vs `RR` failing MH/HP):** `Safe_EV_Sunk_m0` earns strictly positive 95% `ES10` CIs in Gujarat `[+₹138.05, +₹369.11]`, HP `[+₹59.18, +₹637.28]`, Karnataka `[+₹58.23, +₹184.08]`, MP `[+₹139.94, +₹303.97]`, Maharashtra `[+₹48.71, +₹303.07]`, and UP `[+₹48.00, +₹139.86]`.
-- **Crops (`a18_crop_and_state_splits.csv`):** Gains `ES10` on Non-Apple (`+₹135.58`), Onion (`+₹123.49`), Potato (`+₹72.31`), Tomato (`+₹195.65`), and even generic Apple (`+₹561.37`). Transparently, `Safe_EV_Sunk_m0`'s Mean net-gain CIs vs `B2` cross zero in Gujarat (`−₹1.66`), Maharashtra (`[−₹5.58, +₹36.32]`), UP (`[−₹3.18, +₹27.00]`), Tomato (`₹461.42` vs `₹462.27`), and Apple (`[−₹24.81, +₹245.04]`) due to conservative risk filtering (`cnt28 < 2` fallback hits just `0.23%` / `86` dispatched rows), whereas zero-parameter **`RT_2F_Min_m0`** beats `B2`'s point Mean in all 6 states and all 5 crop slices (`Tomato ₹504.35`).
+- **Crops (`a18_crop_and_state_splits.csv`):** Gains `ES10` vs `B2_age_matched` on Non-Apple (`+₹135.58`), Onion (`+₹123.49`), Potato (`+₹72.31` vs `B2`, while transparently trailing `RR_Abstain_matched` on Potato `ES10` by `−₹16.60`: `−₹243.97` vs `−₹227.37`), Tomato (`+₹195.65`), and generic Apple (`+₹561.37`). Transparently, `Safe_EV_Sunk_m0`'s Mean net-gain CIs vs `B2` cross zero in Gujarat (`−₹1.66`), Maharashtra (`[−₹5.58, +₹36.32]`), UP (`[−₹3.18, +₹27.00]`), Tomato (`₹461.42` vs `₹462.27`), and Apple (`[−₹24.81, +₹245.04]`) due to conservative risk filtering (`cnt28 < 2` fallback hits just `0.23%` / `86` dispatched rows), whereas zero-parameter **`RT_2F_Min_m0`** beats `B2`'s point Mean in all 6 states and all 5 crop slices (`Tomato ₹504.35`).
 - **HP Graded Apples (`N = 2,802`, `a18_hp_apple.csv`):** Previously `MG_matched` beat `RR` on `ES10` (`−₹1,953.20` vs `−₹2,165.73`). Zero-parameter `Safe_EV_Sunk_m0` beats **both**: Mean **`₹1,354.85`** (vs `B2 ₹1,199.31`, `MG ₹1,028.05`), **`ES10 −₹1,454.86`** (`−₹2,479.28` vs `B2 −₹4,071.95` in June–Aug 2026). Still, `41.38%` of dispatched HP apple trips lose money, so live buyer checks remain mandatory (`R6`).
 
 ---
 
-### Q8. What if transport is heavy-truck (`₹0.258/km`), *arhtiya* commission is 6%, or weather forecast leaked (`A8`, `N1`)?
-- **Weather leak cleanly removed (`N1`):** Forecast rain matched ERA5 rain on `66,222 / 67,135` (`98.64%`) rows; primary runs use strictly `20°C` NABCONS reference (`+₹0` weather dependence). Adding `<2025` 2024 climatology shifts `Safe_EV_Sunk_m0` mildly (`ES10 −₹335.36`).
-- **36-of-36 Tornado Dominance (`a18_tornado.csv`):** Across all 18 freight (`₹0.258` NITI floor to `₹1.20` steep), *arhtiya* (`0–6%`), HP hill (`1.0–1.75`), spoilage (`0.5–2x`), and detention (`₹0–100`) checks under **BOTH frozen and re-scored decisions**, `Safe_EV_Sunk_m0` beats `B2_age_matched` in 36 of 36 scenarios on Mean (`+₹13.31..+₹61.11`) AND `ES10` (`+₹144.94..+₹329.37`) with zero sign flips!
+### Q8. What if transport is heavy-truck (`₹0.258/km`), *arhtiya* commission is 6%, market selection uses `2024`-only data, or realized ERA5 arrival weather affects spoilage (`A8`, `N1`, `v6`)?
+- **Weather leak cleanly removed from decisions (`N1`) & Realized ERA5 Settlement (`v6`):** Forecast rain matched ERA5 rain on `66,222 / 67,135` (`98.64%`) rows; **zero weather enters any decision rule**. Primary tables use `20°C` NABCONS reference (`2024` climatology shifts `Safe_EV` `ES10` to `−₹335.36`). Settling the identical weather-free rules against `100.0%`-covered **realized arrival-day ERA5 temperature (`Q10`), RH, and heavy rain (`>= 35 mm`)** widens `Safe_EV_Sunk_m0`'s `ES10` advantage to **`+₹190.43/qtl`** (`−₹364.28` vs `−₹554.71`; `Safe_EV_Phys_m0` `+₹201.55/qtl`, `p_holm_2s = 0.0024` at `R = 5,000`).
+- **Fresh End-to-End Rebuilt Strict `2024`-Only `171`-Market Zero-Lookahead Panel (`N = 57,634`):** Selecting markets exclusively on `2024` reporting days (`>= 80` days, `<= 30`/state), freshly rebuilding Top-5 candidates from `171` markets (`195,421` shortlisted test rows), and re-calibrating `B2` on `val_171` (`th = ₹200`) preserves every conclusion (`Safe_EV_Sunk_m0` `+₹179.24` `ES10` at `20°C`, `+₹187.80` under realized ERA5; `Safe_EV_Phys_m0` `+₹199.07`; `p_holm_2s = 0.0024` across 1-, 2-, and 4-week calendar blocks).
+- **36-of-36 Tornado Robustness (`a18_tornado.csv`):** Across all 18 freight (`₹0.258` NITI floor to `₹1.20` steep), *arhtiya* (`0–6%`), HP hill (`1.0–1.75`), spoilage (`0.5–2x`), and detention (`₹0–100`) checks under **BOTH frozen and re-scored decisions**, `Safe_EV_Sunk_m0` beats `B2_age_matched` in 36 of 36 scenarios on Mean (`+₹13.31..+₹61.11`) AND `ES10` (`+₹144.94..+₹329.37`) with zero sign flips!
 
 ---
 
@@ -64,4 +65,4 @@ Yes, and we explicitly audit and test it! Conditioning primary episodes on `sett
 ---
 
 ### Q10. How do examiners independently verify every number?
-Clone `finalization` and run `make reproduce`: zero gitignored files needed, `scripts/a16_independent_audit.py` independently matches `₹0.00` across all 8 policies from raw parquets, `scripts/verify_traceability.py` verifies `0` untraceable numbers across all `23/23` active docs, and `pytest -v` passes all `35` tests.
+Clone `finalization` and run `make reproduce`: zero gitignored files needed, `scripts/a16_independent_audit.py` independently matches `₹0.00` across all 8 policies from raw parquets, `scripts/verify_traceability.py` verifies `0` untraceable numbers across all `23/23` active docs, and `pytest -v` passes all `36` tests (including `49/49` verified bibliography citations and `v6` break-even/ERA5/`171`-market/`R=5,000` invariants).

@@ -1,0 +1,36 @@
+{
+  "exploratory": true,
+  "strict_2024_markets_count": 171,
+  "strict_2024_markets_by_state": {
+    "Gujarat": 30,
+    "Himachal Pradesh": 23,
+    "Karnataka": 28,
+    "Madhya Pradesh": 30,
+    "Maharashtra": 30,
+    "Uttar Pradesh": 30
+  },
+  "strict_2024_fresh_rebuild": true,
+  "strict_2024_shortlist_test_rows": 195421,
+  "n_test_full_178": 58676,
+  "n_test_strict2024_171": 57634,
+  "val_171_b2_threshold": 200.0,
+  "val_171_b2_dispatch_rate": 0.7043,
+  "val_171_matched_thresholds": {
+    "MG_matched": 133.0315,
+    "RR_Abstain_matched": 5.4033,
+    "Safe_EV_Sunk_matched": -45.0073
+  },
+  "era5_settlement_coverage": {
+    "d0_era5_coverage_pct": 100.0,
+    "d1_era5_coverage_pct": 100.0,
+    "d2_era5_coverage_pct": 100.0
+  },
+  "era5_settlement_coverage_171": {
+    "d0_era5_coverage_pct": 100.0,
+    "d1_era5_coverage_pct": 100.0,
+    "d2_era5_coverage_pct": 100.0
+  },
+  "bootstrap_reps": 5000,
+  "p_min_two_sided_5000": 0.0004,
+  "p_holm_min_6tests_5000": 0.0024
+}

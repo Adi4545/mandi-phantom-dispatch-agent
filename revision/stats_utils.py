@@ -39,17 +39,14 @@ def weighted_es10(values: np.ndarray, weights: np.ndarray) -> float:
     return float((head_sum + need_w * float(vs[idx])) / target)
 
 
-def _batch_weighted_es10(vals: np.ndarray, w_mat: np.ndarray) -> np.ndarray:
-    """Vectorized weighted ES10 over draws (B, N) where vals is (N,) unsorted or pre-sorted."""
-    order = np.argsort(vals, kind="mergesort")
-    vs = vals[order]
-    ws = w_mat[:, order]  # (B, N)
+def _batch_weighted_es10_presorted(vs: np.ndarray, ws: np.ndarray) -> np.ndarray:
+    """Vectorized exact weighted ES10 when vs is ALREADY sorted ascending and ws aligns with vs."""
     b_n = ws.shape[0]
     out = np.empty(b_n, dtype=np.float64)
     cw = np.cumsum(ws, axis=1)
-    vxw = np.cumsum(ws * vs[None, :], axis=1)
     totals = cw[:, -1]
     targets = 0.1 * totals
+    n_len = len(vs)
     for b in range(b_n):
         tot = totals[b]
         if tot <= 0:
@@ -57,13 +54,19 @@ def _batch_weighted_es10(vals: np.ndarray, w_mat: np.ndarray) -> np.ndarray:
             continue
         tgt = targets[b]
         idx = int(np.searchsorted(cw[b], tgt, side="left"))
-        if idx >= len(vs):
-            idx = len(vs) - 1
+        if idx >= n_len:
+            idx = n_len - 1
         prev_w = float(cw[b, idx - 1]) if idx > 0 else 0.0
         need_w = max(0.0, tgt - prev_w)
-        head_sum = float(vxw[b, idx - 1]) if idx > 0 else 0.0
+        head_sum = float(np.dot(ws[b, :idx], vs[:idx])) if idx > 0 else 0.0
         out[b] = (head_sum + need_w * float(vs[idx])) / tgt
     return out
+
+
+def _batch_weighted_es10(vals: np.ndarray, w_mat: np.ndarray) -> np.ndarray:
+    """Vectorized weighted ES10 over draws (B, N) where vals is (N,) unsorted or pre-sorted."""
+    order = np.argsort(vals, kind="mergesort")
+    return _batch_weighted_es10_presorted(vals[order], w_mat[:, order])
 
 
 def two_way_cluster_bootstrap_all_metrics(
@@ -118,14 +121,20 @@ def two_way_cluster_bootstrap_all_metrics(
     boot_loss = np.empty(reps, dtype=np.float64)
     boot_es10 = np.empty(reps, dtype=np.float64)
 
-    # Compress identical (m_code, b_code, va, vb) tuples for faster exact ES10 draws
-    comp_exact = pd.DataFrame({"m": m_codes, "b": b_codes, "va": va, "vb": vb})
-    grp_es = comp_exact.groupby(["m", "b", "va", "vb"], sort=False, as_index=False).size()
-    gm = grp_es["m"].to_numpy(dtype=np.int32)
-    gb = grp_es["b"].to_numpy(dtype=np.int32)
-    gva = grp_es["va"].to_numpy(dtype=np.float64)
-    gvb = grp_es["vb"].to_numpy(dtype=np.float64)
-    gcnt = grp_es["size"].to_numpy(dtype=np.float64)
+    # Compress and pre-sort separately for va and vb (exact weighted ES10, zero per-chunk sorting)
+    ga = pd.DataFrame({"m": m_codes, "b": b_codes, "v": va}).groupby(["m", "b", "v"], sort=False, as_index=False).size()
+    oa = np.argsort(ga["v"].to_numpy(dtype=np.float64), kind="mergesort")
+    gma = ga["m"].to_numpy(dtype=np.int32)[oa]
+    gba = ga["b"].to_numpy(dtype=np.int32)[oa]
+    gva_s = ga["v"].to_numpy(dtype=np.float64)[oa]
+    gca = ga["size"].to_numpy(dtype=np.float64)[oa]
+
+    gb_df = pd.DataFrame({"m": m_codes, "b": b_codes, "v": vb}).groupby(["m", "b", "v"], sort=False, as_index=False).size()
+    ob = np.argsort(gb_df["v"].to_numpy(dtype=np.float64), kind="mergesort")
+    gmb = gb_df["m"].to_numpy(dtype=np.int32)[ob]
+    gbb = gb_df["b"].to_numpy(dtype=np.int32)[ob]
+    gvb_s = gb_df["v"].to_numpy(dtype=np.float64)[ob]
+    gcb = gb_df["size"].to_numpy(dtype=np.float64)[ob]
 
     chunk = 100
     for r0 in range(0, reps, chunk):
@@ -145,9 +154,10 @@ def two_way_cluster_bootstrap_all_metrics(
             boot_mean[r0 : r0 + rc] = np.where(den > 0, num_m / den, est_mean)
             boot_loss[r0 : r0 + rc] = np.where(den > 0, num_l / den, est_loss)
 
-        w_rep = m_w[:, gm] * b_w[:, gb] * gcnt[None, :]
-        es_a = _batch_weighted_es10(gva, w_rep)
-        es_b = _batch_weighted_es10(gvb, w_rep)
+        ws_a = m_w[:, gma] * b_w[:, gba] * gca[None, :]
+        ws_b = m_w[:, gmb] * b_w[:, gbb] * gcb[None, :]
+        es_a = _batch_weighted_es10_presorted(gva_s, ws_a)
+        es_b = _batch_weighted_es10_presorted(gvb_s, ws_b)
         es_diff = es_a - es_b
         boot_es10[r0 : r0 + rc] = np.where(np.isfinite(es_diff), es_diff, est_es10)
 

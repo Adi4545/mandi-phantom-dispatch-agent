@@ -48,9 +48,14 @@ FORBIDDEN_LATEX_LEAKS = [
     r"\widehat",
     r"\left(",
     r"\right)",
+    r"\big(",
+    r"\big)",
+    r"\Big(",
+    r"\Big)",
     r"\sum_",
     r"\tau_",
     r"\kappa",
+    r"\theta",
 ]
 
 FORBIDDEN_LEGACY_STRINGS = [
@@ -64,6 +69,11 @@ FORBIDDEN_LEGACY_STRINGS = [
     "<br",
     "**",
     "/" + "Users/",
+    "TO CONFIRM",
+    "Crushes",
+    "slashes",
+    "slashing",
+    "$S_",
 ]
 
 
@@ -152,11 +162,23 @@ def latex_to_html_fragment(expr: str) -> str:
         (r"\right)", ")"),
         (r"\left\{", "{"),
         (r"\right\}", "}"),
+        (r"\big(", "("),
+        (r"\big)", ")"),
+        (r"\Big(", "("),
+        (r"\Big)", ")"),
+        (r"\big\{", "{"),
+        (r"\big\}", "}"),
         (r"\%", "%"),
         (r"\{", "{"),
         (r"\}", "}"),
         (r"\Delta", "&#916;"),
         (r"\alpha", "&#945;"),
+        (r"\beta", "&#946;"),
+        (r"\gamma", "&#947;"),
+        (r"\theta", "&#952;"),
+        (r"\lambda", "&#955;"),
+        (r"\mu", "&#956;"),
+        (r"\sigma", "&#963;"),
         (r"\kappa", "&#954;"),
         (r"\tau", "&#964;"),
         (r"\min", "min"),
@@ -241,11 +263,23 @@ def latex_to_plain_unicode(expr: str) -> str:
         (r"\right)", ")"),
         (r"\left\{", "{"),
         (r"\right\}", "}"),
+        (r"\big(", "("),
+        (r"\big)", ")"),
+        (r"\Big(", "("),
+        (r"\Big)", ")"),
+        (r"\big\{", "{"),
+        (r"\big\}", "}"),
         (r"\%", "%"),
         (r"\{", "{"),
         (r"\}", "}"),
         (r"\Delta", "Δ"),
         (r"\alpha", "α"),
+        (r"\beta", "β"),
+        (r"\gamma", "γ"),
+        (r"\theta", "θ"),
+        (r"\lambda", "λ"),
+        (r"\mu", "μ"),
+        (r"\sigma", "σ"),
         (r"\kappa", "κ"),
         (r"\tau", "τ"),
         (r"\min", "min"),
@@ -294,7 +328,9 @@ def format_inline_html(text: str, bib_keys: set[str] | None = None) -> str:
 
     # 1. Backtick code spans
     text = re.sub(r"`([^`]+)`", lambda m: hold(f"<code>{html.escape(m.group(1))}</code>"), text)
-    # 2. Inline math spans $...$
+    # 2a. Accidental inline display-math spans $$...$$ (e.g. indented under list items)
+    text = re.sub(r"\$\$([^$\n]+?)\$\$", lambda m: hold(f'<div class="eq-box">{latex_to_html_fragment(m.group(1))}</div>'), text)
+    # 2b. Inline math spans $...$
     text = re.sub(r"\$([^$\n]+?)\$", lambda m: hold(f'<span class="math-inline">{latex_to_html_fragment(m.group(1))}</span>'), text)
     # 3. Markdown links [label](url)
     text = re.sub(r"\[([^\]]+)\]\(([^\)]+)\)", lambda m: hold(f'<a href="{html.escape(m.group(2))}">{html.escape(m.group(1))}</a>'), text)
@@ -314,7 +350,7 @@ def format_inline_html(text: str, bib_keys: set[str] | None = None) -> str:
             if parts and all(p in bib_keys for p in parts):
                 return f'<span class="cite">[{raw}]</span>'
             return m.group(0)
-        esc = re.sub(r"\[([a-z0-9,\s]+)\]", _cite_repl, esc)
+        esc = re.sub(r"\[([a-z0-9_,\s]+)\]", _cite_repl, esc)
 
     for tok, val in reversed(list(tokens.items())):
         esc = esc.replace(tok, val)
@@ -452,8 +488,10 @@ def markdown_to_html_body(md_text: str, bib_keys: set[str] | None = None, base_d
             out.append("".join(tbl))
             continue
 
-        # Numbered list
-        if re.match(r"^\d+\.\s+", stripped):
+        # Numbered list (preserve explicit start ordinal across split display equations / tables)
+        m_ol_start = re.match(r"^(\d+)\.\s+", stripped)
+        if m_ol_start:
+            start_num = int(m_ol_start.group(1))
             items: List[Tuple[str, List[str]]] = []
             while i < len(lines):
                 s = lines[i].strip()
@@ -475,7 +513,8 @@ def markdown_to_html_body(md_text: str, bib_keys: set[str] | None = None, base_d
                     li_parts.append(f"<li>{main_h}{sub_h}</li>")
                 else:
                     li_parts.append(f"<li>{main_h}</li>")
-            out.append(f"<ol>{''.join(li_parts)}</ol>")
+            start_attr = f' start="{start_num}"' if start_num != 1 else ""
+            out.append(f"<ol{start_attr}>{''.join(li_parts)}</ol>")
             continue
 
         # Bulleted list
@@ -661,25 +700,42 @@ ul.ref-list li { margin-bottom: 2.5px; }
 """
 
 
+def _split_manuscript_header(lines: List[str]) -> Tuple[str, str, List[str]]:
+    """Return (title, author_line, remaining_body_lines) without duplicating the author line."""
+    title_line = lines[0].lstrip("# ").strip()
+    author_line = "Aditya Sharma — Shoolini University, Solan, Himachal Pradesh, India"
+    body_start = 1
+    for idx in range(1, min(6, len(lines))):
+        s = lines[idx].strip()
+        if not s:
+            continue
+        if s.startswith("**Aditya Sharma**"):
+            author_line = s.replace("**", "")
+            body_start = idx + 1
+        break
+    return title_line, author_line, lines[body_start:]
+
+
 def build_paper_html_and_pdf(bib_keys: set[str]) -> None:
     ms_text = (PAPER_DIR / "manuscript.md").read_text()
-    lines = ms_text.splitlines()
-    title_line = lines[0].lstrip("# ").strip()
-    body_md = "\n".join(lines[1:])
-    body_html = markdown_to_html_body(body_md, bib_keys=bib_keys, base_dir=PAPER_DIR)
+    title_line, author_line, body_lines = _split_manuscript_header(ms_text.splitlines())
+    body_html = markdown_to_html_body("\n".join(body_lines), bib_keys=bib_keys, base_dir=PAPER_DIR)
 
     doc_html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>{html.escape(title_line)}</title>
-<style>{PAPER_CSS}</style>
+<style>{PAPER_CSS}
+.author-line {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 9.2pt; font-weight: 600; color: #1e293b; margin: 4px 0 4px 0; }}
+</style>
 </head>
 <body>
 <div class="title-banner">
-  <span class="meta-pill">M.Tech Research Manuscript &bull; Revision v5 Verified (<code>make reproduce</code>)</span>
+  <span class="meta-pill">M.Tech Research Manuscript &bull; Revision v6 Verified (<code>make reproduce</code>)</span>
   <h1 class="doc-title">{html.escape(title_line)}</h1>
-  <div class="subline">Zero-Parameter Wholesale Arbitrage Audit &bull; Strictly &lt;= t&minus;1 Timing &bull; Exploratory Evaluation on Tracked AGMARKNET + OSRM Data (<code>N = 58,676</code>, <code>8.7/10</code> Audit Sign-Off)</div>
+  <div class="author-line">{html.escape(author_line)}</div>
+  <div class="subline">Zero-Parameter Wholesale Dispatch Replay &bull; Strictly &lt;= t&minus;1 Firewall &bull; 178 &amp; 171-Market Panels &bull; Realized ERA5 Settlement &bull; <code>R = 5,000</code> Cluster Bootstrap (<code>exploratory: true</code>)</div>
 </div>
 {body_html}
 </body>
@@ -717,9 +773,9 @@ p { text-align: left; }
 </head>
 <body>
 <div class="title-banner">
-  <span class="meta-pill">Plain-English Pocket-Calculator Edition &bull; Revision v5 Verified</span>
+  <span class="meta-pill">Plain-English Pocket-Calculator Edition &bull; Revision v6 Verified</span>
   <h1 class="doc-title">{html.escape(title_line)}</h1>
-  <div class="subline">12th-Class Accessible Guide to Zero-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code> (<code>4.3 &rarr; 1.2 / 5</code> Difficulty)</div>
+  <div class="subline">Aditya Sharma &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; 12th-Class Pocket-Calculator Guide to Zero-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code> (<code>4.3 &rarr; 1.2 / 5</code> Difficulty)</div>
 </div>
 {body_html}
 </body>
@@ -777,7 +833,7 @@ def _format_inline_tex(text: str, bib_keys: set[str]) -> str:
             return hold(r"\cite{" + ",".join(parts) + "}")
         return m.group(0)
 
-    text = re.sub(r"\[([a-z0-9,\s]+)\]", _cite_fix, text)
+    text = re.sub(r"\[([a-z0-9_,\s]+)\]", _cite_fix, text)
     # Markdown links [label](url)
     text = re.sub(r"\[([^\]]+)\]\(([^\)]+)\)", lambda m: hold(_tex_escape_plain(m.group(1))), text)
 
@@ -793,6 +849,7 @@ def _format_inline_tex(text: str, bib_keys: set[str]) -> str:
 
 def _md_to_tex_blocks(lines: List[str], bib_keys: set[str]) -> List[str]:
     out: List[str] = []
+    tbl_counter = 0
     i = 0
     while i < len(lines):
         s = lines[i].strip()
@@ -861,8 +918,20 @@ def _md_to_tex_blocks(lines: List[str], bib_keys: set[str]) -> List[str]:
             while i < len(lines) and lines[i].strip().startswith("|"):
                 rows.append(_split_md_table_row(lines[i]))
                 i += 1
+            tbl_counter += 1
+            descriptive_caps = {
+                1: "Epistemic classification of observed quantities, causal features, survey-anchored assumptions, bounded unobservables, and out-of-scope mechanisms.",
+                2: "Reconciled data cleaning funnel from raw official portal archives to Top-5 lagged evaluation episodes across the 6-state and HP graded-apple panels.",
+                3: "Main equal-menu lagged test benchmark comparing baselines, hard-gated heuristics, tuned RR-Abstain, and zero-parameter rules (N = 58,676, 20°C closed-yard settlement).",
+                4: "Paired two-way cluster bootstrap inference across three State-prefixed spatial clusterings (R = 5,000, two-sided Holm-Bonferroni p_holm_2s).",
+                5: "Fair feature, volatility-haircut, Euclidean-distance, and equal-test-dispatch control ablations against Safe_EV_Sunk_m0.",
+                6: "Missing-quote counterfactual identification bounds from harsh diversion (div = 2.0) to optimistic open-yard MAR settlement.",
+                7: "Revision v6 robustness panels comparing full 178-market and freshly rebuilt strict 2024-only 171-market panels under 20°C reference and realized ERA5 arrival-day weather, with exact silent-market break-even thresholds.",
+            }
+            cap_text = _tex_escape_plain(descriptive_caps.get(tbl_counter, f"{re.sub(r'[`*]', '', hdr[0])} summary table."))
             tlines = [
                 "\\begin{table}[htbp]\n\\centering\n\\small\n",
+                f"\\caption{{{cap_text}}}\\label{{tab:table{tbl_counter}}}\n",
                 "\\resizebox{\\linewidth}{!}{\n",
                 f"\\begin{{tabular}}{{{cols_spec}}}\n\\toprule\n",
                 " & ".join(_format_inline_tex(h, bib_keys) for h in hdr) + " \\\\\n\\midrule\n",
@@ -872,7 +941,9 @@ def _md_to_tex_blocks(lines: List[str], bib_keys: set[str]) -> List[str]:
             tlines.append("\\bottomrule\n\\end{tabular}}\n\\end{table}\n")
             out.append("".join(tlines))
             continue
-        if re.match(r"^\d+\.\s+", s):
+        m_ol_start = re.match(r"^(\d+)\.\s+", s)
+        if m_ol_start:
+            start_num = int(m_ol_start.group(1))
             items = []
             while i < len(lines):
                 st = lines[i].strip()
@@ -886,7 +957,8 @@ def _md_to_tex_blocks(lines: List[str], bib_keys: set[str]) -> List[str]:
                 else:
                     break
             body = "\n".join(f"  \\item {_format_inline_tex(' '.join(it), bib_keys)}" for it in items)
-            out.append(f"\\begin{{enumerate}}\n{body}\n\\end{{enumerate}}\n")
+            set_cnt = f"  \\setcounter{{enumi}}{{{start_num - 1}}}\n" if start_num != 1 else ""
+            out.append(f"\\begin{{enumerate}}\n{set_cnt}{body}\n\\end{{enumerate}}\n")
             continue
         if re.match(r"^[-*]\s+", s):
             items = []
@@ -909,8 +981,8 @@ def _md_to_tex_blocks(lines: List[str], bib_keys: set[str]) -> List[str]:
 
 def build_latex_manuscript(bib_keys: set[str]) -> None:
     lines = (PAPER_DIR / "manuscript.md").read_text().splitlines()
-    title_line = lines[0].lstrip("# ").strip()
-    blocks = _md_to_tex_blocks(lines[1:], bib_keys)
+    title_line, _author_line, body_lines = _split_manuscript_header(lines)
+    blocks = _md_to_tex_blocks(body_lines, bib_keys)
     tex = (
         "\\documentclass[11pt,a4paper]{article}\n"
         "\\usepackage[utf8]{inputenc}\n"
@@ -918,8 +990,8 @@ def build_latex_manuscript(bib_keys: set[str]) -> None:
         "\\usepackage[margin=22mm]{geometry}\n"
         "\\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,array,xcolor}\n"
         f"\\title{{{_tex_escape_plain(title_line)}}}\n"
-        "\\author{M.Tech Research Thesis --- MandiGuard Revision v5 (Branch: finalization)}\n"
-        "\\date{April 2026 (Exploratory Audit \\& Cleanroom Freeze)}\n"
+        "\\author{Aditya Sharma \\\\ Shoolini University, Solan, Himachal Pradesh, India}\n"
+        "\\date{Revision v6 --- Cleanroom Reproducible Exploratory Audit}\n"
         "\\begin{document}\n\\maketitle\n\n"
         + "\n".join(blocks)
         + "\n\\bibliographystyle{plainnat}\n\\bibliography{references}\n\\end{document}\n"
@@ -999,15 +1071,17 @@ def build_docx_manuscript() -> None:
     style.font.name = "Georgia"
     style.font.size = Pt(10.5)
 
-    lines = (PAPER_DIR / "manuscript.md").read_text().splitlines()
-    title_line = lines[0].lstrip("# ").strip()
+    raw_lines = (PAPER_DIR / "manuscript.md").read_text().splitlines()
+    title_line, author_line, lines = _split_manuscript_header(raw_lines)
     h = doc.add_heading(title_line, level=0)
     h.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    sub = doc.add_paragraph("M.Tech Research Paper • Revision v5 Verified (Zero-Parameter Safe_EV_Sunk_m0 & RT_2F_Min_m0 • make reproduce)")
+    p_auth = doc.add_paragraph(author_line)
+    p_auth.runs[0].bold = True
+    sub = doc.add_paragraph("M.Tech Research Paper • Revision v6 Verified (Zero-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 & RT_2F_Min_m0 • make reproduce)")
     sub.runs[0].italic = True
     sub.runs[0].font.color.rgb = RGBColor(0x0F, 0x4C, 0x5C)
 
-    i = 1
+    i = 0
     while i < len(lines):
         s = lines[i].strip()
         if not s or s == "---" or s in ("<!-- WORKED_EXAMPLE_START -->", "<!-- WORKED_EXAMPLE_END -->"):
@@ -1134,8 +1208,15 @@ def build_docx_manuscript() -> None:
 
 
 def build_viva_slides() -> None:
-    """Build exact 12-slide 16:9 widescreen PDF matching final/SLIDE_OUTLINE.md & Revision v5."""
+    """Build exact 12-slide 16:9 widescreen PDF matching final/SLIDE_OUTLINE.md & Revision v6."""
     splits_df = pd.read_csv(ROOT / "revision" / "results" / "a18_crop_and_state_splits.csv")
+    v6_b5 = pd.read_csv(ROOT / "revision" / "results" / "v6_bootstrap_5000.csv")
+    v6_be = pd.read_csv(ROOT / "revision" / "results" / "v6_breakeven.csv")
+    be_20c = v6_be[(v6_be["panel"] == "full_178_20C_closed") & (v6_be["policy_a"] == "Safe_EV_Sunk_m0") & (v6_be["policy_b"] == "B2_age_matched")].iloc[0]
+    be_era = v6_be[(v6_be["panel"] == "strict2024_171_ERA5_closed") & (v6_be["policy_a"] == "Safe_EV_Sunk_m0") & (v6_be["policy_b"] == "B2_age_matched")].iloc[0]
+    es10_gain_era178 = float(v6_b5[(v6_b5["family"] == "full_178_ERA5_closed") & (v6_b5["scheme"] == "origin_x_2week") & (v6_b5["hypothesis_id"] == "H_V6_1")]["estimate"].iloc[0])
+    es10_gain_era171 = float(v6_b5[(v6_b5["family"] == "strict2024_171_ERA5_closed") & (v6_b5["scheme"] == "origin_x_2week") & (v6_b5["hypothesis_id"] == "H_V6_1")]["estimate"].iloc[0])
+
     state_rows_html: List[str] = []
     for st_name in ["Gujarat", "Himachal Pradesh", "Karnataka", "Madhya Pradesh", "Maharashtra", "Uttar Pradesh"]:
         sub = splits_df[(splits_df["slice_type"] == "State") & (splits_df["slice"] == st_name)]
@@ -1170,7 +1251,7 @@ def build_viva_slides() -> None:
                   <div class="kpi"><div class="val">4.3 &rarr; 1.2 / 5</div><div class="lbl">Defense complexity cut (DIFFICULTY.md)</div></div>
                 </div>
                 <div class="kpi-row">
-                  <div class="kpi good"><div class="val">+&#8377;181.17/qtl</div><div class="lbl">Safe_EV_Sunk_m0 ES10 gain vs B2 (p_holm_2s = 0.0040)</div></div>
+                  <div class="kpi good"><div class="val">+&#8377;181.17/qtl</div><div class="lbl">Safe_EV_Sunk_m0 ES10 gain vs B2 (p_holm_2s = 0.0024, R=5k)</div></div>
                   <div class="kpi"><div class="val">&#8377;478.38/qtl</div><div class="lbl">RT_2F_Min_m0 Mean (+&#8377;44.82 vs B2, Class-8 math)</div></div>
                 </div>
               </div>
@@ -1228,7 +1309,7 @@ def build_viva_slides() -> None:
                   <li>Halves origin day-<code>t*</code> modal prices;</li>
                   <li>Deletes active candidate yards on day <code>t*</code>.</li>
                 </ul>
-                <p class="pill-ok">Result: Bit-for-bit equality verified on candidate menu &amp; every decision feature for t &le; t* (`35/35` pytest green).</p>
+                <p class="pill-ok">Result: Bit-for-bit equality verified on candidate menu &amp; every decision feature for t &le; t* (`36/36` pytest green).</p>
               </div>
             </div>
             """,
@@ -1268,11 +1349,11 @@ def build_viva_slides() -> None:
                 <ul>
                   <li><strong>Stage I GBDT + Conformal (`4.3/5`):</strong> Required `sklearn 1.3.0` pickle + ERA5 leaks; confirmatory `H2` stayed inconclusive (`+&#8377;6.13`, `p = 0.2699`).</li>
                   <li><strong>Hard-Gated `MG_matched` (`4` params):</strong> Lifted mean slightly yet <strong>failed `ES10` tail risk (`&#8722;&#8377;512.78` vs `&#8722;&#8377;525.25`, `p_holm_2s = 1.000`)</strong>.</li>
-                  <li><strong>Tuned `RR_Abstain_matched` (`A10`, `1.6/5`):</strong> `val` hit grid edge `kappa* = 5.0` (at `k=20`, matched threshold plunged to `&#8722;&#8377;328.99`); `0.5*rep28 + 0.5*dow8` masked Sunday holiday closures; ignored `cv28`; collapsed at `div=0` (`p_2s = 0.603`).</li>
+                  <li><strong>Tuned `RR_Abstain_matched` (`A10`, `1.6/5`):</strong> `val` hit grid edge `kappa* = 5.0` (at `k=20`, matched threshold shifted to `&#8722;&#8377;328.99`); `0.5*rep28 + 0.5*dow8` masked Sunday holiday closures; ignored `cv28`; fell to NS at `div=0` (`p_2s = 0.603`).</li>
                 </ul>
               </div>
               <div class="card accent">
-                <h3>Revision v5 Zero-Parameter Breakthrough (`A18`)</h3>
+                <h3>Zero-Parameter Simplification (`A18`)</h3>
                 <ul>
                   <li>Removed `kappa` grid search (`0` tuned parameters).</li>
                   <li>Removed polluted `rep28` Sunday bias inside `p_dow`.</li>
@@ -1326,7 +1407,7 @@ def build_viva_slides() -> None:
                   <tr class="hi"><td><strong><code>Safe_EV_Sunk_m0</code></strong></td><td style="text-align:right"><strong>0</strong></td><td style="text-align:right"><strong>63.27%</strong></td><td style="text-align:right"><strong>&#8377;465.59</strong></td><td style="text-align:right"><strong>14.93%</strong></td><td style="text-align:right"><strong>&#8722;&#8377;344.09</strong></td><td style="text-align:right"><strong>&#8722;&#8377;260.05</strong></td></tr>
                   <tr class="hi"><td><strong><code>RT_2F_Min_m0</code></strong></td><td style="text-align:right"><strong>0</strong></td><td style="text-align:right">64.92%</td><td style="text-align:right"><strong>&#8377;478.38</strong></td><td style="text-align:right">16.26%</td><td style="text-align:right">&#8722;&#8377;468.32</td><td style="text-align:right">&#8722;&#8377;325.70</td></tr>
                 </tbody></table>
-                <p class="small"><strong>All 4 `PREREG_A18` Hypotheses:</strong> <code>p_holm_2s = 0.0040</code> across ALL THREE corrected `State|` clusterings (`173` orig, `172` B2-dest, `171&ndash;173` policy-dest &times; 23 blocks).</p>
+                <p class="small"><strong>`R = 5,000` Paired Cluster Bootstrap (`v6_bootstrap_5000.csv`):</strong> <code>Safe_EV_Sunk_m0</code>, <code>Safe_EV_Phys_m0</code> (`&#8722;&#8377;333.57` ES10), and <code>RT_2F_Min_m0</code> achieve <code>p_holm_2s = 0.0024</code> across ALL 3 `State|` clusterings &amp; 1-, 2-, 4-week blocks.</p>
               </div>
               <div class="img-pane"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"></div>
             </div>
@@ -1342,7 +1423,7 @@ def build_viva_slides() -> None:
                 <ul>
                   <li><strong>Equal Test Dispatch (`63.27%`):</strong> Forcing `B2` down to `th = &#8377;298.92` gives `ES10 &#8722;&#8377;500.75` (`23.27%` loss) &mdash; `Safe_EV_Sunk_m0` still leads by <strong>`+&#8377;156.66/qtl` `ES10`</strong> (`-8.34 pp` losses).</li>
                   <li><strong>Adaptive `1 - cv28` vs Static 10%:</strong> Adaptive price volatility adds <strong>`+&#8377;100.66/qtl` `ES10`</strong> over `Safe_EV_fixed10pct_m0` (`&#8722;&#8377;444.75`).</li>
-                  <li><strong>`val-ES10` Hard-Gated `MG`:</strong> Tuning `rep28 &ge; 0.75` cuts `ES10` to `&#8722;&#8377;445.92` only by crashing Mean (`&#8377;358.44/qtl`).</li>
+                  <li><strong>`val-ES10` Hard-Gated `MG`:</strong> Tuning `rep28 &ge; 0.75` cuts `ES10` to `&#8722;&#8377;445.92` only by reducing Mean (`&#8377;358.44/qtl`).</li>
                   <li><strong>Euclid `1.20x`:</strong> Mean `&#8377;465.20` (within `&#8377;0.39` of OSRM).</li>
                 </ul>
               </div>
@@ -1372,14 +1453,14 @@ def build_viva_slides() -> None:
             """,
         ),
         (
-            "Slide 10 of 12 &bull; Sensitivity Tornado & Identification Bounds",
-            "36-of-36 Tornado Dominance & Full Manski / Open-MAR Bounds",
+            "Slide 10 of 12 &bull; Sensitivity Tornado &amp; Exact Break-Even Bounds",
+            "36/36 Tornado Robustness, Open-MAR &amp; Exact Silent-Market Break-Even",
             f"""
             <div class="grid-img">
               <div class="card">
                 <ul>
-                  <li><strong>36 / 36 Tornado Cells:</strong> Across 18 freight (`&#8377;0.258` NITI floor to `&#8377;1.20` steep), <em>arhtiya</em> (`0&ndash;6%`), HP hill (`1.0&ndash;1.75`), spoilage (`0.5&ndash;2x`), detention (`&#8377;0&ndash;100`), frozen &amp; re-scored, `Safe_EV` wins Mean (`+&#8377;13.31..+&#8377;61.11`) &amp; `ES10` (`+&#8377;144.94..+&#8377;329.37`).</li>
-                  <li><strong>Literal `exact_zero_divert_payoff_0`:</strong> `Safe_EV` still wins <strong>`+&#8377;169.79 ES10`</strong> (`p_2s = 0.002`, where tuned `RR` was NS!).</li>
+                  <li><strong>36 / 36 Tornado Cells:</strong> Across 18 freight (`&#8377;0.258` NITI floor to `&#8377;1.20` steep), <em>arhtiya</em> (`0&ndash;6%`), HP hill (`1.0&ndash;1.75`), spoilage (`0.5&ndash;2x`), detention (`&#8377;0&ndash;100`), frozen &amp; re-scored, `Safe_EV` improves Mean (`+&#8377;13.31..+&#8377;61.11`) &amp; `ES10` (`+&#8377;144.94..+&#8377;329.37`).</li>
+                  <li><strong>Exact Silent-Market Break-Even (`v6_breakeven.csv`):</strong> `B2` catches `Safe_EV` on Mean only if silent yards average <strong>`+&#8377;{float(be_20c["breakeven_silent_extra_inr"]):,.2f}/qtl` above turn-back</strong> (or flat `+&#8377;{float(be_20c["breakeven_silent_abs_payoff_inr"]):,.2f}` constant-payoff counterfactual; `{float(be_20c["breakeven_open_mar_share_pct"]):.2f}%` MAR share; `resid = 0.0`).</li>
                   <li><strong>Open-MAR Bound Disclosed:</strong> `B2` earns `+&#8377;102.58` Mean; `Safe_EV` keeps `+&#8377;190.00 ES10` &amp; `4.78%` vs `7.08%` losses.</li>
                 </ul>
               </div>
@@ -1388,15 +1469,15 @@ def build_viva_slides() -> None:
             """,
         ),
         (
-            "Slide 11 of 12 &bull; Unconditional Panel & HP Graded Apples",
-            "Unconditional Origin Panel (`N=88,014`) & HP Apples (`R6`)",
+            "Slide 11 of 12 &bull; Zero-Lookahead 171-Mkt, Realized ERA5 &amp; HP Apples",
+            "171-Market Zero-Lookahead, Realized ERA5 Settlement &amp; HP Apples",
             f"""
             <div class="grid-img">
               <div class="card">
                 <ul>
-                  <li><strong>`N = 88,014` Unconditional Origin Panel (`A17` #4):</strong> Restoring `29,338` unreported day-`t` origin episodes leaves `Safe_EV_Sunk_m0` stronger (`ES10 &#8722;&#8377;335.04` vs `&#8722;&#8377;515.93`, Mean `&#8377;483.03` vs `&#8377;445.37`; `RT_2F` Mean `&#8377;493.15`).</li>
-                  <li><strong>Clean Corridors &amp; Keys:</strong> Holds across `exact_geocode` (`N=40,690`; all-5 `18,189`), `non_conflict` (`N=56,857`), and `olag 1..3` (`N=56,648`).</li>
-                  <li><strong>HP Graded Apples (`N=2,802`):</strong> `Safe_EV_Sunk_m0` (`&#8377;1,354.85 / &#8722;&#8377;1,454.86`) beats both `B2` (`&#8722;&#8377;2,392.12`) &amp; `MG` (`&#8722;&#8377;1,953.20`) &mdash; yet <strong>`41.38%` cond losses</strong> stay visible (`R6`).</li>
+                  <li><strong>Strict `2024`-Only `171` Markets (`N=57,634`) &amp; Realized ERA5:</strong> Zero weather in decisions; settling with `100.0%` arrival ERA5 (`Q10` + `RH` + rain &ge;35mm) widens `Safe_EV` `ES10` gain to <strong>`+&#8377;{es10_gain_era178:,.2f}` (`178`-mkt)</strong> &amp; <strong>`+&#8377;{es10_gain_era171:,.2f}` (`171`-mkt)</strong> (`p_holm_2s = 0.0024`; break-even `+&#8377;{float(be_era["breakeven_silent_extra_inr"]):,.2f}`).</li>
+                  <li><strong>`N = 88,014` Unconditional Origin Panel:</strong> `Safe_EV` `ES10 &#8722;&#8377;335.04` vs `&#8722;&#8377;515.93`, Mean `&#8377;483.03` vs `&#8377;445.37`; holds on exact-geocode (`N=40,690`) &amp; clean keys (`N=56,857`).</li>
+                  <li><strong>HP Graded Apples (`N=2,802`):</strong> `Safe_EV` (`&#8377;1,354.85 / &#8722;&#8377;1,454.86`) beats `B2` (`&#8722;&#8377;2,392.12`) &amp; `MG` (`&#8722;&#8377;1,953.20`) &mdash; yet `41.38%` cond losses remain visible (`R6`).</li>
                 </ul>
               </div>
               <div class="img-pane"><img src="{b64_img('rev_fig4_settlement_and_hp_apple.png')}" alt="Settlement and HP Apples"></div>
@@ -1404,25 +1485,25 @@ def build_viva_slides() -> None:
             """,
         ),
         (
-            "Slide 12 of 12 &bull; Cleanroom Verification & Next Steps",
-            "Independent Audit (`8.7 / 10`) & Prospective FPO Field Next Steps",
+            "Slide 12 of 12 &bull; Cleanroom Verification &amp; Next Steps",
+            "100% Cleanroom Verification (`Revision v6`) &amp; Prospective Field Trial",
             """
             <div class="grid2">
               <div class="card accent">
-                <h3>100% Automated Cleanroom Verification (`e05207a+`)</h3>
+                <h3>Automated Cleanroom Verification (`make reproduce`)</h3>
                 <ul>
-                  <li><strong>Independent `A16` Script:</strong> Re-derives all 8 policies from raw parquets with **`&#8377;0.00` discrepancy** and enforces `n_clusters &le; 178`.</li>
-                  <li><strong>Zero-Untraceable-Number Check (`verify_traceability.py`):</strong> `0` untraceable numbers across all `23/23` active markdown documents.</li>
-                  <li><strong>Clean-Clone `make reproduce`:</strong> Fresh clone reproduces all `28` CSV tables with **`0.0` max abs diff** &amp; `pytest` passes cleanly.</li>
+                  <li><strong>Independent `A16` Script:</strong> Re-derives all 8 policies from raw parquets with <strong>`&#8377;0.00` parity</strong> &amp; enforces `n_clusters &le; 178`.</li>
+                  <li><strong>Zero-Untraceable-Number Check (`verify_traceability.py`):</strong> `0` untraceable numbers across all `23/23` active markdown documents &amp; `49/49` verified bibliography citations.</li>
+                  <li><strong>Clean-Clone `make reproduce`:</strong> Fresh clone reproduces all `31` CSV tables with <strong>`0.0` max abs diff</strong> &amp; `36/36` pytest green (`R = 5,000` cluster bootstrap).</li>
                 </ul>
               </div>
               <div class="card">
                 <h3>Explicit Limitations (`R6` / `R7`) &amp; Gate J</h3>
                 <ul>
-                  <li>Alert filter before live *arhtiya* phone calls (`R7`).</li>
+                  <li>Alert filter ahead of live *arhtiya* phone calls (`R7`).</li>
                   <li>Modeled survey payoffs &ne; physical auction *patti* cash receipts.</li>
                   <li>`Stage I H2` inconclusive (`+&#8377;6.13`, `p=0.2699`); Open-MAR reverses Mean (`B2 +&#8377;102.58`); HP Apples `41.38%` cond loss.</li>
-                  <li><strong>Gate J = `BLOCKED (disclosed)`:</strong> Bulk AGMARKNET stops `2026-04-13`; next milestone is a live FPO trial logging 6 a.m. alerts, trader calls, and physical truck bills.</li>
+                  <li><strong>Gate J = `BLOCKED (disclosed)`:</strong> Bulk AGMARKNET stops `2026-04-13`; next milestone is a live FPO pilot logging 6 a.m. alerts, trader calls, and physical truck bills.</li>
                 </ul>
               </div>
             </div>
@@ -1456,7 +1537,7 @@ def build_viva_slides() -> None:
             f"""<section class="slide">
               <header class="s-head"><div class="kicker">{kicker_clean}</div><h1>{heading_clean}</h1></header>
               <main class="s-body">{body_clean}</main>
-              <footer class="s-foot"><span>MandiGuard Revision v5 &bull; Zero-Parameter Wholesale Dispatch Audit</span><span>Slide {idx_s} / 12</span></footer>
+              <footer class="s-foot"><span>Aditya Sharma &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; MandiGuard Revision v6</span><span>Slide {idx_s} / 12</span></footer>
             </section>"""
         )
 
@@ -1503,7 +1584,7 @@ tr.hi { background: #ecfdf5; font-weight: 700; }
 .s-foot { border-top: 1px solid #cbd5e1; padding-top: 6px; font-size: 9pt; color: #64748b; display: flex; justify-content: space-between; }
 """
     deck_html = f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Viva Defense Slides (Revision v5)</title><style>{deck_css}</style></head>
+<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Viva Defense Slides (Revision v6)</title><style>{deck_css}</style></head>
 <body>{''.join(slides_html)}</body></html>"""
 
     html_out = VIVA_DIR / "MandiGuard_Viva_Defense_Slides.html"

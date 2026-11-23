@@ -67,14 +67,14 @@ def build() -> None:
     blocks = [
         """
         <div class="title-banner">
-          <span class="ch-pill">Student Study Guide (Class 10&ndash;12 Level) &bull; Revision v5 Verified</span>
+          <span class="ch-pill">Student Study Guide (Class 10&ndash;12 Level) &bull; Revision v6 Verified</span>
           <h1 class="doc-title">MandiGuard Student Study Guide: Pocket-Calculator Dispatch Filtering</h1>
-          <div class="subline">Zero-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code> &bull; Every Figure Verified Against <code>revision/results/</code></div>
+          <div class="subline">Aditya Sharma &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code></div>
         </div>
         <div class="step-row">
           <div class="step-card"><strong>Step 1: Problem</strong>Lagged AGMARKNET screens lose 45.21% (<code>ES10 &minus;&#8377;641.26</code>)</div>
           <div class="step-card"><strong>Step 2: 2 Rules</strong><code>p_dow&middot;G_1SD &gt; F</code> and <code>p_min&middot;G &gt; 2F</code> (0 params)</div>
-          <div class="step-card"><strong>Step 3: Proof</strong>Cuts ES10 by +&#8377;181.17 across 6/6 states (<code>p_holm_2s=0.0040</code>)</div>
+          <div class="step-card"><strong>Step 3: Proof</strong>Improves ES10 by +&#8377;181.17 across 6/6 states (<code>p_holm_2s=0.0024</code>)</div>
           <div class="step-card"><strong>Step 4: Honesty</strong>6 a.m. alert filter before phone calls; Gate J disclosed</div>
         </div>
         """
@@ -86,16 +86,16 @@ def build() -> None:
 
     blocks.append(
         f"""<section class="pb">
-        <h2>Chapter 6 &bull; Key Revision v5 Visual Charts</h2>
+        <h2>Chapter 6 &bull; Key Revision v6 Visual Charts</h2>
         <figure class="fig-card"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"><figcaption>Figure 1: Risk-coverage curves showing zero-parameter Safe_EV_Sunk_m0 and RT_2F_Min_m0 outperforming age-matched road dispatch and hard gates across 58,676 episodes.</figcaption></figure>
         <figure class="fig-card"><img src="{b64_img('rev_fig2_ablations_and_crops.png')}" alt="Fair Controls and Crops"><figcaption>Figure 2: Equal-dispatch and fixed-haircut ablations (left) and worst-10% ES10 gains across every crop subset including Apple (right).</figcaption></figure>
-        <figure class="fig-card"><img src="{b64_img('rev_fig3_sensitivity_tornado_and_missing.png')}" alt="Sensitivity and Missing Bounds"><figcaption>Figure 3: Parameter tornado stability across freight/commission shifts (left) and missing-quote identification bounds including Open-MAR disclosure (right).</figcaption></figure>
+        <figure class="fig-card"><img src="{b64_img('rev_fig3_sensitivity_tornado_and_missing.png')}" alt="Sensitivity and Missing Bounds"><figcaption>Figure 3: Parameter tornado stability across 10 representative freight/commission shifts from the 18-scenario suite (left) and missing-quote identification bounds including Open-MAR disclosure (right).</figcaption></figure>
         <figure class="fig-card"><img src="{b64_img('rev_fig4_settlement_and_hp_apple.png')}" alt="Settlement and HP Apples"><figcaption>Figure 4: Robustness across sequential, hindsight, exact-geocode, and 88,014 unconditional origin panels (left), plus HP graded apples (right).</figcaption></figure>
         </section>"""
     )
 
     doc_html = f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Student Study Guide (Revision v5)</title>
+<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Student Study Guide (Revision v6)</title>
 <style>{PAPER_CSS}\n{STUDENT_CSS}</style></head>
 <body>{''.join(blocks)}</body></html>"""
     HTML_OUT.write_text(doc_html, encoding="utf-8")

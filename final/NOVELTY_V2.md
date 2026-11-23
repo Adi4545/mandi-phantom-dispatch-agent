@@ -2,7 +2,7 @@
 
 ## 1. Nearest Prior Work Overlap & Difference Table (`A9`)
 
-| Work | Domain / Problem | Exact Method | Benchmark / Data | Closest Overlap with Revision v5 | Concrete Difference |
+| Work | Domain / Problem | Exact Method | Benchmark / Data | Closest Overlap with Revision v6 | Concrete Difference |
 |---|---|---|---|---|---|
 | **Baulch (1997)**, *AJAE* (`10.2307/1244145`) | Spatial market integration | Parity bounds vs transfer costs | Ex-post price pairs | Gaps below transfer cost yield no trade | Macroeconomic market integration, NOT ex-ante strictly-`<t` truck alert triage or `ES10`. |
 | **Jensen (2007)**, *QJE* (`10.1162/qjec.122.3.879`) | Kerala fish markets & mobile quotes | Natural experiment of phone access | Fisher micro-survey | Phone calls eliminate arrival price surprise | Fishermen phoned live auctions; AGMARKNET spreads arrive lagged/incomplete by variety; `Safe-EV` filters noisy alerts prior to calling. |
@@ -29,15 +29,17 @@
    - **`Safe_EV_Sunk_m0`:** $S_{\text{Safe-EV}} = p_{\text{dow}}\cdot[P_{\text{dest,lag}}(1 - \text{cv}_{28})(1 - \tau_{\text{fee}}) - P_{\text{orig,lag}}] - F_{\text{road}} > 0$ (**0 free parameters!**).
    - **`RT_2F_Min_m0`:** $S_{\text{RT-2F-Min}} = \min(\text{rep}_{28}, p_{\text{dow}})\cdot[P_{\text{dest,lag}}(1 - \tau_{\text{fee}}) - P_{\text{orig,lag}}] - 2\,F_{\text{road}} > 0$ (**0 free parameters, NO `cv28`, Class-8 calculator!**).
 
-| Hypothesis (`PREREG_A18.md`, `N = 58,676`) | Estimate | `origin_x_2week` (`173×23`) `p_holm_2s` | `b2dest_or_origin` (`172×23`) `p_holm_2s` | `policy_dest_or_origin` (`171–173×23`) `p_holm_2s` | Status (`exploratory: true`) |
+| Hypothesis (`v6_bootstrap_5000.csv`, `R = 5,000`, `N = 58,676`) | Estimate | `origin_x_2week` (`173×23`) `p_holm_2s` | `b2dest_or_origin` (`172×23`) `p_holm_2s` | `policy_dest_or_origin` (`171–173×23`) `p_holm_2s` | Status (`exploratory: true`) |
 |---|---:|---:|---:|---:|---|
-| **`H_A18_1`:** `ES10(Safe_EV_Sunk_m0) - ES10(B2)` | **+₹181.17** | `0.0040` `[+124.77, +252.29]` | `0.0040` `[+109.76, +296.29]` | `0.0040` `[+122.97, +265.45]` | **SUPPORTED** |
-| **`H_A18_2`:** `ES10(Safe_EV_matched) - ES10(RR)` | **+₹94.31** | `0.0040` `[+41.96, +158.72]` | `0.0040` `[+32.30, +201.07]` | `0.0040` `[+38.55, +172.92]` | **SUPPORTED** |
-| **`H_A18_3`:** `EpLoss(Safe_EV_Sunk_m0) - EpLoss(B2)` | **−11.79 pp** | `0.0040` `[−13.47, −10.20]` | `0.0040` `[−14.78, −9.28]` | `0.0040` `[−14.38, −9.51]` | **SUPPORTED** |
-| **`H_A18_4`:** `Mean(RT_2F_Min_m0) - Mean(B2)` | **+₹44.82** | `0.0040` `[+30.35, +60.62]` | `0.0040` `[+21.89, +72.88]` | `0.0040` `[+25.20, +67.97]` | **SUPPORTED** |
+| **`H_V6_1`:** `ES10(Safe_EV_Sunk_m0) - ES10(B2)` | **+₹181.17** | `0.0024` `[+124.55, +254.38]` | `0.0024` `[+110.91, +294.13]` | `0.0024` `[+121.93, +269.67]` | **SUPPORTED** |
+| **`H_V6_2`:** `ES10(Safe_EV_Phys_m0) - ES10(B2)` | **+₹191.69** | `0.0024` `[+134.26, +264.94]` | `0.0024` `[+120.16, +306.31]` | `0.0024` `[+132.37, +279.57]` | **SUPPORTED** |
+| **`H_V6_3`:** `EpLoss(Safe_EV_Sunk_m0) - EpLoss(B2)` | **−11.79 pp** | `0.0024` `[−13.49, −10.20]` | `0.0024` `[−14.59, −9.31]` | `0.0024` `[−14.42, −9.50]` | **SUPPORTED** |
+| **`H_V6_4`:** `ES10(Safe_EV_matched) - ES10(RR)` | **+₹94.31** | `0.0024` `[+42.56, +160.68]` | `0.0040` `[+31.42, +198.85]` | `0.0024` `[+37.70, +173.22]` | **SUPPORTED** |
+| **`H_V6_5`:** `Mean(RT_2F_Min_m0) - Mean(B2)` | **+₹44.82** | `0.0024` `[+30.47, +60.45]` | `0.0024` `[+22.31, +71.66]` | `0.0024` `[+24.72, +68.40]` | **SUPPORTED** |
+| **`H_V6_6`:** `Mean(Safe_EV_Sunk_m0) - Mean(B2)` | **+₹32.03** | `0.0028` `[+12.68, +51.86]` | `0.0436` `[+1.17, +66.64]` | `0.0160` `[+5.40, +62.36]` | **SUPPORTED** |
 
 ---
 
-## 3. Single Defensible Novelty Sentence (Surviving `A12` + `A17` + `A18`)
+## 3. Single Defensible Novelty Sentence (Surviving `A12` + `A17` + `A18` + `A20`)
 
-> **"Claiming no new mathematical theorem or ML architecture, this study establishes—across 58,676 strictly causal (`<= t - 1`), sequentially settled wholesale dispatch episodes and an 88,014-episode unconditional origin audit across six states and four crops—that replacing black-box trees, hard activity gates, and tuned penalty grids with two zero-hyperparameter expected-value rules (`Safe_EV_Sunk_m0`: weekday reporting probability times 1-SD conservative spread exceeding sunk freight; `RT_2F_Min_m0`: conservative reporting probability times plain spread exceeding round-trip freight) cuts worst-10% shortfall by +₹181.17/qtl over equal-age road dispatch (`p_holm_2s = 0.0040` across all three cluster schemes) and +₹116.63/qtl over tuned `RR-Abstain`, surviving across all six states, all 36 tornado checks, exact-zero diversion (`+₹169.79`), and graded apples (`−₹1,454.86` vs `−₹2,392.12`) as a transparent upstream alert filter prior to trader confirmation—while openly disclosing its exploratory calendar boundary (`Gate J`) and Open-MAR mean reversal (`B2 +₹102.58`)."**
+> **"Claiming no new mathematical theorem or ML architecture, this study establishes—across 58,676 strictly causal (`<= t - 1`), sequentially settled wholesale dispatch episodes, a fresh 2024-only 171-market panel (`N = 57,634`), realized ERA5 destination arrival-weather settlement, and an 88,014-episode unconditional origin audit across six states and four crops—that replacing black-box trees, hard activity gates, and tuned penalty grids with zero-hyperparameter expected-value rules (`Safe_EV_Sunk_m0`, settlement-matched `Safe_EV_Phys_m0`, and Class-8 `RT_2F_Min_m0`) improves worst-10% shortfall by `+₹181.17` to `+₹201.55/qtl` over equal-age road dispatch (`p_holm_2s = 0.0024` at `R = 5,000` across all three clusterings and 1-, 2-, 4-week blocks) and by `+₹94.31/qtl` at validation-matched dispatch over tuned `RR-Abstain` (`p_holm_2s = 0.0024..0.0040`, noting `Safe_EV_Sunk_m0` trails `RR` by `−₹16.60` on Potato `ES10`), with positive 95% `ES10` CIs vs `B2` across all six states and all five crop slices, all 36 tornado cells, exact-zero diversion (`+₹169.79`), and graded apples (`−₹1,454.86` vs `−₹2,392.12`) as a transparent upstream 6 a.m. alert filter prior to trader confirmation—while openly disclosing its exploratory calendar boundary (`Gate J`), exact silent-market break-even (`+₹328.37/qtl` above turn-back; `23.79%` Open-MAR share), and Open-MAR mean reversal (`B2 +₹102.58`)."**

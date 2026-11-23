@@ -261,7 +261,7 @@ def tune_threshold_on_val(
     grid: List[float] = THRESH_GRID,
     min_dispatch: float = 0.25,
 ) -> Tuple[float, dict]:
-    """Tune cutoff strictly on val minimizing episode loss rate (tie-break max mean) with min_dispatch floor."""
+    """Tune cutoff strictly on val minimizing conditional loss rate (tie-break max mean) with min_dispatch floor."""
     gate = gate_fn(val_feat)
     score = val_feat[score_key]
     best = None

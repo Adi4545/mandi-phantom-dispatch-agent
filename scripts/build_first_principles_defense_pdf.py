@@ -78,10 +78,10 @@ CHAPTERS = [
     ("Part 2 • First-Principles Intuition", "Class-12 Pocket-Calculator Walkthrough", "paper/12th_class_easy_reading_edition.md"),
     ("Part 3 • Difficulty Reduction Audit", "How Complexity Dropped 4.3 → 1.2 / 5 (A15 + A18)", "final/DIFFICULTY.md"),
     ("Part 4 • Simplified Equations", "Zero-Parameter Safe_EV_Sunk_m0 & RT_2F_Min_m0", "final/SIMPLIFIED_DESIGN.md"),
-    ("Part 5 • Complete Scientific Paper", "Revision v5 Full Manuscript (N = 58,676 & 88,014)", "paper/manuscript.md"),
+    ("Part 5 • Complete Scientific Paper", "Revision v6 Full Manuscript (178 & 171 Mkts, ERA5, R=5,000)", "paper/manuscript.md"),
     ("Part 6 • Literature & Novelty Defense", "15-Work Overlap Matrix & Surviving Claim (NOVELTY_V2)", "final/NOVELTY_V2.md"),
-    ("Part 7 • Cleanroom & Examiner Sign-Off", "A16 Parity (₹0.00) & A17 Post-Remediation Audit (8.7/10)", "final/AUDIT_V4.md"),
-    ("Part 8 • Prominent Boundaries (R6 & R7)", "Eight Binding Non-Claims & Open-MAR / Apple Disclosures", "final/LIMITATIONS.md"),
+    ("Part 7 • Cleanroom & Examiner Sign-Off", "A16 Parity (₹0.00) & Independent Audit Record", "final/AUDIT_V4.md"),
+    ("Part 8 • Prominent Boundaries (R6 & R7)", "Eight Binding Non-Claims & Open-MAR / Break-Even Disclosures", "final/LIMITATIONS.md"),
     ("Part 9 • Examiner Viva Bank", "Scripted-Verified Q&A (C2 & R2 Clean)", "final/VIVA_QA.md"),
     ("Part 10 • Oral Defense Scripts", "1-Minute, 5-Minute & 15-Minute Spoken Pitches", "viva/03_spoken_pitches_1m_5m_15m.md"),
 ]
@@ -101,19 +101,19 @@ def build() -> None:
 
     cover = """
     <div class="cover">
-      <span class="meta-pill">Thesis Defense Compendium &bull; Revision v5 Verified</span>
+      <span class="meta-pill">Thesis Defense Compendium &bull; Revision v6 Verified</span>
       <h1>MandiGuard: First-Principles &amp; Thesis Defense Handbook</h1>
-      <div class="sub">When Online Mandi Prices Mislead: Zero-Parameter Safe_EV_Sunk_m0 &amp; RT_2F_Min_m0 Across 58,676 Lagged Indian Wholesale Episodes (<code>N = 88,014</code> Unconditional Robustness)</div>
+      <div class="sub">Aditya Sharma &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0 Across 58,676 Lagged Wholesale Episodes (<code>171</code>-Mkt Strict 2024, Realized ERA5, <code>N = 88,014</code> Unconditional)</div>
       <div class="badge-row">
-        <span class="badge">8.7 / 10 A17 Sign-Off</span>
         <span class="badge">0 Free Parameters</span>
         <span class="badge">4.3 &rarr; 1.2 / 5 Difficulty</span>
-        <span class="badge">170&ndash;173 Fixed Clusters</span>
-        <span class="badge">Two-Sided Holm p = 0.0040</span>
+        <span class="badge">R = 5,000 Bootstrap</span>
+        <span class="badge">Two-Sided Holm p = 0.0024</span>
+        <span class="badge">49 Verified Citations</span>
         <span class="badge">make reproduce &bull; &#8377;0.00 Audit</span>
       </div>
       <div class="worked-box">
-        <p><strong>Canonical Scope Notice:</strong> Every metric, equation, cluster count, and figure in this handbook is compiled directly from Revision v5 canonical sources on branch <code>finalization</code>. Stage-I/II ML trees (<code>HistGradientBoostingRegressor</code>), weather leaks (<code>98.64%</code> ERA5 match), unweighted quantile-mean proxies, bare 336-market clusters, and even tuned <code>kappa* = 5.0</code> thresholds have been retired in favor of zero-parameter pocket-calculator formulas verified by <code>make reproduce</code> (<code>0.0</code> clean-clone max diff) and <code>verify_traceability.py</code> (<code>0</code> untraceable numbers).</p>
+        <p><strong>Canonical Scope Notice:</strong> Every metric, equation, cluster count, and figure in this handbook is compiled directly from Revision v6 canonical sources on branch <code>finalization</code>. Stage-I/II ML trees (<code>HistGradientBoostingRegressor</code>), weather leaks in decisions (<code>98.64%</code> ERA5 match), unweighted quantile-mean proxies, bare 336-market clusters, and tuned <code>kappa* = 5.0</code> thresholds have been retired in favor of zero-parameter pocket-calculator formulas verified across strict <code>2024</code>-only <code>171</code> markets, realized ERA5 arrival-weather settlement, exact silent-market break-even, <code>make reproduce</code> (<code>0.0</code> clean-clone max diff), and <code>verify_traceability.py</code> (<code>0</code> untraceable numbers).</p>
       </div>
     </div>
     """
@@ -136,7 +136,7 @@ def build() -> None:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>MandiGuard First-Principles &amp; Thesis Defense Handbook (Revision v5)</title>
+<title>MandiGuard First-Principles &amp; Thesis Defense Handbook (Revision v6)</title>
 <style>{PAPER_CSS}\n{HANDBOOK_EXTRA_CSS}</style>
 </head>
 <body>{''.join(sections)}</body>

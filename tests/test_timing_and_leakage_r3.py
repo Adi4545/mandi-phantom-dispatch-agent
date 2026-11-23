@@ -372,13 +372,22 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
         r"\text{",
         r"\Longleftrightarrow",
         r"\Delta\text{Net}",
+        r"\big(",
+        r"\big)",
+        r"\Big(",
+        r"\Big)",
         "≤ ft(",
         r"\%",
         "@@TOK",
         "<br",
         "**",
         "`",
+        "$S_",
         "/" + "Users/",
+        "TO CONFIRM",
+        "Crushes",
+        "slashes",
+        "slashing",
     )
     splits_df = pd.read_csv(ROOT / "revision" / "results" / "a18_crop_and_state_splits.csv")
     for pdf_path in pdf_targets:
@@ -400,6 +409,8 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
             assert req in txt, f"Missing `{req}` in {pdf_path.name}"
         for bad in forbidden:
             assert bad not in txt, f"Forbidden token `{bad}` leaked into {pdf_path.name}"
+        raw_macros = sorted(set(re.findall(r"\\[a-zA-Z]{2,}", txt)))
+        assert raw_macros == [], f"Unrendered LaTeX macros leaked into {pdf_path.name}: {raw_macros}"
 
     docx_path = ROOT / "paper" / "MandiGuard_Research_Paper.docx"
     assert docx_path.exists() and docx_path.stat().st_size > 50_000, "Missing Research Paper DOCX"
@@ -425,4 +436,62 @@ def test_compiled_deliverables_revision_v5_integrity() -> None:
         assert len(nb_obj.get("cells", [])) >= 4
         assert "Safe_EV_Sunk_m0" in nb_raw
         assert "B3_MLPoint" not in nb_raw and "colab_data_pack.tar.gz" not in nb_raw
+
+
+def test_v6_zero_lookahead_era5_and_breakeven() -> None:
+    import json
+    import re
+
+    res = ROOT / "revision" / "results"
+    s6 = json.loads((res / "v6_summary.json").read_text())
+    assert s6["exploratory"] is True
+    assert s6["strict_2024_markets_count"] == 171
+    assert s6["strict_2024_fresh_rebuild"] is True
+    assert s6["val_171_b2_threshold"] == 200.0
+    assert s6["n_test_full_178"] == 58676
+    assert s6["n_test_strict2024_171"] == 57634
+    assert s6["bootstrap_reps"] == 5000
+    for d in ("d0", "d1", "d2"):
+        assert s6["era5_settlement_coverage"][f"{d}_era5_coverage_pct"] == 100.0
+        assert s6["era5_settlement_coverage_171"][f"{d}_era5_coverage_pct"] == 100.0
+
+    up = pd.read_csv(res / "v6_upgrades.csv")
+    assert set(up["panel"].unique()) == {
+        "full_178_20C_closed",
+        "full_178_ERA5_closed",
+        "full_178_ERA5_open_MAR",
+        "strict2024_171_20C_closed",
+        "strict2024_171_ERA5_closed",
+        "strict2024_171_ERA5_open_MAR",
+    }
+
+    be = pd.read_csv(res / "v6_breakeven.csv")
+    assert len(be) == 16
+    assert float(be["verification_resid"].max()) < 1e-6
+
+    b5 = pd.read_csv(res / "v6_bootstrap_5000.csv")
+    assert len(b5) == 66
+    assert int(b5["reps"].min()) == 5000
+    assert int(b5["n_clusters"].max()) <= 178
+    assert set(b5["week_block_len"].unique()) == {1, 2, 4}
+    assert float(b5["p_holm_2s"].max()) < 0.05
+
+    # Verify 100% 1-to-1 citation parity, calm prose, zero TO CONFIRM, and <= 260w abstract in manuscript.md
+    ms = (ROOT / "paper" / "manuscript.md").read_text(encoding="utf-8")
+    for banned in ("TO CONFIRM", "Crushes", "slashes"):
+        assert banned not in ms, f"Banned phrase `{banned}` found in manuscript.md"
+    body, refs = ms.split("## References", 1)
+    bib_keys = set(re.findall(r"@\w+\s*\{\s*([^,\s]+)\s*,", (ROOT / "paper" / "references.bib").read_text()))
+    ref_list = set(re.findall(r"\[([a-z0-9_]+)\]", refs))
+    body_cites = set()
+    for grp in re.findall(r"\[([a-z0-9_,\s]+)\]", body):
+        parts = [p.strip() for p in grp.split(",") if p.strip()]
+        if parts and all(p in bib_keys for p in parts):
+            body_cites.update(parts)
+    assert body_cites == ref_list, f"Citation mismatch body vs References: {body_cites ^ ref_list}"
+    assert ref_list.issubset(bib_keys), f"Missing bib keys: {ref_list - bib_keys}"
+    assert len(ref_list) >= 45
+    abs_words = len(ms.split("## Abstract", 1)[1].split("---", 1)[0].strip().split())
+    assert abs_words <= 245, f"Abstract too long ({abs_words} words)"
+
 

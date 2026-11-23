@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: test build eval sensitivity a10 a18 figures audit verify deliverables reproduce
+.PHONY: test build eval sensitivity a10 a18 v6 figures audit verify deliverables reproduce
 
 test:
 	$(PYTHON) -m pytest -v
@@ -21,6 +21,9 @@ a10:
 a18:
 	$(PYTHON) -m revision.eval_a18
 
+v6:
+	$(PYTHON) -m revision.eval_v6
+
 figures:
 	$(PYTHON) -m revision.make_figures
 
@@ -36,7 +39,7 @@ deliverables:
 	$(PYTHON) scripts/build_master_study_guide_pdf.py
 	$(PYTHON) scripts/build_student_study_guide_pdf.py
 
-reproduce: build eval sensitivity a10 a18 figures
+reproduce: build eval sensitivity a10 a18 v6 figures
 	@test ! -f scripts/a16_independent_audit.py || $(PYTHON) scripts/a16_independent_audit.py
 	@test ! -f scripts/verify_traceability.py || $(PYTHON) scripts/verify_traceability.py
 	$(PYTHON) -m pytest -v

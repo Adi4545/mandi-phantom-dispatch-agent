@@ -207,7 +207,7 @@ def make_all_figures(root: Path = ROOT) -> None:
     axes[1].legend(fontsize=8, loc="upper left", ncol=2)
     fig.savefig(fig_dir / "rev_fig4_settlement_and_hp_apple.png", dpi=240)
     plt.close(fig)
-    print("Generated rev_fig1..4 in", fig_dir)
+    print("Generated rev_fig1..4 in", fig_dir.relative_to(root))
 
 
 if __name__ == "__main__":
