@@ -11,16 +11,16 @@ Every number below traces directly to `revision/results/v7_*.csv`, `v7_exp1..5*.
 blindly chasing top `<= t - 1` AGMARKNET spreads `> ₹100/qtl` (`B1_lagged_screen`) across `57,634` zero-lookahead `171`-market episodes averages `₹384.61/qtl` with **`45.07%`** episode losses and **`ES10 −₹642.15/qtl`**, largely because `28.67%` (`16,524` trips: `15,960 d0 + 364 d1 + 200 d2`) encounter zero uploaded destination commodity trade sequentially.
 
 **Q2. How do you position your novelty without misrepresenting prior agricultural economics?**
-We explicitly distinguish **problem/evaluation novelty** from **methodological novelty** (`final/NOVELTY_V2.md`). We do **not** claim prior economists assumed quotes are `MAR`, nor do we claim a statistical theorem or novel OR optimizer. We formalize how sequential wholesale execution interacts with AGMARKNET non-reporting and benchmark zero-parameter domain triage against retrained ML/OR models.
+We explicitly distinguish **problem/evaluation novelty** from **methodological novelty** (`final/NOVELTY_V2.md`). We do **not** claim prior economists assumed quotes are `MAR`, nor do we claim a statistical theorem or novel OR optimizer. We formalize how sequential wholesale execution interacts with AGMARKNET non-reporting and benchmark zero-tuned-parameter domain triage against retrained ML/OR models.
 
-**Q3. How do DeMiguel et al. (2009) and Gigerenzer & Gaissmaier (2011) relate to your zero-parameter rules?**
+**Q3. How do DeMiguel et al. (2009) and Gigerenzer & Gaissmaier (2011) relate to your zero-tuned-parameter rules?**
 DeMiguel et al. (2009) proved naive `1/N` heuristics can outperform sample-optimized portfolios when estimation variance dominates, and Gigerenzer & Gaissmaier (2011) formalized less-is-more heuristics under low signal-to-noise. Together they explain why `m = 0` `Safe_EV_Sunk_m0` transfers across `166` clean markets (`2018–2023`) while learned `H2` failed (`+₹6.13`, `p = 0.2699`).
 
 **Q4. How does MandiGuard differ from Madaan et al. (2019), Ma et al. (2019), and `mandi2024dfl` (2024)?**
-Madaan et al. forecast prices, Ma et al. impute missing AGMARKNET entries statistically, and `mandi2024dfl` (*JAIR* 80) optimizes DFL procurement. None evaluate sequential spatial truck dispatch with day-`0` missing-quote censoring (`16,524` diversions) or benchmark conditional tail shortfall `cond_ES10` against zero-parameter triage (`v7_exp4`).
+Madaan et al. forecast prices, Ma et al. impute missing AGMARKNET entries statistically, and `mandi2024dfl` (*JAIR* 80) optimizes DFL procurement. None evaluate sequential spatial truck dispatch with day-`0` missing-quote censoring (`16,524` diversions) or benchmark conditional tail shortfall `cond_ES10` against zero-tuned-parameter triage (`v7_exp4`).
 
 **Q5. How does MandiGuard compare to Vargas, Klapp & Mac Cawley (2026, *IJPR*)?**
-Vargas et al. (2026) formulate mean-variance produce distribution with postponed shipment. We benchmark `OR_Vargas_MeanVar` directly (`v7_exp4`): at `gamma = 0.0002`, it reaches `Mean ₹432.39/qtl` and `cond_ES10 −₹496.76/qtl`, trailing zero-parameter `Safe_EV_Sunk_m0` (`₹452.74/qtl`, `cond_ES10 −₹447.48/qtl`).
+Vargas et al. (2026) formulate mean-variance produce distribution with postponed shipment. We benchmark `OR_Vargas_MeanVar` directly (`v7_exp4`): at `gamma = 0.0002`, it reaches `Mean ₹432.39/qtl` and `cond_ES10 −₹496.76/qtl`, trailing zero-tuned-parameter `Safe_EV_Sunk_m0` (`₹452.74/qtl`, `cond_ES10 −₹447.48/qtl`).
 
 **Q6. What role do Jensen (2007), Fafchamps & Minten (2012), and Ziegler et al. (2019) play?**
 Fafchamps & Minten (2012) and Mitra et al. (2018) explain why raw public prices fail to generate frictionless arbitrage; Jensen (2007) and Ziegler et al. (2019) show Indian farmers/traders rely on simple morning phone calls to *arhtiyas*. MandiGuard acts purely as a `6 a.m.` pre-call portal filter before dialing.
@@ -162,8 +162,8 @@ Dropping `7` post-`2024` lookahead markets leaves `166` clean markets (`N = 383,
 **Q45. How does `Safe_EV_Sunk_m0` compare fairly at matched dispatch volume (`B2_eq_SafeM0`, `B2_test_matched`, `val-ES10 MG`)?**
 Matched to `Safe_EV`'s `63.23%` dispatch on `171` markets (`th = ₹295.00`), `B2_test_matched` stays at `−₹501.23 ES10` (`Safe_EV +₹155.70` better); in `166`-mkt `2018–2023`, `Safe_EV_Sunk_m0` beats equal-dispatch `B2_eq_SafeM0` by **`+₹174.27 cond_ES10` (`p = 0.001`)**. Retuning `MG` directly for `val-ES10` (`₹352.73`) reduces `B2` parity gap (`v7_ablations_171.csv`).
 
-**Q46. Why not deploy `Ridge` or `HGBR_RiskAverse` (`v7_exp4`) if `Ridge` gets `+₹18` higher Mean (`₹470.75`)?**
-`Ridge` achieves higher Mean only by dispatching `79.81%` of trucks into much heavier tail risk (`cond_ES10 −₹530.30` vs `Safe_EV −₹447.48`, EpLoss `22.37%` vs `14.88%`). Even `HGBR_RiskAverse_L500` (`−₹512.43`) and `OR_Vargas_MeanVar` (`−₹496.76`) trail `Safe_EV_Sunk_m0` on `cond_ES10` while requiring trained model pipelines.
+**Q46. Why not deploy `Ridge`, `HGBR_RiskAverse`, or `ML_HGBR_Q20_m0` (`v7_exp4`) instead of `Safe_EV_Sunk_m0`?**
+`Ridge` achieves higher Mean (`₹470.75`) only by dispatching `79.81%` of trucks into much heavier tail risk (`cond_ES10 −₹530.30` vs `Safe_EV −₹447.48`, EpLoss `22.37%` vs `14.88%`), and comparable-coverage `HGBR_RiskAverse_L500` (`−₹512.43`), `OR_Vargas_MeanVar` (`−₹496.76`), & strict split-conformal `MG_Intact_matched` (`−₹525.17`) all trail `Safe_EV_Sunk_m0`. Meanwhile ultra-conservative `ML_HGBR_Q20_m0` reaches `cond_ES10 −₹444.86` (`+₹2.62/qtl`) only by halving dispatch to `32.83%` and surrendering `−₹186.31/qtl` in Mean (`₹266.43`, where `Safe_EV_Sunk_matched` achieves `−₹443.54` at `70.74%`).
 
 **Q47. What independent checks guarantee every reported number is authentic and bug-free?**
 Three automated gates: (1) `scripts/a16_independent_audit.py` independently recomputes settlements & `cond_ES10` to `<= ₹0.01` parity; (2) `scripts/verify_traceability.py` verifies `0` untraceable numbers across `23` docs plus `59/59` citation bijection; (3) `pytest -v` tests counterfactual leakage, immutable pre-registrations, `<= 15`-page paper PDF & `12` slides; plus a clean-clone `make reproduce` yielding `0.0` CSV discrepancy.

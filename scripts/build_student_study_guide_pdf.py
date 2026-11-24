@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build Revision v5 beginner-friendly (Class 10-12 level) MandiGuard Student Study Guide.
+"""Build Revision v7 beginner-friendly (Class 10-12 level) MandiGuard Student Study Guide.
 
-Generates cleanly from canonical Revision v5 sources:
+Generates cleanly from canonical Revision v7 sources:
   1. docs/MandiGuard_Student_Study_Guide.html
   2. docs/MandiGuard_Student_Study_Guide.pdf
 
@@ -69,7 +69,7 @@ def build() -> None:
         <div class="title-banner">
           <span class="ch-pill">Student Study Guide (Class 10&ndash;12 Level) &bull; Revision v7 Audited</span>
           <h1 class="doc-title">MandiGuard Student Study Guide: Pocket-Calculator Dispatch Filtering</h1>
-          <div class="subline">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code></div>
+          <div class="subline">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code></div>
         </div>
         <div class="step-row">
           <div class="step-card"><strong>Step 1: Problem</strong>Lagged AGMARKNET screens lose 45.07% (<code>ES10 &minus;&#8377;642.15</code>, N=57,634)</div>
@@ -87,7 +87,7 @@ def build() -> None:
     blocks.append(
         f"""<section class="pb">
         <h2>Chapter 6 &bull; Key Revision v7 Visual Charts</h2>
-        <figure class="fig-card"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"><figcaption>Figure 1: Risk-coverage curves showing zero-parameter Safe_EV_Sunk_m0 and RT_2F_Min_m0 outperforming age-matched road dispatch and hard gates across 57,634 primary 171-market episodes.</figcaption></figure>
+        <figure class="fig-card"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"><figcaption>Figure 1: Risk-coverage curves showing zero-tuned-parameter Safe_EV_Sunk_m0 and RT_2F_Min_m0 outperforming age-matched road dispatch and hard gates across 57,634 primary 171-market episodes.</figcaption></figure>
         <figure class="fig-card"><img src="{b64_img('rev_fig2_ablations_and_crops.png')}" alt="Fair Controls and Crops"><figcaption>Figure 2: Equal-dispatch and fixed-haircut ablations (left) and worst-10% ES10 gains across every crop subset including Apple (right) on the 171-market panel.</figcaption></figure>
         <figure class="fig-card"><img src="{b64_img('rev_fig3_sensitivity_tornado_and_missing.png')}" alt="Sensitivity and Missing Bounds"><figcaption>Figure 3: Parameter tornado stability across 10 representative freight/commission shifts from the 18-scenario suite (left) and missing-quote identification bounds including Open-MAR Mean reversal (right).</figcaption></figure>
         <figure class="fig-card"><img src="{b64_img('rev_fig4_settlement_and_hp_apple.png')}" alt="2018-2023 Backtest and HP Apples"><figcaption>Figure 4: Clean 166-market 2018&ndash;2023 annual ES10 generalization across six years including 2020 COVID-19 (N = 383,952, left) and HP graded apples (N = 2,802, right).</figcaption></figure>

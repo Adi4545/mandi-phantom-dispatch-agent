@@ -573,4 +573,49 @@ def test_v7_primary_171_and_decade_2018_2023() -> None:
         assert ("/" + "Users/") not in (ROOT / rel).read_text(encoding="utf-8"), f"/Users/ found in {rel}"
 
 
+def test_harsh_examiner_invariants_v7() -> None:
+    """Hostile critical-examiner checks for TeX ASCII purity, Table 1-5 parity, Pareto honesty, and compact traceability."""
+    import re
+
+    tex_path = ROOT / "paper" / "manuscript.tex"
+    tex_txt = tex_path.read_text(encoding="utf-8")
+    non_ascii = [(idx, ch, hex(ord(ch))) for idx, ch in enumerate(tex_txt) if ord(ch) > 127]
+    assert non_ascii == [], f"Non-ASCII characters in manuscript.tex: {non_ascii[:10]}"
+
+    caps = re.findall(r"\\caption\{([^}]+)\}", tex_txt)
+    tbl_blocks = re.findall(r"\\begin\{table\}", tex_txt)
+    assert len(tbl_blocks) == 5, f"Expected 5 LaTeX tables, got {len(tbl_blocks)}"
+    # Figures also use \caption, so filter table captions strictly via table environments
+    tbl_caps = re.findall(r"\\begin\{table\}[\s\S]*?\\caption\{([^}]+)\}", tex_txt)
+    assert len(tbl_caps) == 5
+    expected_kw = ("Epistemic", "171-market", "PREREG", "ML/OR", "166-market")
+    for idx_t, (cap, kw) in enumerate(zip(tbl_caps, expected_kw), 1):
+        assert kw in cap, f"Table {idx_t} caption missing `{kw}`: {cap}"
+
+    ms_txt = (ROOT / "paper" / "manuscript.md").read_text(encoding="utf-8")
+    ms_title = ms_txt.splitlines()[0].lstrip("# ").strip()
+    assert "ML_HGBR_Q20_m0" in ms_txt
+    assert "dominates every learned" not in ms_txt
+    assert "Tables 3–5" not in ms_txt and "Tables 3-5" not in ms_txt
+    assert "Table 3 compares all rules" not in ms_txt
+    assert "(`R = 2,000`, Table 4)" not in ms_txt
+    assert "Table 2 compares all rules" in ms_txt
+    assert "Tables 2–4" in ms_txt
+    assert "(`R = 2,000`, Table 3)" in ms_txt
+    assert "Table 5 summarizes" in ms_txt
+
+    readme_txt = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "expected-value rules" not in readme_txt
+
+    audit_txt = (ROOT / "audit" / "16_AGENT_SCIENTIFIC_AUDIT_AND_VERDICT.md").read_text(encoding="utf-8")
+    assert ms_title in audit_txt
+
+    vn_size = (ROOT / "revision" / "results" / "verified_numbers.json").stat().st_size
+    assert vn_size < 6_500_000, f"verified_numbers.json too large ({vn_size} bytes); check cross-scenario diff bloat"
+
+    exp4 = pd.read_csv(ROOT / "revision" / "results" / "v7_exp4_ml_pareto_and_formula.csv").set_index("policy")
+    assert abs(float(exp4.loc["MG_T1_T2_T3_T4_Intact_matched", "cond_es10"]) - (-525.17)) <= 0.05
+
+
+
 

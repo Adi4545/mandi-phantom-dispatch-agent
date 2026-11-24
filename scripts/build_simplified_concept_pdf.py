@@ -35,7 +35,7 @@ def img_uri(fname: str) -> str:
 
 
 CSS = """
-@page { size: A4; margin: 10mm 11mm 11mm 11mm; }
+@page { size: A4; margin: 9.5mm 11mm 9.5mm 11mm; }
 * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -194,6 +194,7 @@ li { margin-bottom: 2.5px; }
 /* Tables */
 table { width: 100%; border-collapse: collapse; margin: 4px 0 7px 0; font-size: 7.7pt; table-layout: fixed; break-inside: avoid; }
 th { background: #0b3b5c; color: #ffffff; padding: 4px 5px; text-align: left; font-weight: 600; word-wrap: break-word; }
+th code { background: rgba(255, 255, 255, 0.18); color: #ffffff; }
 td { border: 1px solid #cbd5e1; padding: 3.5px 5px; vertical-align: top; word-wrap: break-word; }
 tr:nth-child(even) td { background: #f8fafc; }
 .num { text-align: right; }
@@ -227,15 +228,15 @@ figcaption { font-size: 7.6pt; color: #475569; text-align: left; margin-top: 2.5
 }
 .qa-item {
   border-left: 3.5px solid #0284c7;
-  padding: 3.5px 8px;
-  margin-bottom: 4.5px;
+  padding: 3px 8px;
+  margin-bottom: 3.5px;
   background: #f8fafc;
   border-radius: 0 5px 5px 0;
   font-size: 8.3pt;
   break-inside: avoid;
 }
 .qa-q { font-weight: 700; color: #0b3b5c; margin-bottom: 1px; }
-.footer-note { font-size: 7.3pt; color: #64748b; margin-top: 6px; border-top: 1px solid #e2e8f0; padding-top: 4px; }
+.footer-note { font-size: 7.3pt; color: #64748b; margin-top: 4px; border-top: 1px solid #e2e8f0; padding-top: 3px; }
 """
 
 
@@ -249,7 +250,7 @@ HTML_BODY = f"""
 <div class="story-box">
   <h3 style="margin-top:0;">The Entire Thesis in One Real-Life Story (30 Seconds)</h3>
   <p>Imagine you manage a tomato farmer cooperative (FPO) in Madhya Pradesh. It is <strong>6:00 a.m.</strong> You open the government's <strong>AGMARKNET</strong> website on your phone. Your local mandi paid <strong>&#8377;1,500 per quintal</strong> yesterday, while another mandi 200 km away listed <strong>&#8377;2,000 per quintal</strong> yesterday.</p>
-  <p style="margin-bottom:0;">That looks like an easy <strong>+&#8377;500/qtl profit</strong>! So you load a truck and send it. <strong>What goes wrong?</strong> When the truck arrives, three real-world traps hit: (1) truck freight, yard fees, and heat decay eat into the spread; (2) yesterday's &#8377;2,000 spike crashes back down in a volatile market; or (3) worst of all, the destination mandi has <strong>no auction running for your crop that day</strong> (a "silent/blank" arrival board), forcing an expensive turn-back. Our study proves that chasing tempting online spreads loses money nearly <strong>half the time (45.1%)</strong> &mdash; and discovers <strong>two zero-parameter pocket-calculator rules</strong> that filter out trap alerts at 6 a.m. <em>before</em> you even call the destination trader on the phone.</p>
+  <p style="margin-bottom:0;">That looks like an easy <strong>+&#8377;500/qtl profit</strong>! So you load a truck and send it. <strong>What goes wrong?</strong> When the truck arrives, three real-world traps hit: (1) truck freight, yard fees, and heat decay eat into the spread; (2) yesterday's &#8377;2,000 spike crashes back down in a volatile market; or (3) worst of all, the destination mandi has <strong>no auction running for your crop that day</strong> (a "silent/blank" arrival board), forcing an expensive turn-back. Our study proves that chasing tempting online spreads loses money nearly <strong>half the time (45.1%)</strong> &mdash; and discovers <strong>two zero-tuned-parameter pocket-calculator rules</strong> that filter out trap alerts at 6 a.m. <em>before</em> you even call the destination trader on the phone.</p>
 </div>
 
 <div class="kpi-row">
@@ -307,9 +308,9 @@ HTML_BODY = f"""
   <li><strong>Sunday / Weekly Holiday Blindness &amp; Price Swings:</strong> A mandi closed every Sunday still looks "75% active" in a 28-day average &mdash; fooling average-based filters on weekends. Meanwhile, high-variance markets (like Apple and Tomato) swing violently between yesterday and arrival day.</li>
 </ol>
 
-<h2>3. The Breakthrough: Two Zero-Parameter Pocket-Calculator Rules</h2>
+<h2>3. The Breakthrough: Two Zero-Tuned-Parameter Pocket-Calculator Rules</h2>
 
-<p>Earlier in this project, we tried complex gradient-boosted ML trees (Stage I) and tuned heuristics with cutoffs and penalty grids (<code>&kappa;* = 5.0</code>). Auditing proved the ML trees failed statistically (confirmatory <code>H2</code>: +&#8377;6.13, <code>p = 0.27</code>), hard gates failed tail risk, and tuned penalties hit grid walls. <strong>So we stripped away every ML model, weather input, and tuned cutoff</strong>, leaving two transparent Class-10 rules with <strong>zero free parameters</strong> (dispatch only when score &gt; 0):</p>
+<p>Earlier in this project, we tried complex gradient-boosted ML trees (Stage I) and tuned heuristics with cutoffs and penalty grids (<code>&kappa;* = 5.0</code>). Auditing proved the ML trees failed statistically (confirmatory <code>H2</code>: +&#8377;6.13, <code>p = 0.27</code>), hard gates failed tail risk, and tuned penalties hit grid walls. <strong>So we stripped away every ML model, weather input, and validation-tuned cutoff</strong>, leaving two transparent Class-10 rules with <strong>zero tuned parameters</strong> (dispatch only when score &gt; 0):</p>
 
 <div class="formula-card">
   <h3 style="margin-top:0;">Rule 1: Safe_EV_Sunk (Best Tail-Risk Protection &mdash; 0 Tuned Parameters)</h3>
@@ -340,7 +341,7 @@ HTML_BODY = f"""
 
 <h2>4. What the Data Proves: Primary 171 Markets + Untouched 6-Year Backtest</h2>
 
-<p>To prevent any future market-selection lookahead, our primary benchmark uses strictly <strong>2024-selected 171 markets</strong> (<code>N = 57,634</code> test episodes, June 2025&ndash;April 2026) with the exact locked 4-test, <code>R = 2,000</code> bootstrap family (<code>p<sub>holm,2s</sub> = 0.0040</code> across all 3 clusterings). Crucially, we then test the <strong>exact same frozen zero-parameter rules with zero retuning</strong> on the clean non-lookahead <strong>166-market historical archive (2018&ndash;2023, N = 383,952 episodes; 115-mkt N = 325,993)</strong>, including the 2020 COVID-19 supply shock:</p>
+<p>To prevent any future market-selection lookahead, our primary benchmark uses strictly <strong>2024-selected 171 markets</strong> (<code>N = 57,634</code> test episodes, June 2025&ndash;April 2026) with the exact locked 4-test, <code>R = 2,000</code> bootstrap family (<code>p<sub>holm,2s</sub> = 0.0040</code> across all 3 clusterings). Crucially, we then test the <strong>exact same frozen zero-tuned-parameter rules with zero retuning</strong> on the clean non-lookahead <strong>166-market historical archive (2018&ndash;2023, N = 383,952 episodes; 115-mkt N = 325,993)</strong>, including the 2020 COVID-19 supply shock:</p>
 
 <table class="res-table">
   <colgroup>
@@ -374,12 +375,12 @@ HTML_BODY = f"""
 
 <figure>
   <img src="{img_uri('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage Curves"/>
-  <figcaption><strong>Visual Proof 1 (Risk vs Coverage):</strong> At the exact same dispatch rate, zero-parameter Safe_EV_Sunk (purple) sits far below B2 and hard gates on episode losses (left) and far above them on worst-10% tail shortfall ES10 (right).</figcaption>
+  <figcaption><strong>Visual Proof 1 (Risk vs Coverage):</strong> At the exact same dispatch rate, zero-tuned-parameter Safe_EV_Sunk (purple) sits far below B2 and hard gates on episode losses (left) and far above them on worst-10% tail shortfall ES10 (right).</figcaption>
 </figure>
 
 <figure>
   <img src="{img_uri('rev_fig4_settlement_and_hp_apple.png')}" alt="Untouched 2018-2023 Backtest and HP Apples"/>
-  <figcaption><strong>Visual Proof 2 (Six Historical Years &amp; Graded Apples):</strong> Left: Across every year from 2018 through 2023 on 166 clean markets (including 2020 COVID-19), zero-parameter Safe_EV_Sunk and Safe_EV_Phys consistently protect against worst-decile losses without retuning. Right: On HP graded apples (N = 2,802), Safe_EV cuts unconditional ES10 from &minus;&#8377;2,392 to &minus;&#8377;1,455, though 41.38% of dispatched trips lose money and <code>cond_ES10</code> (p = 0.094) is non-significant.</figcaption>
+  <figcaption><strong>Visual Proof 2 (Six Historical Years &amp; Graded Apples):</strong> Left: Across every year from 2018 through 2023 on 166 clean markets (including 2020 COVID-19), zero-tuned-parameter Safe_EV_Sunk and Safe_EV_Phys consistently protect against worst-decile losses without retuning. Right: On HP graded apples (N = 2,802), Safe_EV cuts unconditional ES10 from &minus;&#8377;2,392 to &minus;&#8377;1,455, though 41.38% of dispatched trips lose money and <code>cond_ES10</code> (p = 0.094) is non-significant.</figcaption>
 </figure>
 
 <h2>5. The 10 Most Relevant Research Papers (Your Literature Map in Plain English)</h2>
@@ -447,7 +448,7 @@ HTML_BODY = f"""
     <tr>
       <td><strong>9. Elmachtoub &amp; Grigas (2022)</strong><br/><em>Management Science</em></td>
       <td><em>Smart "Predict, Then Optimize"</em>: showed that training a model to minimize average price error often gives bad operational decisions when costs are asymmetric.</td>
-      <td>Explains why our Stage I GBDT price-predictor failed (<code>H2 p = 0.27</code>) while direct expected-value ratios succeed with zero parameters.</td>
+      <td>Explains why our Stage I GBDT price-predictor failed (<code>H2 p = 0.27</code>) while direct lower-bound score ratios succeed with zero tuned parameters.</td>
     </tr>
   </tbody>
 </table>
@@ -482,12 +483,12 @@ HTML_BODY = f"""
 
 <div class="qa-item">
   <div class="qa-q">Q1: "If this is an M.Tech thesis, why did you throw away Machine Learning and use a 1-line calculator formula?"</div>
-  <div><strong>Answer:</strong> "Because we tested GBDT + conformal prediction first (Stage I) and audited it honestly &mdash; it leaked weather, failed confirmatory <code>H2</code> (<code>p = 0.27</code>), and lost on graded apples. Stripping away complexity to zero-parameter domain physics (<code>p<sub>dow</sub> &middot; G<sub>1SD</sub> &gt; F</code>) cut difficulty from 4.3 to 1.2/5 while actually <em>beating</em> both ML and tuned heuristics on worst-10% shortfall across 171 markets and 6 untouched years (2018&ndash;2023)."</div>
+  <div><strong>Answer:</strong> "Because we tested GBDT + conformal prediction first (Stage I) and audited it honestly &mdash; it leaked weather, failed confirmatory <code>H2</code> (<code>p = 0.27</code>), and lost on graded apples. Stripping away complexity to zero-tuned-parameter domain physics (<code>p<sub>dow</sub> &middot; G<sub>1SD</sub> &gt; F</code>) cut difficulty from 4.3 to 1.2/5 while beating comparable-coverage ML and tuned heuristics on worst-10% shortfall across 171 markets and 6 untouched years (2018&ndash;2023)."</div>
 </div>
 
 <div class="qa-item">
   <div class="qa-q">Q2: "Didn't you design these rules after seeing the 2025&ndash;2026 test set?"</div>
-  <div><strong>Answer:</strong> "Yes &mdash; we explicitly label the 2025&ndash;2026 split exploratory and strictly report the locked <code>PREREG_A18</code> 4-test, <code>R = 2,000</code> family (<code>p<sub>holm,2s</sub> = 0.0040</code>). To prove it wasn't overfit to 2025&ndash;2026, we froze the exact zero-parameter formulas and ran them verbatim with zero retuning on clean 166 non-lookahead markets over 2018&ndash;2023 (383,952 episodes) &mdash; they beat <code>B2</code> on <code>ES10</code> and <code>cond_ES10</code> in all 6 years (2020 COVID-19 &amp; 2023 Means NS) and survive <code>&le; t&minus;2</code> latency."</div>
+  <div><strong>Answer:</strong> "Yes &mdash; we explicitly label the 2025&ndash;2026 split exploratory and strictly report the locked <code>PREREG_A18</code> 4-test, <code>R = 2,000</code> family (<code>p<sub>holm,2s</sub> = 0.0040</code>). To prove it wasn't overfit to 2025&ndash;2026, we froze the exact zero-tuned-parameter formulas and ran them verbatim with zero retuning on clean 166 non-lookahead markets over 2018&ndash;2023 (383,952 episodes) &mdash; they beat <code>B2</code> on <code>ES10</code> and <code>cond_ES10</code> in all 6 years (2020 COVID-19 &amp; 2023 Means NS) and survive <code>&le; t&minus;2</code> latency."</div>
 </div>
 
 <div class="qa-item">

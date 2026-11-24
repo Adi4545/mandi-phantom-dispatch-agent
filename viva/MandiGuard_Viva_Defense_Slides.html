@@ -34,6 +34,7 @@ code { font-family: Menlo, Consolas, monospace; font-size: 9.4pt; background: #e
 .pill-ok { background: #dcfce7; border: 1px solid #86efac; color: #14532d; padding: 6px 9px; border-radius: 5px; font-weight: 600; margin-top: 9px; font-size: 10pt; }
 table { width: 100%; border-collapse: collapse; font-size: 8.8pt; }
 th { background: #0f4c5c; color: #ffffff; padding: 4.5px 5px; text-align: left; }
+th code { background: rgba(255, 255, 255, 0.18); color: #ffffff; }
 td { padding: 4px 5px; border-bottom: 1px solid #e2e8f0; }
 td[style*="right"], th[style*="right"] { white-space: nowrap; }
 tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }
@@ -42,7 +43,7 @@ tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }
 .s-foot { border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 8.6pt; color: #64748b; display: flex; justify-content: space-between; }
 </style></head>
 <body><section class="slide">
-              <header class="s-head"><div class="kicker">Slide 1 of 12 &bull; Thesis Scope &amp; Question</div><h1>When Online Mandi Prices Mislead: Zero-Parameter Dispatch Filtering</h1></header>
+              <header class="s-head"><div class="kicker">Slide 1 of 12 &bull; Thesis Scope &amp; Question</div><h1>When Online Mandi Prices Mislead: Zero-Tuned-Parameter Dispatch Filtering</h1></header>
               <main class="s-body">
             <div class="grid2">
               <div class="card accent">
@@ -149,7 +150,7 @@ tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }
                 <h3>What Previous Methods Got Wrong</h3>
                 <ul>
                   <li><strong>Stage I GBDT + Conformal (<code>4.3/5</code>):</strong> Required <code>sklearn 1.3.0</code> pickle + ERA5 leaks; confirmatory <code>H2</code> stayed inconclusive (<code>+₹6.13</code>, <code>p = 0.2699</code>).</li>
-                  <li><strong>Hard-Gated <code>MG_T1_T2_matched</code> (<code>4</code> params, ML-stripped):</strong> Failed <code>ES10</code> (<code>−₹508.72</code>, <code>p_2s = 0.241–0.343</code> NS); intact conformal <code>T1..T4</code> (<code>q80=162.5</code>) reaches <code>cond_ES10 −₹531.66</code> (<code>v7_exp4</code>).</li>
+                  <li><strong>Hard-Gated <code>MG_T1_T2_matched</code> (<code>4</code> params, ML-stripped):</strong> Failed <code>ES10</code> (<code>−₹508.72</code>, <code>p_2s = 0.241–0.343</code> NS); strict split-conformal <code>T1..T4</code> (<code>q80=162.5</code>) reaches <code>cond_ES10 −₹525.17</code> (<code>v7_exp4</code>).</li>
                   <li><strong>Tuned <code>RR_Abstain_matched</code> (<code>A10</code>, <code>1.6/5</code>):</strong> Hit grid edge <code>kappa* = 5.0</code> (at <code>kappa=20</code>, <code>m_val = −₹328.99</code>); ignored <code>cv28</code> &amp; Sunday closures.</li>
                 </ul>
               </div>
@@ -157,7 +158,7 @@ tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }
                 <h3>Lower-Bound Heuristic Simplification &amp; ML/OR Pareto</h3>
                 <ul>
                   <li>7 fixed choices (<code>0</code> validation-tuned params; NO methodological novelty claimed).</li>
-                  <li><code>Safe_EV_Sunk_m0</code> (<code>cond_ES10 −₹447.48</code>) beats clean <code>&lt;= t-1</code> <code>Ridge</code> (<code>−₹530.30</code>), <code>HGBR_EV_TV</code> (<code>−₹523.53</code>), <code>Vargas Mean-Var</code> (<code>−₹496.76</code>), and <code>HGBR_RiskAverse_L500</code> (<code>−₹512.43</code>)!</li>
+                  <li><code>Safe_EV_Sunk_m0</code> (<code>cond_ES10 −₹447.48</code>, <code>63.23%</code>) beats comparable-coverage <code>&lt;= t-1</code> <code>Ridge</code> (<code>−₹530.30</code>), <code>HGBR_EV_TV</code> (<code>−₹523.53</code>), <code>Vargas Mean-Var</code> (<code>−₹496.76</code>), &amp; <code>HGBR_RiskAverse_L500</code> (<code>−₹512.43</code>); <code>Q20</code> reaches <code>−₹444.86</code> at half disp (<code>32.83%</code>, Mean <code>₹266.43</code>).</li>
                   <li>Replaced <code>rep28</code> Sunday smoothing with <code>p_dow</code> + 1-SD <code>cv28</code> (<code>0.21%</code> fallback; <code>cv28==0</code> fix invariant at <code>−₹447.65</code>).</li>
                   <li>Added clean <code>166</code>-mkt <code>2018–2023</code> (<code>383,952</code>) + NASA POWER &amp; <code>&lt;= t-2</code> latency audit (<code>v7_exp1</code>).</li>
                 </ul>
@@ -166,7 +167,7 @@ tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }
             </main>
               <footer class="s-foot"><span>Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; MandiGuard Revision v7</span><span>Slide 5 / 12</span></footer>
             </section><section class="slide">
-              <header class="s-head"><div class="kicker">Slide 6 of 12 &bull; The Two Zero-Parameter Rules</div><h1>Two Zero-Parameter Pocket-Calculator Equations (<code>PREREG_A18.md</code>)</h1></header>
+              <header class="s-head"><div class="kicker">Slide 6 of 12 &bull; Two Zero-Tuned-Parameter Rules</div><h1>Two Tuning-Free Pocket-Calculator Equations (<code>PREREG_A18.md</code>)</h1></header>
               <main class="s-body">
             <div class="grid2">
               <div class="card accent">

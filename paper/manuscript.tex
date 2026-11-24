@@ -12,7 +12,7 @@
 \begin{abstract}
 Whether spreads on India's AGMARKNET portal survive transit hinges on unobserved arrival-day blanks. Under sequential closed-yard settlement (\texttt{div = 1.5}), chasing lagged spreads above \texttt{Rs.\,100/qtl} across \texttt{171} zero-lookahead markets (\texttt{N = 57,634} test episodes, \texttt{June 2025--April 2026}) loses money on \textbf{\texttt{45.07\%}} of dispatches (\texttt{ES10 -Rs.\,642.15/qtl}); under open-yard Missing-At-Random (MAR) counterfactuals, road dispatch (\texttt{B2\_age\_matched}) earns \texttt{+Rs.\,97.01/qtl} higher mean than zero-tuned-parameter triage (\texttt{Safe\_EV\_Sunk\_m0}).
 
-Claiming no methodological novelty, we benchmark two tuning-free 6 a.m. triage heuristics (\texttt{Safe\_EV\_Sunk\_m0}: $p_{\text{dow}} G_{\text{1SD}} > F_{\text{road}}$; \texttt{Safe\_EV\_Phys\_m0}: \texttt{1.5F}) and calculator rule \texttt{RT\_2F\_Min\_m0} ($p_{\min} G > 2F_{\text{road}}$) under a \texttt{<= t - 1} firewall. Across locked \texttt{PREREG\_A18} tests (\texttt{R = 2,000}, \texttt{p\_holm\_2s = 0.0040}), \texttt{Safe\_EV\_Sunk\_m0} (\texttt{63.23\%} dispatch) attains \texttt{Rs.\,452.74/qtl} mean (\texttt{+Rs.\,33.12}), \texttt{14.88\%} losses (\texttt{-11.56 pp}), \textbf{\texttt{ES10 -Rs.\,345.53/qtl}} (\texttt{+Rs.\,179.24}), and \textbf{\texttt{cond\_ES10 -Rs.\,447.48/qtl}} (\texttt{+Rs.\,180.89}), outperforming \texttt{B2} and fitted \texttt{<= t - 1} ML/OR baselines on \texttt{cond\_ES10}. \texttt{Safe\_EV\_Sunk\_m0} gains \texttt{ES10} across all six states (\texttt{Holm11}) and five crop slices, though HP (\texttt{B = 12}, \texttt{p\_stud = 0.186}, \texttt{cond\_ES10 p = 0.124}) and Apple (\texttt{p\_stud = 0.058}, \texttt{cond\_ES10 p = 0.055}) turn borderline/non-significant, and Mean CIs cross zero in five slices (\texttt{RT\_2F\_Min\_m0} keeps positive Means yet fails \texttt{cond\_ES10} under \texttt{t - 2} lag). Mean gains vanish under free turn-back (\texttt{p = 0.220--0.256}), reverse under 3-day hindsight and worst-case Manski bounds, and erode under herding (\texttt{max = 27}). Across untouched \texttt{2018--2023} data (\texttt{166} markets, \texttt{N = 383,952}), \texttt{Safe\_EV\_Sunk\_m0} gains \texttt{+Rs.\,169.27} \texttt{ES10} (\texttt{+Rs.\,155.08} \texttt{cond\_ES10}, \texttt{p = 0.001}), with \texttt{2020}/\texttt{2023} Means non-significant; rules filter 6 a.m. alerts ahead of trader calls.
+Claiming no methodological novelty, we benchmark two tuning-free 6 a.m. triage heuristics (\texttt{Safe\_EV\_Sunk\_m0}: $p_{\text{dow}} G_{\text{1SD}} > F_{\text{road}}$; \texttt{Safe\_EV\_Phys\_m0}: \texttt{1.5F}) and calculator rule \texttt{RT\_2F\_Min\_m0} ($p_{\min} G > 2F_{\text{road}}$) under a \texttt{<= t - 1} firewall. Across locked \texttt{PREREG\_A18} tests (\texttt{R = 2,000}, \texttt{p\_holm\_2s = 0.0040}), \texttt{Safe\_EV\_Sunk\_m0} (\texttt{63.23\%} dispatch) attains \texttt{Rs.\,452.74/qtl} mean (\texttt{+Rs.\,33.12}), \texttt{14.88\%} losses (\texttt{-11.56 pp}), \textbf{\texttt{ES10 -Rs.\,345.53/qtl}} (\texttt{+Rs.\,179.24}), and \textbf{\texttt{cond\_ES10 -Rs.\,447.48/qtl}} (\texttt{+Rs.\,180.89}), outperforming \texttt{B2} and comparable-coverage \texttt{<= t - 1} ML/OR baselines on \texttt{cond\_ES10}. \texttt{Safe\_EV\_Sunk\_m0} gains \texttt{ES10} across all six states (\texttt{Holm11}) and five crop slices, though HP (\texttt{B = 12}, \texttt{p\_stud = 0.186}, \texttt{cond\_ES10 p = 0.124}) and Apple (\texttt{p\_stud = 0.058}, \texttt{cond\_ES10 p = 0.055}) turn borderline/non-significant, and Mean CIs cross zero in five slices (\texttt{RT\_2F\_Min\_m0} keeps positive Means yet fails \texttt{cond\_ES10} under \texttt{t - 2} lag). Mean gains vanish under free turn-back (\texttt{p = 0.220--0.256}), reverse under 3-day hindsight and worst-case Manski bounds, and erode under herding (\texttt{max = 27}). Across untouched \texttt{2018--2023} data (\texttt{166} markets, \texttt{N = 383,952}), \texttt{Safe\_EV\_Sunk\_m0} gains \texttt{+Rs.\,169.27} \texttt{ES10} (\texttt{+Rs.\,155.08} \texttt{cond\_ES10}, \texttt{p = 0.001}), with \texttt{2020}/\texttt{2023} Means non-significant; rules filter 6 a.m. alerts ahead of trader calls.
 \end{abstract}
 
 \section{Three Research Questions and Honest Methodological Scope}
@@ -49,7 +49,7 @@ We examine six Indian states (Gujarat, Himachal Pradesh, Karnataka, Madhya Prade
 \begin{table}[htbp]
 \centering
 \small
-\caption{Epistemic classification of observed quantities, causal features, stylized survey-anchored assumptions, bounded unobservables, and out-of-scope mechanisms.}\label{tab:table1}
+\caption{Epistemic classification of observed quantities, causal <= t - 1 features, stylized survey-anchored assumptions, bounded unobservables, and out-of-scope mechanisms.}\label{tab:table1}
 \resizebox{\linewidth}{!}{
 \begin{tabular}{lll}
 \toprule
@@ -111,7 +111,7 @@ Starting at $w = 0$ on arrival $t + \tau$ (\texttt{tau\_days in 1..3}): if exact
 
 \subsection{Equal-Menu Baselines, Heuristics, and Zero-Tuned-Parameter Lower-Bound Rules}
 
-On identical Top-5 candidates (\texttt{lag\_spread > 100}, max 1 pick, abstention \texttt{0}), all equal-age (\texttt{1..3d}) comparators match \texttt{val\_171} dispatch (\texttt{70.43\%}): \texttt{B1\_lagged\_screen} (1 free param, age \texttt{1..7}, \texttt{100\%}), \texttt{B2\_age\_matched} ($G - F > \text{Rs.\,}200$, \texttt{1} param), \texttt{B\_simple\_activity\_matched} (\texttt{rep14 >= 0.50}, \texttt{Rs.\,168.46}, \texttt{2} params), \texttt{MG\_T1\_T2\_matched} (ML-stripped \texttt{rep14 >= 0.50 \& dow8 >= 0.35}, \texttt{Rs.\,133.03}, \texttt{4} params; distinct from intact conformal \texttt{MG\_T1..T4} in \texttt{v7\_exp4}), and \texttt{RR\_Abstain\_matched} (\texttt{κ*=5.0}, \texttt{m*=Rs.\,5.40}, \texttt{2} params).
+On identical Top-5 candidates (\texttt{lag\_spread > 100}, max 1 pick, abstention \texttt{0}), all equal-age (\texttt{1..3d}) comparators match \texttt{val\_171} dispatch (\texttt{70.43\%}): \texttt{B1\_lagged\_screen} (1 free param, age \texttt{1..7}, \texttt{100\%}), \texttt{B2\_age\_matched} ($G - F > \text{Rs.\,}200$, \texttt{1} param), \texttt{B\_simple\_activity\_matched} (\texttt{rep14 >= 0.50}, \texttt{Rs.\,168.46}, \texttt{2} params), \texttt{MG\_T1\_T2\_matched} (ML-stripped \texttt{rep14 >= 0.50 \& dow8 >= 0.35}, \texttt{Rs.\,133.03}, \texttt{4} params; distinct from intact conformal \texttt{MG\_T1..T4} in \texttt{v7\_exp4}), and \texttt{RR\_Abstain\_matched} (\texttt{k*=5.0}, \texttt{m*=Rs.\,5.40}, \texttt{2} params).
 
 Locked in \texttt{PREREG\_A18.md} (\texttt{S > 0}), we examine three \textbf{lower-bound triage heuristics with zero validation-tuned parameters} (built from 7 fixed structural choices: \texttt{age 1..3}, Laplace $p_{\text{dow}} = (k+1)/10$, \texttt{28d} window, $z=1.0$ \texttt{cv28} haircut, \texttt{0.05} \texttt{cnt28<2} fallback [checked against \texttt{cnt28<5}], sunk $F$/$2F$/$1.5F$, threshold \texttt{0}):
 
@@ -145,12 +145,12 @@ Locked confirmatory inference evaluates the \texttt{PREREG\_A18.md} 4-test famil
 
 \subsection{RQ1 \& RQ2: Primary \texttt{171}-Market Benchmark (\texttt{N = 57,634}) and Conditional Tail (\texttt{cond\_ES10})}
 
-Across \texttt{N = 57,634} episodes (\texttt{v7\_main\_171.csv}), blind spread-chasing (\texttt{B1}) loses on \textbf{\texttt{45.07\%}} (\texttt{mean Rs.\,384.61}, \texttt{ES10 -Rs.\,642.15}), with \texttt{69.78\%} (\texttt{40,217}) \texttt{d0} sales, \texttt{0.49\%} (\texttt{284}) waits, \texttt{1.06\%} (\texttt{609}) distress fallbacks, and \textbf{\texttt{28.67\%}} (\texttt{16,524}) zero-commodity returns; 3-day hindsight drops \texttt{B1} losses artificially to \texttt{31.27\%} (\texttt{mean Rs.\,523.68}). Table 3 compares all rules on both unconditional \texttt{ES10} and dispatched \texttt{cond\_ES10}.
+Across \texttt{N = 57,634} episodes (\texttt{v7\_main\_171.csv}), blind spread-chasing (\texttt{B1}) loses on \textbf{\texttt{45.07\%}} (\texttt{mean Rs.\,384.61}, \texttt{ES10 -Rs.\,642.15}), with \texttt{69.78\%} (\texttt{40,217}) \texttt{d0} sales, \texttt{0.49\%} (\texttt{284}) waits, \texttt{1.06\%} (\texttt{609}) distress fallbacks, and \textbf{\texttt{28.67\%}} (\texttt{16,524}) zero-commodity returns; 3-day hindsight drops \texttt{B1} losses artificially to \texttt{31.27\%} (\texttt{mean Rs.\,523.68}). Table 2 compares all rules on both unconditional \texttt{ES10} and dispatched \texttt{cond\_ES10}.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Reconciled data cleaning funnel from raw official portal archives to Top-5 lagged evaluation episodes across the primary 171-market, HP graded-apple, and untouched 2018-2023 panels.}\label{tab:table2}
+\caption{Main equal-menu lagged test benchmark on the zero-lookahead 171-market panel (N = 57,634, 20C closed-yard settlement) reporting both unconditional ES10 and dispatched cond\_ES10.}\label{tab:table2}
 \resizebox{\linewidth}{!}{
 \begin{tabular}{lrrrrrrrr}
 \toprule
@@ -161,27 +161,27 @@ Policy (\texttt{N = 57,634}, \texttt{171} Mkts) & Params & Disp (\%) & Mean (Rs.
 \textbf{\texttt{B\_simple\_activity\_matched}} & 2 & \texttt{70.46\%} & \texttt{Rs.\,426.29} & \texttt{23.30\%} & \texttt{-Rs.\,505.84} & \texttt{-Rs.\,614.38} & \texttt{-Rs.\,299.27} & \texttt{207.36} \\
 \textbf{\texttt{MG\_T1\_T2\_matched}} \textit{(ML-stripped)} & 4 & \texttt{69.16\%} & \texttt{Rs.\,454.07} & \texttt{18.35\%} & \texttt{-Rs.\,508.72} & \texttt{-Rs.\,638.55} & \texttt{-Rs.\,330.98} & \texttt{204.49} \\
 \textbf{\texttt{RR\_Abstain\_matched}} (\texttt{k*=5.0}) & 2 & \texttt{68.75\%} & \texttt{Rs.\,461.41} & \texttt{17.07\%} & \texttt{-Rs.\,459.46} & \texttt{-Rs.\,584.66} & \texttt{-Rs.\,308.82} & \texttt{183.15} \\
-\textbf{\texttt{Safe\_EV\_Sunk\_m0}} \textit{(0-param)} & \textbf{0} & \textbf{\texttt{63.23\%}} & \textbf{\texttt{Rs.\,452.74}} & \textbf{\texttt{14.88\%}} & \textbf{\texttt{-Rs.\,345.53}} & \textbf{\texttt{-Rs.\,447.48}} & \textbf{\texttt{-Rs.\,261.53}} & \texttt{196.56} \\
+\textbf{\texttt{Safe\_EV\_Sunk\_m0}} \textit{(0-tuned)} & \textbf{0} & \textbf{\texttt{63.23\%}} & \textbf{\texttt{Rs.\,452.74}} & \textbf{\texttt{14.88\%}} & \textbf{\texttt{-Rs.\,345.53}} & \textbf{\texttt{-Rs.\,447.48}} & \textbf{\texttt{-Rs.\,261.53}} & \texttt{196.56} \\
 \textbf{\texttt{Safe\_EV\_Sunk\_matched}} & 1 & \texttt{70.74\%} & \texttt{Rs.\,457.08} & \texttt{18.37\%} & \texttt{-Rs.\,367.79} & \textbf{\texttt{-Rs.\,443.54}} & \textbf{\texttt{-Rs.\,244.85}} & \texttt{194.81} \\
-\textbf{\texttt{Safe\_EV\_Phys\_m0}} (\texttt{1.5F}, \texttt{0} p.) & \textbf{0} & \texttt{60.84\%} & \texttt{Rs.\,449.52} & \textbf{\texttt{13.70\%}} & \textbf{\texttt{-Rs.\,334.80}} & \textbf{\texttt{-Rs.\,447.33}} & \texttt{-Rs.\,265.89} & \texttt{194.89} \\
+\textbf{\texttt{Safe\_EV\_Phys\_m0}} (\texttt{1.5F}, \texttt{0}-tuned) & \textbf{0} & \texttt{60.84\%} & \texttt{Rs.\,449.52} & \textbf{\texttt{13.70\%}} & \textbf{\texttt{-Rs.\,334.80}} & \textbf{\texttt{-Rs.\,447.33}} & \texttt{-Rs.\,265.89} & \texttt{194.89} \\
 \textbf{\texttt{RT\_2F\_Min\_m0}} \textit{(NO \texttt{cv28})} & \textbf{0} & \texttt{64.79\%} & \textbf{\texttt{Rs.\,463.98}} & \texttt{16.21\%} & \texttt{-Rs.\,464.84} & \texttt{-Rs.\,618.35} & \texttt{-Rs.\,323.98} & \texttt{177.52} \\
 \textbf{\texttt{EV\_RT\_Min\_m0}} & \textbf{0} & \texttt{77.17\%} & \texttt{Rs.\,470.44} & \texttt{20.38\%} & \texttt{-Rs.\,512.47} & \texttt{-Rs.\,602.97} & \texttt{-Rs.\,307.16} & \texttt{191.18} \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-Key findings from Tables 3--5 and \texttt{v7\_exp4}:
+Key findings from Tables 2--4 and \texttt{v7\_exp4}:
 
 \begin{enumerate}
-  \item \textbf{\texttt{PREREG\_A18} Locked Family (\texttt{R = 2,000}, Table 4):} All 4 locked contrasts pass \texttt{p\_holm\_2s\_prereg4 = 0.0040} across all 3 clusterings (\texttt{H\_A18\_1} \texttt{ES10} \texttt{+Rs.\,179.24}; \texttt{H\_A18\_2} \texttt{+Rs.\,91.67} matched vs \texttt{RR}; \texttt{H\_A18\_3} EpLoss \texttt{-11.56 pp}; \texttt{H\_A18\_4} \texttt{RT\_2F} Mean \texttt{+Rs.\,44.36}). Under CGM \texttt{G*} and studentized checks (\texttt{v7\_exp\_summary.json}), \texttt{H\_A18\_1/3/4} remain significant (\texttt{p <= 0.0096}), whereas \texttt{H\_A18\_2} is borderline under \texttt{b2dest} (\texttt{p\_cgm\_gstar = 0.0659}, \texttt{p\_stud = 0.0575}; joint \texttt{val+test} CI \texttt{[+Rs.\,34.81, +Rs.\,158.11]}, \texttt{p\_null = 0.0030}) and \texttt{4w} (\texttt{B = 12}) Mean of \texttt{Safe\_EV\_Sunk\_m0} shows \texttt{p\_cgm\_gstar = 0.0818} NS (\texttt{p\_stud = 0.0050}, \texttt{p\_webb6 = 0.0070}).
+  \item \textbf{\texttt{PREREG\_A18} Locked Family (\texttt{R = 2,000}, Table 3):} All 4 locked contrasts pass \texttt{p\_holm\_2s\_prereg4 = 0.0040} across all 3 clusterings (\texttt{H\_A18\_1} \texttt{ES10} \texttt{+Rs.\,179.24}; \texttt{H\_A18\_2} \texttt{+Rs.\,91.67} matched vs \texttt{RR}; \texttt{H\_A18\_3} EpLoss \texttt{-11.56 pp}; \texttt{H\_A18\_4} \texttt{RT\_2F} Mean \texttt{+Rs.\,44.36}). Under CGM \texttt{G*} and studentized checks (\texttt{v7\_exp\_summary.json}), \texttt{H\_A18\_1/3/4} remain significant (\texttt{p <= 0.0096}), whereas \texttt{H\_A18\_2} is borderline under \texttt{b2dest} (\texttt{p\_cgm\_gstar = 0.0659}, \texttt{p\_stud = 0.0575}; joint \texttt{val+test} CI \texttt{[+Rs.\,34.81, +Rs.\,158.11]}, \texttt{p\_null = 0.0030}) and \texttt{4w} (\texttt{B = 12}) Mean of \texttt{Safe\_EV\_Sunk\_m0} shows \texttt{p\_cgm\_gstar = 0.0818} NS (\texttt{p\_stud = 0.0050}, \texttt{p\_webb6 = 0.0070}).
   \item \textbf{Conditional Tail (\texttt{cond\_ES10}) Exposes \texttt{RT\_2F} \& \texttt{Safe\_EV\_Phys} Limits:} \texttt{Safe\_EV\_Sunk\_m0} cuts \textbf{dispatched \texttt{cond\_ES10}} from \texttt{-Rs.\,628.37} (\texttt{B2}) to \textbf{\texttt{-Rs.\,447.48} (\texttt{+Rs.\,180.89})} --- even at matched \texttt{63.23\%} dispatch (\texttt{B2\_test\_matched} \texttt{cond\_ES10 -Rs.\,644.95}, diff \texttt{+Rs.\,197.47}) --- and cuts \texttt{cv28} static 10\% (\texttt{-Rs.\,586.30}) by \texttt{+Rs.\,138.82}. By contrast, \textbf{\texttt{Safe\_EV\_Phys\_m0} (\texttt{-Rs.\,447.33}) beats \texttt{Safe\_EV\_Sunk\_m0} (\texttt{-Rs.\,447.48}) by only \texttt{+Rs.\,0.15/qtl} on \texttt{cond\_ES10}}, showing its \texttt{ES10} gap (\texttt{+Rs.\,10.73}) comes from abstaining more (\texttt{60.84\%}). Crucially, \textbf{Class-8 \texttt{RT\_2F\_Min\_m0} collapses on conditional tail protection (\texttt{cond\_ES10 -Rs.\,618.35} vs \texttt{B2 -Rs.\,628.37})}, turning negative or NS across Apple (\texttt{-Rs.\,163.18}), HP (\texttt{-Rs.\,54.63}), MH (\texttt{-Rs.\,61.44}), GJ (\texttt{p = 0.580}), KA (\texttt{p = 0.104}), MP (\texttt{p = 0.115}), Tomato (\texttt{p = 0.078}), and \texttt{<= t - 2} latency (\texttt{p = 0.981}!).
-  \item \textbf{Clean \texttt{<= t - 1} ML/OR Pareto \& Intact \texttt{MG\_T1..T4} (\texttt{v7\_exp4}):} Trained strictly on \texttt{val\_purged} (\texttt{-939} spillover episodes), linear \texttt{Ridge} (\texttt{Rs.\,470.75} Mean, \texttt{-Rs.\,466.19} \texttt{ES10}, \texttt{-Rs.\,530.30} \texttt{cond\_ES10}), unconstrained \texttt{HGBR\_EV\_TV\_age13} (\texttt{Rs.\,464.23} / \texttt{-Rs.\,459.68} / \texttt{-Rs.\,523.53}), Vargas-style Mean--Variance \citep{vargas2026mean} (\texttt{OR\_Vargas\_MeanVar\_g0002}: \texttt{Rs.\,432.39} / \texttt{-Rs.\,426.41} / \texttt{-Rs.\,496.76}), \texttt{HGBR\_RiskAverse\_L500} (\texttt{Rs.\,445.79} / \texttt{-Rs.\,359.12} / \texttt{-Rs.\,512.43}), and intact conformal \texttt{MG\_T1\_T2\_T3\_T4\_Intact\_matched} (\texttt{q80=162.5}, \texttt{Rs.\,448.54} / \texttt{-Rs.\,423.09} / \texttt{-Rs.\,531.66}) \citep{romano2019conformalized,lei2018distribution,gibbs2021adaptive} all beat hard gates \texttt{MG\_T1\_T2}, while \textbf{\texttt{Safe\_EV\_Sunk\_m0} dominates every learned ML/OR policy on \texttt{cond\_ES10} (\texttt{-Rs.\,447.48}) with zero fitted weights}, echoing out-of-sample simplicity findings \citep{demiguel2009optimal,gigerenzer2011heuristic}. Formula checks confirm \texttt{cv28 == 0} fix (\texttt{5,274} rows, \texttt{Mean Rs.\,452.10}, \texttt{ES10 -Rs.\,345.52}) and unrestricted \texttt{top\_k = None} (\texttt{307k} rows, \texttt{Mean Rs.\,454.37}, \texttt{ES10 -Rs.\,344.47}) invariance.
+  \item \textbf{Clean \texttt{<= t - 1} ML/OR Pareto \& Intact \texttt{MG\_T1..T4} (\texttt{v7\_exp4}, Table 4):} Trained strictly on \texttt{val\_purged} (\texttt{-939} spillover episodes), linear \texttt{Ridge} (\texttt{Rs.\,470.75} Mean, \texttt{-Rs.\,466.19} \texttt{ES10}, \texttt{-Rs.\,530.30} \texttt{cond\_ES10}), unconstrained \texttt{HGBR\_EV\_TV\_age13} (\texttt{Rs.\,464.23} / \texttt{-Rs.\,459.68} / \texttt{-Rs.\,523.53}), Vargas-style Mean--Variance \citep{vargas2026mean} (\texttt{OR\_Vargas\_MeanVar\_g0002}: \texttt{Rs.\,432.39} / \texttt{-Rs.\,426.41} / \texttt{-Rs.\,496.76}), \texttt{HGBR\_RiskAverse\_L500} (\texttt{Rs.\,445.79} / \texttt{-Rs.\,359.12} / \texttt{-Rs.\,512.43}), and strict split-conformal \texttt{MG\_T1\_T2\_T3\_T4\_Intact\_matched} (\texttt{q80=162.5}, \texttt{Rs.\,449.72} / \texttt{-Rs.\,427.45} / \texttt{-Rs.\,525.17}) \citep{romano2019conformalized,lei2018distribution,gibbs2021adaptive} all beat hard gates \texttt{MG\_T1\_T2}, while \textbf{\texttt{Safe\_EV\_Sunk\_m0} (\texttt{63.23\%} disp, \texttt{Rs.\,452.74} Mean, \texttt{-Rs.\,447.48} \texttt{cond\_ES10}) beats every comparable-coverage (\texttt{>= 50\%} dispatch) learned ML/OR policy on \texttt{cond\_ES10} with zero fitted weights} (ultra-conservative \texttt{ML\_HGBR\_Q20\_m0} edges \texttt{cond\_ES10} by \texttt{+Rs.\,2.62/qtl} at \texttt{-Rs.\,444.86} only by halving dispatch to \texttt{32.83\%} and surrendering \texttt{-Rs.\,186.31/qtl} in Mean to \texttt{Rs.\,266.43}, while \texttt{Safe\_EV\_Sunk\_matched} attains \texttt{-Rs.\,443.54} at \texttt{70.74\%}), echoing out-of-sample simplicity findings \citep{demiguel2009optimal,gigerenzer2011heuristic}. Formula checks confirm \texttt{cv28 == 0} fix (\texttt{5,274} rows, \texttt{Mean Rs.\,452.10}, \texttt{ES10 -Rs.\,345.52}) and unrestricted \texttt{top\_k = None} (\texttt{307k} rows, \texttt{Mean Rs.\,454.37}, \texttt{ES10 -Rs.\,344.47}) invariance.
 \end{enumerate}
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Main equal-menu lagged test benchmark on the zero-lookahead 171-market panel (N = 57,634, 20C closed-yard settlement).}\label{tab:table3}
+\caption{Locked PREREG\_A18 four-test inference (R = 2,000, two-sided p\_holm\_2s\_prereg4) alongside unregistered secondary contrasts across three State-prefixed clusterings.}\label{tab:table3}
 \resizebox{\linewidth}{!}{
 \begin{tabular}{lrlll}
 \toprule
@@ -201,7 +201,7 @@ Contrast (\texttt{N = 57,634}, Locked \texttt{R = 2,000}, \texttt{v7\_bootstrap\
 \begin{table}[htbp]
 \centering
 \small
-\caption{Locked PREREG\_A18 four-test inference (R = 2,000, two-sided p\_holm\_2s\_prereg4) alongside unregistered secondary contrasts across three State-prefixed clusterings.}\label{tab:table4}
+\caption{Fair feature ablations and clean <= t - 1 ML/OR/split-conformal Pareto frontier trained on spillover-purged validation data (N = 57,634), including ultra-conservative ML\_HGBR\_Q20\_m0.}\label{tab:table4}
 \resizebox{\linewidth}{!}{
 \begin{tabular}{lrrrrr}
 \toprule
@@ -213,9 +213,10 @@ Ablation \& Clean \texttt{<= t - 1} ML/OR Pareto (\texttt{N = 57,634}, \texttt{v
 \texttt{ML\_Ridge\_EV\_m0} (\texttt{Ridge > 0}) & \texttt{79.81\%} & \texttt{Rs.\,470.75} & \texttt{22.37\%} & \texttt{-Rs.\,466.19} & \texttt{-Rs.\,530.30} \\
 \texttt{ML\_HGBR\_EV\_TV\_age13\_m0} (\texttt{<= t - 1} HGBR) & \texttt{79.61\%} & \texttt{Rs.\,464.23} & \texttt{21.91\%} & \texttt{-Rs.\,459.68} & \texttt{-Rs.\,523.53} \\
 \texttt{ML\_HGBR\_RiskAverse\_L500} (\texttt{EV - 500*P(loss)}) & \texttt{56.75\%} & \texttt{Rs.\,445.79} & \texttt{12.16\%} & \texttt{-Rs.\,359.12} & \texttt{-Rs.\,512.43} \\
+\texttt{ML\_HGBR\_Q20\_m0} (\texttt{20}th-pct HGBR \texttt{> 0}) & \texttt{32.83\%} & \texttt{Rs.\,266.43} & \texttt{4.83\%} & \texttt{-Rs.\,159.18} & \texttt{-Rs.\,444.86} \\
 \texttt{OR\_Vargas\_MeanVar\_g0002} (\texttt{Mean - 0.0002*Var}) & \texttt{76.16\%} & \texttt{Rs.\,432.39} & \texttt{20.30\%} & \texttt{-Rs.\,426.41} & \texttt{-Rs.\,496.76} \\
-\texttt{MG\_T1\_T2\_T3\_T4\_Intact\_matched} (\texttt{q80=162.5}) & \texttt{68.42\%} & \texttt{Rs.\,448.54} & \texttt{16.33\%} & \texttt{-Rs.\,423.09} & \texttt{-Rs.\,531.66} \\
-\textbf{\texttt{Safe\_EV\_Sunk\_m0}} \textit{(0 tuned params ref.)} & \textbf{\texttt{63.23\%}} & \textbf{\texttt{Rs.\,452.74}} & \textbf{\texttt{14.88\%}} & \textbf{\texttt{-Rs.\,345.53}} & \textbf{\texttt{-Rs.\,447.48}} \\
+\texttt{MG\_T1\_T2\_T3\_T4\_Intact\_matched} (\texttt{q80=162.5}) & \texttt{70.94\%} & \texttt{Rs.\,449.72} & \texttt{17.05\%} & \texttt{-Rs.\,427.45} & \texttt{-Rs.\,525.17} \\
+\textbf{\texttt{Safe\_EV\_Sunk\_m0}} \textit{(0-tuned ref.)} & \textbf{\texttt{63.23\%}} & \textbf{\texttt{Rs.\,452.74}} & \textbf{\texttt{14.88\%}} & \textbf{\texttt{-Rs.\,345.53}} & \textbf{\texttt{-Rs.\,447.48}} \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -223,7 +224,7 @@ Ablation \& Clean \texttt{<= t - 1} ML/OR Pareto (\texttt{N = 57,634}, \texttt{v
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.96\linewidth]{../figures/rev_fig1_risk_coverage_ci.png}
-\caption{Risk-coverage curves with 95\% cluster confidence bands across B2\_age\_matched, hard-gated MG\_T1\_T2, RR\_Abstain, and zero-parameter Safe\_EV\_Sunk alongside B1 and RT\_2F\_Min}
+\caption{Risk-coverage curves with 95\% cluster confidence bands across B2\_age\_matched, hard-gated MG\_T1\_T2, RR\_Abstain, and zero-tuned-parameter Safe\_EV\_Sunk alongside B1 and RT\_2F\_Min}
 \end{figure}
 
 \begin{figure}[htbp]
@@ -261,10 +262,12 @@ Ablation \& Clean \texttt{<= t - 1} ML/OR Pareto (\texttt{N = 57,634}, \texttt{v
   \item \textbf{HP Graded Apples (\texttt{v7\_hp\_apple\_171.csv}, \texttt{N = 2,802}):} Calibrated using \texttt{val\_171} thresholds, \texttt{Safe\_EV\_Sunk\_m0} narrows \texttt{ES10} (\texttt{-Rs.\,1,454.86} vs \texttt{B2 -Rs.\,2,392.12}, \texttt{p = 0.002}) and Mean (\texttt{Rs.\,1,354.85} vs \texttt{Rs.\,1,199.31}, \texttt{p = 0.028}, basic CI \texttt{[-Rs.\,0.36, +Rs.\,287.09]}), \textbf{yet \texttt{cond\_ES10} (\texttt{+Rs.\,613.46}, \texttt{p = 0.0940} NS, \texttt{n\_clusters = 34}) and \texttt{41.38\%} dispatched losses} prove phone confirmation remains essential for graded apples.
 \end{itemize}
 
+Table 5 summarizes counterfactual missingness, latency, coupled smallholder stress, and \texttt{2018--2023} robustness checks.
+
 \begin{table}[htbp]
 \centering
 \small
-\caption{Fair feature, volatility-haircut, Euclidean-distance, and equal-test-dispatch control ablations on the primary 171-market panel.}\label{tab:table5}
+\caption{Summary of counterfactual missingness, <= t - 2 portal latency, Schedule \#7 x ERA5 x Stoch\_CondMAR, and clean non-lookahead 166-market / 115-market 2018-2023 historical archives.}\label{tab:table5}
 \resizebox{\linewidth}{!}{
 \begin{tabular}{llll}
 \toprule
@@ -308,7 +311,7 @@ Five streams frame this retrospective audit:
 
 \section{Conclusion}
 
-Chasing AGMARKNET spreads above \texttt{Rs.\,100/qtl} loses money on \texttt{45.07\%} of dispatches under strict \texttt{<= t - 1} chronological timing and sequential closed-yard settlement. Benchmarking two fixed \textbf{zero-validation-tuned-parameter} triage heuristics (\texttt{Safe\_EV\_Sunk\_m0}, \texttt{Safe\_EV\_Phys\_m0}) alongside calculator rule \texttt{RT\_2F\_Min\_m0} shows \texttt{Safe\_EV\_Sunk\_m0} cuts losses (\texttt{14.88\%}) and lowers worst-10\% shortfall across both unconditional (\texttt{-Rs.\,345.53/qtl}) and dispatched capital (\texttt{cond\_ES10 -Rs.\,447.48/qtl}, dominating fitted ML/OR models and surviving \texttt{<= t - 2} latency, Schedule \#7 $\times$ \texttt{Stoch\_CondMAR}, and clean \texttt{166}-market \texttt{2018--2023} archives), while openly scoping HP/Apple fragility, \texttt{2020/2023} Mean nulls, Manski reversals, and multi-truck crowding ahead of prospective FPO field trials.
+Chasing AGMARKNET spreads above \texttt{Rs.\,100/qtl} loses money on \texttt{45.07\%} of dispatches under strict \texttt{<= t - 1} chronological timing and sequential closed-yard settlement. Benchmarking two fixed \textbf{zero-validation-tuned-parameter} triage heuristics (\texttt{Safe\_EV\_Sunk\_m0}, \texttt{Safe\_EV\_Phys\_m0}) alongside calculator rule \texttt{RT\_2F\_Min\_m0} shows \texttt{Safe\_EV\_Sunk\_m0} cuts losses (\texttt{14.88\%}) and lowers worst-10\% shortfall across both unconditional (\texttt{-Rs.\,345.53/qtl}) and dispatched capital (\texttt{cond\_ES10 -Rs.\,447.48/qtl}, outperforming comparable-coverage fitted ML/OR models and surviving \texttt{<= t - 2} latency, Schedule \#7 $\times$ \texttt{Stoch\_CondMAR}, and clean \texttt{166}-market \texttt{2018--2023} archives), while openly scoping HP/Apple fragility, \texttt{2020/2023} Mean nulls, Manski reversals, and multi-truck crowding ahead of prospective FPO field trials.
 
 \section{Data, Code, Reproducibility, and Ethics Statement}
 

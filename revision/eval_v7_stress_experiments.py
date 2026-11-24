@@ -812,14 +812,19 @@ def run_exp4_ml_pareto_and_formula(raw_171: pd.DataFrame, cor: pd.DataFrame, fee
     hgbr_var = HistGradientBoostingRegressor(max_depth=4, learning_rate=0.05, max_iter=120, min_samples_leaf=80, random_state=42).fit(X_val.to_numpy()[v_cal], sq_res_cal)
     var_t = np.maximum(1.0, hgbr_var.predict(X_test.to_numpy()))
 
-    # Intact MG_T1_T2_T3_T4_Conformal (<= t-1 only!): T1(rep14>=0.5, dow8>=0.35, age 1..3) & T2 & T3 & T4 (HGBR lower 80% conformal LCB > 0 / matched)
-    abs_res_cal = hgbr_ev_in.predict(X_val.to_numpy()[v_cal]) - y_vcal  # one-sided shortfall residual (E - y)
+    # Intact MG_T1_T2_T3_T4_Conformal (<= t-1 strictly split conformal!):
+    # Fit base regressor on v_fit; calibrate q_conf80 and dispatch threshold th_t4_match strictly out-of-sample on v_cal;
+    # score test episodes using the SAME split-fitted hgbr_ev_in regressor (never full-val hgbr_ev!).
+    pred_in_cal = hgbr_ev_in.predict(X_val.to_numpy()[v_cal])
+    abs_res_cal = pred_in_cal - y_vcal  # one-sided shortfall residual (E - y)
     q_conf80 = float(np.quantile(abs_res_cal, 0.80))
-    lcb_conf_v = hgbr_ev_in.predict(X_val.to_numpy()) - q_conf80
-    lcb_conf_t = ev_t - q_conf80
-    t13_v = (val_purged["dest_lag_age"].between(1, 3)) & (val_purged["dest_exact_rep_14d"] >= 0.50) & (val_purged["dest_dow_exact_rep_8w"] >= 0.35) & (compute_decision_features(val_purged)["net_road_fee_spoil"] > 0.0)
+    lcb_conf_cal = pred_in_cal - q_conf80
+    lcb_conf_t = hgbr_ev_in.predict(X_test.to_numpy()) - q_conf80
+    val_cal_df = val_purged.loc[v_cal].reset_index(drop=True)
+    t13_v_all = (val_purged["dest_lag_age"].between(1, 3)) & (val_purged["dest_exact_rep_14d"] >= 0.50) & (val_purged["dest_dow_exact_rep_8w"] >= 0.35) & (compute_decision_features(val_purged)["net_road_fee_spoil"] > 0.0)
+    t13_v_cal = t13_v_all.to_numpy()[v_cal]
     t13_t = age_t13 & (tf["rep14"] >= 0.50) & (tf["dow8"] >= 0.35) & (tf["net_road_fee_spoil"] > 0.0)
-    th_t4_match = find_val_matched_threshold(val_purged, lcb_conf_v, t13_v.to_numpy(), cal_purged["tgt"])
+    th_t4_match = find_val_matched_threshold(val_cal_df, lcb_conf_cal, t13_v_cal, cal_purged["tgt"])
 
     ml_candidates = [
         ("ML_Ridge_EV_m0", pred_ridge_test, pred_ridge_test > 0.0, "Ridge > 0"),

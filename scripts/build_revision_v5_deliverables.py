@@ -81,6 +81,14 @@ FORBIDDEN_LEGACY_STRINGS = [
     "make reproduce",
 ]
 
+PAPER_TABLE_CAPTIONS: Dict[int, str] = {
+    1: "Epistemic classification of observed quantities, causal <= t - 1 features, stylized survey-anchored assumptions, bounded unobservables, and out-of-scope mechanisms.",
+    2: "Main equal-menu lagged test benchmark on the zero-lookahead 171-market panel (N = 57,634, 20C closed-yard settlement) reporting both unconditional ES10 and dispatched cond_ES10.",
+    3: "Locked PREREG_A18 four-test inference (R = 2,000, two-sided p_holm_2s_prereg4) alongside unregistered secondary contrasts across three State-prefixed clusterings.",
+    4: "Fair feature ablations and clean <= t - 1 ML/OR/split-conformal Pareto frontier trained on spillover-purged validation data (N = 57,634), including ultra-conservative ML_HGBR_Q20_m0.",
+    5: "Summary of counterfactual missingness, <= t - 2 portal latency, Schedule #7 x ERA5 x Stoch_CondMAR, and clean non-lookahead 166-market / 115-market 2018-2023 historical archives.",
+}
+
 
 _CORP_AUTHOR_MAP = {
     "nabcons2022phl": "NABCONS",
@@ -473,12 +481,18 @@ def _split_md_table_row(row: str) -> List[str]:
     return cells
 
 
-def markdown_to_html_body(md_text: str, bib_keys: Dict[str, str] | set[str] | None = None, base_dir: Path = PAPER_DIR) -> str:
+def markdown_to_html_body(
+    md_text: str,
+    bib_keys: Dict[str, str] | set[str] | None = None,
+    base_dir: Path = PAPER_DIR,
+    table_captions: Dict[int, str] | None = None,
+) -> str:
     """Convert structured Markdown (headings, tables, blockquotes, lists, display math, images) to HTML."""
     bib_map = _resolve_bib_map(bib_keys)
     lines = md_text.splitlines()
     out: List[str] = []
     i = 0
+    tbl_idx = 0
     in_references = False
 
     while i < len(lines):
@@ -559,7 +573,14 @@ def markdown_to_html_body(md_text: str, bib_keys: Dict[str, str] | set[str] | No
             while i < len(lines) and lines[i].strip().startswith("|"):
                 rows.append(_split_md_table_row(lines[i]))
                 i += 1
-            tbl = ['<div class="tbl-wrap"><table><thead><tr>']
+            tbl_idx += 1
+            tbl = ['<div class="tbl-wrap">']
+            if table_captions and tbl_idx in table_captions:
+                tbl.append(
+                    f'<div class="tbl-cap"><strong>Table {tbl_idx}:</strong> '
+                    f'{format_inline_html(table_captions[tbl_idx], bib_keys)}</div>'
+                )
+            tbl.append('<table><thead><tr>')
             for idx_c, h in enumerate(hdr):
                 al = aligns[idx_c] if idx_c < len(aligns) else "left"
                 tbl.append(f'<th style="text-align:{al}">{format_inline_html(h, bib_keys)}</th>')
@@ -731,7 +752,8 @@ code {
 }
 .frac .num { border-bottom: 1px solid #1a202c; padding: 0 3px 1px 3px; white-space: nowrap; }
 .frac .den { padding: 1px 3px 0 3px; white-space: nowrap; }
-.tbl-wrap { margin: 6px 0 8px 0; break-inside: avoid; }
+.tbl-wrap { margin: 5px 0 7px 0; break-inside: avoid; }
+.tbl-cap { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 7.2pt; color: #334155; margin-bottom: 2px; line-height: 1.24; }
 table {
   width: 100%;
   border-collapse: collapse;
@@ -747,6 +769,7 @@ th {
   border-bottom: 1.5px solid #0a3642;
   white-space: normal;
 }
+th code { background: rgba(255, 255, 255, 0.18); color: #ffffff; }
 td {
   padding: 2.5px 2.8px;
   border-bottom: 1px solid #e2e8f0;
@@ -815,7 +838,12 @@ def _split_manuscript_header(lines: List[str]) -> Tuple[str, str, List[str]]:
 def build_paper_html_and_pdf(bib_map: Dict[str, str]) -> None:
     ms_text = (PAPER_DIR / "manuscript.md").read_text()
     title_line, author_line, body_lines = _split_manuscript_header(ms_text.splitlines())
-    body_html = markdown_to_html_body("\n".join(body_lines), bib_keys=bib_map, base_dir=PAPER_DIR)
+    body_html = markdown_to_html_body(
+        "\n".join(body_lines),
+        bib_keys=bib_map,
+        base_dir=PAPER_DIR,
+        table_captions=PAPER_TABLE_CAPTIONS,
+    )
 
     doc_html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -849,7 +877,7 @@ def build_easy_reading_html_and_pdf(bib_map: Dict[str, str]) -> None:
     # Append 2 key visual figures so the standalone PDF is visually complete
     ez_text += (
         "\n\n---\n\n## 5. Visual Summary Charts\n\n"
-        "![Risk-coverage curves and zero-parameter tail savings (Safe_EV_Sunk_m0 & RT_2F_Min_m0)](../figures/rev_fig1_risk_coverage_ci.png)\n\n"
+        "![Risk-coverage curves and zero-tuned-parameter tail savings (Safe_EV_Sunk_m0 & RT_2F_Min_m0)](../figures/rev_fig1_risk_coverage_ci.png)\n\n"
         "![Fair controls and crop/state breakdown across Onion, Potato, Tomato, NonApple, and Apple](../figures/rev_fig2_ablations_and_crops.png)\n"
     )
     lines = ez_text.splitlines()
@@ -871,7 +899,7 @@ p { text-align: left; }
 <div class="title-banner">
   <span class="meta-pill">Plain-English Pocket-Calculator Edition &bull; Revision v7 Audited</span>
   <h1 class="doc-title">{html.escape(title_line)}</h1>
-  <div class="subline">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code> (<code>4.3 &rarr; 1.2 / 5</code> Difficulty)</div>
+  <div class="subline">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code> (<code>4.3 &rarr; 1.2 / 5</code> Difficulty)</div>
 </div>
 {body_html}
 </body>
@@ -885,7 +913,7 @@ p { text-align: left; }
 
 
 def _tex_escape_plain(s: str) -> str:
-    """Escape plain LaTeX text (outside math & code)."""
+    """Escape plain LaTeX text (outside math & code) into strict 7-bit ASCII."""
     s = s.replace("\\", r"\textbackslash{}")
     for ch, rep in [
         ("&", r"\&"),
@@ -902,7 +930,22 @@ def _tex_escape_plain(s: str) -> str:
     s = s.replace("₹", r"Rs.\,")
     s = s.replace("−", "-").replace("–", "--").replace("—", "---")
     s = s.replace("≤", r"$\le$").replace("≥", r"$\ge$").replace("≠", r"$\ne$")
-    s = s.replace("°", r"$^\circ$").replace("×", r"$\times$").replace("->", r"$\to$")
+    s = s.replace("°", r"$^\circ$").replace("×", r"$\times$").replace("->", r"$\to$").replace("→", r"$\to$")
+    for u_ch, asc_rep in (
+        ("κ", r"$\kappa$"),
+        ("τ", r"$\tau$"),
+        ("α", r"$\alpha$"),
+        ("β", r"$\beta$"),
+        ("γ", r"$\gamma$"),
+        ("σ", r"$\sigma$"),
+        ("λ", r"$\lambda$"),
+        ("Δ", r"$\Delta$"),
+        ("±", r"$\pm$"),
+        ("⇔", r"$\iff$"),
+        ("≈", r"$\approx$"),
+        ("•", r"$\bullet$"),
+    ):
+        s = s.replace(u_ch, asc_rep)
     return s
 
 
@@ -916,9 +959,20 @@ def _format_inline_tex(text: str, bib_keys: set[str]) -> str:
 
     # Code spans
     text = re.sub(r"`([^`]+)`", lambda m: hold(r"\texttt{" + _tex_escape_plain(m.group(1)) + "}"), text)
-    # Inline math spans (replace ₹ cleanly inside math)
+    # Inline math spans (replace Unicode math symbols cleanly into ASCII TeX)
     def _math_fix(m: re.Match) -> str:
-        inner = m.group(1).replace("₹", r"\text{Rs.\,}").replace("−", "-")
+        inner = (
+            m.group(1)
+            .replace("₹", r"\text{Rs.\,}")
+            .replace("−", "-")
+            .replace("–", "-")
+            .replace("×", r"\times ")
+            .replace("≤", r"\le ")
+            .replace("≥", r"\ge ")
+            .replace("≠", r"\ne ")
+            .replace("→", r"\to ")
+            .replace("°", r"^\circ")
+        )
         return hold("$" + inner + "$")
 
     text = re.sub(r"\$([^$\n]+?)\$", _math_fix, text)
@@ -1015,17 +1069,7 @@ def _md_to_tex_blocks(lines: List[str], bib_keys: set[str]) -> List[str]:
                 rows.append(_split_md_table_row(lines[i]))
                 i += 1
             tbl_counter += 1
-            descriptive_caps = {
-                1: "Epistemic classification of observed quantities, causal features, stylized survey-anchored assumptions, bounded unobservables, and out-of-scope mechanisms.",
-                2: "Reconciled data cleaning funnel from raw official portal archives to Top-5 lagged evaluation episodes across the primary 171-market, HP graded-apple, and untouched 2018-2023 panels.",
-                3: "Main equal-menu lagged test benchmark on the zero-lookahead 171-market panel (N = 57,634, 20C closed-yard settlement).",
-                4: "Locked PREREG_A18 four-test inference (R = 2,000, two-sided p_holm_2s_prereg4) alongside unregistered secondary contrasts across three State-prefixed clusterings.",
-                5: "Fair feature, volatility-haircut, Euclidean-distance, and equal-test-dispatch control ablations on the primary 171-market panel.",
-                6: "Missing-quote counterfactual identification bounds on the 171-market panel including non-significant free-return and Open-MAR Mean reversal.",
-                7: "Realized ERA5 settlement, silent-market break-even thresholds, and reconciliation between the legacy 178-market and primary 171-market panels.",
-                8: "Untouched 2018-2023 out-of-period historical backtest (N = 389,357, zero retuning) pooled and disaggregated by year including COVID-19 2020.",
-            }
-            cap_text = _tex_escape_plain(descriptive_caps.get(tbl_counter, f"{re.sub(r'[`*]', '', hdr[0])} summary table."))
+            cap_text = _tex_escape_plain(PAPER_TABLE_CAPTIONS.get(tbl_counter, f"{re.sub(r'[`*]', '', hdr[0])} summary table."))
             tlines = [
                 "\\begin{table}[htbp]\n\\centering\n\\small\n",
                 f"\\caption{{{cap_text}}}\\label{{tab:table{tbl_counter}}}\n",
@@ -1093,7 +1137,9 @@ def build_latex_manuscript(bib_keys: set[str]) -> None:
         + "\n".join(blocks)
         + "\n\\bibliographystyle{plainnat}\n\\bibliography{references}\n\\end{document}\n"
     )
-    # Verify every \cite/\citep key & \includegraphics path
+    # Verify pure 7-bit ASCII, every \cite/\citep key, & \includegraphics path
+    non_ascii = [(idx_c, ch, hex(ord(ch))) for idx_c, ch in enumerate(tex) if ord(ch) > 127]
+    assert not non_ascii, f"Non-ASCII character(s) leaked into manuscript.tex: {non_ascii[:10]}"
     for cg in re.findall(r"\\citep?\{([^\}]+)\}", tex):
         for k in [p.strip() for p in cg.split(",")]:
             assert k in bib_keys, f"Unknown LaTeX cite key: {k}"
@@ -1190,11 +1236,12 @@ def build_docx_manuscript(bib_map: Dict[str, str] | None = None) -> None:
     h.alignment = WD_ALIGN_PARAGRAPH.LEFT
     p_auth = doc.add_paragraph(author_line)
     p_auth.runs[0].bold = True
-    sub = doc.add_paragraph("M.Tech Research Paper • Revision v7 Audited (Zero-Lookahead 171-Mkt Panel, Locked PREREG_A18 R = 2,000, Realized ERA5 & Untouched 2018–2023 Backtest)")
+    sub = doc.add_paragraph("M.Tech Research Paper • Revision v7 Audited (Zero-Lookahead 171-Mkt Panel, Locked PREREG_A18 R = 2,000, Realized ERA5, Clean 166-Mkt 2018–2023 & Phase 6 Stress Suite)")
     sub.runs[0].italic = True
     sub.runs[0].font.color.rgb = RGBColor(0x0F, 0x4C, 0x5C)
 
     i = 0
+    tbl_idx = 0
     in_references = False
     while i < len(lines):
         s = lines[i].strip()
@@ -1261,6 +1308,15 @@ def build_docx_manuscript(bib_map: Dict[str, str] | None = None) -> None:
             while i < len(lines) and lines[i].strip().startswith("|"):
                 rows.append(_split_md_table_row(lines[i]))
                 i += 1
+            tbl_idx += 1
+            if tbl_idx in PAPER_TABLE_CAPTIONS:
+                p_tcap = doc.add_paragraph()
+                rc_b = p_tcap.add_run(f"Table {tbl_idx}: ")
+                rc_b.bold = True
+                rc_b.font.size = Pt(9)
+                rc_t = p_tcap.add_run(PAPER_TABLE_CAPTIONS[tbl_idx])
+                rc_t.italic = True
+                rc_t.font.size = Pt(9)
             tbl = doc.add_table(rows=1 + len(rows), cols=len(hdr))
             tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
             tbl.style = "Table Grid"
@@ -1365,7 +1421,7 @@ def build_viva_slides() -> None:
     slides: List[Tuple[str, str, str]] = [
         (
             "Slide 1 of 12 &bull; Thesis Scope &amp; Question",
-            "When Online Mandi Prices Mislead: Zero-Parameter Dispatch Filtering",
+            "When Online Mandi Prices Mislead: Zero-Tuned-Parameter Dispatch Filtering",
             f"""
             <div class="grid2">
               <div class="card accent">
@@ -1476,7 +1532,7 @@ def build_viva_slides() -> None:
                 <h3>What Previous Methods Got Wrong</h3>
                 <ul>
                   <li><strong>Stage I GBDT + Conformal (`4.3/5`):</strong> Required `sklearn 1.3.0` pickle + ERA5 leaks; confirmatory `H2` stayed inconclusive (`+&#8377;6.13`, `p = 0.2699`).</li>
-                  <li><strong>Hard-Gated `MG_T1_T2_matched` (`4` params, ML-stripped):</strong> Failed `ES10` (`&#8722;&#8377;508.72`, `p_2s = 0.241&ndash;0.343` NS); intact conformal `T1..T4` (`q80=162.5`) reaches `cond_ES10 &#8722;&#8377;531.66` (`v7_exp4`).</li>
+                  <li><strong>Hard-Gated `MG_T1_T2_matched` (`4` params, ML-stripped):</strong> Failed `ES10` (`&#8722;&#8377;508.72`, `p_2s = 0.241&ndash;0.343` NS); strict split-conformal `T1..T4` (`q80=162.5`) reaches `cond_ES10 &#8722;&#8377;525.17` (`v7_exp4`).</li>
                   <li><strong>Tuned `RR_Abstain_matched` (`A10`, `1.6/5`):</strong> Hit grid edge `kappa* = 5.0` (at `kappa=20`, `m_val = &#8722;&#8377;328.99`); ignored `cv28` &amp; Sunday closures.</li>
                 </ul>
               </div>
@@ -1484,7 +1540,7 @@ def build_viva_slides() -> None:
                 <h3>Lower-Bound Heuristic Simplification &amp; ML/OR Pareto</h3>
                 <ul>
                   <li>7 fixed choices (`0` validation-tuned params; NO methodological novelty claimed).</li>
-                  <li>`Safe_EV_Sunk_m0` (`cond_ES10 &#8722;&#8377;447.48`) beats clean `<= t-1` `Ridge` (`&#8722;&#8377;530.30`), `HGBR_EV_TV` (`&#8722;&#8377;523.53`), `Vargas Mean-Var` (`&#8722;&#8377;496.76`), and `HGBR_RiskAverse_L500` (`&#8722;&#8377;512.43`)!</li>
+                  <li>`Safe_EV_Sunk_m0` (`cond_ES10 &#8722;&#8377;447.48`, `63.23%`) beats comparable-coverage `<= t-1` `Ridge` (`&#8722;&#8377;530.30`), `HGBR_EV_TV` (`&#8722;&#8377;523.53`), `Vargas Mean-Var` (`&#8722;&#8377;496.76`), &amp; `HGBR_RiskAverse_L500` (`&#8722;&#8377;512.43`); `Q20` reaches `&#8722;&#8377;444.86` at half disp (`32.83%`, Mean `&#8377;266.43`).</li>
                   <li>Replaced `rep28` Sunday smoothing with `p_dow` + 1-SD `cv28` (`0.21%` fallback; `cv28==0` fix invariant at `&#8722;&#8377;447.65`).</li>
                   <li>Added clean `166`-mkt `2018&ndash;2023` (`383,952`) + NASA POWER &amp; `<= t-2` latency audit (`v7_exp1`).</li>
                 </ul>
@@ -1493,8 +1549,8 @@ def build_viva_slides() -> None:
             """,
         ),
         (
-            "Slide 6 of 12 &bull; The Two Zero-Parameter Rules",
-            "Two Zero-Parameter Pocket-Calculator Equations (`PREREG_A18.md`)",
+            "Slide 6 of 12 &bull; Two Zero-Tuned-Parameter Rules",
+            "Two Tuning-Free Pocket-Calculator Equations (`PREREG_A18.md`)",
             """
             <div class="grid2">
               <div class="card accent">
@@ -1703,6 +1759,7 @@ code { font-family: Menlo, Consolas, monospace; font-size: 9.4pt; background: #e
 .pill-ok { background: #dcfce7; border: 1px solid #86efac; color: #14532d; padding: 6px 9px; border-radius: 5px; font-weight: 600; margin-top: 9px; font-size: 10pt; }
 table { width: 100%; border-collapse: collapse; font-size: 8.8pt; }
 th { background: #0f4c5c; color: #ffffff; padding: 4.5px 5px; text-align: left; }
+th code { background: rgba(255, 255, 255, 0.18); color: #ffffff; }
 td { padding: 4px 5px; border-bottom: 1px solid #e2e8f0; }
 td[style*="right"], th[style*="right"] { white-space: nowrap; }
 tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }

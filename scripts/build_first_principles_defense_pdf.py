@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build Revision v5 First-Principles & Thesis Defense Handbook HTML + PDF.
+"""Build Revision v7 First-Principles & Thesis Defense Handbook HTML + PDF.
 
-Compiles directly from canonical Revision v5 markdown sources:
+Compiles directly from canonical Revision v7 markdown sources:
   - viva/00_career_defense_master_sheet.md
   - paper/12th_class_easy_reading_edition.md
   - final/SIMPLIFIED_DESIGN.md
@@ -33,6 +33,7 @@ from scripts.build_revision_v5_deliverables import (
     FORBIDDEN_LATEX_LEAKS,
     FORBIDDEN_LEGACY_STRINGS,
     PAPER_CSS,
+    PAPER_TABLE_CAPTIONS,
     b64_img,
     markdown_to_html_body,
     render_pdf,
@@ -77,7 +78,7 @@ CHAPTERS = [
     ("Part 1 • Executive Elevator Summary", "45-Second Core Pitch & Headline Ledger", "viva/00_career_defense_master_sheet.md"),
     ("Part 2 • First-Principles Intuition", "Class-12 Pocket-Calculator Walkthrough", "paper/12th_class_easy_reading_edition.md"),
     ("Part 3 • Difficulty Reduction Audit", "How Complexity Dropped 4.3 → 1.2 / 5 (A15 + A18)", "final/DIFFICULTY.md"),
-    ("Part 4 • Simplified Equations", "Zero-Parameter Safe_EV_Sunk_m0 & RT_2F_Min_m0", "final/SIMPLIFIED_DESIGN.md"),
+    ("Part 4 • Simplified Equations", "Zero-Tuned-Parameter Safe_EV_Sunk_m0 & RT_2F_Min_m0", "final/SIMPLIFIED_DESIGN.md"),
     ("Part 5 • Complete Scientific Paper", "Revision v7 Full Manuscript (171 Mkts, R=2,000, ERA5, 2018–2023)", "paper/manuscript.md"),
     ("Part 6 • Literature & Novelty Defense", "18-Work Overlap Matrix & Surviving Claim (NOVELTY_V2)", "final/NOVELTY_V2.md"),
     ("Part 7 • Cleanroom & Examiner Sign-Off", "A16 Parity (₹0.00) & Independent Audit Record", "final/AUDIT_V4.md"),
@@ -103,7 +104,7 @@ def build() -> None:
     <div class="cover">
       <span class="meta-pill">Thesis Defense Compendium &bull; Revision v7 Audited</span>
       <h1>MandiGuard: First-Principles &amp; Thesis Defense Handbook</h1>
-      <div class="sub">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0 Across Primary 171-Mkt (N=57,634) &amp; Clean 166-Mkt 2018&ndash;2023 (N=383,952) Panels</div>
+      <div class="sub">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0 Across Primary 171-Mkt (N=57,634) &amp; Clean 166-Mkt 2018&ndash;2023 (N=383,952) Panels</div>
       <div class="badge-row">
         <span class="badge">0 Free Parameters</span>
         <span class="badge">171-Mkt Primary (N=57,634)</span>
@@ -122,7 +123,12 @@ def build() -> None:
     for idx, (kicker, title, rel) in enumerate(CHAPTERS):
         md_raw = (ROOT / rel).read_text(encoding="utf-8")
         # Rewrite relative figure paths cleanly for b64_img (it strips dirs via .name)
-        body_html = markdown_to_html_body(_strip_top_h1(md_raw), bib_keys=bib_keys, base_dir=(ROOT / rel).parent)
+        body_html = markdown_to_html_body(
+            _strip_top_h1(md_raw),
+            bib_keys=bib_keys,
+            base_dir=(ROOT / rel).parent,
+            table_captions=PAPER_TABLE_CAPTIONS if rel == "paper/manuscript.md" else None,
+        )
         pb_cls = ' class="pb"' if idx > 0 else ""
         sections.append(
             f'<section{pb_cls}>'

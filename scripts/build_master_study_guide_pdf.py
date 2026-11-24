@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble the Revision v5 MandiGuard Master Study Guide into HTML + PDF.
+"""Assemble the Revision v7 MandiGuard Master Study Guide into HTML + PDF.
 
 Inputs  : docs/study_guide_v2_parts/part1_foundations_data.html
           docs/study_guide_v2_parts/part2_method_results.html
@@ -7,7 +7,7 @@ Inputs  : docs/study_guide_v2_parts/part1_foundations_data.html
 Outputs : docs/MandiGuard_Master_Study_Guide.html
           docs/MandiGuard_Master_Study_Guide.pdf
 
-Builds cleanly from Revision v5 fragments referencing `figures/rev_fig1..4*.png`.
+Builds cleanly from Revision v7 fragments referencing `figures/rev_fig1..4*.png`.
 Enforces zero backticks, zero markdown `**`, zero raw LaTeX leaks, zero legacy Stage-I/II claims.
 """
 
@@ -73,6 +73,7 @@ code { font-family: Menlo, Consolas, monospace; font-size: 8.4pt; background: #f
 table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; font-size: 8.1pt; }
 tr { break-inside: avoid; page-break-inside: avoid; }
 th { background: #0b3b5c; color: #fff; padding: 4.5px 5.5px; text-align: left; font-weight: 600; }
+th code { background: rgba(255, 255, 255, 0.18); color: #fff; border-color: transparent; }
 td { border: 1px solid #cbd5e1; padding: 3.8px 5.5px; vertical-align: top; }
 tr:nth-child(even) td { background: #f8fafc; }
 .worked-box, .note-box, .box { border-radius: 7px; padding: 8px 11px; margin: 8px 0 10px 0; break-inside: avoid; border: 1.5px solid #0284c7; background: #f0f9ff; }
@@ -104,20 +105,20 @@ figure.fig-card figcaption { font-size: 8.2pt; color: #475569; margin-top: 3px; 
 COVER = """
 <div class="cover">
   <h1>MandiGuard &mdash; Master Study Guide (Revision v7)</h1>
-  <div class="sub">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Parameter Dispatch Filtering (Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0)<br/>
+  <div class="sub">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter Dispatch Filtering (Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0)<br/>
   Explained from first principles so a motivated student can verify, present, and defend every equation and number</div>
   <span class="pill">Primary 171-Mkt Zero-Lookahead</span><span class="pill">Timing Firewall (&le; t&minus;1 / t&minus;2)</span>
-  <span class="pill">Clean 166-Mkt 2018&ndash;2023 (N=383,952)</span><span class="pill">Zero-Parameter Rules</span>
+  <span class="pill">Clean 166-Mkt 2018&ndash;2023 (N=383,952)</span><span class="pill">Zero-Tuned-Parameter Rules</span>
   <span class="pill">Locked R = 2,000 Holm p = 0.0040</span><span class="pill">Break-Even &amp; Phase 6 Stress</span>
   <span class="pill">59 (Author, Year) Citations</span><span class="pill">Viva Defense Bank</span>
   <div class="box key" style="margin-top:12px;"><strong>The thesis in four sentences:</strong>
-  Online AGMARKNET spreads tempt dispatchers, yet chasing top lagged spreads (<code>B1_lagged_screen</code>) across 57,634 zero-lookahead 171-market test episodes loses money on 45.07% of dispatches (worst-10% <code>ES10 &minus;&#8377;642.15/qtl</code>, with 28.67% turning back sequentially). Earlier black-box trees, weather leaks, and tuned <code>kappa* = 5.0</code> thresholds were audited and retired. Replacing them with zero-parameter <code>Safe_EV_Sunk_m0</code> (weekday reporting probability &times; 1-SD safe spread exceeding sunk freight), settlement-matched <code>Safe_EV_Phys_m0</code> (1.5F), and Class-8 <code>RT_2F_Min_m0</code> lowers losses to 14.88% and strengthens <code>ES10</code> to &minus;&#8377;345.53/qtl (+&#8377;179.24 vs road baseline <code>B2_age_matched</code>; <code>cond_ES10 &minus;&#8377;447.48</code> vs <code>&minus;&#8377;628.37</code>; locked 4-test <code>R = 2,000</code> Holm <code>p = 0.0040</code> across all 3 clusterings, all 6 states on <code>ES10</code>, realized ERA5 / NASA POWER settlement, Phase 6 stress runs including <code>&le; t&minus;2</code> lag and coupled <code>S6_Frozen &times; Stoch_CondMAR</code>, and clean <code>166</code>-market <code>2018&ndash;2023</code>, N = 383,952 &amp; <code>115</code>-mkt N = 325,993). These rules act transparently as an upstream 6 a.m. alert filter ahead of live <em>arhtiya</em> phone calls while disclosing exact silent-market break-even (+&#8377;348.61/qtl above turn-back; 25.45% Open-MAR share), Open-MAR / free-return / hindsight Mean bounds, <code>2020/2023</code> and HP <code>B=12</code> / Apple <code>cond_ES10</code> non-significance, 41.38% HP apple conditional losses, SUTVA crowding bounds (<code>k &le; 2</code>), and blocked future Gate J.</div>
+  Online AGMARKNET spreads tempt dispatchers, yet chasing top lagged spreads (<code>B1_lagged_screen</code>) across 57,634 zero-lookahead 171-market test episodes loses money on 45.07% of dispatches (worst-10% <code>ES10 &minus;&#8377;642.15/qtl</code>, with 28.67% turning back sequentially). Earlier black-box trees, weather leaks, and tuned <code>kappa* = 5.0</code> thresholds were audited and retired. Replacing them with zero-tuned-parameter <code>Safe_EV_Sunk_m0</code> (weekday reporting probability &times; 1-SD safe spread exceeding sunk freight), settlement-matched <code>Safe_EV_Phys_m0</code> (1.5F), and Class-8 <code>RT_2F_Min_m0</code> lowers losses to 14.88% and strengthens <code>ES10</code> to &minus;&#8377;345.53/qtl (+&#8377;179.24 vs road baseline <code>B2_age_matched</code>; <code>cond_ES10 &minus;&#8377;447.48</code> vs <code>&minus;&#8377;628.37</code>; locked 4-test <code>R = 2,000</code> Holm <code>p = 0.0040</code> across all 3 clusterings, all 6 states on <code>ES10</code>, realized ERA5 / NASA POWER settlement, Phase 6 stress runs including <code>&le; t&minus;2</code> lag and coupled <code>S6_Frozen &times; Stoch_CondMAR</code>, and clean <code>166</code>-market <code>2018&ndash;2023</code>, N = 383,952 &amp; <code>115</code>-mkt N = 325,993). These rules act transparently as an upstream 6 a.m. alert filter ahead of live <em>arhtiya</em> phone calls while disclosing exact silent-market break-even (+&#8377;348.61/qtl above turn-back; 25.45% Open-MAR share), Open-MAR / free-return / hindsight Mean bounds, <code>2020/2023</code> and HP <code>B=12</code> / Apple <code>cond_ES10</code> non-significance, 41.38% HP apple conditional losses, SUTVA crowding bounds (<code>k &le; 2</code>), and blocked future Gate J.</div>
 </div>
 
 <h2>Three-Part Roadmap</h2>
 <div class="flow">
   <div class="fbox c1"><strong>Part 1</strong><span>Problem, Epistemic Table 1, Data Funnel, Firewall &amp; Settlement</span></div><div class="farrow">&#10140;</div>
-  <div class="fbox c2"><strong>Part 2</strong><span>Zero-Parameter Formulas, 171-Mkt / Phase 6 Stress &amp; 166-Mkt 2018&ndash;2023</span></div><div class="farrow">&#10140;</div>
+  <div class="fbox c2"><strong>Part 2</strong><span>Zero-Tuned-Parameter Formulas, 171-Mkt / Phase 6 Stress &amp; 166-Mkt 2018&ndash;2023</span></div><div class="farrow">&#10140;</div>
   <div class="fbox c3"><strong>Part 3</strong><span>59 Citations, 18-Work Novelty Overlap, Limitations &amp; Viva Bank</span></div>
 </div>
 """
@@ -165,7 +166,7 @@ def regenerate_parts() -> None:
     )
     p2_raw = (
         '<div class="pb"></div>\n'
-        "<h2>Part 2: Zero-Parameter Dispatch Rules, Experiments, 171-Mkt / ERA5 &amp; Break-Even</h2>\n"
+        "<h2>Part 2: Zero-Tuned-Parameter Dispatch Rules, Experiments, 171-Mkt / ERA5 &amp; Break-Even</h2>\n"
         + markdown_to_html_body(diff_md, bib_keys=bib_keys, base_dir=ROOT / "final")
         + "\n<hr>\n"
         + markdown_to_html_body(ms_part2, bib_keys=bib_keys, base_dir=ROOT / "paper")

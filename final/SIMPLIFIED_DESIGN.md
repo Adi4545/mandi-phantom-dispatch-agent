@@ -1,8 +1,8 @@
-# Simplified Two-Stage Design — Zero-Parameter Decision Architecture (Revision v7)
+# Simplified Two-Stage Design — Zero-Tuned-Parameter Decision Architecture (Revision v7)
 
-This architecture avoids black-box ML overfitting (`PREREG_A10` `H2` inconclusive at `+₹6.13/qtl`, Holm `p = 0.2699`) in favor of transparent, zero-hyperparameter arithmetic evaluated strictly on `<= t - 1` public features across Candidate menus of `K <= 5` reachable destination mandis (`lag_spread > ₹100/qtl`, `dest_lag_age in 1..3` days; loosening `top_k = None` yields `Mean ₹454.37`, `ES10 −₹344.47`, `v7_exp4`).
+This architecture avoids black-box ML overfitting (`PREREG_A10` `H2` inconclusive at `+₹6.13/qtl`, Holm `p = 0.2699`) in favor of transparent, zero-validation-tuned-parameter arithmetic (`7` fixed structural choices) evaluated strictly on `<= t - 1` public features across Candidate menus of `K <= 5` reachable destination mandis (`lag_spread > ₹100/qtl`, `dest_lag_age in 1..3` days; loosening `top_k = None` yields `Mean ₹454.37`, `ES10 −₹344.47`, `v7_exp4`).
 
-## 1. Closed-Form Zero-Parameter Policy Family (`m = 0`)
+## 1. Closed-Form Zero-Tuned-Parameter Policy Family (`m = 0`)
 For every eligible corridor `c = (o -> d)` in state `s` and commodity `k`, define road freight `F_road(c) = 35.0 + 0.45 * h_s * road_km(c)` (`h_s = 1.45` in Himachal Pradesh, `1.0` elsewhere; `30 qtl` load tier) and plain fee-adjusted lagged spread `G(c, t) = P_dest,lag * (1 - tau_fee) - P_orig,lag`:
 
 1. **Historical Arrival-Weekday Reliability & 1-SD Volatility Haircut:**

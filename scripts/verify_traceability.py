@@ -97,7 +97,15 @@ def build_verified_registry(root: Path = ROOT) -> Dict[str, List[str]]:
             "v7_exp1_latency_t2.csv", "v7_exp2_bio_s6_condmar.csv",
             "v7_exp4_ml_pareto_and_formula.csv", "v7_exp5_hygiene_sutva_inference.csv",
         ):
-            grp_cols = [c for c in ("panel", "year", "window", "experiment", "missing_regime", "group", "slice_check", "slice_type", "slice") if c in df.columns]
+            grp_cols = [
+                c for c in (
+                    "panel", "year", "window", "experiment", "missing_regime",
+                    "group", "slice_check", "slice_type", "slice",
+                    "scenario", "decision_mode", "missing_scenario",
+                    "robustness_slice", "match_target", "settlement_mode",
+                )
+                if c in df.columns
+            ]
             groups = [df] if not grp_cols else [g for _, g in df.groupby(grp_cols, dropna=False)]
             diff_cols = [c for c in ("mean", "cond_mean", "ep_loss_rate", "cond_loss_rate", "es10", "cond_es10", "n") if c in df.columns]
             for gdf in groups:

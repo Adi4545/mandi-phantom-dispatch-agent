@@ -1,6 +1,6 @@
 # MandiGuard (Class-12 Pocket-Calculator Edition — Revision v7 Audited)
 
-> **Verified Edition Note:** Synced to `paper/manuscript.md` (`Revision v7`, Aditya Sharma, supervised by Dr. Sonia, Shoolini University, Solan, HP; `59/59` verified citations and `0` untraceable numbers across `23/23` docs). Earlier black-box ML trees (`HistGradientBoostingRegressor`), pseudo-conformal theorems, leaked ERA5 weather in decisions, and tuned penalty cutoffs (`kappa* = 5.0`) have been retired in favor of zero-parameter equations a student or FPO manager can verify with a pocket calculator (`final/DIFFICULTY.md`: complexity cut `4.3 -> 1.2 / 5`).
+> **Verified Edition Note:** Synced to `paper/manuscript.md` (`Revision v7`, Aditya Sharma, supervised by Dr. Sonia, Shoolini University, Solan, HP; `59/59` verified citations and `0` untraceable numbers across `23/23` docs). Earlier black-box ML trees (`HistGradientBoostingRegressor`), pseudo-conformal theorems, leaked ERA5 weather in decisions, and tuned penalty cutoffs (`kappa* = 5.0`) have been retired in favor of zero-tuned-parameter lower-bound equations (`7` fixed structural choices) a student or FPO manager can verify with a pocket calculator (`final/DIFFICULTY.md`: complexity cut `4.3 -> 1.2 / 5`).
 
 ---
 
@@ -15,7 +15,7 @@ Three real costs explain why:
 
 ---
 
-## 2. Two Zero-Parameter Pocket-Calculator Rules (NO Magic Constants, NO Tuning!)
+## 2. Two Zero-Tuned-Parameter Pocket-Calculator Rules (NO Magic Tuning!)
 
 Both rules work on identical `1..3`-day lagged quotes without live weather, ML pickles, or `kappa` grid searches:
 
@@ -47,7 +47,7 @@ Both rules work on identical `1..3`-day lagged quotes without live weather, ML p
 |---|---:|---:|---:|---:|---:|
 | **`B1_lagged_screen`** (`spread > 100`, `1..7`d) | 1 | `100.00%` | `₹384.61` | `45.07%` | `−₹642.15` / `−₹642.15` |
 | **`B2_age_matched`** (`road + fee > ₹200`, `1..3`d) | 1 | `71.73%` | `₹419.62` | `26.43%` | `−₹524.78` / `−₹628.37` |
-| **`MG_matched`** (Hard gates `T1..T4`, `val` `₹133.03`) | 4 | `69.16%` | `₹454.07` | `18.35%` | `−₹508.72` / `−₹638.55` |
+| **`MG_matched`** (Hard gates `T1–T2`, ML-stripped, `₹133.03`) | 4 | `69.16%` | `₹454.07` | `18.35%` | `−₹508.72` / `−₹638.55` |
 | **`RR_Abstain_matched`** (Tuned `kappa* = 5.0`, `₹5.40`) | 2 | `68.75%` | `₹461.41` | `17.07%` | `−₹459.46` / `−₹584.66` |
 | **`Safe_EV_Sunk_m0`** (`p_dow * G_1SD > F`) | **0** | **`63.23%`** | **`₹452.74`** | **`14.88%`** | **`−₹345.53` / `−₹447.48`** |
 | **`Safe_EV_Phys_m0`** (`1.5F`, `0` tuned params) | **0** | `60.84%` | `₹449.52` | **`13.70%`** | **`−₹334.80` / `−₹447.33`** |
