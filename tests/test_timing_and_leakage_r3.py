@@ -613,8 +613,80 @@ def test_harsh_examiner_invariants_v7() -> None:
     vn_size = (ROOT / "revision" / "results" / "verified_numbers.json").stat().st_size
     assert vn_size < 6_500_000, f"verified_numbers.json too large ({vn_size} bytes); check cross-scenario diff bloat"
 
-    exp4 = pd.read_csv(ROOT / "revision" / "results" / "v7_exp4_ml_pareto_and_formula.csv").set_index("policy")
-    assert abs(float(exp4.loc["MG_T1_T2_T3_T4_Intact_matched", "cond_es10"]) - (-525.17)) <= 0.05
+    exp4_raw = pd.read_csv(ROOT / "revision" / "results" / "v7_exp4_ml_pareto_and_formula.csv")
+    exp4 = exp4_raw[exp4_raw["group"] == "ml_or_pareto"].set_index("policy")
+    assert abs(float(exp4.loc["MG_T1_T2_T3_T4_Intact_matched", "cond_es10"]) - (-414.44)) <= 0.05
+
+
+def test_omega_v8_invariants() -> None:
+    """Revision v8 regression checks: sub-yard geocoding, return-leg biology, heteroscedastic CQR, coupled Manski cond_ES10, 2x2 ortho, 17m ML, CGM G*, and prose hygiene."""
+    from src.data.build_road_network import clean_market_query
+    from revision.eval_v7_stress_experiments import _spoil_return_leg, _spoil_vector
+    from scripts.verify_traceability import DEFAULT_DOC_REL_PATHS
+
+    # (a) Sub-yard-first clean_market_query
+    q_cands = clean_market_query("Dindori(Vani)")
+    assert q_cands[0] == "Vani" and "Dindori" in q_cands
+
+    # (b) Repaired _spoil_return_leg >= _spoil_vector on 100% of rows under identical ERA5 inputs
+    sample_df = pd.DataFrame({
+        "Commodity": ["Tomato", "Onion", "Potato", "Apple"],
+        "tau_days": [1.0, 2.0, 1.0, 2.0],
+        "truck_hours": [6.0, 12.0, 8.0, 18.0],
+    })
+    tmax = np.array([38.0, 42.0, 28.0, 18.0])
+    tmin = np.array([26.0, 30.0, 18.0, 8.0])
+    rh = np.array([50.0, 80.0, 75.0, 60.0])
+    rain = np.array([0.0, 40.0, 10.0, 0.0])
+    for mode in ("usda_sched7", "nabcons_24tau", "nabcons_truck"):
+        for wait_d in (0, 1, 2):
+            s_sell = _spoil_vector(sample_df, wait_d, mode, True, tmax, tmin, rh, rain)
+            s_ret = _spoil_return_leg(sample_df, wait_d, mode, True, tmax, tmin, rh, rain)
+            assert np.all(s_ret >= s_sell - 1e-12), f"Return spoilage < sell spoilage for {mode}, w={wait_d}"
+
+    res = ROOT / "revision" / "results"
+    exp_sum = json.loads((res / "v7_exp_summary.json").read_text())
+
+    # (c) Heteroscedastic Split-CQR produces substantial destination re-ranking switches
+    assert int(exp_sum["exp4_ml_pareto_and_formula"]["cqr5m_dest_switches_vs_raw"]) == 8848
+    assert int(exp_sum["exp4_ml_pareto_and_formula"]["cqr17m_dest_switches_vs_raw"]) == 8115
+
+    # (d) Coupled Manski cond_ES10 remains strictly positive on Supp1 and Supp2
+    exp3 = pd.read_csv(res / "v7_exp3_manski_and_open.csv").set_index("analysis")
+    assert float(exp3.loc["Manski_Supp1_div15_openlag", "coupled_dcond_es10_wc"]) > 0.0
+    assert float(exp3.loc["Manski_Supp2_div20_q95", "coupled_dcond_es10_wc"]) > 0.0
+
+    # (e) Exp 6.4 17m ML/OR & 2x2 orthogonal rows exist cleanly
+    exp4 = pd.read_csv(res / "v7_exp4_ml_pareto_and_formula.csv")
+    pols4 = set(exp4["policy"].astype(str))
+    for req_pol in ("ML_17m_MeanQ10_Hybrid_valmatch", "ML_17m_MeanQ10_NoSafeEV_eq63", "Ortho_Pure_cv28_only", "ScaleInv_Safe_EV_24tau"):
+        assert req_pol in pols4, f"Missing v8 Exp 6.4 policy {req_pol}"
+
+    # (f) Exp 6.5 non-collided geocode, common intersection, call priority, outsider & HP Apple rows exist
+    exp5 = pd.read_csv(res / "v7_exp5_hygiene_sutva_inference.csv")
+    slices5 = set(exp5["slice_check"].astype(str))
+    for req_sl in ("PureAll5_NonCollided_Exact_N6605", "CommonIntersection_DS_cap_DB", "PhoneCall_TopK_Open", "Outsider_Mid_LCV_4pctArh", "HP_Apple_ScaleNonInv"):
+        assert req_sl in slices5, f"Missing v8 Exp 6.5 slice {req_sl}"
+
+    # (g) CGM G* finite-sample metadata & 1-way Webb6 relabeling
+    cgm_tbl = exp_sum["exp5_hygiene_sutva_inference"]["cgm_inference_table"]
+    assert len(cgm_tbl) >= 11
+    for rec in cgm_tbl:
+        assert "p_wild_webb6_1w_block_only" in rec
+        assert "g_star_block_warning" in rec
+        assert "atom_at_q10" in rec
+        assert "p_wild_webb6_block_2s" not in rec
+
+    # (h) Forbidden claims / hallucinated phrases absent across all 23 active docs
+    for rel in DEFAULT_DOC_REL_PATHS:
+        txt_l = (ROOT / rel).read_text(encoding="utf-8").lower()
+        for bad in ("propensity", "indian mandi procurement", "dfl procurement", "locked confirmatory inference"):
+            assert bad not in txt_l, f"Forbidden phrase `{bad}` found in {rel}"
+
+    # (i) Pure 7-bit ASCII LaTeX manuscript
+    tex_txt = (ROOT / "paper" / "manuscript.tex").read_text(encoding="utf-8")
+    assert all(ord(c) < 128 for c in tex_txt), "manuscript.tex contains non-ASCII character"
+
 
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble the Revision v7 MandiGuard Master Study Guide into HTML + PDF.
+"""Assemble the Revision v8 (Honest Candidate C Synthesis) MandiGuard Master Study Guide into HTML + PDF.
 
 Inputs  : docs/study_guide_v2_parts/part1_foundations_data.html
           docs/study_guide_v2_parts/part2_method_results.html
@@ -7,8 +7,8 @@ Inputs  : docs/study_guide_v2_parts/part1_foundations_data.html
 Outputs : docs/MandiGuard_Master_Study_Guide.html
           docs/MandiGuard_Master_Study_Guide.pdf
 
-Builds cleanly from Revision v7 fragments referencing `figures/rev_fig1..4*.png`.
-Enforces zero backticks, zero markdown `**`, zero raw LaTeX leaks, zero legacy Stage-I/II claims.
+Builds cleanly from Revision v8 fragments referencing `figures/rev_fig1..4*.png`.
+Enforces zero backticks, zero markdown `**`, zero raw LaTeX leaks, zero stale 5m-starved ML/CQR illusions.
 """
 
 from __future__ import annotations
@@ -104,30 +104,30 @@ figure.fig-card figcaption { font-size: 8.2pt; color: #475569; margin-top: 3px; 
 
 COVER = """
 <div class="cover">
-  <h1>MandiGuard &mdash; Master Study Guide (Revision v7)</h1>
-  <div class="sub">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter Dispatch Filtering (Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0)<br/>
-  Explained from first principles so a motivated student can verify, present, and defend every equation and number</div>
+  <h1>MandiGuard &mdash; Master Study Guide (Revision v8)</h1>
+  <div class="sub">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; 9-Choice Cold-Start Triage (<code>Safe_EV_Sunk_m0</code>, <code>Safe_EV_Phys_m0</code>, <code>RT_2F_Min_m0</code>), <code>2&times;2</code> Orthogonal Audit &amp; <code>17m</code> ML/CQR Frontier<br/>
+  Explained from first principles so a motivated student can verify, present, and defend every equation, mechanism, and boundary</div>
   <span class="pill">Primary 171-Mkt Zero-Lookahead</span><span class="pill">Timing Firewall (&le; t&minus;1 / t&minus;2)</span>
-  <span class="pill">Clean 166-Mkt 2018&ndash;2023 (N=383,952)</span><span class="pill">Zero-Tuned-Parameter Rules</span>
-  <span class="pill">Locked R = 2,000 Holm p = 0.0040</span><span class="pill">Break-Even &amp; Phase 6 Stress</span>
+  <span class="pill">Clean 166-Mkt 2018&ndash;2023 (N=383,952)</span><span class="pill">9 Fixed Choices (0 Tuned Weights)</span>
+  <span class="pill">Exploratory R=2,000 Holm p=0.0040</span><span class="pill">17m ML/CQR + 2&times;2 Decomp</span>
   <span class="pill">59 (Author, Year) Citations</span><span class="pill">Viva Defense Bank</span>
-  <div class="box key" style="margin-top:12px;"><strong>The thesis in four sentences:</strong>
-  Online AGMARKNET spreads tempt dispatchers, yet chasing top lagged spreads (<code>B1_lagged_screen</code>) across 57,634 zero-lookahead 171-market test episodes loses money on 45.07% of dispatches (worst-10% <code>ES10 &minus;&#8377;642.15/qtl</code>, with 28.67% turning back sequentially). Earlier black-box trees, weather leaks, and tuned <code>kappa* = 5.0</code> thresholds were audited and retired. Replacing them with zero-tuned-parameter <code>Safe_EV_Sunk_m0</code> (weekday reporting probability &times; 1-SD safe spread exceeding sunk freight), settlement-matched <code>Safe_EV_Phys_m0</code> (1.5F), and Class-8 <code>RT_2F_Min_m0</code> lowers losses to 14.88% and strengthens <code>ES10</code> to &minus;&#8377;345.53/qtl (+&#8377;179.24 vs road baseline <code>B2_age_matched</code>; <code>cond_ES10 &minus;&#8377;447.48</code> vs <code>&minus;&#8377;628.37</code>; locked 4-test <code>R = 2,000</code> Holm <code>p = 0.0040</code> across all 3 clusterings, all 6 states on <code>ES10</code>, realized ERA5 / NASA POWER settlement, Phase 6 stress runs including <code>&le; t&minus;2</code> lag and coupled <code>S6_Frozen &times; Stoch_CondMAR</code>, and clean <code>166</code>-market <code>2018&ndash;2023</code>, N = 383,952 &amp; <code>115</code>-mkt N = 325,993). These rules act transparently as an upstream 6 a.m. alert filter ahead of live <em>arhtiya</em> phone calls while disclosing exact silent-market break-even (+&#8377;348.61/qtl above turn-back; 25.45% Open-MAR share), Open-MAR / free-return / hindsight Mean bounds, <code>2020/2023</code> and HP <code>B=12</code> / Apple <code>cond_ES10</code> non-significance, 41.38% HP apple conditional losses, SUTVA crowding bounds (<code>k &le; 2</code>), and blocked future Gate J.</div>
+  <div class="box key" style="margin-top:12px;"><strong>The thesis in four sentences (Honest Candidate C Synthesis):</strong>
+  Online AGMARKNET spreads tempt dispatchers, yet chasing top lagged spreads (<code>B1_lagged_screen</code>) across 57,634 zero-lookahead 171-market test episodes loses money on 45.07% of dispatches (worst-10% <code>ES10 &minus;&#8377;642.15/qtl</code>, with 28.67% turning back sequentially). Prior claims that ML fails reflected 5-month off-season training starvation, unnormalized variance penalties (<code>OR_Vargas_MeanVar_g0002</code> <code>&minus;&#8377;511.42</code>), and a homoscedastic CQR bug (0 switches): trained over a full <code>17m</code> season (<code>n_train_17m = 113,374</code>), <code>ML_17m_MeanQ10_Hybrid_eq63</code> hits Mean <code>&#8377;455.83 / ES10 &minus;&#8377;320.02 / cond_ES10 &minus;&#8377;420.57</code> (<code>NoSafeEV_eq63</code> reaches <code>&#8377;458.27 / &minus;&#8377;423.88</code> autonomously) and heteroscedastic Split-CQR unlocks 8,848 (<code>5m</code>) and 8,115 (<code>17m</code>) switches (<code>ML_17m_CQR80_valmatch</code> <code>cond_ES10 &minus;&#8377;367.09</code> at <code>&#8377;364.03</code> Mean), while zero-tuned-weight <code>Safe_EV_Sunk_m0</code> (<code>9</code> fixed structural choices, <code>n_train = 0</code>; <code>p_dow&middot;G_1SD &minus; F &equiv; p_dow(G_1SD &minus; F) + (1 &minus; p_dow)(&minus;1.0F)</code>) captures ~98.8% of <code>MeanQ10</code> Mean (<code>&#8377;452.74</code>) and ~94% of <code>cond_ES10</code> tail protection (<code>&minus;&#8377;447.48</code> vs <code>&minus;&#8377;628.37</code>) with pocket-calculator portability. A <code>2&times;2</code> orthogonal decomposition shows <code>Ortho_Pure_cv28_only</code> (71.91%, <code>cond_ES10 &minus;&#8377;447.13</code>) drives ~100% of tail truncation while <code>Ortho_Pure_pdow_only</code> (84.10%, Mean <code>&#8377;466.68</code>, <code>&minus;&#8377;607.18</code>) drives diversion avoidance and Mean lift, with <code>CommonIntersection_DS_cap_DB</code> (<code>n = 33,398</code>) confirming <code>+&#8377;65.66</code> Mean / <code>+&#8377;53.40</code> <code>ES10</code> pure routing lift; specification-locked exploratory <code>PREREG_A18</code> (<code>p_holm_2s = 0.0040</code>, CGM <code>p_cgm_gstar = 0.00511 / 0.01001</code> &amp; <code>0.04887 / 0.06800</code>, <code>p_wild_webb6_1w_block_only</code>) holds across <code>&le; t&minus;2</code> lag, repaired <code>_spoil_return_leg</code> <code>S6</code> (<code>&#8377;307.39 / &minus;&#8377;725.73</code>; <code>Stoch_CondMAR_p1.00</code> <code>+&#8377;366.85</code>), and <code>166</code> clean markets (<code>2018&ndash;2023</code>, N = 383,952). These rules serve strictly as a 6 a.m. call-priority filter (<code>PhoneCall_TopK_Open</code>) while disclosing HP apple scale non-invariance (<code>F/G_1SD &lt; 0.10</code> on 79.52%; <code>ScaleInv_Safe_EV_24tau</code> cuts <code>ep_loss</code> 27.91% &rarr; 17.92%, <code>cond_ES10 &minus;&#8377;1,616.08</code>), legacy geocode collisions (56/171 collided, 35.23% exact <code>N=6,605</code> <code>p=0.001</code>), <code>Outsider_Mid/MinPrice_LCV_4pctArh</code>, coupled Manski <code>cond_ES10</code> (<code>Supp1 +&#8377;152.20</code>, <code>Supp2 +&#8377;105.96</code>) &amp; 25.45% Open-MAR break-even, UP unconditional <code>q10 = 0</code> atom, <code>2018&ndash;2023</code> reverse-survivorship (481/647), SUTVA <code>k &le; 2</code> crowding bounds, and blocked Gate J.</div>
 </div>
 
 <h2>Three-Part Roadmap</h2>
 <div class="flow">
-  <div class="fbox c1"><strong>Part 1</strong><span>Problem, Epistemic Table 1, Data Funnel, Firewall &amp; Settlement</span></div><div class="farrow">&#10140;</div>
-  <div class="fbox c2"><strong>Part 2</strong><span>Zero-Tuned-Parameter Formulas, 171-Mkt / Phase 6 Stress &amp; 166-Mkt 2018&ndash;2023</span></div><div class="farrow">&#10140;</div>
+  <div class="fbox c1"><strong>Part 1</strong><span>Problem, Epistemic Table 1, Geocode Audit, Firewall &amp; Settlement</span></div><div class="farrow">&#10140;</div>
+  <div class="fbox c2"><strong>Part 2</strong><span>2&times;2 Orthogonal Triage, 17m ML/CQR Frontier, Phase 6 Stress &amp; 2018&ndash;2023</span></div><div class="farrow">&#10140;</div>
   <div class="fbox c3"><strong>Part 3</strong><span>59 Citations, 18-Work Novelty Overlap, Limitations &amp; Viva Bank</span></div>
 </div>
 """
 
 CLOSING = """
 <div class="pb"></div>
-<h1>Closing Verification Note (Revision v7)</h1>
+<h1>Closing Verification Note (Revision v8)</h1>
 <div class="box key">
-  Every metric in this study guide traces directly to committed outputs in <code>revision/results/</code> regenerated via the single-command deterministic pipeline (clean-clone discrepancy <code>0.0</code> across all CSV tables, independent <code>A16</code> parity <code>&#8377;0.00</code>, <code>0</code> untraceable numbers across all <code>23/23</code> active markdown documents, <code>pytest</code> passing, and <code>59/59</code> verified citations). See <code>final/READINESS.md</code> for prospective live FPO piloting next steps.
+  Every metric in this study guide traces directly to committed outputs in <code>revision/results/</code> regenerated via the single-command deterministic pipeline (clean-clone discrepancy <code>0.0</code> across CSV tables, independent <code>A16</code> parity <code>&#8377;0.00</code>, <code>0</code> untraceable numbers verified by traceability checks, <code>pytest</code> passing, and <code>59/59</code> verified citations). See <code>final/READINESS.md</code> for prospective live FPO piloting next steps.
 </div>
 <p class="small">Canonical Sources: paper/manuscript.md, final/SIMPLIFIED_DESIGN.md, final/DIFFICULTY.md, final/NOVELTY_V2.md, final/AUDIT_V4.md, final/LIMITATIONS.md, final/VIVA_QA.md. Rebuild cleanly with: python3 scripts/build_master_study_guide_pdf.py</p>
 """
@@ -141,7 +141,7 @@ def _strip_h1(md: str) -> str:
 
 
 def regenerate_parts() -> None:
-    """Regenerate docs/study_guide_v2_parts/part1..3.html from canonical Revision v7 markdown sources."""
+    """Regenerate docs/study_guide_v2_parts/part1..3.html from canonical Revision v8 markdown sources."""
     PARTS_DIR.mkdir(parents=True, exist_ok=True)
     bib = (ROOT / "paper" / "references.bib").read_text(encoding="utf-8")
     bib_keys = set(re.findall(r"@\w+\{([^,\s]+),", bib))
@@ -161,12 +161,12 @@ def regenerate_parts() -> None:
 
     p1_html = (
         '<div class="pb"></div>\n'
-        "<h2>Part 1: Problem, Epistemic Table 1, Data Provenance &amp; Settlement Physics</h2>\n"
+        "<h2>Part 1: Problem, Epistemic Table 1, Geocode Audit &amp; Settlement Physics</h2>\n"
         + markdown_to_html_body(ms_part1, bib_keys=bib_keys, base_dir=ROOT / "paper")
     )
     p2_raw = (
         '<div class="pb"></div>\n'
-        "<h2>Part 2: Zero-Tuned-Parameter Dispatch Rules, Experiments, 171-Mkt / ERA5 &amp; Break-Even</h2>\n"
+        "<h2>Part 2: 2&times;2 Orthogonal Triage, 17m ML/CQR Frontier, Phase 6 Stress &amp; 2018&ndash;2023</h2>\n"
         + markdown_to_html_body(diff_md, bib_keys=bib_keys, base_dir=ROOT / "final")
         + "\n<hr>\n"
         + markdown_to_html_body(ms_part2, bib_keys=bib_keys, base_dir=ROOT / "paper")
@@ -225,16 +225,16 @@ def main() -> None:
             body = body.replace(ph, "data:image/png;base64," + data)
 
     doc_html = (
-        '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>MandiGuard - Master Study Guide (Revision v7)</title>'
+        '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>MandiGuard - Master Study Guide (Revision v8)</title>'
         "<style>" + CSS + "</style></head><body>" + body + "</body></html>"
     )
     HTML_OUT.write_text(doc_html, encoding="utf-8")
     render_pdf(HTML_OUT, PDF_OUT)
 
     txt = "\n".join((pg.extract_text() or "") for pg in PdfReader(str(PDF_OUT)).pages)
-    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952"):
-        assert req in txt, f"Missing expected Revision v7 token `{req}` in {PDF_OUT.name}"
-    for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22"]:
+    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952", "113,374", "ScaleInv_Safe_EV_24tau"):
+        assert req in txt, f"Missing expected Revision v8 token `{req}` in {PDF_OUT.name}"
+    for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22", "Locked confirmatory"]:
         assert bad not in txt, f"Forbidden string `{bad}` found in {PDF_OUT.name}"
     print(f"Wrote {HTML_OUT.name} & {PDF_OUT.name} ({len(PdfReader(str(PDF_OUT)).pages)} pages, clean)")
 

@@ -57,6 +57,8 @@ FORBIDDEN_LATEX_LEAKS = [
     r"\tau_",
     r"\kappa",
     r"\theta",
+    r"\equiv",
+    r"\cap",
 ]
 
 FORBIDDEN_LEGACY_STRINGS = [
@@ -84,9 +86,9 @@ FORBIDDEN_LEGACY_STRINGS = [
 PAPER_TABLE_CAPTIONS: Dict[int, str] = {
     1: "Epistemic classification of observed quantities, causal <= t - 1 features, stylized survey-anchored assumptions, bounded unobservables, and out-of-scope mechanisms.",
     2: "Main equal-menu lagged test benchmark on the zero-lookahead 171-market panel (N = 57,634, 20C closed-yard settlement) reporting both unconditional ES10 and dispatched cond_ES10.",
-    3: "Locked PREREG_A18 four-test inference (R = 2,000, two-sided p_holm_2s_prereg4) alongside unregistered secondary contrasts across three State-prefixed clusterings.",
-    4: "Fair feature ablations and clean <= t - 1 ML/OR/split-conformal Pareto frontier trained on spillover-purged validation data (N = 57,634), including ultra-conservative ML_HGBR_Q20_m0.",
-    5: "Summary of counterfactual missingness, <= t - 2 portal latency, Schedule #7 x ERA5 x Stoch_CondMAR, and clean non-lookahead 166-market / 115-market 2018-2023 historical archives.",
+    3: "Specification-locked exploratory PREREG_A18 four-test family (R = 2,000, two-sided p_holm_2s_prereg4) alongside unregistered secondary contrasts across three State-prefixed clusterings.",
+    4: "2x2 orthogonal decomposition (cv28 vs p_dow), scale-invariant 24*tau triage, and clean 5m vs 17m ML/OR/heteroscedastic Split-CQR Pareto frontier trained on purged validation data (N = 57,634), including ML_HGBR_Q20_m0.",
+    5: "Summary of counterfactual missingness, <= t - 2 portal latency, repaired return-leg Schedule #7 x ERA5 x Stoch_CondMAR, non-collided geocodes, outsider MinPrice+LCV stress, and clean 166-market 2018-2023 archives.",
 }
 
 
@@ -245,6 +247,8 @@ def latex_to_html_fragment(expr: str) -> str:
         (r"\le", " &#8804; "),
         (r"\ge", " &#8805; "),
         (r"\ne", " &#8800; "),
+        (r"\equiv", " &#8801; "),
+        (r"\cap", " &#8745; "),
         (r"\in", " &#8712; "),
         (r"\dots", "&#8230;"),
         (r"\lfloor", "&#8970;"),
@@ -347,6 +351,8 @@ def latex_to_plain_unicode(expr: str) -> str:
         (r"\le", " ≤ "),
         (r"\ge", " ≥ "),
         (r"\ne", " ≠ "),
+        (r"\equiv", " ≡ "),
+        (r"\cap", " ∩ "),
         (r"\in", " ∈ "),
         (r"\dots", "…"),
         (r"\lfloor", "⌊"),
@@ -856,10 +862,10 @@ def build_paper_html_and_pdf(bib_map: Dict[str, str]) -> None:
 </head>
 <body>
 <div class="title-banner">
-  <span class="meta-pill">M.Tech Research Manuscript &bull; Revision v7 Audited</span>
+  <span class="meta-pill">M.Tech Research Manuscript &bull; Revision v8 Audited</span>
   <h1 class="doc-title">{html.escape(title_line)}</h1>
   <div class="author-line">{html.escape(author_line)}</div>
-  <div class="subline">Zero-Lookahead 171-Mkt Panel &bull; &lt;= t&minus;1 Firewall &bull; Locked PREREG_A18 (R = 2,000) &bull; Realized ERA5/NASA POWER &bull; Clean 166-Mkt 2018&ndash;2023 &bull; Phase 6 Stress Suite</div>
+  <div class="subline">Zero-Lookahead 171-Mkt Panel &bull; &lt;= t&minus;1 Firewall &bull; Exploratory PREREG_A18 (R = 2,000) &amp; CGM G* &bull; 17m ML Frontier &amp; 2&times;2 Split &bull; Clean 166-Mkt 2018&ndash;2023</div>
 </div>
 {body_html}
 </body>
@@ -897,7 +903,7 @@ p { text-align: left; }
 </head>
 <body>
 <div class="title-banner">
-  <span class="meta-pill">Plain-English Pocket-Calculator Edition &bull; Revision v7 Audited</span>
+  <span class="meta-pill">Plain-English Pocket-Calculator Edition &bull; Revision v8 Audited</span>
   <h1 class="doc-title">{html.escape(title_line)}</h1>
   <div class="subline">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code> (<code>4.3 &rarr; 1.2 / 5</code> Difficulty)</div>
 </div>
@@ -943,6 +949,7 @@ def _tex_escape_plain(s: str) -> str:
         ("±", r"$\pm$"),
         ("⇔", r"$\iff$"),
         ("≈", r"$\approx$"),
+        ("∩", r"$\cap$"),
         ("•", r"$\bullet$"),
     ):
         s = s.replace(u_ch, asc_rep)
@@ -1132,7 +1139,7 @@ def build_latex_manuscript(bib_keys: set[str]) -> None:
         "\\usepackage{amsmath,amssymb,booktabs,graphicx,hyperref,natbib,array,xcolor}\n"
         f"\\title{{{_tex_escape_plain(title_line)}}}\n"
         "\\author{Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) \\\\ Shoolini University, Solan, Himachal Pradesh, India}\n"
-        "\\date{Revision v7 --- Cleanroom Reproducible Retrospective Audit}\n"
+        "\\date{Revision v8 --- Cleanroom Reproducible Retrospective Audit}\n"
         "\\begin{document}\n\\maketitle\n\n"
         + "\n".join(blocks)
         + "\n\\bibliographystyle{plainnat}\n\\bibliography{references}\n\\end{document}\n"
@@ -1236,7 +1243,7 @@ def build_docx_manuscript(bib_map: Dict[str, str] | None = None) -> None:
     h.alignment = WD_ALIGN_PARAGRAPH.LEFT
     p_auth = doc.add_paragraph(author_line)
     p_auth.runs[0].bold = True
-    sub = doc.add_paragraph("M.Tech Research Paper • Revision v7 Audited (Zero-Lookahead 171-Mkt Panel, Locked PREREG_A18 R = 2,000, Realized ERA5, Clean 166-Mkt 2018–2023 & Phase 6 Stress Suite)")
+    sub = doc.add_paragraph("M.Tech Research Paper • Revision v8 Audited (Zero-Lookahead 171-Mkt Panel, Exploratory PREREG_A18 R = 2,000 & CGM G*, 17m ML Frontier & 2x2 Split, Clean 166-Mkt 2018–2023)")
     sub.runs[0].italic = True
     sub.runs[0].font.color.rgb = RGBColor(0x0F, 0x4C, 0x5C)
 
@@ -1384,7 +1391,7 @@ def build_docx_manuscript(bib_map: Dict[str, str] | None = None) -> None:
 
 
 def build_viva_slides() -> None:
-    """Build exact 12-slide 16:9 widescreen PDF matching final/SLIDE_OUTLINE.md & Revision v7."""
+    """Build exact 12-slide 16:9 widescreen PDF matching final/SLIDE_OUTLINE.md & Revision v8."""
     splits_df = pd.read_csv(ROOT / "revision" / "results" / "v7_splits_171.csv")
     v7_main = pd.read_csv(ROOT / "revision" / "results" / "v7_main_171.csv").set_index("policy")
     v7_b2k = pd.read_csv(ROOT / "revision" / "results" / "v7_bootstrap_prereg_2000.csv")
@@ -1421,18 +1428,18 @@ def build_viva_slides() -> None:
     slides: List[Tuple[str, str, str]] = [
         (
             "Slide 1 of 12 &bull; Thesis Scope &amp; Question",
-            "When Online Mandi Prices Mislead: Zero-Tuned-Parameter Dispatch Filtering",
+            "When Online Mandi Prices Mislead: Risk-Aware Triage &amp; Orthogonal Audit",
             f"""
             <div class="grid2">
               <div class="card accent">
                 <h3>The Operational Illusion (Zero-Lookahead `171` Mkts)</h3>
                 <p>Portals such as AGMARKNET display neighbouring wholesale spreads above <strong>&#8377;100/qtl</strong>. Chasing raw lagged spreads across <code>57,634</code> test episodes (<code>B1_lagged_screen</code>) loses money on <strong>45.07%</strong> of dispatches (<code>ES10 &#8722;&#8377;642.15/qtl</code>).</p>
-                <p><strong>Role (`A17` #10):</strong> <code>MandiGuard</code> sits at <strong>6 a.m. upstream portal-alert triage</strong> ahead of a 30-second confirmation call to a destination <em>arhtiya</em> &mdash; cutting noise, not replacing trader verification.</p>
+                <p><strong>Role (`PhoneCall_TopK_Open`):</strong> <code>MandiGuard</code> acts as a <strong>6 a.m. call-priority filter</strong> ahead of a 30-second confirmation call to a destination <em>arhtiya</em> &mdash; prioritizing calls, never replacing live verification.</p>
               </div>
               <div class="card">
-                <h3>Primary `171`-Mkt + Clean `166`-Mkt (`2018&ndash;2023`)</h3>
+                <h3>Zero-Data Cold-Start + Full-Season ML Frontier</h3>
                 <div class="kpi-row">
-                  <div class="kpi"><div class="val">0 Tuned</div><div class="lbl">7 fixed choices; NO ML pickles, NO tuned &kappa;, NO weather</div></div>
+                  <div class="kpi"><div class="val">9 Choices</div><div class="lbl">0 tuned weights; 17m Mean-Q10 edges Mean/tail without safe_ev_feat</div></div>
                   <div class="kpi"><div class="val">166 Mkts</div><div class="lbl">Clean 2018&ndash;2023 (N=383,952): +&#8377;{dec_es10_gain:,.2f} ES10 | +&#8377;{dec_cond_es10_gain:,.2f} cond_ES10</div></div>
                 </div>
                 <div class="kpi-row">
@@ -1445,7 +1452,7 @@ def build_viva_slides() -> None:
         ),
         (
             "Slide 2 of 12 &bull; Tracked Data &amp; Reconciled Funnel",
-            "100% Tracked Offline Data &amp; Honest Source Calibration",
+            "100% Tracked Offline Data &amp; Geocode Collision Audit",
             """
             <div class="grid2">
               <div class="card">
@@ -1456,17 +1463,17 @@ def build_viva_slides() -> None:
                   <tr><td>Raw-key dedup / canonical rows</td><td style="text-align:right">254,533 / 245,838</td><td style="text-align:right">616,165 / 614,973</td></tr>
                   <tr><td>Prior-origin (`<= t-1`), OSRM, `spread > 100`</td><td style="text-align:right">93,504 eps</td><td style="text-align:right">383,952 eps</td></tr>
                   <tr><td><strong>Val (`2025-01..05`) / Eval Episodes</strong></td><td style="text-align:right"><strong>35,870 / 57,634</strong></td><td style="text-align:right"><strong>0 / 383,952</strong></td></tr>
-                  <tr><td><em>Unconditional origin / `2017`-active `115` mkt</em></td><td style="text-align:right"><strong>86,054 test</strong></td><td style="text-align:right"><strong>325,993 eps</strong></td></tr>
+                  <tr><td><em>Unconditional / `2017`-active `115` mkt</em></td><td style="text-align:right"><strong>86,054 test</strong></td><td style="text-align:right"><strong>325,993 eps</strong></td></tr>
                   <tr><td><em>HP Graded Apples (`42` yards)</em></td><td style="text-align:right" colspan="2">4,427 raw &rarr; <strong>2,802 test eps</strong> (`val_171` thresholds)</td></tr>
                 </tbody></table>
               </div>
               <div class="card accent">
-                <h3>Tracked Benchmarks &amp; Explicit Stylized Anchors</h3>
+                <h3>Tracked Benchmarks &amp; Forensic Geocodes</h3>
                 <ul>
-                  <li><strong>AGMARKNET (`171` Strict `2024` Mkts):</strong> `>= 80`d in `2024`, `<= 30`/state &mdash; HF mirror (`99.42%` [`171/172`] Tier-1 XML parity).</li>
-                  <li><strong>OSRM Matrix (`8,147` corridors):</strong> `15.19&ndash;499.43 km` (`59.50%` exact rows; `19,362` all-5 exact; no `+4h` buffer).</li>
-                  <li><strong>Stylized APMC Tiers (PIB 154554):</strong> Statutory APMC fees are buyer-paid &amp; PIB `154554` omits UP; `0.5&ndash;1.5%` are stylized friction tiers.</li>
-                  <li><strong>NABCONS Cumulative Decay (PIB 2151371):</strong> Cumulative shares (`3.25%..0.86%`) scaled as stylized 24h benchmark alongside USDA Sched #7.</li>
+                  <li><strong>AGMARKNET (`171` Strict `2024` Mkts):</strong> `>= 80`d in `2024`, `<= 30`/state (`99.42%` [`171/172`] XML parity; reverse-survivorship on `2018&ndash;2023`).</li>
+                  <li><strong>OSRM Matrix (`8,147` corridors):</strong> Legacy `59.50%` exact drops to `35.23%` (`6,605` non-collided eps) across `56` collided markets (`clean_market_query` fixed).</li>
+                  <li><strong>Stylized APMC Tiers (PIB 154554):</strong> Buyer-paid statutory fees &amp; UP omitted; `0.5&ndash;1.5%` are stylized friction tiers.</li>
+                  <li><strong>NABCONS Decay &amp; Weather:</strong> Cumulative shares scaled 24h alongside USDA Sched #7; `<= t-1` weather-free (`100%` ERA5 at settlement).</li>
                 </ul>
               </div>
             </div>
@@ -1524,25 +1531,23 @@ def build_viva_slides() -> None:
             """,
         ),
         (
-            "Slide 5 of 12 &bull; Why Complexity Was Removed",
-            "Evolution Across Audits: `4.3 / 5` &rarr; `1.6 / 5` &rarr; `1.2 / 5` Difficulty",
+            "Slide 5 of 12 &bull; Honest ML/CQR &amp; Orthogonal Audit",
+            "Orthogonal `cv28`/`p_dow` Split &amp; Full-Season `17m` ML/CQR Frontier",
             """
             <div class="grid2">
               <div class="card">
-                <h3>What Previous Methods Got Wrong</h3>
+                <h3>Why `5m` ML &amp; Homoscedastic CQR Misled</h3>
                 <ul>
-                  <li><strong>Stage I GBDT + Conformal (`4.3/5`):</strong> Required `sklearn 1.3.0` pickle + ERA5 leaks; confirmatory `H2` stayed inconclusive (`+&#8377;6.13`, `p = 0.2699`).</li>
-                  <li><strong>Hard-Gated `MG_T1_T2_matched` (`4` params, ML-stripped):</strong> Failed `ES10` (`&#8722;&#8377;508.72`, `p_2s = 0.241&ndash;0.343` NS); strict split-conformal `T1..T4` (`q80=162.5`) reaches `cond_ES10 &#8722;&#8377;525.17` (`v7_exp4`).</li>
-                  <li><strong>Tuned `RR_Abstain_matched` (`A10`, `1.6/5`):</strong> Hit grid edge `kappa* = 5.0` (at `kappa=20`, `m_val = &#8722;&#8377;328.99`); ignored `cv28` &amp; Sunday closures.</li>
+                  <li><strong>`5m` Off-Season Starvation &amp; Quadratic OR:</strong> Training on Jan&ndash;May alone leaves `Ridge` (`&#8722;&#8377;542.58`) / `HGBR EV` (`&#8722;&#8377;543.57`) &amp; squared-INR `OR_Vargas` (`&#8722;&#8377;511.42`) noisy; heteroscedastic Split-CQR (`s80=0.53`, `8,848` switches) cuts `cond_ES10` to `&#8722;&#8377;414.44` (`356.78` Mean).</li>
+                  <li><strong>Full `17m` Cycle (`n=113,374`):</strong> `ML_17m_MeanQ10` hits `&#8377;455.83` (`cond_ES10 &#8722;&#8377;420.57`), and `NoSafeEV` keeps `&#8377;458.27` (`&#8722;&#8377;423.88`) &mdash; GBDTs learn the interaction autonomously (`CQR80` `&#8722;&#8377;367.09` at `&#8377;364.03`).</li>
                 </ul>
               </div>
               <div class="card accent">
-                <h3>Lower-Bound Heuristic Simplification &amp; ML/OR Pareto</h3>
+                <h3>Orthogonal Decomposition &amp; Cold-Start Role</h3>
                 <ul>
-                  <li>7 fixed choices (`0` validation-tuned params; NO methodological novelty claimed).</li>
-                  <li>`Safe_EV_Sunk_m0` (`cond_ES10 &#8722;&#8377;447.48`, `63.23%`) beats comparable-coverage `<= t-1` `Ridge` (`&#8722;&#8377;530.30`), `HGBR_EV_TV` (`&#8722;&#8377;523.53`), `Vargas Mean-Var` (`&#8722;&#8377;496.76`), &amp; `HGBR_RiskAverse_L500` (`&#8722;&#8377;512.43`); `Q20` reaches `&#8722;&#8377;444.86` at half disp (`32.83%`, Mean `&#8377;266.43`).</li>
-                  <li>Replaced `rep28` Sunday smoothing with `p_dow` + 1-SD `cv28` (`0.21%` fallback; `cv28==0` fix invariant at `&#8722;&#8377;447.65`).</li>
-                  <li>Added clean `166`-mkt `2018&ndash;2023` (`383,952`) + NASA POWER &amp; `<= t-2` latency audit (`v7_exp1`).</li>
+                  <li><strong>`cv28` vs `p_dow` (`2x2`, `v7_exp4`):</strong> `Ortho_Pure_cv28_only` (`71.91%`) hits `cond_ES10 &#8722;&#8377;447.13` (~all tail truncation); `Ortho_Pure_pdow_only` (`84.10%`) hits `&#8377;466.68` / `&#8722;&#8377;607.18` (diversion avoidance).</li>
+                  <li><strong>Common Routing (`D_S &cap; D_B`, `n=33,398`):</strong> `+&#8377;65.66` Mean &amp; `+&#8377;53.40` `ES10` inside shared trips (`B2`-only `58.60%` loss).</li>
+                  <li><strong>Cold-Start Niche:</strong> `Safe_EV_Sunk_m0` (`n_train=0`, `9` choices) recovers `&#8377;452.74` Mean / `&#8722;&#8377;447.48` `cond_ES10` (`cv28==0` invariant `&#8722;&#8377;447.65`).</li>
                 </ul>
               </div>
             </div>
@@ -1554,31 +1559,30 @@ def build_viva_slides() -> None:
             """
             <div class="grid2">
               <div class="card accent">
-                <h3>1. `Safe_EV_Sunk_m0` (Scientific &amp; `ES10` Champion, `0` Params)</h3>
-                <div class="eq-s">G<sub>1SD</sub> = P<sub>dest</sub>(1 &minus; cv<sub>28</sub>)(1 &minus; &tau;<sub>fee</sub>) &minus; P<sub>orig</sub></div>
+                <h3>1. `Safe_EV_Sunk_m0` (`9` Fixed Choices, `0` Fitted Weights)</h3>
+                <div class="eq-s">p<sub>dow</sub>&middot;G<sub>1SD</sub> &minus; F &equiv; p<sub>dow</sub>(G<sub>1SD</sub> &minus; F) + (1 &minus; p<sub>dow</sub>)(&minus;1.0F) &nbsp; [G<sub>1SD</sub> = P<sub>d</sub>(1&minus;cv<sub>28</sub>)(1&minus;&tau;)&minus;P<sub>o</sub>]</div>
                 <div class="eq-big">p<sub>dow</sub> &middot; G<sub>1SD</sub> &minus; F<sub>road</sub> &gt; 0 &nbsp;&hArr;&nbsp; G<sub>1SD</sub> / F<sub>road</sub> &gt; 1 / p<sub>dow</sub></div>
-                <p><strong>Worked MP Tomato Route (`200km`, `F=&#8377;125`, `G=&#8377;470`, `cv28=0.15` &rarr; `G_1SD=&#8377;174.50`):</strong></p>
+                <p><strong>Worked MP Tomato (`200km`, `F=&#8377;125`, `G_1SD=&#8377;174.50`):</strong></p>
                 <ul>
                   <li>Steady Yard A (`p_dow = 0.90`): `0.90 &times; 174.50 &minus; 125 = +&#8377;32.05` &rarr; <strong>DISPATCH</strong></li>
-                  <li>Sunday-Closed Yard B (`p_dow = 0.20`): `0.20 &times; 174.50 &minus; 125 = &#8722;&#8377;90.10` &rarr; <strong>ABSTAIN</strong></li>
+                  <li>Sunday Yard B (`p_dow = 0.20`): `0.20 &times; 174.50 &minus; 125 = &#8722;&#8377;90.10` &rarr; <strong>ABSTAIN</strong> (`arg max` ratio switches `5,113`)</li>
                 </ul>
               </div>
               <div class="card">
-                <h3>2. `RT_2F_Min_m0` (Class-8 4-Function Calculator, `0` Params)</h3>
+                <h3>2. `RT_2F_Min_m0` (`0` Params, NO `cv28`) &amp; `ScaleInv_Safe_EV_24tau`</h3>
                 <div class="eq-s">G = P<sub>dest</sub>(1 &minus; &tau;<sub>fee</sub>) &minus; P<sub>orig</sub>, &nbsp;&nbsp; p<sub>min</sub> = min(rep<sub>28</sub>, p<sub>dow</sub>)</div>
-                <div class="eq-big">p<sub>min</sub> &middot; G &minus; 2 F<sub>road</sub> &gt; 0 &nbsp;&hArr;&nbsp; G / (2 F<sub>road</sub>) &gt; 1 / p<sub>min</sub></div>
-                <p><strong>No `cv28` volatility and no NABCONS decay needed!</strong></p>
+                <div class="eq-big">p<sub>min</sub> &middot; G &minus; 2 F<sub>road</sub> &gt; 0 &nbsp;&nbsp;(Omits `cv28` &rarr; tail risk stays high)</div>
                 <ul>
-                  <li>Steady Yard A (`p_min = 0.85`): `0.85 &times; 470 &minus; 250 = +&#8377;149.50` &rarr; <strong>DISPATCH</strong></li>
-                  <li>Sunday Yard B (`p_min = 0.20`): `0.20 &times; 470 &minus; 250 = &#8722;&#8377;156.00` &rarr; <strong>ABSTAIN</strong> (`B2` chased `+&#8377;345`!)</li>
+                  <li>Steady Yard A (`p_min = 0.85`): `+&#8377;149.50`; Sunday B (`0.20`): `&#8722;&#8377;156.00`.</li>
+                  <li><strong>Scale Fix (`24&tau;` + `1.5F`):</strong> Prevents high-price collapse (`HP F/G &lt; 0.10` on `79.52%`), cutting `171`-mkt losses to `11.33%` (`cond_ES10 &#8722;&#8377;421.27`).</li>
                 </ul>
               </div>
             </div>
             """,
         ),
         (
-            "Slide 7 of 12 &bull; Primary `171`-Mkt Results &amp; Locked `R = 2,000` Inference",
-            "Primary Benchmark (`N = 57,634`, Locked `PREREG_A18` `p_holm_2s = 0.0040`)",
+            "Slide 7 of 12 &bull; Primary `171`-Mkt Results &amp; Finite-Sample CGM `G*`",
+            "Primary Benchmark (`N = 57,634`, Exploratory `PREREG_A18` `p_holm_2s = 0.0040`)",
             f"""
             <div class="grid-img">
               <div class="card">
@@ -1591,24 +1595,24 @@ def build_viva_slides() -> None:
                   <tr class="hl"><td><strong><code>Safe_EV_Phys_m0</code> (`0`)</strong></td><td style="text-align:right">60.84%</td><td style="text-align:right">&#8377;449.52</td><td style="text-align:right"><strong>13.70%</strong></td><td style="text-align:right"><strong>&#8722;&#8377;334.80</strong></td><td style="text-align:right"><strong>&#8722;&#8377;447.33</strong></td></tr>
                   <tr class="hi"><td><strong><code>RT_2F_Min_m0</code> (`0`)</strong></td><td style="text-align:right">64.79%</td><td style="text-align:right"><strong>&#8377;463.98</strong></td><td style="text-align:right">16.21%</td><td style="text-align:right">&#8722;&#8377;464.84</td><td style="text-align:right">&#8722;&#8377;618.35</td></tr>
                 </tbody></table>
-                <p class="small"><strong>Locked `PREREG_A18` (`R = 2,000`):</strong> ALL 4 contrasts pass `p_holm_2s = 0.0040` (`H_A18_2` CGM `G*` `b2dest` `p=0.066`, `p_stud=0.057`, joint `val+test` `p=0.0030`). `Safe_EV_Phys` `cond_ES10` leads `Safe_EV_Sunk` by only `+&#8377;0.15`; `RT_2F` `cond_ES10` collapses under `t-2` (`p=0.981`).</p>
+                <p class="small"><strong>Exploratory `PREREG_A18` (`R = 2,000`):</strong> All 4 pass `p_holm_2s = 0.0040` (`H_A18_1` CGM `p=0.005/0.010`, `p_stud=0.001`; `H_A18_2` `p_cgm=0.049/0.068`, `p_stud=0.012/0.057`, joint `p=0.0030`, `p_wild_webb6_1w=0.0005`). `Safe_EV_Phys` `cond_ES10` leads by only `+&#8377;0.15`.</p>
               </div>
               <div class="img-pane"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"></div>
             </div>
             """,
         ),
         (
-            "Slide 8 of 12 &bull; Fair Controls &amp; Crop Splits (`171` Mkts)",
-            "Equal-Dispatch Controls, Volatility Ablations &amp; Crops (`rev_fig2`)",
+            "Slide 8 of 12 &bull; Fair Controls, Non-Collided Geocodes &amp; Reality Stress",
+            "Equal Controls, Repaired `S6`, Non-Collided Exact &amp; Outsider LCV (`rev_fig2`)",
             f"""
             <div class="grid-img">
               <div class="card">
-                <h3>What Fair Controls Prove (`v7_ablations_171.csv`)</h3>
+                <h3>What Adversarial Checks Prove (`v7_exp1..5`)</h3>
                 <ul>
-                  <li><strong>Equal Test Dispatch (`63.23%`):</strong> `B2_test_matched` (`th=&#8377;295.00`) gives `ES10 &#8722;&#8377;501.23`, `cond_ES10 &#8722;&#8377;644.95` &mdash; `Safe_EV_Sunk_m0` still leads by <strong>`+&#8377;155.70` `ES10` / `+&#8377;197.47` `cond_ES10`</strong>.</li>
-                  <li><strong>`<= t-2` Latency (`N=57,047`):</strong> `Safe_EV` preserves `+&#8377;188.07` `cond_ES10` (`p=0.001`); `RT_2F` turns NS (`p=0.981`).</li>
-                  <li><strong>Schedule #7 &times; `4%` *Arhtiya* &times; `Stoch_CondMAR_p1.00`:</strong> `Safe_EV` retains `+&#8377;366.85` `cond_ES10` (`&#8722;&#8377;595.27` vs `&#8722;&#8377;962.12`).</li>
-                  <li><strong>SUTVA Crowding (`max=27`):</strong> Uncapped `10%`/truck penalty cuts Mean to `&#8722;&#8377;5.31`; `k &le; 2` cap keeps `&#8377;207.00` Mean &amp; `&#8722;&#8377;523.12` `cond_ES10`.</li>
+                  <li><strong>Equal Dispatch (`63.23%`):</strong> `B2_test_matched` gives `cond_ES10 &#8722;&#8377;644.95`; `Safe_EV` leads by `+&#8377;197.47`. Under `<= t-2` (`N=57,047`), `Safe_EV` keeps `cond_ES10` (`p=0.001`); `RT_2F` fails (`p=0.981`).</li>
+                  <li><strong>Repaired Return-Leg `S6` (`ERA5`):</strong> `Safe_EV` `&#8377;307.39 / &#8722;&#8377;725.73 cond_ES10` vs `B2 &#8377;247.15 / &#8722;&#8377;969.71`; `Stoch_CondMAR_p1.00` `+&#8377;366.85 cond_ES10`.</li>
+                  <li><strong>Non-Collided Exact (`N=6,605`, `35.23%`):</strong> `Safe_EV` `ES10 &#8722;&#8377;231.27` vs `&#8722;&#8377;449.14` (`p=0.001`); `Outsider_MinPrice_LCV` `&#8377;102.62` (`34.29%` loss) vs `B2 &#8377;33.86`.</li>
+                  <li><strong>SUTVA Crowding (`max=27`):</strong> `10%`/truck drops Mean to `&#8722;&#8377;5.31`; `k &le; 2` preserves `&#8377;207.00` Mean &amp; `&#8722;&#8377;523.12 cond_ES10`.</li>
                 </ul>
               </div>
               <div class="img-pane"><img src="{b64_img('rev_fig2_ablations_and_crops.png')}" alt="Fair Ablations and Crops"></div>
@@ -1630,7 +1634,7 @@ def build_viva_slides() -> None:
                 <h3>Complete Subgroup Transparency (`v7_splits_171.csv`)</h3>
                 <ul>
                   <li><strong>All 5 Crop-Slice `ES10` Wins:</strong> NonApple `+&#8377;134.80`, Onion `+&#8377;121.24`, Potato `+&#8377;70.61`, Tomato `+&#8377;197.24`, Apple `+&#8377;560.81` (`Holm11 &le; 0.039`; Potato `&#8722;&#8377;17.20` vs `RR`).</li>
-                  <li><strong>Honest `cond_ES10` &amp; Small-Cluster Limits:</strong> HP (`B=12`) is <strong>NS</strong> on `cond_ES10` (`+&#8377;250.82`, `p=0.124`) &amp; `p_stud=0.186`; Apple is borderline (`p_stud=0.058`, `cond_ES10 p=0.055`). `Safe_EV` Mean CIs cross zero in GJ/MH/UP/Tomato/Apple (`RT_2F` wins all 11 Mean slices).</li>
+                  <li><strong>Honest `cond_ES10` &amp; Small-Cluster Limits:</strong> HP (`B=12`, `g*=1.54` warn) is <strong>NS</strong> on `cond_ES10` (`+&#8377;250.82`, `p=0.124`) &amp; `p_stud=0.188` (`p_cgm=0.299`); Apple is borderline (`p_stud=0.059`, `cond_ES10 p=0.055`); UP shows `q10=0` atom (`7.28% < 10%`).</li>
                 </ul>
               </div>
             </div>
@@ -1644,7 +1648,7 @@ def build_viva_slides() -> None:
               <div class="card">
                 <ul>
                   <li><strong>36 / 36 Tornado Cells (`171` Mkts):</strong> `Safe_EV` wins `36/36` on Mean (`+&#8377;15.03..+&#8377;61.22`), `ES10` (`+&#8377;114.97..+&#8377;263.60`), &amp; `cond_ES10` (`+&#8377;172.97..+&#8377;322.24`).</li>
-                  <li><strong>Manski &amp; Negative Mean Regimes:</strong> `div=0` Mean is NS (`p=0.220&ndash;0.256`); `hindsight_3d` &amp; Open-MAR reverse Mean (`B2 +&#8377;97.01`); true worst-case Manski `Supp1..3` coupled Means (`&#8722;&#8377;125..&#8722;&#8377;325`) favor `B2`, while `Safe_EV` keeps `ES10` (`+&#8377;175..+&#8377;260`) on cross-crop MNAR &amp; `86,054` symmetric-origin panels.</li>
+                  <li><strong>Coupled Manski &amp; Negative Mean Regimes:</strong> `div=0` Mean is NS (`p=0.220&ndash;0.256`); Open-MAR reverses Mean (`B2 +&#8377;97.01`); worst-case Means (`&#8722;&#8377;125..&#8722;&#8377;325`) favor `B2`, yet exact coupled Manski **`cond_ES10`** stays strictly positive on `Supp1` (`[+&#8377;152.20, +&#8377;328.28]`) &amp; `Supp2` (`[+&#8377;105.96, +&#8377;394.89]`, vs decoupled `&#8722;&#8377;0.51`).</li>
                   <li><strong>Break-Even (`171`-Mkt):</strong> `+&#8377;{float(be_20c["breakeven_silent_extra_inr"]):,.2f}` shift (`+&#8377;{float(be_20c["breakeven_silent_abs_payoff_inr"]):,.2f}` flat; `{float(be_20c["breakeven_open_mar_share_pct"]):.2f}%` MAR; thin `29.78%` if thick=0).</li>
                 </ul>
               </div>
@@ -1659,9 +1663,9 @@ def build_viva_slides() -> None:
             <div class="grid-img">
               <div class="card">
                 <ul>
-                  <li><strong>Clean `166`-Mkt `2018&ndash;2023` (`N=383,952`, `0` Retuning):</strong> Excludes 7 lookahead yards; `Safe_EV` vs `B2` (`+&#8377;{dec_es10_gain:,.2f} ES10`, `+&#8377;{dec_cond_es10_gain:,.2f} cond_ES10`, `p=0.001`; vs `B2_eq`: `+&#8377;174.27` `cond_ES10`). Holds on `115`-mkt `2017`-active (`325,993`) &amp; NASA POWER &times; Sched #7 (`cond_ES10 &#8722;&#8377;473.26` vs `&#8722;&#8377;644.03`), while `2020`/`2023` Means are NS (`p=0.208`/`0.077`).</li>
+                  <li><strong>Clean `166`-Mkt `2018&ndash;2023` (`N=383,952`, Reverse-Survivorship `2024` Frame):</strong> `+&#8377;{dec_es10_gain:,.2f} ES10`, `+&#8377;{dec_cond_es10_gain:,.2f} cond_ES10` (`p=0.001`; `NASA × USDA_Sched7` `cond_ES10 &#8722;&#8377;507.15` vs `&#8722;&#8377;693.39`); `2020`/`2023` Means NS (`p=0.208`/`0.077`).</li>
                   <li><strong>Realized ERA5 &amp; `178&rarr;171` Gap:</strong> `Safe_EV` gains `+&#8377;{es10_gain_era171:,.2f} ES10` (break-even `+&#8377;{float(be_era["breakeven_silent_extra_inr"]):,.2f}`); `B1` shifts `&#8722;&#8377;{abs(float(v7_rec.loc['B1_lagged_screen','shift_total_178_20C_to_171_ERA5'])):.2f}` (`&#8722;&#8377;13.26` + `&#8722;&#8377;17.90`).</li>
-                  <li><strong>HP Apples (`N=2,802`, `val_171`):</strong> `ES10 &#8722;&#8377;1,454.86` vs `&#8722;&#8377;2,392.12` (`p=0.002`), yet `cond_ES10` (`+&#8377;613.46`, `p=0.094` NS) &amp; `41.38%` cond loss confirm trader call need.</li>
+                  <li><strong>HP Apple Scale Non-Invariance (`N=2,802`):</strong> `F/G &lt; 0.10` (`79.52%`) breaks `cond_ES10` (`p=0.094` NS, `41.38%` loss); `ScaleInv_Safe_EV_24tau` cuts `ep_loss` to `17.92%` (`cond_ES10 &#8722;&#8377;1,616.08`).</li>
                 </ul>
               </div>
               <div class="img-pane"><img src="{b64_img('rev_fig4_settlement_and_hp_apple.png')}" alt="2018-2023 Backtest and HP Apples"></div>
@@ -1684,7 +1688,7 @@ def build_viva_slides() -> None:
               <div class="card">
                 <h3>Explicit Boundaries (`PARTIALLY SUPPORTED`) &amp; Next Step</h3>
                 <ul>
-                  <li>Zero validation-tuned params (`7` fixed choices); no methodological novelty claimed; strictly 6 a.m. alert triage before *arhtiya* phone calls.</li>
+                  <li>Zero validation-tuned params (`9` fixed choices); strictly 6 a.m. call-priority triage (`PhoneCall_TopK_Open`) before *arhtiya* calls.</li>
                   <li>Stylized buyer-paid vs `0.5&ndash;1.5%` fee tiers, NABCONS cumulative anchors, &amp; `2024`-active OSRM offline corridor frame.</li>
                   <li>Disclosed Mean/tail limits: Manski/Open-MAR reversals, `div=0` &amp; `2020/2023` NS Mean, HP `B=12` / Apple `cond_ES10` NS, SUTVA `max=27` crowding.</li>
                   <li><strong>Gate J (`BLOCKED` prospectively):</strong> Bulk portal stops `2026-04-13`; next step is a 1-season FPO field pilot logging live calls &amp; truck *patti* slips.</li>
@@ -1720,7 +1724,7 @@ def build_viva_slides() -> None:
             f"""<section class="slide">
               <header class="s-head"><div class="kicker">{kicker_clean}</div><h1>{heading_clean}</h1></header>
               <main class="s-body">{body_clean}</main>
-              <footer class="s-foot"><span>Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; MandiGuard Revision v7</span><span>Slide {idx_s} / 12</span></footer>
+              <footer class="s-foot"><span>Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; MandiGuard Revision v8</span><span>Slide {idx_s} / 12</span></footer>
             </section>"""
         )
 
@@ -1768,7 +1772,7 @@ tr.hi, tr.hl { background: #ecfdf5; font-weight: 700; }
 .s-foot { border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 8.6pt; color: #64748b; display: flex; justify-content: space-between; }
 """
     deck_html = f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Viva Defense Slides (Revision v7)</title><style>{deck_css}</style></head>
+<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Viva Defense Slides (Revision v8)</title><style>{deck_css}</style></head>
 <body>{''.join(slides_html)}</body></html>"""
 
     html_out = VIVA_DIR / "MandiGuard_Viva_Defense_Slides.html"
@@ -1803,7 +1807,7 @@ def main() -> None:
     docx_txt = "\n".join([p.text for p in docx_doc.paragraphs] + [c.text for t in docx_doc.tables for row in t.rows for c in row.cells])
     for bad in ("[jensen2007digital]", "[baulch1997transfer]", "exploratory: true", "make reproduce", "TO CONFIRM"):
         assert bad not in docx_txt, f"Forbidden string `{bad}` found in MandiGuard_Research_Paper.docx"
-    print("ALL Revision v7 core deliverables built & verified cleanly!")
+    print("ALL Revision v8 core deliverables built & verified cleanly!")
 
 
 if __name__ == "__main__":

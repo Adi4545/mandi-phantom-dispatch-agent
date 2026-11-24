@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build Revision v7 beginner-friendly (Class 10-12 level) MandiGuard Student Study Guide.
+"""Build Revision v8 (Honest Candidate C Synthesis) beginner-friendly (Class 10-12 level) MandiGuard Student Study Guide.
 
-Generates cleanly from canonical Revision v7 sources:
+Generates cleanly from canonical Revision v8 sources:
   1. docs/MandiGuard_Student_Study_Guide.html
   2. docs/MandiGuard_Student_Study_Guide.pdf
 
-Zero legacy Stage-I/II stale claims, zero hardcoded home paths, portable Chrome PDF.
+Zero stale 5m-starved ML/CQR illusions, zero hardcoded home paths, portable Chrome PDF.
 """
 
 from __future__ import annotations
@@ -60,22 +60,22 @@ def build() -> None:
     parts = [
         ("Chapter 1 &bull; Class-12 Intuition &amp; Pocket-Calculator Guide", "paper/12th_class_easy_reading_edition.md"),
         ("Chapter 2 &bull; Plain-English Complete Explanation", "viva/01_plain_english_complete_guide.md"),
-        ("Chapter 3 &bull; Why Complexity Dropped 4.3 &rarr; 1.2 / 5", "final/DIFFICULTY.md"),
+        ("Chapter 3 &bull; Complexity Audit, 2&times;2 Split &amp; 17m ML Frontier", "final/DIFFICULTY.md"),
         ("Chapter 4 &bull; Top 10 Viva Questions &amp; Simple Answers", "final/VIVA_QA.md"),
-        ("Chapter 5 &bull; What This Research Does NOT Claim (R6 &amp; R7)", "final/LIMITATIONS.md"),
+        ("Chapter 5 &bull; What This Research Does NOT Claim (14 Boundaries)", "final/LIMITATIONS.md"),
     ]
     blocks = [
         """
         <div class="title-banner">
-          <span class="ch-pill">Student Study Guide (Class 10&ndash;12 Level) &bull; Revision v7 Audited</span>
+          <span class="ch-pill">Student Study Guide (Class 10&ndash;12 Level) &bull; Revision v8 Audited</span>
           <h1 class="doc-title">MandiGuard Student Study Guide: Pocket-Calculator Dispatch Filtering</h1>
-          <div class="subline">Aditya Sharma (Supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter <code>Safe_EV_Sunk_m0</code> &amp; Class-8 <code>RT_2F_Min_m0</code></div>
+          <div class="subline">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; 9-Choice <code>Safe_EV_Sunk_m0</code>, <code>ScaleInv_Safe_EV_24tau</code> &amp; Class-8 <code>RT_2F_Min_m0</code></div>
         </div>
         <div class="step-row">
           <div class="step-card"><strong>Step 1: Problem</strong>Lagged AGMARKNET screens lose 45.07% (<code>ES10 &minus;&#8377;642.15</code>, N=57,634)</div>
-          <div class="step-card"><strong>Step 2: 2 Rules</strong><code>p_dow&middot;G_1SD &gt; F</code> and <code>p_min&middot;G &gt; 2F</code> (0 params)</div>
-          <div class="step-card"><strong>Step 3: Proof</strong>+&#8377;179.24 ES10 (<code>p_holm_2s=0.0040</code>, R=2k) &amp; 6/6 yrs 2018&ndash;2023 (<code>166 Mkts, N=383,952</code>)</div>
-          <div class="step-card"><strong>Step 4: Honesty</strong>6 a.m. filter before phone calls; negative Mean limits &amp; Gate J disclosed</div>
+          <div class="step-card"><strong>Step 2: 2 Rules &amp; 2&times;2</strong><code>p_dow&middot;G_1SD &gt; F</code> (<code>cv28</code> cuts tail, <code>p_dow</code> lifts Mean) &amp; <code>p_min&middot;G &gt; 2F</code></div>
+          <div class="step-card"><strong>Step 3: Proof &amp; ML</strong>+&#8377;179.24 ES10, +&#8377;180.89 cond_ES10 (~98.8% of 17m ML Mean); 6/6 yrs 2018&ndash;2023 (N=383,952)</div>
+          <div class="step-card"><strong>Step 4: Honesty</strong>6 a.m. call filter (<code>PhoneCall_TopK_Open</code>); Open-MAR, HP scale &amp; Gate J limits</div>
         </div>
         """
     ]
@@ -86,25 +86,25 @@ def build() -> None:
 
     blocks.append(
         f"""<section class="pb">
-        <h2>Chapter 6 &bull; Key Revision v7 Visual Charts</h2>
-        <figure class="fig-card"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"><figcaption>Figure 1: Risk-coverage curves showing zero-tuned-parameter Safe_EV_Sunk_m0 and RT_2F_Min_m0 outperforming age-matched road dispatch and hard gates across 57,634 primary 171-market episodes.</figcaption></figure>
-        <figure class="fig-card"><img src="{b64_img('rev_fig2_ablations_and_crops.png')}" alt="Fair Controls and Crops"><figcaption>Figure 2: Equal-dispatch and fixed-haircut ablations (left) and worst-10% ES10 gains across every crop subset including Apple (right) on the 171-market panel.</figcaption></figure>
-        <figure class="fig-card"><img src="{b64_img('rev_fig3_sensitivity_tornado_and_missing.png')}" alt="Sensitivity and Missing Bounds"><figcaption>Figure 3: Parameter tornado stability across 10 representative freight/commission shifts from the 18-scenario suite (left) and missing-quote identification bounds including Open-MAR Mean reversal (right).</figcaption></figure>
-        <figure class="fig-card"><img src="{b64_img('rev_fig4_settlement_and_hp_apple.png')}" alt="2018-2023 Backtest and HP Apples"><figcaption>Figure 4: Clean 166-market 2018&ndash;2023 annual ES10 generalization across six years including 2020 COVID-19 (N = 383,952, left) and HP graded apples (N = 2,802, right).</figcaption></figure>
+        <h2>Chapter 6 &bull; Key Revision v8 Visual Charts</h2>
+        <figure class="fig-card"><img src="{b64_img('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage"><figcaption>Figure 1: Risk-coverage curves showing 9-choice zero-tuned-weight Safe_EV_Sunk_m0 and RT_2F_Min_m0 against age-matched road dispatch and hard gates across 57,634 primary 171-market episodes (capturing ~98.8% of full-season 17m MeanQ10 Mean and ~94% of cond_ES10 protection at n_train = 0).</figcaption></figure>
+        <figure class="fig-card"><img src="{b64_img('rev_fig2_ablations_and_crops.png')}" alt="Fair Controls and Crops"><figcaption>Figure 2: Equal-dispatch and fixed-haircut ablations (left) and worst-10% ES10 gains across every crop subset including Apple (right) on the 171-market panel (disclosing UP unconditional q10=0 atom and HP B=12 / Apple cond_ES10 limits).</figcaption></figure>
+        <figure class="fig-card"><img src="{b64_img('rev_fig3_sensitivity_tornado_and_missing.png')}" alt="Sensitivity and Missing Bounds"><figcaption>Figure 3: Parameter tornado stability across 10 representative freight/commission shifts from the 18-scenario suite (left) and missing-quote identification bounds including Open-MAR Mean reversal and exact coupled Manski cond_ES10 (right).</figcaption></figure>
+        <figure class="fig-card"><img src="{b64_img('rev_fig4_settlement_and_hp_apple.png')}" alt="2018-2023 Backtest and HP Apples"><figcaption>Figure 4: Clean 166-market 2018&ndash;2023 annual ES10 generalization (reverse-survivorship conditioned on 2024 corridor inclusion, 481/647 excluded, N = 383,952, left) and HP graded apples (N = 2,802, right, where F/G_1SD &lt; 0.10 on 79.52% drives scale non-invariance partially solved by ScaleInv_Safe_EV_24tau).</figcaption></figure>
         </section>"""
     )
 
     doc_html = f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Student Study Guide (Revision v7)</title>
+<html lang="en"><head><meta charset="utf-8"><title>MandiGuard Student Study Guide (Revision v8)</title>
 <style>{PAPER_CSS}\n{STUDENT_CSS}</style></head>
 <body>{''.join(blocks)}</body></html>"""
     HTML_OUT.write_text(doc_html, encoding="utf-8")
     render_pdf(HTML_OUT, PDF_OUT)
 
     txt = "\n".join((pg.extract_text() or "") for pg in PdfReader(str(PDF_OUT)).pages)
-    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952"):
-        assert req in txt, f"Missing expected Revision v7 token `{req}` in {PDF_OUT.name}"
-    for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22"]:
+    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952", "ScaleInv_Safe_EV_24tau"):
+        assert req in txt, f"Missing expected Revision v8 token `{req}` in {PDF_OUT.name}"
+    for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22", "Locked confirmatory"]:
         assert bad not in txt, f"Forbidden string `{bad}` found in {PDF_OUT.name}"
     print(f"Wrote {HTML_OUT.name} & {PDF_OUT.name} ({len(PdfReader(str(PDF_OUT)).pages)} pages, clean)")
 

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Build the Ultra-Simplified Concept & Most Relevant Research Papers PDF (Revision v7).
+"""Build the Ultra-Simplified Concept & Most Relevant Research Papers PDF (Revision v8).
 
 Designed for effortless, first-principles understanding and confident oral viva defense.
-Grounded 100% in verified Revision v7 outputs (primary 2024-only 171-market panel N = 57,634,
-locked PREREG_A18 4-test R = 2,000 inference, and clean 166-market 2018-2023 N = 383,952 backtest).
+Grounded 100% in verified Revision v8 (Honest Candidate C Synthesis) outputs:
+  - Primary 2024-only 171-market panel N = 57,634 (n_train_17m = 113,374 for 17m ML/CQR)
+  - Specification-locked exploratory PREREG_A18 4-test R = 2,000 inference + CGM G*
+  - Clean 166-market 2018-2023 N = 383,952 reverse-survivorship archive (481/647 excluded)
 Outputs:
   - docs/MandiGuard_Ultra_Simplified_Concept_and_Key_Papers_Guide.html
   - docs/MandiGuard_Ultra_Simplified_Concept_and_Key_Papers_Guide.pdf
@@ -242,21 +244,21 @@ figcaption { font-size: 7.6pt; color: #475569; text-align: left; margin-top: 2.5
 
 HTML_BODY = f"""
 <div class="hero">
-  <span class="tag">Ultra-Simplified Visual Concept &amp; Literature Guide &bull; Revision v7</span>
-  <h1>MandiGuard Explained Simply:<br/>The Full Concept, Simple Math &amp; Top 10 Research Papers</h1>
-  <p>Everything you need to understand the entire research idea in 10 minutes and defend it calmly in front of any thesis examiner or journal reviewer &mdash; zero jargon, zero black-box ML, 100% real verified numbers.</p>
+  <span class="tag">Ultra-Simplified Visual Concept &amp; Literature Guide &bull; Revision v8 (Honest Candidate C Synthesis)</span>
+  <h1>MandiGuard Explained Simply:<br/>The Full Concept, 2&times;2 Orthogonal Math, 17m ML Frontier &amp; Top 10 Papers</h1>
+  <p><strong>Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University</strong> &bull; Everything needed to understand the research in 10 minutes and defend it calmly &mdash; plain-English intuition, 9-choice zero-weight cold-start rules vs full-season ML/CQR, and verified Revision v8 numbers.</p>
 </div>
 
 <div class="story-box">
   <h3 style="margin-top:0;">The Entire Thesis in One Real-Life Story (30 Seconds)</h3>
   <p>Imagine you manage a tomato farmer cooperative (FPO) in Madhya Pradesh. It is <strong>6:00 a.m.</strong> You open the government's <strong>AGMARKNET</strong> website on your phone. Your local mandi paid <strong>&#8377;1,500 per quintal</strong> yesterday, while another mandi 200 km away listed <strong>&#8377;2,000 per quintal</strong> yesterday.</p>
-  <p style="margin-bottom:0;">That looks like an easy <strong>+&#8377;500/qtl profit</strong>! So you load a truck and send it. <strong>What goes wrong?</strong> When the truck arrives, three real-world traps hit: (1) truck freight, yard fees, and heat decay eat into the spread; (2) yesterday's &#8377;2,000 spike crashes back down in a volatile market; or (3) worst of all, the destination mandi has <strong>no auction running for your crop that day</strong> (a "silent/blank" arrival board), forcing an expensive turn-back. Our study proves that chasing tempting online spreads loses money nearly <strong>half the time (45.1%)</strong> &mdash; and discovers <strong>two zero-tuned-parameter pocket-calculator rules</strong> that filter out trap alerts at 6 a.m. <em>before</em> you even call the destination trader on the phone.</p>
+  <p style="margin-bottom:0;">That looks like an easy <strong>+&#8377;500/qtl profit</strong>! So you load a truck and send it. <strong>What goes wrong?</strong> When the truck arrives, three real-world traps hit: (1) truck freight, yard fees, and heat decay eat into the spread; (2) yesterday's &#8377;2,000 spike crashes back down in a volatile market; or (3) worst of all, the destination mandi has <strong>no auction running for your crop that day</strong> (a "silent/blank" arrival board), forcing an expensive turn-back. Our study proves that chasing tempting online spreads loses money nearly <strong>half the time (45.07%)</strong> &mdash; and shows how <strong>9-choice zero-tuned-weight pocket-calculator rules</strong> capture ~98.8% of full-season 17-month ML Mean and ~94% of conditional tail protection at <code>n_train = 0</code> <em>before</em> you call the destination trader on the phone.</p>
 </div>
 
 <div class="kpi-row">
-  <div class="kpi"><div class="val">45.07%</div><div class="lbl">Loss rate when blindly chasing top portal spreads</div></div>
-  <div class="kpi"><div class="val">0 Params</div><div class="lbl">No ML trees, no tuning, no live weather needed</div></div>
-  <div class="kpi"><div class="val">+&#8377;179.24</div><div class="lbl">Worst-10% (ES10) gain on 171-mkt primary panel</div></div>
+  <div class="kpi"><div class="val">45.07%</div><div class="lbl">Loss rate when blindly chasing top portal spreads (ES10 &minus;&#8377;642.15)</div></div>
+  <div class="kpi"><div class="val">9 Choices</div><div class="lbl">Zero tuned weights; ~98.8% of 17m ML Mean at n_train = 0</div></div>
+  <div class="kpi"><div class="val">+&#8377;179.24</div><div class="lbl">ES10 gain (+&#8377;180.89 cond_ES10) on 171-mkt (exploratory Holm p=0.0040)</div></div>
   <div class="kpi"><div class="val">6 / 6 Years</div><div class="lbl">ES10 &amp; cond_ES10 gains across 166 mkts (2018&ndash;2023, N=384k)</div></div>
 </div>
 
@@ -265,30 +267,30 @@ HTML_BODY = f"""
 <div class="flow">
   <div class="fstep c-blue"><strong>Step 1: 6 a.m. Screen</strong>Check yesterday's prices only (never today's price &mdash; zero peeking!)</div>
   <div class="farrow">&rarr;</div>
-  <div class="fstep c-amber"><strong>Step 2: 3 Real Costs</strong>Subtract road freight, yard fee, and recent price volatility</div>
+  <div class="fstep c-amber"><strong>Step 2: 3 Real Costs</strong>Subtract road freight, stylized yard fee, and price volatility</div>
   <div class="farrow">&rarr;</div>
-  <div class="fstep c-purple"><strong>Step 3: Calculator Filter</strong>Check if safe spread &times; weekday reliability beats freight</div>
+  <div class="fstep c-purple"><strong>Step 3: Cold-Start / ML</strong>Filter via 9-choice calculator (n=0) or 17m Mean-Q10 / Split-CQR</div>
   <div class="farrow">&rarr;</div>
-  <div class="fstep c-green"><strong>Step 4: Live Phone Call</strong>If PASS, FPO manager calls the destination <em>arhtiya</em> to confirm</div>
+  <div class="fstep c-green"><strong>Step 4: Live Phone Call</strong><code>PhoneCall_TopK_Open</code>: FPO calls destination <em>arhtiya</em> to confirm</div>
   <div class="farrow">&rarr;</div>
-  <div class="fstep c-red"><strong>Step 5: Honest Settlement</strong>Track exact arrival outcome &mdash; including blank-yard bounds</div>
+  <div class="fstep c-red"><strong>Step 5: Honest Settlement</strong>Track exact arrival outcome &mdash; including blank-yard Manski bounds</div>
 </div>
 
 <div class="grid2">
   <div class="mini-card">
     <h4>What This Tool ACTUALLY Is</h4>
     <ul>
-      <li>An <strong>upstream 6 a.m. alert-triage filter</strong> that stops FPO managers from wasting time and trucks on fake/noisy portal gaps.</li>
-      <li>Built strictly on <strong>yesterday-or-earlier public prices</strong> (zero future data leakage, verified by automated corruption tests).</li>
-      <li>Verified across <strong>171 zero-lookahead markets</strong> (2025&ndash;2026) AND <strong>clean 166 non-lookahead markets over 2018&ndash;2023 (383,952 trips)</strong>.</li>
+      <li>An <strong>upstream 6 a.m. call-priority alert filter</strong> (<code>PhoneCall_TopK_Open</code>: 4.99% loss, <code>cond_ES10 &minus;&#8377;355.07</code> vs <code>B2 &minus;&#8377;691.79</code>) ahead of live trader dialing.</li>
+      <li>Built strictly on <strong>&le; t&minus;1 public quotes</strong> across <strong>171 zero-lookahead markets</strong> (2025&ndash;2026) AND <strong>166 clean markets over 2018&ndash;2023 (383,952 trips)</strong> conditioned on 2024 corridor inclusion (reverse-survivorship: 481/647 historical markets excluded).</li>
+      <li>Verified inside shared dispatches (<code>CommonIntersection_DS_cap_DB</code>, n=33,398): <strong>+&#8377;65.66 Mean &amp; +&#8377;53.40 ES10 pure routing lift</strong>.</li>
     </ul>
   </div>
   <div class="mini-card">
     <h4>What This Tool Does NOT Claim</h4>
     <ul>
-      <li>Does <strong>NOT</strong> replace calling a trader (<em>arhtiya</em>) before loading a truck.</li>
-      <li>Does <strong>NOT</strong> measure actual farmer cash receipts (AGMARKNET has no truck bills or auction <em>patti</em> slips).</li>
-      <li>Does <strong>NOT</strong> prove a blank portal row means a locked gate &mdash; we bracket both closed-yard and open-yard views transparently!</li>
+      <li>Does <strong>NOT</strong> replace calling a trader (<em>arhtiya</em>) before loading a truck, nor claim 0-parameter beats full-season ML (17m <code>Mean-Q10</code> edges Mean &amp; tail at <code>n_train=113,374</code>).</li>
+      <li>Does <strong>NOT</strong> measure actual farmer cash receipts (under <code>Outsider_MinPrice_LCV_4pctArh</code>, Safe_EV Mean compresses to &#8377;102.62 vs B2 &#8377;33.86).</li>
+      <li>Does <strong>NOT</strong> guarantee exact OSRM coordinates everywhere: 56/171 markets collide on legacy parent coordinates (35.23% exact coverage, <code>N=6,605</code> still holds <code>p=0.001</code>).</li>
     </ul>
   </div>
 </div>
@@ -297,95 +299,94 @@ HTML_BODY = f"""
 
 <ol>
   <li><strong>Reporting Lag (Yesterday's Price &ne; Today's Price):</strong> At 6 a.m., today's auction hasn't happened yet. Many smaller mandis upload prices 1 to 7 days late. Yesterday's high price is often an outdated spike that already dropped.</li>
-  <li><strong>Physical Frictions (Freight + Yard Fees + Transit Decay):</strong>
+  <li><strong>Physical Frictions (Freight + Stylized Fees + Transit Decay):</strong>
     <ul>
-      <li><strong>Road Freight (F):</strong> Base loading &#8377;35 + &#8377;0.45 per road km (&times;1.45 in Himachal Pradesh, where 91.59% of roads are single-lane hill roads).</li>
+      <li><strong>Road Freight (F):</strong> Base loading &#8377;35 + &#8377;0.45 per road km (&times;1.45 in Himachal Pradesh, where 91.59% of roads are single-lane hill roads; LCV + 4% <em>arhtiya</em> stress also tested).</li>
       <li><strong>Stylized State Fee Tiers:</strong> 0.5% to 1.5% charged on destination sale value (0% inside the same district or if unsold), anchored qualitatively to state APMC deregulation status (PIB 154554) and stress-tested from 0% to 6% commission.</li>
-      <li><strong>Transit Decay:</strong> Modeled operationally from NABCONS (2022) marketing-level crop loss shares (Tomato 3.25%, Onion 1.96%, Apple 1.64%, Potato 0.86%), stress-tested from 0.5&times; to 2.0&times; and under realized ERA5 arrival-day heat, humidity, and heavy rain.</li>
+      <li><strong>Transit Decay:</strong> Modeled operationally from NABCONS (2022) marketing-level crop loss shares (Tomato 3.25%, Onion 1.96%, Apple 1.64%, Potato 0.86%), stress-tested under repaired <code>_spoil_return_leg</code> <code>S6</code> (full <code>24&tau;+hrs+24w</code> + ERA5: Safe_EV Mean &#8377;307.39, ES10 &minus;&#8377;576.57, <code>cond_ES10 &minus;&#8377;725.73</code>).</li>
     </ul>
   </li>
-  <li><strong>Silent / Blank Arrival Boards (28.7% of Naive Trips!):</strong> On 28.67% of naive spread-chasing trips, the destination market uploads <em>no trade at all</em> for that crop on arrival day. Under sequential arrival rules (you don't know tomorrow's prices in advance!), a truck facing a blank yard turns back instead of gambling blindly.</li>
+  <li><strong>Silent / Blank Arrival Boards (28.67% of Naive Trips!):</strong> On 28.67% of naive spread-chasing trips, the destination market uploads <em>no trade at all</em> for that crop on arrival day. Under sequential arrival rules (you don't know tomorrow's prices in advance!), a truck facing a blank yard turns back instead of gambling blindly.</li>
   <li><strong>Sunday / Weekly Holiday Blindness &amp; Price Swings:</strong> A mandi closed every Sunday still looks "75% active" in a 28-day average &mdash; fooling average-based filters on weekends. Meanwhile, high-variance markets (like Apple and Tomato) swing violently between yesterday and arrival day.</li>
 </ol>
 
-<h2>3. The Breakthrough: Two Zero-Tuned-Parameter Pocket-Calculator Rules</h2>
+<h2>3. The Honest Candidate C Breakthrough: 9-Choice Cold-Start, 2&times;2 Split &amp; 17m ML/CQR</h2>
 
-<p>Earlier in this project, we tried complex gradient-boosted ML trees (Stage I) and tuned heuristics with cutoffs and penalty grids (<code>&kappa;* = 5.0</code>). Auditing proved the ML trees failed statistically (confirmatory <code>H2</code>: +&#8377;6.13, <code>p = 0.27</code>), hard gates failed tail risk, and tuned penalties hit grid walls. <strong>So we stripped away every ML model, weather input, and validation-tuned cutoff</strong>, leaving two transparent Class-10 rules with <strong>zero tuned parameters</strong> (dispatch only when score &gt; 0):</p>
+<p>Earlier drafts concluded that ML and conformal models failed because initial models suffered from <strong>5-month off-season training starvation</strong> (<code>Ridge</code>, <code>HGBR_RiskAverse</code>, and unnormalized <code>OR_Vargas_MeanVar_g0002</code> at <code>cond_ES10 &minus;&#8377;511.42</code>) and a <strong>homoscedastic Split-CQR bug (0 switches)</strong>. Once fixed in Revision v8: (a) heteroscedastic Split-CQR re-ranks destinations (<strong>8,848 switches</strong> in 5m: <code>MG_T1..T4_Intact_matched</code> 66.32%, Mean &#8377;356.78, ES10 &minus;&#8377;323.41, <code>cond_ES10 &minus;&#8377;414.44</code>; <strong>8,115 switches</strong> in 17m: <code>ML_17m_CQR80_valmatch</code> 57.30%, Mean &#8377;364.03, <code>cond_ES10 &minus;&#8377;367.09</code>); and (b) full-season <strong>17m GBDTs</strong> (<code>n_train_17m = 113,374</code>) reach <strong>Mean &#8377;455.83, ES10 &minus;&#8377;320.02, <code>cond_ES10 &minus;&#8377;420.57</code></strong> (<code>ML_17m_MeanQ10_Hybrid_eq63</code>; ablating <code>safe_ev_feat</code> in <code>NoSafeEV_eq63</code> hits <strong>&#8377;458.27 / &minus;&#8377;423.88</strong> autonomously!), while <code>OR_Stylized_MeanSD_17m_valmatch</code> hits &#8377;443.57 / &minus;&#8377;439.77. <strong>Why keep the 9-choice calculator rule?</strong> With <strong>zero tuned weights and zero training data (<code>n_train = 0</code>)</strong>, <code>Safe_EV_Sunk_m0</code> captures <strong>~98.8% of <code>MeanQ10</code> Mean and ~94% of <code>cond_ES10</code> tail protection</strong> on day 1!</p>
 
 <div class="formula-card">
-  <h3 style="margin-top:0;">Rule 1: Safe_EV_Sunk (Best Tail-Risk Protection &mdash; 0 Tuned Parameters)</h3>
-  <div class="formula-big">p<sub>dow</sub> &times; G<sub>1SD</sub> &nbsp;&gt;&nbsp; F<sub>road</sub> &nbsp;&nbsp;&nbsp;&nbsp;(equivalently: &nbsp; G<sub>1SD</sub> / F<sub>road</sub> &nbsp;&gt;&nbsp; 1 / p<sub>dow</sub>)</div>
-  <p style="margin-bottom:3px;"><strong>Plain English:</strong> <em>"Take yesterday's destination price minus 1 standard deviation of its recent swings (so a normal dip won't wipe you out), subtract yard fee and local price to get safe spread <strong>G<sub>1SD</sub></strong>, multiply by how often this yard actually traded on this exact day of the week (<strong>p<sub>dow</sub></strong>, e.g., last 8 Tuesdays), and go ONLY if that expected safe gain beats one-way freight <strong>F<sub>road</sub></strong>."</em></p>
-  <p style="margin-bottom:0; font-size:8.6pt; color:#475569;"><strong>Settlement-Matched Sibling (Safe_EV_Phys, also 0 tuned params):</strong> Uses the exact 1.5&times; return cost directly: <code>p<sub>dow</sub>(G<sub>1SD</sub> &minus; F) &minus; (1 &minus; p<sub>dow</sub>)(1.5 F) &gt; 0</code>. Cuts worst-10% losses even further.</p>
+  <h3 style="margin-top:0;">Rule 1: Safe_EV_Sunk_m0 (9 Fixed Choices, 0 Tuned Weights) &amp; 2&times;2 Orthogonal Decomposition</h3>
+  <div class="formula-big">p<sub>dow</sub> &middot; G<sub>1SD</sub> &minus; F<sub>road</sub> &nbsp;&equiv;&nbsp; p<sub>dow</sub>(G<sub>1SD</sub> &minus; F<sub>road</sub>) + (1 &minus; p<sub>dow</sub>)(&minus;1.0 F<sub>road</sub>) &nbsp;&gt;&nbsp; 0</div>
+  <p style="margin-bottom:3px;"><strong>Plain English + Exact Identity:</strong> <em>G<sub>1SD</sub></em> subtracts 1-SD recent swing (<code>cv<sub>28</sub></code>) and stylized fee from yesterday's price; <em>p<sub>dow</sub></em> is 8-week same-weekday reliability. The identity proves it prices <code>&minus;1.0 F</code> sunk freight on silent days (<code>Safe_EV_Phys_m0</code> uses <code>&minus;1.5 F</code>). <strong>2&times;2 Orthogonal Split:</strong> <code>Ortho_Pure_cv28_only</code> (71.91% disp, Mean &#8377;421.62, ES10 &minus;&#8377;387.46, <strong><code>cond_ES10 &minus;&#8377;447.13</code></strong>) drives ~100% of tail truncation, whereas <code>Ortho_Pure_pdow_only</code> (84.10% disp, <strong>Mean &#8377;466.68</strong>, <code>cond_ES10 &minus;&#8377;607.18</code>) drives diversion avoidance and Mean lift!</p>
+  <p style="margin-bottom:0; font-size:8.4pt; color:#475569;"><strong>HP Scale Non-Invariance Fix (<code>ScaleInv_Safe_EV_24tau</code>):</strong> When <code>F/G<sub>1SD</sub> &lt; 0.10</code> (79.52% of HP apple trips), omitting proportional spoilage breaks <code>p<sub>dow</sub></code>. Adding <code>24&tau;</code> spoilage + <code>1.5F</code> cuts HP apple <code>ep_loss</code> from <code>27.91% &rarr; 17.92%</code> (<code>ES10 &minus;&#8377;958.08</code>, <code>cond_ES10 &minus;&#8377;1,616.08</code> vs <code>&minus;&#8377;2,003.68</code>; <code>Safe_EV_Sunk_pFloor50</code> hits <code>15.17%</code>).</p>
 </div>
 
 <div class="formula-card">
-  <h3 style="margin-top:0;">Rule 2: RT_2F_Min (Class-8 4-Function Phone Calculator &mdash; No Volatility Needed!)</h3>
+  <h3 style="margin-top:0;">Rule 2: RT_2F_Min_m0 (Class-8 4-Function Phone Calculator &mdash; Omits Volatility cv<sub>28</sub>)</h3>
   <div class="formula-big">p<sub>min</sub> &times; G &nbsp;&gt;&nbsp; 2 &times; F<sub>road</sub> &nbsp;&nbsp;&nbsp;&nbsp;(equivalently: &nbsp; G / (2 F<sub>road</sub>) &nbsp;&gt;&nbsp; 1 / p<sub>min</sub>)</div>
-  <p style="margin-bottom:0;"><strong>Plain English:</strong> <em>"Don't want to compute standard deviation? Just take the plain fee-adjusted spread <strong>G</strong>, multiply by the stricter of 28-day and same-weekday reporting reliability (<strong>p<sub>min</sub></strong>), and go ONLY if it clears <strong>round-trip freight (2F)</strong>!"</em></p>
+  <p style="margin-bottom:0;"><strong>Plain English:</strong> Uses plain fee-adjusted spread <strong>G</strong> and stricter reliability <strong>p<sub>min</sub> = min(rep<sub>28</sub>, p<sub>dow</sub>)</strong> against round-trip freight <strong>2F</strong>. Because it omits <code>cv<sub>28</sub></code>, it keeps high Mean (&#8377;463.98) yet misses conditional tail truncation (<code>cond_ES10 &minus;&#8377;618.35</code>) and fails under <code>&le; t&minus;2</code> latency (<code>p = 0.981</code>).</p>
 </div>
 
 <div class="green-box">
   <h3 style="margin-top:0;">10-Second Phone Calculator Example (Real Numbers!)</h3>
-  <p><strong>Route:</strong> 200 km Madhya Pradesh Tomato trip. Local price = <strong>&#8377;1,500</strong>, destination price = <strong>&#8377;2,000</strong>, fee = <strong>1.5%</strong>, freight <strong>F = 35 + 0.45 &times; 200 = &#8377;125</strong>, recent price volatility <strong>cv<sub>28</sub> = 15%</strong>.</p>
-  <ul>
-    <li><strong>Plain spread G:</strong> &#8377;2,000 &times; 0.985 &minus; &#8377;1,500 = <strong>+&#8377;470/qtl</strong>.</li>
-    <li><strong>1-SD safe spread G<sub>1SD</sub>:</strong> &#8377;2,000 &times; (1 &minus; 0.15) &times; 0.985 &minus; &#8377;1,500 = <strong>+&#8377;174.50/qtl</strong>.</li>
-    <li><strong>Case A &mdash; Reliable Weekday Mandi (open 8/8 Tuesdays &rarr; p<sub>dow</sub> = 0.90, p<sub>min</sub> = 0.85):</strong><br/>
-      Safe_EV_Sunk: <code>0.90 &times; 174.50 = &#8377;157.05 &gt; &#8377;125</code> &rarr; <strong>DISPATCH!</strong> &nbsp;|&nbsp; RT_2F_Min: <code>0.85 &times; 470 = &#8377;399.50 &gt; &#8377;250</code> &rarr; <strong>DISPATCH!</strong></li>
-    <li><strong>Case B &mdash; Sunday-Closed / Sporadic Mandi (open 1/8 Sundays &rarr; p<sub>dow</sub> = 0.20, p<sub>min</sub> = 0.20):</strong><br/>
-      Standard road rule <code>B2</code> still sees <code>&#8377;470 &minus; &#8377;125 = +&#8377;345 &gt; &#8377;200</code> and sends the truck blindly!<br/>
-      Both zero-param rules stop it instantly: Safe_EV_Sunk gives <code>0.20 &times; 174.50 = &#8377;34.90 &lt; &#8377;125</code>; RT_2F_Min gives <code>0.20 &times; 470 = &#8377;94.00 &lt; &#8377;250</code> &rarr; <strong>STAY HOME!</strong></li>
+  <p><strong>Route:</strong> 200 km MP Tomato trip. Local = <strong>&#8377;1,500</strong>, dest = <strong>&#8377;2,000</strong>, fee = <strong>1.5%</strong>, freight <strong>F = 35 + 0.45 &times; 200 = &#8377;125</strong>, swing <strong>cv<sub>28</sub> = 15%</strong> &rarr; <strong>G = +&#8377;470/qtl</strong>, <strong>G<sub>1SD</sub> = +&#8377;174.50/qtl</strong>.</p>
+  <ul style="margin-bottom:0;">
+    <li><strong>Case A &mdash; Reliable Weekday Mandi (<code>p<sub>dow</sub> = 0.90, p<sub>min</sub> = 0.85</code>):</strong> Safe_EV: <code>0.90(174.50&minus;125)+0.10(&minus;125) = +&#8377;32.05 &gt; 0</code> &rarr; <strong>DISPATCH!</strong> | RT_2F: <code>0.85 &times; 470 = &#8377;399.50 &gt; &#8377;250</code> &rarr; <strong>DISPATCH!</strong></li>
+    <li><strong>Case B &mdash; Sunday-Closed Mandi (<code>p<sub>dow</sub> = 0.20, p<sub>min</sub> = 0.20</code>):</strong> Road baseline <code>B2</code> sees <code>470 &minus; 125 = +&#8377;345</code> and goes blindly! Safe_EV gives <code>0.20 &times; 174.50 &minus; 125 = &minus;&#8377;90.10</code>; RT_2F gives <code>0.20 &times; 470 &minus; 250 = &minus;&#8377;156.00</code> &rarr; <strong>STAY HOME!</strong></li>
   </ul>
 </div>
 
-<h2>4. What the Data Proves: Primary 171 Markets + Untouched 6-Year Backtest</h2>
+<h2>4. What the Data Proves: 171 Mkts, 17m ML Frontier &amp; Clean 166-Mkt Backtest</h2>
 
-<p>To prevent any future market-selection lookahead, our primary benchmark uses strictly <strong>2024-selected 171 markets</strong> (<code>N = 57,634</code> test episodes, June 2025&ndash;April 2026) with the exact locked 4-test, <code>R = 2,000</code> bootstrap family (<code>p<sub>holm,2s</sub> = 0.0040</code> across all 3 clusterings). Crucially, we then test the <strong>exact same frozen zero-tuned-parameter rules with zero retuning</strong> on the clean non-lookahead <strong>166-market historical archive (2018&ndash;2023, N = 383,952 episodes; 115-mkt N = 325,993)</strong>, including the 2020 COVID-19 supply shock:</p>
+<p>Our primary benchmark uses strictly <strong>2024-selected 171 markets</strong> (<code>N = 57,634</code> test episodes, June 2025&ndash;April 2026) under <strong>specification-locked exploratory inference</strong> (<code>PREREG_A18</code>, <code>R = 2,000</code>, <code>p<sub>holm,2s</sub> = 0.0040</code>; finite-sample CGM <code>p<sub>cgm,gstar</sub> = 0.00511 / 0.01001</code> for <code>H_A18_1</code> and <code>0.04887 / 0.06800</code> for <code>H_A18_2</code>; 1-way <code>p<sub>wild,webb6,1w</sub> = 0.0005</code>). We then run frozen cold-start rules on clean <strong>166 markets (2018&ndash;2023, N = 383,952; reverse-survivorship 481/647 excluded)</strong> and head-to-head against <code>17m</code> ML/CQR (<code>n<sub>train</sub> = 113,374</code>):</p>
 
 <table class="res-table">
   <colgroup>
-    <col style="width:30%;"/>
-    <col style="width:7%;"/>
-    <col style="width:21%;"/>
-    <col style="width:21%;"/>
-    <col style="width:21%;"/>
+    <col style="width:33%;"/>
+    <col style="width:8%;"/>
+    <col style="width:20%;"/>
+    <col style="width:20%;"/>
+    <col style="width:19%;"/>
   </colgroup>
   <thead>
     <tr>
-      <th>Decision Rule</th>
-      <th class="num">Free</th>
+      <th>Decision Rule / Model</th>
+      <th class="num">Disp%</th>
       <th class="num">Primary 171 Mkts (57.6k)<br/>Mean | Loss% &bull; ES10</th>
-      <th class="num">Realized ERA5 (171)<br/>Mean | Loss% &bull; ES10</th>
-      <th class="num">Clean 166 Mkts 2018&ndash;23 (384k)<br/>Mean | Loss% &bull; ES10</th>
+      <th class="num">Cond. Tail (171) / Note<br/>cond_ES10 &bull; Key Spec</th>
+      <th class="num">Clean 166 (2018&ndash;23)<br/>Mean | ES10 &bull; cond_ES10</th>
     </tr>
   </thead>
   <tbody>
-    <tr><td><strong>B1_lagged_screen</strong> (top spread &gt; &#8377;100)</td><td class="num">1</td><td class="num">&#8377;384.61 | 45.07%<br/><span class="es-tag">ES10 &minus;&#8377;642.15</span></td><td class="num">&#8377;366.71 | 45.78%<br/><span class="es-tag">ES10 &minus;&#8377;677.22</span></td><td class="num">&#8377;288.85 | 46.11%<br/><span class="es-tag">ES10 &minus;&#8377;555.94</span></td></tr>
-    <tr><td><strong>B2_age_matched</strong> (road+fee &gt; &#8377;200, 1&ndash;3d)</td><td class="num">1</td><td class="num">&#8377;419.62 | 26.43%<br/><span class="es-tag">ES10 &minus;&#8377;524.78</span></td><td class="num">&#8377;405.73 | 26.69%<br/><span class="es-tag">ES10 &minus;&#8377;552.91</span></td><td class="num">&#8377;321.57 | 25.21%<br/><span class="es-tag">ES10 &minus;&#8377;473.56</span></td></tr>
-    <tr><td><strong>MG_matched</strong> (4 hard gates, val-tuned)</td><td class="num">4</td><td class="num">&#8377;454.07 | 18.35%<br/><span class="es-tag">ES10 &minus;&#8377;508.72</span></td><td class="num">&#8377;440.10 | 18.65%<br/><span class="es-tag">ES10 &minus;&#8377;532.51</span></td><td class="num"><em>(val-tuned;<br/>omitted)</em></td></tr>
-    <tr><td><strong>RR_Abstain_matched</strong> (tuned &kappa;* = 5.0)</td><td class="num">2</td><td class="num">&#8377;461.41 | 17.07%<br/><span class="es-tag">ES10 &minus;&#8377;459.46</span></td><td class="num">&#8377;447.88 | 17.44%<br/><span class="es-tag">ES10 &minus;&#8377;482.11</span></td><td class="num"><em>(val-tuned;<br/>omitted)</em></td></tr>
-    <tr class="hl"><td><strong>Safe_EV_Sunk_m0</strong> (p<sub>dow</sub> &middot; G<sub>1SD</sub> &gt; F)</td><td class="num">0</td><td class="num">&#8377;452.74 | 14.88%<br/><span class="es-tag">ES10 &minus;&#8377;345.53</span></td><td class="num">&#8377;440.28 | 15.12%<br/><span class="es-tag">ES10 &minus;&#8377;365.11</span></td><td class="num">&#8377;356.57 | 12.64%<br/><span class="es-tag">ES10 &minus;&#8377;304.29</span></td></tr>
-    <tr class="hl"><td><strong>Safe_EV_Phys_m0</strong> (1.5F settlement-matched)</td><td class="num">0</td><td class="num">&#8377;449.52 | 13.70%<br/><span class="es-tag">ES10 &minus;&#8377;334.80</span></td><td class="num">&#8377;437.31 | 13.94%<br/><span class="es-tag">ES10 &minus;&#8377;353.85</span></td><td class="num">&#8377;353.33 | 11.45%<br/><span class="es-tag">ES10 &minus;&#8377;288.47</span></td></tr>
-    <tr class="hl"><td><strong>RT_2F_Min_m0</strong> (Class-8 p<sub>min</sub> &middot; G &gt; 2F)</td><td class="num">0</td><td class="num">&#8377;463.98 | 16.21%<br/><span class="es-tag">ES10 &minus;&#8377;464.84</span></td><td class="num">&#8377;450.56 | 16.50%<br/><span class="es-tag">ES10 &minus;&#8377;489.02</span></td><td class="num">&#8377;370.86 | 14.24%<br/><span class="es-tag">ES10 &minus;&#8377;395.63</span></td></tr>
+    <tr><td><strong>B1_lagged_screen</strong> (top spread &gt; &#8377;100)</td><td class="num">100.0%</td><td class="num">&#8377;384.61 | 45.07%<br/><span class="es-tag">ES10 &minus;&#8377;642.15</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;642.15</span><br/>28.67% sequential turn-backs</td><td class="num">&#8377;288.85 | &minus;&#8377;555.94<br/>cond &minus;&#8377;555.94</td></tr>
+    <tr><td><strong>B2_age_matched</strong> (road+fee &gt; &#8377;200, 1&ndash;3d)</td><td class="num">71.73%</td><td class="num">&#8377;419.62 | 26.43%<br/><span class="es-tag">ES10 &minus;&#8377;524.78</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;628.37</span><br/>Road-adjusted comparator</td><td class="num">&#8377;321.57 | &minus;&#8377;473.56<br/>cond &minus;&#8377;576.44</td></tr>
+    <tr><td><strong>Ortho_Pure_cv28_only</strong> (p<sub>dow</sub>=1, 2&times;2)</td><td class="num">71.91%</td><td class="num">&#8377;421.62 | 24.10%<br/><span class="es-tag">ES10 &minus;&#8377;387.46</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;447.13</span><br/>~100% of tail truncation</td><td class="num"><em>(2&times;2 ablation;<br/>171-mkt diag.)</em></td></tr>
+    <tr><td><strong>Ortho_Pure_pdow_only</strong> (cv<sub>28</sub>=0, 2&times;2)</td><td class="num">84.10%</td><td class="num">&#8377;466.68 | 24.63%<br/><span class="es-tag">ES10 &minus;&#8377;546.75</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;607.18</span><br/>Diversion avoidance &amp; Mean</td><td class="num"><em>(2&times;2 ablation;<br/>171-mkt diag.)</em></td></tr>
+    <tr class="hl"><td><strong>Safe_EV_Sunk_m0</strong> (9 choices, n<sub>train</sub>=0)</td><td class="num">63.23%</td><td class="num">&#8377;452.74 | 14.88%<br/><span class="es-tag">ES10 &minus;&#8377;345.53</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;447.48</span><br/>~98.8% of 17m MeanQ10 Mean</td><td class="num">&#8377;356.57 | &minus;&#8377;304.29<br/>cond &minus;&#8377;421.35</td></tr>
+    <tr class="hl"><td><strong>Safe_EV_Phys_m0</strong> (1.5F, n<sub>train</sub>=0)</td><td class="num">60.84%</td><td class="num">&#8377;449.52 | 13.70%<br/><span class="es-tag">ES10 &minus;&#8377;334.80</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;447.33</span><br/>+&#8377;0.15 cond vs Sunk</td><td class="num">&#8377;353.33 | &minus;&#8377;288.47<br/>cond &minus;&#8377;417.71</td></tr>
+    <tr><td><strong>RT_2F_Min_m0</strong> (Class-8, NO cv<sub>28</sub>)</td><td class="num">64.79%</td><td class="num">&#8377;463.98 | 16.21%<br/><span class="es-tag">ES10 &minus;&#8377;464.84</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;618.35</span><br/>Fails t&minus;2 lag (p=0.981)</td><td class="num">&#8377;370.86 | &minus;&#8377;395.63<br/>cond &minus;&#8377;553.64</td></tr>
+    <tr><td><strong>MG_T1..T4_Intact_matched</strong> (5m CQR)</td><td class="num">66.32%</td><td class="num">&#8377;356.78 | 14.94%<br/><span class="es-tag">ES10 &minus;&#8377;323.41</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;414.44</span><br/>8,848 dest switches (IQR)</td><td class="num"><em>(5m CQR;<br/>171-mkt)</em></td></tr>
+    <tr><td><strong>ML_17m_CQR80_valmatch</strong> (17m CQR)</td><td class="num">57.30%</td><td class="num">&#8377;364.03 | 12.85%<br/><span class="es-tag">ES10 &minus;&#8377;261.29</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;367.09</span><br/>8,115 switches (n=113,374)</td><td class="num"><em>(17m CQR;<br/>171-mkt)</em></td></tr>
+    <tr class="hl"><td><strong>ML_17m_MeanQ10_Hybrid_eq63</strong> (17m)</td><td class="num">63.23%</td><td class="num">&#8377;455.83 | 14.94%<br/><span class="es-tag">ES10 &minus;&#8377;320.02</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;420.57</span><br/>NoSafeEV: &#8377;458.27 / &minus;&#8377;423.88</td><td class="num"><em>(17m GBDT;<br/>n=113,374)</em></td></tr>
+    <tr><td><strong>OR_Stylized_MeanSD_17m_valmatch</strong></td><td class="num">61.40%</td><td class="num">&#8377;443.57 | 13.06%<br/><span class="es-tag">ES10 &minus;&#8377;324.93</span></td><td class="num"><span class="es-tag">cond_ES10 &minus;&#8377;439.77</span><br/>EV &minus; 0.35&middot;IQR (vs Vargas &minus;&#8377;511.42)</td><td class="num"><em>(17m OR;<br/>171-mkt)</em></td></tr>
   </tbody>
 </table>
 
-<p style="font-size:8.5pt; color:#475569;"><strong>Key statistical takeaway:</strong> On clean <code>166</code>-mkt <code>2018&ndash;2023</code> (<code>N = 383,952</code>; 160 origin / 159 b2dest clusters &times; 153 fortnights, <code>R = 2,000</code>), <code>Safe_EV_Sunk_m0</code> beats <code>B2</code> on <code>ES10</code> (+&#8377;169.27) and conditional <code>cond_ES10</code> (+&#8377;155.08; &minus;&#8377;421.35 vs &minus;&#8377;576.44; +&#8377;174.27 vs equal-dispatch <code>B2_eq_SafeM0</code>) in <strong>all 6 years</strong> (all <code>p = 0.001</code>, while <code>2020</code> &amp; <code>2023</code> Means are NS: <code>p = 0.208 / 0.077</code>), holding identically on <code>115</code>-mkt (<code>N = 325,993</code>, +&#8377;159.83 ES10) and under NASA POWER climate. On primary 171-mkt, all 4 locked tests pass (<code>p<sub>holm,2s</sub> = 0.0040</code>, <code>cond_ES10 &minus;&#8377;447.48</code> vs <code>&minus;&#8377;628.37</code>) and survive <code>&le; t&minus;2</code> lag (<code>p = 0.001</code>) and coupled <code>S6_Frozen &times; Stoch_CondMAR</code> (<code>+&#8377;366.85 cond_ES10</code>).</p>
+<p style="font-size:8.2pt; color:#475569;"><strong>Key verified takeaways:</strong> On clean <code>166</code>-mkt <code>2018&ndash;2023</code> (<code>N = 383,952</code>, reverse-survivorship 481/647 excluded), <code>Safe_EV_Sunk_m0</code> wins <code>ES10</code> (+&#8377;169.27) and <code>cond_ES10</code> (+&#8377;155.08; +&#8377;174.27 vs equal-dispatch <code>B2_eq_SafeM0</code>) in <strong>6/6 years</strong> (<code>p = 0.001</code>; <code>2020/2023</code> Means NS). On <code>171</code>-mkt, it holds under <code>&le; t&minus;2</code> lag (<code>p=0.001</code>), repaired <code>S6_Frozen</code> (<code>&#8377;307.39 / &minus;&#8377;576.57 / &minus;&#8377;725.73</code>; <code>Stoch_CondMAR_p1.00 +&#8377;366.85 cond_ES10</code>), exact coupled Manski <code>cond_ES10</code> (<code>Supp1 +&#8377;152.20</code>, <code>Supp2 +&#8377;105.96</code>), and non-collided exact geocodes (<code>N=6,605</code>: Mean &#8377;194.97 vs &#8377;200.37, <code>ES10 &minus;&#8377;231.27</code> vs <code>&minus;&#8377;449.14</code>, <code>p=0.001</code>).</p>
 
 <figure>
   <img src="{img_uri('rev_fig1_risk_coverage_ci.png')}" alt="Risk Coverage Curves"/>
-  <figcaption><strong>Visual Proof 1 (Risk vs Coverage):</strong> At the exact same dispatch rate, zero-tuned-parameter Safe_EV_Sunk (purple) sits far below B2 and hard gates on episode losses (left) and far above them on worst-10% tail shortfall ES10 (right).</figcaption>
+  <figcaption><strong>Visual Proof 1 (Risk vs Coverage):</strong> 9-choice zero-tuned-weight <code>Safe_EV_Sunk_m0</code> cuts losses and lifts worst-10% shortfall <code>ES10</code> far above <code>B2</code> and hard gates across 57,634 episodes, capturing ~98.8% of 17m <code>MeanQ10</code> Mean and ~94% of <code>cond_ES10</code> tail protection at <code>n_train = 0</code>.</figcaption>
 </figure>
 
 <figure>
   <img src="{img_uri('rev_fig4_settlement_and_hp_apple.png')}" alt="Untouched 2018-2023 Backtest and HP Apples"/>
-  <figcaption><strong>Visual Proof 2 (Six Historical Years &amp; Graded Apples):</strong> Left: Across every year from 2018 through 2023 on 166 clean markets (including 2020 COVID-19), zero-tuned-parameter Safe_EV_Sunk and Safe_EV_Phys consistently protect against worst-decile losses without retuning. Right: On HP graded apples (N = 2,802), Safe_EV cuts unconditional ES10 from &minus;&#8377;2,392 to &minus;&#8377;1,455, though 41.38% of dispatched trips lose money and <code>cond_ES10</code> (p = 0.094) is non-significant.</figcaption>
+  <figcaption><strong>Visual Proof 2 (Six Historical Years &amp; HP Graded Apples):</strong> Left: 166 clean markets over 2018&ndash;2023 (reverse-survivorship 481/647 excluded) preserve <code>ES10</code> in 6/6 years. Right: On HP apples (<code>N = 2,802</code>), <code>F/G<sub>1SD</sub> &lt; 0.10</code> on 79.52% breaks <code>cond_ES10</code> (<code>p = 0.094</code> NS, 41.38% cond loss); <code>ScaleInv_Safe_EV_24tau</code> cuts <code>ep_loss</code> 27.91% &rarr; 17.92% (<code>ES10 &minus;&#8377;958.08</code>, <code>cond_ES10 &minus;&#8377;1,616.08</code>).</figcaption>
 </figure>
 
 <h2>5. The 10 Most Relevant Research Papers (Your Literature Map in Plain English)</h2>
 
-<p>Your thesis connects <strong>four classic research areas</strong>. Memorize these <strong>10 real, verified foundational papers</strong> &mdash; each is explained in two plain-English sentences so you can cite them naturally in any viva or review response:</p>
+<p>Your thesis connects <strong>four classic research areas</strong>. Memorize these <strong>10 foundational literature anchors</strong> &mdash; each is explained in two plain-English sentences so you can cite them naturally in any viva or review response:</p>
 
 <span class="pillar-badge">PILLAR 1 &bull; Agricultural Spatial Arbitrage &amp; Why Price Portals Alone Fail</span>
 <table>
@@ -399,17 +400,17 @@ HTML_BODY = f"""
     <tr>
       <td><strong>2. Jensen (2007)</strong><br/><em>Quarterly J. Economics (QJE)</em></td>
       <td>Classic Kerala fishermen study: mobile phones let fishermen call coastal markets in real time, eliminating waste and raising profits dramatically.</td>
-      <td>Explains why <strong>live phone calls</strong> to destination <em>arhtiyas</em> remain vital &mdash; MandiGuard filters noisy AGMARKNET alerts <em>before</em> dialing.</td>
+      <td>Explains why <strong>live phone calls</strong> (<code>PhoneCall_TopK_Open</code>) remain vital &mdash; MandiGuard prioritizes alerts <em>before</em> dialing <em>arhtiyas</em>.</td>
     </tr>
     <tr>
       <td><strong>3. Fafchamps &amp; Minten (2012)</strong><br/><em>World Bank Econ. Rev.</em></td>
       <td>Large field RCT in Maharashtra sending daily SMS mandi prices to farmers found <strong>almost zero average income gain</strong> because transport and execution frictions blocked arbitrage.</td>
-      <td>Directly proves why raw AGMARKNET screens mislead (our 45.1% naive loss rate) &mdash; raw prices need reliability and volatility filtering.</td>
+      <td>Directly proves why raw AGMARKNET screens mislead (our 45.07% naive loss rate) &mdash; raw prices need reliability and volatility filtering.</td>
     </tr>
     <tr>
       <td><strong>4. Mitra et al. (2018)</strong><br/><em>Rev. Econ. &amp; Statistics</em></td>
       <td>Field experiment with West Bengal potato farmers showing middlemen, transport barriers, and asymmetric information absorb raw price spreads.</td>
-      <td>Reinforces why we stress-test 2&ndash;6% <em>arhtiya</em> commissions and never claim modeled spreads equal farmer household cash.</td>
+      <td>Reinforces why we stress-test <code>Outsider_Mid/MinPrice_LCV_4pctArh</code> (compressing Mean to &#8377;102.62) and never claim modeled cash receipts.</td>
     </tr>
     <tr>
       <td><strong>5. Levi et al. (2020; 2025)</strong><br/><em>PNAS &amp; Manuf. Serv. Oper. Manag. (MSOM)</em></td>
@@ -431,24 +432,24 @@ HTML_BODY = f"""
     <tr>
       <td><strong>7. Ziegler et al. (2019)</strong><br/><em>ACM ICTD</em></td>
       <td>Field user study with Indian vegetable farmers showing market tools only get adopted if they are ultra-simple and fit morning trader-calling habits.</td>
-      <td>Directly motivates eliminating black-box ML trees in favor of our 10-second pocket-calculator rules (<code>Safe_EV_Sunk</code> &amp; <code>RT_2F_Min</code>).</td>
+      <td>Motivates our 9-choice cold-start calculator (<code>Safe_EV_Sunk_m0</code>) that captures ~98.8% of 17m ML Mean with zero training history.</td>
     </tr>
   </tbody>
 </table>
 
-<span class="pillar-badge">PILLAR 3 &bull; Knowing When to Abstain &amp; Optimizing Decisions (Not Accuracy)</span>
+<span class="pillar-badge">PILLAR 3 &bull; Decision-Focused Learning, Heuristics &amp; Risk-Aware Abstention</span>
 <table>
   <thead><tr><th style="width:22%;">Paper &amp; Venue</th><th style="width:42%;">Core Idea in Plain English</th><th style="width:36%;">How MandiGuard Connects / Differs</th></tr></thead>
   <tbody>
     <tr>
       <td><strong>8. Chow (1970)</strong> &amp; <strong>El-Yaniv &amp; Wiener (2010)</strong><br/><em>IEEE TIT &amp; JMLR</em></td>
       <td>Founded <em>selective prediction (reject option)</em>: when mistakes are far costlier than staying silent, abstaining cuts catastrophic risk dramatically.</td>
-      <td>The theoretical root of "staying home at &#8377;0" when weekday reporting reliability is low &mdash; trading 8.5% fewer trips for 44% fewer losses.</td>
+      <td>Theoretical root of staying home at &#8377;0; <code>CommonIntersection_DS_cap_DB</code> proves we also add +&#8377;65.66 Mean / +&#8377;53.40 ES10 routing lift.</td>
     </tr>
     <tr>
-      <td><strong>9. Elmachtoub &amp; Grigas (2022)</strong><br/><em>Management Science</em></td>
-      <td><em>Smart "Predict, Then Optimize"</em>: showed that training a model to minimize average price error often gives bad operational decisions when costs are asymmetric.</td>
-      <td>Explains why our Stage I GBDT price-predictor failed (<code>H2 p = 0.27</code>) while direct lower-bound score ratios succeed with zero tuned parameters.</td>
+      <td><strong>9. Elmachtoub &amp; Grigas (2022)</strong> &amp; <strong>Mandi et al. (2024)</strong><br/><em>Manage. Sci. &amp; JAIR 80</em></td>
+      <td>Introduced Smart "Predict, Then Optimize" (SPO) and surveyed Decision-Focused Learning (DFL) benchmarks across 80+ combinatorial settings (<code>mandi2024dfl</code>).</td>
+      <td>Frames our 17m <code>Mean-Q10</code> GBDT frontier (autonomously reaching &#8377;458.27 / &minus;&#8377;423.88 without <code>safe_ev_feat</code>) alongside 0-data <code>Safe_EV_Sunk_m0</code> (<code>DeMiguel 2009</code>; <code>Vargas 2026</code> Mean-SD &#8377;443.57 / &minus;&#8377;439.77).</td>
     </tr>
   </tbody>
 </table>
@@ -459,8 +460,8 @@ HTML_BODY = f"""
   <tbody>
     <tr>
       <td><strong>10. Manski (1990)</strong> &amp; <strong>Rockafellar &amp; Uryasev (2000)</strong><br/><em>AER &amp; Journal of Risk</em></td>
-      <td>Manski introduced <em>nonparametric bounds</em> when outcomes are missing (bracket best/worst cases instead of guessing). Rockafellar &amp; Uryasev formalized coherent <em>Expected Shortfall / CVaR</em> (average of worst 10% outcomes).</td>
-      <td>Anchors our two signature metrics: exact fractional <strong>ES10</strong> (preventing disaster days) and exact <strong>closed-yard vs Open-MAR break-even bounds</strong> (25.45% silent-open share).</td>
+      <td>Manski introduced <em>nonparametric bounds</em> under non-ignorable missingness; Rockafellar &amp; Uryasev formalized coherent <em>Expected Shortfall / CVaR</em> (worst 10% average).</td>
+      <td>Anchors exact fractional <code>ES10</code>/<code>cond_ES10</code>, 25.45% Open-MAR break-even, and exact coupled Manski <code>cond_ES10</code> (<code>Supp1 +&#8377;152.20</code>, <code>Supp2 +&#8377;105.96</code>).</td>
     </tr>
   </tbody>
 </table>
@@ -469,50 +470,50 @@ HTML_BODY = f"""
 
 <div class="warn-box">
   <h3 style="margin-top:0;">Why Knowing Your Own Weaknesses Wins Every Viva &amp; Review</h3>
-  <p style="margin-bottom:4px;">Examiners love catching students hiding negative results &mdash; and immediately respect students who explain their exact failure boundaries clearly. Memorize these <strong>five honest disclosures</strong>:</p>
+  <p style="margin-bottom:4px;">Examiners love catching students hiding negative results &mdash; and immediately respect students who state exact failure boundaries clearly. Memorize these <strong>five honest disclosures</strong>:</p>
   <ol style="margin-bottom:0;">
-    <li><strong>The Missing-Quote Interpretation Bound (Open-MAR Reversal &amp; Break-Even):</strong> A blank AGMARKNET row could mean the yard was closed <em>or</em> that it traded and forgot to upload. Under the optimistic <em>Open-MAR</em> extreme (pretending 100% of blank yards actually cleared at yesterday's price), road baseline <code>B2</code> earns <strong>+&#8377;97.01/qtl higher Mean</strong> (&#8377;698.17 vs &#8377;601.16 on 171 markets; +&#8377;111.53 on 166-mkt 2018&ndash;2023), though <code>Safe_EV</code> still reduces losses and beats <code>B2</code> on <code>ES10</code> (+&#8377;189.97). Exact break-even algebra shows <code>B2</code> overtakes <code>Safe_EV</code> on Mean only if at least <strong>25.45%</strong> of silent yards clear at full lagged prices (26.65% under ERA5) &mdash; or if silent trips average <strong>+&#8377;348.61/qtl</strong> above turn-back.</li>
-    <li><strong>When Mean Gains Disappear (Free Turn-Back &amp; Hindsight):</strong> If turning back is assumed free (<code>div = 0</code> or literal <code>&#8377;0</code> diversion), <code>Safe_EV</code>'s Mean gain over <code>B2</code> (+&#8377;12.03 / +&#8377;11.21) is <strong>not statistically significant</strong> (<code>p = 0.22&ndash;0.26</code>), though <code>ES10</code> (+&#8377;174.40 / +&#8377;169.82) remains strongly significant. Under clairvoyant 3-day hindsight settlement, <code>B2</code> beats both <code>Safe_EV</code> (&#8377;549.81 vs &#8377;533.14) and <code>RT_2F</code> (&#8377;534.11) on Mean, while <code>Safe_EV</code> still cuts <code>ES10</code> tail risk in half (&minus;&#8377;279.93 vs &minus;&#8377;588.34).</li>
-    <li><strong>Subgroup Nuances (Mean vs ES10, and Potato vs RR):</strong> <code>Safe_EV_Sunk_m0</code> wins <strong>all 6 states and all 5 crop slices (4 crops incl. NonApple) on ES10 vs B2</strong>, but its <em>Mean</em> CIs cross zero in Gujarat (&minus;&#8377;1.66), Maharashtra, UP, Tomato, and Apple (whereas Class-8 <code>RT_2F_Min_m0</code> has strictly positive Mean CIs in all 6 states and all 5 crop slices!). On Potato, <code>Safe_EV</code> beats <code>B2</code> (+&#8377;70.61 ES10) but trails tuned <code>RR</code> by &minus;&#8377;17.20.</li>
-    <li><strong>Graded Apples &amp; Legacy Stage I ML:</strong> On HP graded apples (<code>N = 2,802</code>), <code>Safe_EV</code> improves <code>ES10</code> from &minus;&#8377;2,392 to &minus;&#8377;1,455, yet <strong>41.38% of dispatched trips still lose money</strong>. Legacy Stage I GBDT/conformal stayed inconclusive (<code>H2 +&#8377;6.13, p = 0.27</code>) and we claim zero conformal guarantees.</li>
-    <li><strong>No Live Field Receipts Yet (Prospective Gate J):</strong> Our 2025&ndash;2026 evaluation is exploratory (same calendar seen in earlier commits), and even our untouched 6-year 2018&ndash;2023 backtest uses historical public archives (no real truck bills or live phone logs). A small 1-season FPO field pilot logging actual <em>arhtiya</em> phone calls is the exact next step!</li>
+    <li><strong>Missing-Quote Bounds (Open-MAR Reversal &amp; Coupled Manski <code>cond_ES10</code>):</strong> Under 100% Open-MAR, road baseline <code>B2</code> earns <strong>+&#8377;97.01/qtl higher Mean</strong> (&#8377;698.17 vs &#8377;601.16; break-even <strong>25.45%</strong> or <strong>+&#8377;348.61/qtl</strong>; 26.65% ERA5), while coupled Manski <code>cond_ES10</code> remains positive on <code>Supp1</code> (+&#8377;152.20) and <code>Supp2</code> (+&#8377;105.96).</li>
+    <li><strong>When Mean Gains Vanish (Free Turn-Back &amp; Hindsight):</strong> Under free return (<code>div = 0</code>), Mean (+&#8377;12.03 / +&#8377;11.21, <code>p = 0.22&ndash;0.26</code>) is NS while <code>ES10</code> keeps +&#8377;174.40 / +&#8377;169.82. Under 3-day hindsight, <code>B2</code> leads Mean (&#8377;549.81 vs &#8377;533.14), while <code>Safe_EV</code> cuts <code>ES10</code> (&minus;&#8377;279.93 vs &minus;&#8377;588.34).</li>
+    <li><strong>Subgroup, UP Atom &amp; Reverse-Survivorship Limits:</strong> HP (<code>B = 12</code>) fails <code>cond_ES10</code> (<code>p = 0.1239</code>) and studentized checks (<code>p = 0.1879</code>, <code>p<sub>cgm,gstar</sub> = 0.2995</code>); Apple is borderline (<code>cond_ES10 p = 0.0550</code>); UP has an <strong>unconditional <code>q10 = 0</code> atom</strong> (7.28% &lt; 10% loss rate); Potato trails <code>RR</code> by &minus;&#8377;17.20; 166-mkt 2018&ndash;2023 is reverse-survivorship conditioned on 2024 (<strong>481/647 excluded</strong>; <code>2020/2023</code> Means NS); and 56/171 legacy geocodes collide (35.23% exact coverage, <code>N=6,605 p=0.001</code>).</li>
+    <li><strong>HP Scale Non-Invariance &amp; Honest 17m ML Frontier:</strong> On HP apples (<code>N = 2,802</code>), <code>F/G<sub>1SD</sub> &lt; 0.10</code> on 79.52% breaks <code>p<sub>dow</sub></code> (41.38% cond loss, <code>cond_ES10 p = 0.0940</code> NS); <code>ScaleInv_Safe_EV_24tau</code> cuts <code>ep_loss</code> 27.91% &rarr; 17.92% (<code>cond_ES10 &minus;&#8377;1,616.08</code>; <code>pFloor50</code> 15.17%). On full 17m (<code>n<sub>train</sub> = 113,374</code>), <code>MeanQ10</code> reaches &#8377;455.83 / &minus;&#8377;420.57 (<code>NoSafeEV</code> &#8377;458.27 / &minus;&#8377;423.88) and Split-CQR hits <code>cond_ES10 &minus;&#8377;367.09</code> (8,115 switches), though zero formal conformal coverage guarantees are claimed.</li>
+    <li><strong>Outsider Bargaining, SUTVA Crowding &amp; Blocked Gate J:</strong> <code>Outsider_MinPrice_LCV_4pctArh</code> compresses Safe_EV Mean to &#8377;102.62 (34.29% loss), SUTVA 10% crowding drops Mean to &minus;&#8377;5.31 (needs <code>k &le; 2</code> coordination), and prospective field validation (<code>Gate J</code>) remains open.</li>
   </ol>
 </div>
 
 <h2>7. Quick Viva Survival Guide: 6 Toughest Examiner Questions &amp; 15-Second Answers</h2>
 
 <div class="qa-item">
-  <div class="qa-q">Q1: "If this is an M.Tech thesis, why did you throw away Machine Learning and use a 1-line calculator formula?"</div>
-  <div><strong>Answer:</strong> "Because we tested GBDT + conformal prediction first (Stage I) and audited it honestly &mdash; it leaked weather, failed confirmatory <code>H2</code> (<code>p = 0.27</code>), and lost on graded apples. Stripping away complexity to zero-tuned-parameter domain physics (<code>p<sub>dow</sub> &middot; G<sub>1SD</sub> &gt; F</code>) cut difficulty from 4.3 to 1.2/5 while beating comparable-coverage ML and tuned heuristics on worst-10% shortfall across 171 markets and 6 untouched years (2018&ndash;2023)."</div>
+  <div class="qa-q">Q1: "How does your 9-choice calculator rule compare against properly trained ML and Split-CQR?"</div>
+  <div><strong>Answer:</strong> "Earlier 5m off-season starvation and homoscedastic CQR (0 switches) masked ML's potential. Trained on 17 full seasonal months (<code>n_train = 113,374</code>), <code>ML_17m_MeanQ10_Hybrid_eq63</code> hits &#8377;455.83 / <code>cond_ES10 &minus;&#8377;420.57</code> (<code>NoSafeEV</code> hits &#8377;458.27 / &minus;&#8377;423.88 autonomously) and heteroscedastic Split-CQR reaches <code>cond_ES10 &minus;&#8377;367.09</code> (8,115 switches). Yet <code>Safe_EV_Sunk_m0</code> (<code>n_train = 0</code>) captures ~98.8% of that Mean and ~94% of conditional tail protection with zero historical training data and pocket-calculator transparency."</div>
 </div>
 
 <div class="qa-item">
-  <div class="qa-q">Q2: "Didn't you design these rules after seeing the 2025&ndash;2026 test set?"</div>
-  <div><strong>Answer:</strong> "Yes &mdash; we explicitly label the 2025&ndash;2026 split exploratory and strictly report the locked <code>PREREG_A18</code> 4-test, <code>R = 2,000</code> family (<code>p<sub>holm,2s</sub> = 0.0040</code>). To prove it wasn't overfit to 2025&ndash;2026, we froze the exact zero-tuned-parameter formulas and ran them verbatim with zero retuning on clean 166 non-lookahead markets over 2018&ndash;2023 (383,952 episodes) &mdash; they beat <code>B2</code> on <code>ES10</code> and <code>cond_ES10</code> in all 6 years (2020 COVID-19 &amp; 2023 Means NS) and survive <code>&le; t&minus;2</code> latency."</div>
+  <div class="qa-q">Q2: "Isn't this post-hoc to 2025&ndash;2026, and how do small clusters (<code>B=12</code>) and <code>2018&ndash;2023</code> hold up?"</div>
+  <div><strong>Answer:</strong> "We label 2025&ndash;2026 explicitly as <strong>specification-locked exploratory inference</strong> (<code>PREREG_A18</code> <code>p<sub>holm,2s</sub> = 0.0040</code>; CGM <code>p<sub>cgm,gstar</sub> = 0.00511 / 0.01001</code> for <code>H_A18_1</code>, <code>0.04887 / 0.06800</code> for <code>H_A18_2</code>; 1-way <code>p<sub>wild,webb6,1w</sub> = 0.0005</code>), and disclose HP <code>B=12</code> non-significance and UP's unconditional <code>q10=0</code> atom. Frozen rules also transfer to clean 166 markets over 2018&ndash;2023 (<code>N = 383,952</code>, 6/6 yrs <code>ES10</code> &amp; <code>cond_ES10</code>, <code>2020/2023</code> Means NS), conditioned transparently on 2024 corridor inclusion (481/647 excluded)."</div>
 </div>
 
 <div class="qa-item">
-  <div class="qa-q">Q3: "Why not just call the destination trader on the phone instead of using math?"</div>
-  <div><strong>Answer:</strong> "You <em>should</em> call the trader before loading a truck! Our rule does not replace the phone call &mdash; it filters dozens of noisy AGMARKNET alerts at 6 a.m. so the FPO manager only dials reliable, low-volatility corridors. And even on confirmed open auctions alone (<code>exact_d0</code>), <code>Safe_EV</code> halves worst-10% tail losses (&minus;&#8377;302 vs &minus;&#8377;626) while matching open mean (&#8377;901 vs &#8377;902)."</div>
+  <div class="qa-q">Q3: "What drives Safe_EV's gain &mdash; volatility, reliability, routing, or just abstaining? What about trader calls?"</div>
+  <div><strong>Answer:</strong> "Our 2&times;2 orthogonal decomposition proves <code>Ortho_Pure_cv28_only</code> (<code>cond_ES10 &minus;&#8377;447.13</code>) supplies ~100% of tail truncation while <code>Ortho_Pure_pdow_only</code> (Mean &#8377;466.68, <code>&minus;&#8377;607.18</code>) supplies diversion avoidance and Mean lift. Inside shared dispatches (<code>CommonIntersection_DS_cap_DB</code>, <code>n = 33,398</code>), Safe_EV also adds +&#8377;65.66 Mean and +&#8377;53.40 ES10 purely from better routing. Before loading, <code>PhoneCall_TopK_Open</code> still cuts losses to 4.99% (<code>cond_ES10 &minus;&#8377;355.07</code> vs B2 &minus;&#8377;691.79)."</div>
 </div>
 
 <div class="qa-item">
-  <div class="qa-q">Q4: "What if blank AGMARKNET rows were actually open markets that simply forgot to upload?"</div>
-  <div><strong>Answer:</strong> "We cannot prove physical closure from a blank web row, so we follow Manski (1990) and bracket both extremes plus exact break-even algebra: <code>B2</code> only catches <code>Safe_EV</code> on Mean if at least 25.45% of silent yards clear at full lagged prices (Open-MAR gives <code>B2</code> +&#8377;97/qtl Mean), while <code>Safe_EV</code> still cuts losses and beats <code>B2</code> by +&#8377;190/qtl on <code>ES10</code> even under 100% Open-MAR."</div>
+  <div class="qa-q">Q4: "What if blank AGMARKNET rows were open yards, or return legs suffer full heat decay?"</div>
+  <div><strong>Answer:</strong> "B2 only passes Safe_EV on Mean if &ge; 25.45% of silent yards clear at full lagged prices (Open-MAR gives B2 +&#8377;97.01/qtl Mean), yet exact coupled Manski <code>cond_ES10</code> stays positive through <code>Supp1</code> (+&#8377;152.20) and <code>Supp2</code> (+&#8377;105.96). Under repaired <code>_spoil_return_leg</code> <code>S6</code> (full <code>24&tau;+hrs+24w</code> + ERA5), Safe_EV earns &#8377;307.39 / &minus;&#8377;576.57 / &minus;&#8377;725.73, and keeps +&#8377;366.85 <code>cond_ES10</code> under <code>Stoch_CondMAR_p1.00</code>."</div>
 </div>
 
 <div class="qa-item">
-  <div class="qa-q">Q5: "Where did your fee percentages (0.5&ndash;1.5%) and spoilage numbers come from?"</div>
-  <div><strong>Answer:</strong> "We are completely transparent: PIB 154554 lists qualitative state APMC exemptions/user-charge regimes (not exact percentages), so our 0.5&ndash;1.5% rates are stylized friction tiers anchored qualitatively to those regimes. Likewise, NABCONS (2022, PIB 2151371) reports cumulative marketing-level crop loss shares (3.25%, 1.96%, 1.64%, 0.86%), which we calibrate operationally as 24h decay parameters. Because both are modeling choices, we stress-tested 0% fees, 6% commissions, 0.5&times;&ndash;2.0&times; spoilage, and realized ERA5 weather &mdash; <code>Safe_EV</code> holds across all 36/36 tornado scenarios."</div>
+  <div class="qa-q">Q5: "What breaks on Himachal graded apples and real-world geocodes / outsider pricing?"</div>
+  <div><strong>Answer:</strong> "On HP apples (<code>N=2,802</code>), <code>F/G<sub>1SD</sub> &lt; 0.10</code> on 79.52% breaks the <code>p<sub>dow</sub></code> screen (scale non-invariance); <code>ScaleInv_Safe_EV_24tau</code> solves this by cutting <code>ep_loss</code> 27.91% &rarr; 17.92% (<code>cond_ES10 &minus;&#8377;1,616.08</code>). On geocodes, 56/171 markets collided, leaving 35.23% exact coverage (<code>N=6,605</code> still passes <code>ES10 p=0.001</code>). On <code>Outsider_MinPrice_LCV_4pctArh</code>, Safe_EV Mean drops to &#8377;102.62 (vs B2 &#8377;33.86)."</div>
 </div>
 
 <div class="qa-item">
   <div class="qa-q">Q6: "What is your single next step to turn this into a top-tier journal paper?"</div>
-  <div><strong>Answer:</strong> "A one-season FPO field pilot logging 200&ndash;500 real 6 a.m. <em>arhtiya</em> confirmation calls, truck bills, and auction <em>patti</em> slips &mdash; that directly measures the true silent-open rate against our 25.45% break-even threshold and unblocks prospective causal validation (Gate J)."</div>
+  <div><strong>Answer:</strong> "A one-season FPO field pilot logging 200&ndash;500 real 6 a.m. <em>arhtiya</em> confirmation calls, truck bills, and auction <em>patti</em> slips &mdash; directly measuring the true silent-open rate against our 25.45% break-even threshold while rebuilding corridors with our repaired sub-yard-first geocoder (<code>Gate J</code>)."</div>
 </div>
 
 <div class="footer-note">
-  <strong>MandiGuard Revision v7 Concept &amp; Literature Guide</strong> &bull; Every metric verified directly from <code>revision/results/v7_*.csv</code> (primary zero-lookahead 171-market panel N = 57,634; clean 166-mkt 2018&ndash;2023 panel N = 383,952; locked PREREG_A18 R = 2,000 bootstrap; 59 verified citations in <code>paper/references.bib</code>).
+  <strong>MandiGuard Revision v8 Concept &amp; Literature Guide</strong> &bull; Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University &bull; Verified from <code>revision/results/v7_*.csv</code> (171-mkt N = 57,634; 17m n = 113,374; 166-mkt 2018&ndash;2023 N = 383,952; exploratory PREREG_A18 R = 2,000 + CGM G*; 59 verified citations).
 </div>
 """
 
@@ -520,7 +521,7 @@ HTML_BODY = f"""
 def main() -> None:
     doc = (
         '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>'
-        "<title>MandiGuard — Ultra-Simplified Concept &amp; Top 10 Research Papers Guide (Revision v7)</title>"
+        "<title>MandiGuard — Ultra-Simplified Concept &amp; Top 10 Research Papers Guide (Revision v8)</title>"
         f"<style>{CSS}</style></head><body>{HTML_BODY}</body></html>"
     )
     HTML_OUT.write_text(doc, encoding="utf-8")
@@ -531,7 +532,11 @@ def main() -> None:
     assert len(reader.pages) <= 8, f"Expected compact <= 8 pages, got {len(reader.pages)}"
     raw_macros = sorted(set(re.findall(r"\\[a-zA-Z]{2,}", txt)))
     assert raw_macros == [], f"Raw LaTeX macros leaked: {raw_macros}"
-    for bad in ("TO CONFIRM", "exploratory: true", "make reproduce", "[jensen2007digital]"):
+    for bad in (
+        "TO CONFIRM", "exploratory: true", "make reproduce", "[jensen2007digital]",
+        "525.17", "530.30", "512.43", "496.76", "444.86", "266.43",
+        "Locked confirmatory", "zero-parameter beats", "propensity", "/" + "Users/",
+    ):
         assert bad not in txt, f"Forbidden token `{bad}` found in {PDF_OUT.name}"
     print(f"Wrote {HTML_OUT.name} & {PDF_OUT.name} ({len(reader.pages)} pages, clean)")
 

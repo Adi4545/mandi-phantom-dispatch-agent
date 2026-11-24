@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build Revision v7 First-Principles & Thesis Defense Handbook HTML + PDF.
+"""Build Revision v8 (Honest Candidate C Synthesis) First-Principles & Thesis Defense Handbook HTML + PDF.
 
-Compiles directly from canonical Revision v7 markdown sources:
+Compiles directly from canonical Revision v8 markdown sources:
   - viva/00_career_defense_master_sheet.md
   - paper/12th_class_easy_reading_edition.md
   - final/SIMPLIFIED_DESIGN.md
@@ -13,7 +13,7 @@ Compiles directly from canonical Revision v7 markdown sources:
   - final/VIVA_QA.md
   - viva/03_spoken_pitches_1m_5m_15m.md
 
-Zero legacy Stage-I/II stale claims, zero hardcoded home paths, portable Chrome PDF.
+Zero stale 5m-starved ML/CQR illusions, zero hardcoded home paths, portable Chrome PDF.
 """
 
 from __future__ import annotations
@@ -77,13 +77,13 @@ HANDBOOK_EXTRA_CSS = """
 CHAPTERS = [
     ("Part 1 • Executive Elevator Summary", "45-Second Core Pitch & Headline Ledger", "viva/00_career_defense_master_sheet.md"),
     ("Part 2 • First-Principles Intuition", "Class-12 Pocket-Calculator Walkthrough", "paper/12th_class_easy_reading_edition.md"),
-    ("Part 3 • Difficulty Reduction Audit", "How Complexity Dropped 4.3 → 1.2 / 5 (A15 + A18)", "final/DIFFICULTY.md"),
-    ("Part 4 • Simplified Equations", "Zero-Tuned-Parameter Safe_EV_Sunk_m0 & RT_2F_Min_m0", "final/SIMPLIFIED_DESIGN.md"),
-    ("Part 5 • Complete Scientific Paper", "Revision v7 Full Manuscript (171 Mkts, R=2,000, ERA5, 2018–2023)", "paper/manuscript.md"),
+    ("Part 3 • Difficulty Reduction Audit", "Complexity Reduction, 2x2 Decomposition & 17m ML Frontier", "final/DIFFICULTY.md"),
+    ("Part 4 • Simplified Equations", "9-Choice Safe_EV_Sunk_m0, ScaleInv_Safe_EV_24tau & RT_2F_Min_m0", "final/SIMPLIFIED_DESIGN.md"),
+    ("Part 5 • Complete Scientific Paper", "Revision v8 Full Manuscript (171 Mkts, 2x2 Audit, 17m ML/CQR, 2018–2023)", "paper/manuscript.md"),
     ("Part 6 • Literature & Novelty Defense", "18-Work Overlap Matrix & Surviving Claim (NOVELTY_V2)", "final/NOVELTY_V2.md"),
     ("Part 7 • Cleanroom & Examiner Sign-Off", "A16 Parity (₹0.00) & Independent Audit Record", "final/AUDIT_V4.md"),
-    ("Part 8 • Prominent Boundaries (R6 & R7)", "Eight Binding Non-Claims & Open-MAR / Break-Even / Negative-Mean Disclosures", "final/LIMITATIONS.md"),
-    ("Part 9 • Examiner Viva Bank", "Scripted-Verified Q&A (C2 & R2 Clean)", "final/VIVA_QA.md"),
+    ("Part 8 • Prominent Boundaries (R6 & R7)", "Fourteen Binding Non-Claims & Manski / Scale / Crowding Disclosures", "final/LIMITATIONS.md"),
+    ("Part 9 • Examiner Viva Bank", "Scripted-Verified Q&A (Revision v8 Clean)", "final/VIVA_QA.md"),
     ("Part 10 • Oral Defense Scripts", "1-Minute, 5-Minute & 15-Minute Spoken Pitches", "viva/03_spoken_pitches_1m_5m_15m.md"),
 ]
 
@@ -102,19 +102,19 @@ def build() -> None:
 
     cover = """
     <div class="cover">
-      <span class="meta-pill">Thesis Defense Compendium &bull; Revision v7 Audited</span>
+      <span class="meta-pill">Thesis Defense Compendium &bull; Revision v8 (Honest Candidate C Synthesis)</span>
       <h1>MandiGuard: First-Principles &amp; Thesis Defense Handbook</h1>
-      <div class="sub">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; Zero-Tuned-Parameter Safe_EV_Sunk_m0, Safe_EV_Phys_m0 &amp; RT_2F_Min_m0 Across Primary 171-Mkt (N=57,634) &amp; Clean 166-Mkt 2018&ndash;2023 (N=383,952) Panels</div>
+      <div class="sub">Aditya Sharma (M.Tech Thesis Research, supervised by Dr. Sonia) &mdash; Shoolini University, Solan, Himachal Pradesh, India &bull; 9-Choice Cold-Start <code>Safe_EV_Sunk_m0</code>, <code>2&times;2</code> Orthogonal Audit, <code>17m</code> ML/CQR Frontier &amp; <code>ScaleInv_Safe_EV_24tau</code></div>
       <div class="badge-row">
-        <span class="badge">0 Free Parameters</span>
+        <span class="badge">9 Fixed Choices (0 Tuned Weights)</span>
         <span class="badge">171-Mkt Primary (N=57,634)</span>
+        <span class="badge">17m ML Frontier (n_train=113,374)</span>
+        <span class="badge">Exploratory PREREG_A18 Holm p = 0.0040</span>
         <span class="badge">166-Mkt 2018&ndash;2023 (N=383,952)</span>
-        <span class="badge">Locked R = 2,000 Holm p = 0.0040</span>
         <span class="badge">59 (Author, Year) Citations</span>
-        <span class="badge">Phase 6 Stress + Cleanroom &#8377;0.00</span>
       </div>
       <div class="worked-box">
-        <p><strong>Canonical Scope Notice (Revision v7):</strong> Every metric, equation, cluster count, and figure in this handbook is compiled directly from Revision v7 canonical sources on branch <code>finalization</code>. The zero-lookahead <code>2024</code>-selected <code>171</code>-market panel (<code>N = 57,634</code>) serves as primary analysis alongside the clean non-lookahead <code>166</code>-market <code>2018&ndash;2023</code> backtest (<code>N = 383,952</code>; <code>115</code>-mkt <code>N = 325,993</code>), locked 4-test <code>R = 2,000</code> inference (<code>p<sub>holm,2s</sub> = 0.0040</code>, conditional <code>cond_ES10 &minus;&#8377;447.48</code>), realized ERA5 / NASA POWER settlement, Phase 6 adversarial stress tests (<code>&le; t&minus;2</code>, coupled <code>S6_Frozen &times; Stoch_CondMAR</code>, SUTVA <code>k &le; 2</code>), explicit stylized PIB/NABCONS calibration disclosures, and full reporting of all non-significant (including <code>2020/2023</code> Means, <code>HP B=12</code> &amp; Apple <code>cond_ES10</code>) and Open-MAR reversed Mean contrasts.</p>
+        <p><strong>Canonical Scope Notice (Revision v8 &mdash; Honest Candidate C Synthesis):</strong> Every metric, equation, and figure in this handbook is compiled directly from Revision v8 sources on branch <code>finalization</code>. On the zero-lookahead <code>2024</code>-selected <code>171</code>-market panel (<code>N = 57,634</code>), specification-locked exploratory inference (<code>PREREG_A18</code>, <code>R = 2,000</code>, <code>p<sub>holm,2s</sub> = 0.0040</code>; finite-sample CGM <code>p<sub>cgm,gstar</sub> = 0.00511 / 0.01001</code> for <code>H_A18_1</code>, <code>0.04887 / 0.06800</code> for <code>H_A18_2</code>; 1-way <code>p_wild_webb6_1w_block_only</code>) shows <code>Safe_EV_Sunk_m0</code> (<code>9</code> fixed choices, zero tuned weights; <code>p<sub>dow</sub>&middot;G<sub>1SD</sub> &minus; F &equiv; p<sub>dow</sub>(G<sub>1SD</sub> &minus; F) + (1 &minus; p<sub>dow</sub>)(&minus;1.0F)</code>) reaches Mean <code>&#8377;452.74</code>, <code>ES10 &minus;&#8377;345.53</code>, and <code>cond_ES10 &minus;&#8377;447.48</code>. A <code>2&times;2</code> orthogonal decomposition proves <code>Ortho_Pure_cv28_only</code> (<code>71.91%</code>, <code>cond_ES10 &minus;&#8377;447.13</code>) drives ~100% of conditional tail truncation while <code>Ortho_Pure_pdow_only</code> (<code>84.10%</code>, Mean <code>&#8377;466.68</code>, <code>cond_ES10 &minus;&#8377;607.18</code>) drives diversion avoidance and Mean lift; inside <code>CommonIntersection_DS_cap_DB</code> (<code>n = 33,398</code>), pure routing lift adds <code>+&#8377;65.66</code> Mean and <code>+&#8377;53.40</code> <code>ES10</code>. Honest full-season <code>17m</code> ML (<code>n<sub>train</sub> = 113,374</code>) resolves earlier <code>5m</code> off-season starvation and homoscedastic CQR bugs (<code>0</code> switches): <code>ML_17m_MeanQ10_Hybrid_eq63</code> hits Mean <code>&#8377;455.83 / ES10 &minus;&#8377;320.02 / cond_ES10 &minus;&#8377;420.57</code> (with <code>NoSafeEV_eq63</code> at <code>&#8377;458.27 / &minus;&#8377;423.88</code> autonomously) and heteroscedastic Split-CQR unlocks <code>8,848</code> (<code>5m</code>) and <code>8,115</code> (<code>17m</code>) switches (<code>cond_ES10 &minus;&#8377;367.09</code> at Mean <code>&#8377;364.03</code>), while <code>Safe_EV_Sunk_m0</code> captures ~98.8% of <code>MeanQ10</code> Mean and ~94% of <code>cond_ES10</code> tail protection at <code>n<sub>train</sub> = 0</code>. Also disclosed: HP apple scale non-invariance (<code>F/G<sub>1SD</sub> &lt; 0.10</code> on <code>79.52%</code>; solved by <code>ScaleInv_Safe_EV_24tau</code> cutting <code>ep_loss</code> <code>27.91% &rarr; 17.92%</code>, <code>cond_ES10 &minus;&#8377;1,616.08</code>), legacy geocode collisions (<code>56/171</code> collided, <code>35.23%</code> non-collided exact coverage, <code>N = 6,605</code> <code>p = 0.001</code>), repaired <code>_spoil_return_leg</code> <code>S6</code> (<code>&#8377;307.39 / &minus;&#8377;725.73</code>; <code>Stoch_CondMAR_p1.00 +&#8377;366.85</code>), exact coupled Manski <code>cond_ES10</code> (<code>Supp1 +&#8377;152.20</code>, <code>Supp2 +&#8377;105.96</code>), <code>PhoneCall_TopK_Open</code>, <code>Outsider_Mid/MinPrice_LCV_4pctArh</code>, UP unconditional <code>q10 = 0</code> atom, and <code>2018&ndash;2023</code> reverse-survivorship (<code>481/647</code>).</p>
       </div>
     </div>
     """
@@ -142,7 +142,7 @@ def build() -> None:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>MandiGuard First-Principles &amp; Thesis Defense Handbook (Revision v7)</title>
+<title>MandiGuard First-Principles &amp; Thesis Defense Handbook (Revision v8)</title>
 <style>{PAPER_CSS}\n{HANDBOOK_EXTRA_CSS}</style>
 </head>
 <body>{''.join(sections)}</body>
@@ -152,9 +152,9 @@ def build() -> None:
     render_pdf(HTML_OUT, PDF_OUT)
 
     txt = "\n".join((pg.extract_text() or "") for pg in PdfReader(str(PDF_OUT)).pages)
-    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952"):
-        assert req in txt, f"Missing expected Revision v7 token `{req}` in {PDF_OUT.name}"
-    for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22"]:
+    for req in ("Safe_EV_Sunk_m0", "RT_2F_Min_m0", "57,634", "345.53", "383,952", "113,374", "ScaleInv_Safe_EV_24tau"):
+        assert req in txt, f"Missing expected Revision v8 token `{req}` in {PDF_OUT.name}"
+    for bad in FORBIDDEN_LATEX_LEAKS + FORBIDDEN_LEGACY_STRINGS + ["92.77", "66.22", "Locked confirmatory"]:
         assert bad not in txt, f"Forbidden string `{bad}` found in {PDF_OUT.name}"
     print(f"Wrote {HTML_OUT.name} & {PDF_OUT.name} ({len(PdfReader(str(PDF_OUT)).pages)} pages, clean)")
 

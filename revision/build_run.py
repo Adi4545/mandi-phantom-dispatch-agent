@@ -1,4 +1,4 @@
-"""Full leak-free build, evaluation, sensitivity, A10, A18, V6, V7, and figure entry point for Revision v7."""
+"""Full leak-free build, evaluation, sensitivity, A10, A18, V6, V7, and figure entry point for Revision v8."""
 
 from revision.build_hp_apple_lagged import build_hp_apple
 from revision.build_variant import build

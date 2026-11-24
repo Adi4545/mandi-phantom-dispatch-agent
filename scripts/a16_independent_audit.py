@@ -311,7 +311,7 @@ def main() -> None:
         raw, cor, fees, pub_counts, pub_a10, label="178-Mkt", b2_th=200.0, pub_a18=pub_a18, pub_a10_meta=pub_a10_meta
     )
 
-    # Independent cleanroom verification of Primary Revision v7 Zero-Lookahead 171-Mkt panel
+    # Independent cleanroom verification of Primary Revision v8 Zero-Lookahead 171-Mkt panel
     v7_summary = json.loads((res_dir / "v7_summary.json").read_text())
     v7_main = pd.read_csv(res_dir / "v7_main_171.csv").set_index("policy")
     raw_dates = pd.to_datetime(raw["Arrival_Date"])
@@ -373,13 +373,21 @@ def main() -> None:
     exp2 = pd.read_csv(res_dir / "v7_exp2_bio_s6_condmar.csv")
     s6_cm = exp2[(exp2["experiment"] == "S6_Smallholder_4pctArh_USDA_ERA5_Frozen") & (exp2["missing_regime"] == "Stoch_CondMAR_p1.00")].set_index("policy")
     assert float(s6_cm.loc["Safe_EV_Sunk_m0", "cond_es10"]) - float(s6_cm.loc["B2_age_matched", "cond_es10"]) > 300.0
+    exp3 = pd.read_csv(res_dir / "v7_exp3_manski_and_open.csv").set_index("analysis")
+    assert float(exp3.loc["Manski_Supp1_div15_openlag", "coupled_dcond_es10_wc"]) > 0.0
+    assert float(exp3.loc["Manski_Supp2_div20_q95", "coupled_dcond_es10_wc"]) > 0.0
     exp4 = pd.read_csv(res_dir / "v7_exp4_ml_pareto_and_formula.csv")
     pareto = exp4[exp4["group"] == "ml_or_pareto"].set_index("policy")
     for cmp_pol in ("ML_Ridge_EV_m0", "ML_HGBR_EV_TV_age13_m0", "OR_Vargas_MeanVar_g0002"):
         assert float(pareto.loc["ZeroParam_Safe_EV_Sunk_m0", "cond_es10"]) > float(pareto.loc[cmp_pol, "cond_es10"])
+    assert "ML_17m_MeanQ10_Hybrid_eq63" in pareto.index
+    ortho_closed = exp4[exp4["group"] == "closed_yard_ortho"].set_index("policy")
+    assert "Ortho_Pure_cv28_only" in ortho_closed.index
     exp5 = pd.read_csv(res_dir / "v7_exp5_hygiene_sutva_inference.csv")
     sutva_k2 = exp5[exp5["slice_check"] == "SUTVA_CapacityCap_k2"].set_index("policy")
     assert float(sutva_k2.loc["Safe_EV_Sunk_m0", "es10"]) > float(sutva_k2.loc["B2_age_matched", "es10"])
+    nc_exact = exp5[exp5["slice_check"] == "PureAll5_NonCollided_Exact_N6605"].set_index("policy")
+    assert float(nc_exact.loc["Safe_EV_Sunk_m0", "es10"]) > float(nc_exact.loc["B2_age_matched", "es10"])
 
     print("A16 INDEPENDENT AUDIT PASSED WITHIN <= ₹0.01 ACROSS 178-MKT, PRIMARY 171-MKT-V7, CLEAN 166-MKT, PHASE 6, AND CLUSTER INVARIANTS!")
 

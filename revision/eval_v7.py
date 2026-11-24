@@ -850,7 +850,7 @@ def run() -> None:
     df_f = compute_decision_features(dec_df)
     dec_age13 = (df_f["age"] >= 1) & (df_f["age"] <= 3)
 
-    # Clean 115-market 2017-active subset (zero 2024-2026 lookahead)
+    # 2017-active 115-market cohort inside the 2024-active OSRM corridor frame (reverse-survivorship conditioned on 2024)
     raw_115_mask = [(st, mk) in mkts_2017_clean for st, mk in zip(dec_17_23_166["State"].astype(str), dec_17_23_166["Market"].astype(str))]
     dec_115_df, dec_115_counts = build_lagged_candidates_from_frames(
         raw_df=dec_17_23_166.loc[raw_115_mask].copy().reset_index(drop=True),

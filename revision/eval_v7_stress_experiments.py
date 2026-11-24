@@ -270,25 +270,30 @@ def _spoil_vector(df: pd.DataFrame, wait_d: int, mode: str, use_era5: bool, tmax
 
 
 def _spoil_return_leg(df: pd.DataFrame, wait_d: int, mode: str, use_era5: bool, tmax_arr: np.ndarray, tmin_arr: np.ndarray, rh_arr: np.ndarray, rain_arr: np.ndarray) -> np.ndarray:
-    """Return-leg physical clock: 2 * truck_hours (outbound + turnback) + 24 * wait_d."""
+    """Return-leg physical clock: outbound arrival clock + wait + return drive (>= sell clock on 100% of rows)."""
     n = len(df)
     if mode == "zero":
         return np.zeros(n, dtype=np.float64)
     comm = df["Commodity"].to_numpy()
+    tau_d = df["tau_days"].to_numpy(dtype=np.float64)
     hrs = df["truck_hours"].to_numpy(dtype=np.float64)
     usda = {"Tomato": 0.020, "Apple": 0.0035, "Onion": 0.0025, "Potato": 0.0015}
     base = np.array([usda.get(str(c), 0.01) for c in comm], dtype=np.float64) if mode == "usda_sched7" else np.array([BASE_SPOIL_24H.get(str(c), 0.02) for c in comm], dtype=np.float64)
     if mode == "nabcons_truck":
-        clock_h = np.maximum(1.0, hrs + 24.0 * wait_d)
-    else:
         clock_h = np.maximum(1.0, 2.0 * hrs + 24.0 * wait_d)
+    else:
+        clock_h = 24.0 * tau_d + hrs + 24.0 * wait_d
     if use_era5:
-        tmean = np.clip(0.5 * (tmax_arr + tmin_arr), 5.0, 48.0)
-        q10 = 2.0 ** ((tmean - 20.0) / 10.0)
+        tmean = 0.5 * (tmax_arr + tmin_arr)
+        t_eff = np.clip(tmean, 5.0, 48.0)
+        rh_eff = np.clip(rh_arr, 20.0, 100.0)
+        q10 = 2.0 ** ((t_eff - 20.0) / 10.0)
+        rh_f = np.where(np.isin(comm, ["Tomato", "Apple"]), 1.0 + 0.25 * np.maximum(0.0, (70.0 - rh_eff) / 40.0), 1.0 + 0.25 * np.maximum(0.0, (rh_eff - 70.0) / 30.0))
+        chill = np.where(comm == "Tomato", 0.015 * np.maximum(0.0, (12.0 - t_eff) / 5.0), 0.0)
         rain_f = np.where(rain_arr >= 35.0, 0.02, 0.0)
     else:
-        q10, rain_f = 1.0, 0.0
-    return np.clip(base * (clock_h / 24.0) * q10 + rain_f, 0.0, 0.55)
+        q10, rh_f, chill, rain_f = 1.0, 1.0, 0.0, 0.0
+    return np.clip(base * (clock_h / 24.0) * q10 * rh_f + chill + rain_f, 0.0, 0.55)
 
 
 def _settle_custom(
@@ -555,7 +560,63 @@ def run_exp3_manski_and_open(
     div_b = el_b & div_mask[idx_b]
     same_dest_silent = div_s & div_b & (ch_s["dest_market"].to_numpy() == ch_b["dest_market"].to_numpy())
 
-    # Coupled & decoupled Manski bounds across Supp1, Supp2, Supp3
+    def _solve_coupled_tail(
+        ys_unsh: np.ndarray,
+        yb_unsh: np.ndarray,
+        sh_mask: np.ndarray,
+        y_lo_sh: np.ndarray,
+        y_hi_sh: np.ndarray,
+        sub_a: np.ndarray | None = None,
+        sub_b: np.ndarray | None = None,
+        minimize: bool = True,
+    ) -> float:
+        def eval_z(z_hi: np.ndarray) -> float:
+            ys = ys_unsh.copy()
+            yb = yb_unsh.copy()
+            v_sh = np.where(z_hi, y_hi_sh, y_lo_sh)
+            ys[sh_mask] = v_sh
+            yb[sh_mask] = v_sh
+            va = ys[sub_a] if sub_a is not None else ys
+            vb = yb[sub_b] if sub_b is not None else yb
+            return float(es10(va) - es10(vb))
+
+        n_sh = int(sh_mask.sum())
+        if n_sh == 0:
+            return eval_z(np.zeros(0, dtype=bool))
+        best_z = np.zeros(n_sh, dtype=bool)
+        best_val = eval_z(best_z)
+        cands = [np.ones(n_sh, dtype=bool)]
+        for thr in np.unique(np.quantile(y_lo_sh, np.linspace(0.0, 1.0, 25))):
+            cands.append(y_lo_sh > thr)
+            cands.append(y_lo_sh <= thr)
+        for zc in cands:
+            v = eval_z(zc)
+            if (minimize and v < best_val) or ((not minimize) and v > best_val):
+                best_val, best_z = v, zc.copy()
+        na_eff = int(sub_a.sum()) if sub_a is not None else len(ys_unsh)
+        nb_eff = int(sub_b.sum()) if sub_b is not None else len(yb_unsh)
+        for _ in range(8):
+            ys = ys_unsh.copy()
+            yb = yb_unsh.copy()
+            v_sh = np.where(best_z, y_hi_sh, y_lo_sh)
+            ys[sh_mask] = v_sh
+            yb[sh_mask] = v_sh
+            qa = float(np.quantile(ys[sub_a] if sub_a is not None else ys, 0.10))
+            qb = float(np.quantile(yb[sub_b] if sub_b is not None else yb, 0.10))
+            d_a = (np.maximum(0.0, qa - y_lo_sh) - np.maximum(0.0, qa - y_hi_sh)) / max(1.0, 0.10 * na_eff)
+            d_b = (np.maximum(0.0, qb - y_lo_sh) - np.maximum(0.0, qb - y_hi_sh)) / max(1.0, 0.10 * nb_eff)
+            delta = d_a - d_b
+            z_next = (delta < 0.0) if minimize else (delta > 0.0)
+            if np.array_equal(z_next, best_z):
+                break
+            v_next = eval_z(z_next)
+            if (minimize and v_next < best_val - 1e-9) or ((not minimize) and v_next > best_val + 1e-9):
+                best_val, best_z = v_next, z_next
+            else:
+                break
+        return best_val
+
+    # Coupled & decoupled Manski bounds across Supp1, Supp2, Supp3 (both ES10 and cond_ES10!)
     for s_name, y_lo_all, y_hi_all in (
         ("Manski_Supp1_div15_openlag", y_base, y_open_lag),
         ("Manski_Supp2_div20_q95", y_div20, y_open_q95),
@@ -571,23 +632,25 @@ def run_exp3_manski_and_open(
         dec_dmean_hi = float((ys_hi - yb_lo).mean())
         dec_des10_lo = float(es10(ys_lo) - es10(yb_hi))
         dec_des10_hi = float(es10(ys_hi) - es10(yb_lo))
+        dec_dcond_lo = float(es10(ys_lo[el_s]) - es10(yb_hi[el_b]))
+        dec_dcond_hi = float(es10(ys_hi[el_s]) - es10(yb_lo[el_b]))
 
-        # Coupled Manski contrast bounds: shared silent destination equal on same cell (S & B pick same y* in [lo, hi])
-        # WC coupled sets shared_div=lo if (S_hi-B_hi vs S_lo-B_lo), test all 4 endpoint corners on shared_div vs unshared!
+        # Coupled Mean is linear -> invariant on same_dest_silent
         unsh_s = div_s & (~same_dest_silent)
         unsh_b = div_b & (~same_dest_silent)
-        best_wc_mean, best_bc_mean = 1e18, -1e18
-        best_wc_es10, best_bc_es10 = 1e18, -1e18
-        for shared_to_hi in (False, True):
-            ys_c_wc = np.where(unsh_s, ys_lo, np.where(same_dest_silent & shared_to_hi, ys_hi, ys_lo))
-            yb_c_wc = np.where(unsh_b, yb_hi, np.where(same_dest_silent & shared_to_hi, yb_hi, yb_lo))
-            best_wc_mean = min(best_wc_mean, float((ys_c_wc - yb_c_wc).mean()))
-            best_wc_es10 = min(best_wc_es10, float(es10(ys_c_wc) - es10(yb_c_wc)))
+        ys_wc_base = np.where(unsh_s, ys_lo, ys_lo)
+        yb_wc_base = np.where(unsh_b, yb_hi, yb_lo)
+        ys_bc_base = np.where(unsh_s, ys_hi, ys_lo)
+        yb_bc_base = np.where(unsh_b, yb_lo, yb_lo)
+        y_lo_sh = ys_lo[same_dest_silent]
+        y_hi_sh = ys_hi[same_dest_silent]
 
-            ys_c_bc = np.where(unsh_s, ys_hi, np.where(same_dest_silent & shared_to_hi, ys_hi, ys_lo))
-            yb_c_bc = np.where(unsh_b, yb_lo, np.where(same_dest_silent & shared_to_hi, yb_hi, yb_lo))
-            best_bc_mean = max(best_bc_mean, float((ys_c_bc - yb_c_bc).mean()))
-            best_bc_es10 = max(best_bc_es10, float(es10(ys_c_bc) - es10(yb_c_bc)))
+        best_wc_mean = float((ys_wc_base - yb_wc_base).mean())
+        best_bc_mean = float((ys_bc_base - yb_bc_base).mean())
+        best_wc_es10 = _solve_coupled_tail(ys_wc_base, yb_wc_base, same_dest_silent, y_lo_sh, y_hi_sh, None, None, minimize=True)
+        best_bc_es10 = _solve_coupled_tail(ys_bc_base, yb_bc_base, same_dest_silent, y_lo_sh, y_hi_sh, None, None, minimize=False)
+        best_wc_cond = _solve_coupled_tail(ys_wc_base, yb_wc_base, same_dest_silent, y_lo_sh, y_hi_sh, el_s, el_b, minimize=True)
+        best_bc_cond = _solve_coupled_tail(ys_bc_base, yb_bc_base, same_dest_silent, y_lo_sh, y_hi_sh, el_s, el_b, minimize=False)
 
         rows.append({
             "analysis": s_name, "subgroup": "Safe_EV_vs_B2",
@@ -595,8 +658,10 @@ def run_exp3_manski_and_open(
             "shared_silent_n": int(same_dest_silent.sum()),
             "coupled_dmean_wc": round(best_wc_mean, 2), "coupled_dmean_bc": round(best_bc_mean, 2),
             "coupled_des10_wc": round(best_wc_es10, 2), "coupled_des10_bc": round(best_bc_es10, 2),
+            "coupled_dcond_es10_wc": round(best_wc_cond, 2), "coupled_dcond_es10_bc": round(best_bc_cond, 2),
             "decoupled_dmean_wc": round(dec_dmean_lo, 2), "decoupled_dmean_bc": round(dec_dmean_hi, 2),
             "decoupled_des10_wc": round(dec_des10_lo, 2), "decoupled_des10_bc": round(dec_des10_hi, 2),
+            "decoupled_dcond_es10_wc": round(dec_dcond_lo, 2), "decoupled_dcond_es10_bc": round(dec_dcond_hi, 2),
         })
 
     # Cross-crop activity (any_open_mat) + Two-tier MNAR + Thin/Thick heterogeneity
@@ -622,8 +687,10 @@ def run_exp3_manski_and_open(
             "shared_silent_n": int(same_dest_silent.sum()),
             "coupled_dmean_wc": round(float((ys - yb).mean()), 2), "coupled_dmean_bc": round(float((ys - yb).mean()), 2),
             "coupled_des10_wc": round(float(es10(ys) - es10(yb)), 2), "coupled_des10_bc": round(float(es10(ys[el_s]) - es10(yb[el_b])), 2),
+            "coupled_dcond_es10_wc": round(float(es10(ys[el_s]) - es10(yb[el_b])), 2), "coupled_dcond_es10_bc": round(float(es10(ys[el_s]) - es10(yb[el_b])), 2),
             "decoupled_dmean_wc": round(float(ys.mean()), 2), "decoupled_dmean_bc": round(float(yb.mean()), 2),
             "decoupled_des10_wc": round(float(es10(ys)), 2), "decoupled_des10_bc": round(float(es10(yb)), 2),
+            "decoupled_dcond_es10_wc": round(float(es10(ys[el_s])), 2), "decoupled_dcond_es10_bc": round(float(es10(yb[el_b])), 2),
         })
 
     # Pre-choice all-open candidates vs paired both-open vs realized_exact_d0 post-treatment
@@ -641,8 +708,10 @@ def run_exp3_manski_and_open(
         "n": int(len(ys_ao)), "safe_silent_n": 0, "b2_silent_n": 0, "shared_silent_n": 0,
         "coupled_dmean_wc": round(float((ys_ao - yb_ao).mean()), 2), "coupled_dmean_bc": round(float(ys_ao.mean() - yb_ao.mean()), 2),
         "coupled_des10_wc": round(float(es10(ys_ao) - es10(yb_ao)), 2), "coupled_des10_bc": round(float(es10(ys_ao[ch_s_ao['eligible']]) - es10(yb_ao[ch_b_ao['eligible']])), 2),
+        "coupled_dcond_es10_wc": round(float(es10(ys_ao[ch_s_ao['eligible']]) - es10(yb_ao[ch_b_ao['eligible']])), 2), "coupled_dcond_es10_bc": round(float(es10(ys_ao[ch_s_ao['eligible']]) - es10(yb_ao[ch_b_ao['eligible']])), 2),
         "decoupled_dmean_wc": round(float(ys_ao.mean()), 2), "decoupled_dmean_bc": round(float(yb_ao.mean()), 2),
         "decoupled_des10_wc": round(float(es10(ys_ao)), 2), "decoupled_des10_bc": round(float(es10(yb_ao)), 2),
+        "decoupled_dcond_es10_wc": round(float(es10(ys_ao[ch_s_ao['eligible']])), 2), "decoupled_dcond_es10_bc": round(float(es10(yb_ao[ch_b_ao['eligible']])), 2),
     })
 
     # Symmetric origin-missingness check on N=86,054 unconditional origins
@@ -657,17 +726,14 @@ def run_exp3_manski_and_open(
     ch_u_s = pick_episode(unc_171, score_safe_ev_sunk(unc_171), a_u & (score_safe_ev_sunk(unc_171) > 0.0))
     ch_u_b = pick_episode(unc_171, uf["net_road_fee"], a_u & (uf["net_road_fee"] > th_b2_base))
     ep_orig_d0_missing = ch_u_s["episode_id"].map(unc_171.groupby("episode_id")["settle_local_price_d0"].first().isna()).to_numpy()
-    # Symmetric closed-origin stress: if origin day t had zero quotes for ANY crop (origin blackout), holding unrefrigerated costs 24h spoil + ₹25 waiting even if abstaining
     orig_open_keys = set(zip(canon_171["State"].astype(str) + "|" + canon_171["Market"].astype(str), pd.to_datetime(canon_171["Arrival_Date"]).dt.strftime("%Y-%m-%d")))
     u_dstr = pd.to_datetime(ch_u_s["date"]).dt.strftime("%Y-%m-%d")
     u_orig_any = np.array([(omk, d) in orig_open_keys for omk, d in zip(ch_u_s["origin_market_key"].astype(str), u_dstr)], dtype=bool)
     orig_blackout = ep_orig_d0_missing & (~u_orig_any)
-    # Penalty on unmoved stock on closed home yard: -P_orig_lag * spoil_24h - 25
     ep_olag_p = ch_u_s["episode_id"].map(unc_171.groupby("episode_id")["origin_lag_price"].first()).to_numpy(dtype=np.float64)
     ep_comm = ch_u_s["Commodity"].to_numpy()
     orig_sp24 = np.array([BASE_SPOIL_24H.get(str(c), 0.02) for c in ep_comm], dtype=np.float64)
     orig_pen = np.where(orig_blackout, -(ep_olag_p * orig_sp24 + 25.0), 0.0)
-    # Add local salvage gain when dispatching away from closed home yard OR subtract penalty from abstention (equivalent in difference except threshold!)
     ys_sym = np.where(ch_u_s["eligible"], ch_u_s["y"].to_numpy(), orig_pen)
     yb_sym = np.where(ch_u_b["eligible"], ch_u_b["y"].to_numpy(), orig_pen)
     rows.append({
@@ -675,8 +741,10 @@ def run_exp3_manski_and_open(
         "n": len(ys_sym), "safe_silent_n": int((~ch_u_s["eligible"]).sum()), "b2_silent_n": int((~ch_u_b["eligible"]).sum()), "shared_silent_n": 0,
         "coupled_dmean_wc": round(float((ys_sym - yb_sym).mean()), 2), "coupled_dmean_bc": round(float(ys_sym.mean() - yb_sym.mean()), 2),
         "coupled_des10_wc": round(float(es10(ys_sym) - es10(yb_sym)), 2), "coupled_des10_bc": round(float(es10(ys_sym[ch_u_s['eligible']]) - es10(yb_sym[ch_u_b['eligible']])), 2),
+        "coupled_dcond_es10_wc": round(float(es10(ys_sym[ch_u_s['eligible']]) - es10(yb_sym[ch_u_b['eligible']])), 2), "coupled_dcond_es10_bc": round(float(es10(ys_sym[ch_u_s['eligible']]) - es10(yb_sym[ch_u_b['eligible']])), 2),
         "decoupled_dmean_wc": round(float(ys_sym.mean()), 2), "decoupled_dmean_bc": round(float(yb_sym.mean()), 2),
         "decoupled_des10_wc": round(float(es10(ys_sym)), 2), "decoupled_des10_bc": round(float(es10(yb_sym)), 2),
+        "decoupled_dcond_es10_wc": round(float(es10(ys_sym[ch_u_s['eligible']])), 2), "decoupled_dcond_es10_bc": round(float(es10(yb_sym[ch_u_b['eligible']])), 2),
     })
 
     # Thin/Thick theta break-even numbers
@@ -705,14 +773,31 @@ def run_exp3_manski_and_open(
 # ---------------------------------------------------------------------------
 # Exp 6.4: Purged Val, Clean <= t-1 ML / OR / Intact T1..T4 Pareto, Formula Audits
 # ---------------------------------------------------------------------------
-def _ml_design_matrix(df: pd.DataFrame, dummy_cols: List[str] | None = None) -> Tuple[pd.DataFrame, List[str]]:
+def _ml_design_matrix(
+    df: pd.DataFrame,
+    dummy_cols: List[str] | None = None,
+    include_safe_ev: bool = True,
+) -> Tuple[pd.DataFrame, List[str]]:
     f = compute_decision_features(df)
-    X = pd.DataFrame({
+    dt = pd.to_datetime(df["date"])
+    month = dt.dt.month.to_numpy(dtype=np.float64)
+    dow = dt.dt.dayofweek.to_numpy(dtype=np.float64)
+    p_orig = np.maximum(df["origin_lag_price"].to_numpy(dtype=np.float64), 1.0)
+    f_road = np.maximum(df["freight_road"].to_numpy(dtype=np.float64), 1.0)
+    p_dest = df["dest_lag_price"].to_numpy(dtype=np.float64)
+    cv = df["dest_price_cv_28d"].fillna(0.05).to_numpy(dtype=np.float64)
+    same = df["same_district"].to_numpy(dtype=bool)
+    fee_eff = np.where(same, 0.0, df["fee_rate"].to_numpy(dtype=np.float64))
+    g1sd = p_dest * (1.0 - cv) * (1.0 - fee_eff) - df["origin_lag_price"].to_numpy(dtype=np.float64)
+
+    cols = {
         "lag_spread": df["lag_spread"].to_numpy(dtype=np.float64),
+        "rel_spread": df["lag_spread"].to_numpy(dtype=np.float64) / p_orig,
         "log1p_spread": np.log1p(np.maximum(0.0, df["lag_spread"].to_numpy(dtype=np.float64))),
         "net_road_fee": f["net_road_fee"],
         "net_road_fee_spoil": f["net_road_fee_spoil"],
-        "dest_lag_price": df["dest_lag_price"].to_numpy(dtype=np.float64),
+        "g1sd_over_f": g1sd / f_road,
+        "dest_lag_price": p_dest,
         "origin_lag_price": df["origin_lag_price"].to_numpy(dtype=np.float64),
         "freight_road": df["freight_road"].to_numpy(dtype=np.float64),
         "fee_rate": df["fee_rate"].to_numpy(dtype=np.float64),
@@ -729,10 +814,14 @@ def _ml_design_matrix(df: pd.DataFrame, dummy_cols: List[str] | None = None) -> 
         "dow8": df["dest_dow_exact_rep_8w"].to_numpy(dtype=np.float64),
         "cv28": df["dest_price_cv_28d"].to_numpy(dtype=np.float64),
         "cnt28": df["dest_obs_cnt_28d"].to_numpy(dtype=np.float64),
-        "clim_tmax": df["clim_tmax_2024"].fillna(20.0).to_numpy(dtype=np.float64),
-        "clim_rh": df["clim_rh_2024"].fillna(65.0).to_numpy(dtype=np.float64),
-        "safe_ev_feat": score_safe_ev_sunk(df),
-    })
+        "month_sin": np.sin(2.0 * np.pi * month / 12.0),
+        "month_cos": np.cos(2.0 * np.pi * month / 12.0),
+        "dow_sin": np.sin(2.0 * np.pi * dow / 7.0),
+        "dow_cos": np.cos(2.0 * np.pi * dow / 7.0),
+    }
+    if include_safe_ev:
+        cols["safe_ev_feat"] = score_safe_ev_sunk(df)
+    X = pd.DataFrame(cols)
     dummies = pd.get_dummies(df[["State", "Commodity"]], drop_first=False, dtype=np.float64)
     if dummy_cols is not None:
         dummies = dummies.reindex(columns=dummy_cols, fill_value=0.0)
@@ -759,85 +848,192 @@ def run_exp4_ml_pareto_and_formula(raw_171: pd.DataFrame, cor: pd.DataFrame, fee
         r["note"] = f"th={cal_c['th_b2']:.2f}, m_rr={cal_c['m_rr']:.2f}, m_mg={cal_c['m_mg']:.2f}"
         rows.append(r)
 
-    # 2) Clean <= t-1 ML / OR / Intact T1..T4 Pareto Frontier trained strictly on val_purged
-    X_val, dcols = _ml_design_matrix(val_purged)
-    X_test, _ = _ml_design_matrix(test, dummy_cols=dcols)
+    # Safe_EV val dispatch target (~62.4% on val_purged) for fair out-of-sample matched-coverage ML comparisons
+    vf_p = compute_decision_features(val_purged)
+    age_vp13 = (vf_p["age"] >= 1) & (vf_p["age"] <= 3)
+    ch_safe_vp = pick_episode(val_purged, score_safe_ev_sunk(val_purged), age_vp13 & (score_safe_ev_sunk(val_purged) > 0.0))
+    safe_val_disp_tgt = float(ch_safe_vp["eligible"].mean())
+
+    # 2A) 5-Month Off-Season (2025 Jan-May) ML/OR/CQR Models trained strictly on val_purged
+    X_val, dcols = _ml_design_matrix(val_purged, include_safe_ev=True)
+    X_test, _ = _ml_design_matrix(test, dummy_cols=dcols, include_safe_ev=True)
     yv = val_purged["y"].to_numpy(dtype=np.float64)
 
-    # Chronological inner split inside val_purged (<= 2025-04-15 fit vs > 2025-04-15 conformal/calibration)
     vdates = pd.to_datetime(val_purged["date"])
     v_fit = (vdates <= pd.Timestamp("2025-04-15")).to_numpy()
     v_cal = ~v_fit
     y_vfit = yv[v_fit]
     y_vcal = yv[v_cal]
 
-    # Standardize continuous features for linear/logit models
     mu_x = X_val.mean(axis=0).to_numpy()
     sd_x = np.maximum(X_val.std(axis=0).to_numpy(), 1e-6)
     Xv_s = (X_val.to_numpy() - mu_x) / sd_x
     Xt_s = (X_test.to_numpy() - mu_x) / sd_x
 
     ridge = Ridge(alpha=10.0).fit(Xv_s, yv)
-    pred_ridge_val = ridge.predict(Xv_s)
     pred_ridge_test = ridge.predict(Xt_s)
 
-    # Two-part Logit * E[y|pos] + (1-p)*E[y|neg]
     clf_pos = LogisticRegression(C=0.5, max_iter=500).fit(Xv_s, (yv > 0).astype(int))
     reg_pos = Ridge(alpha=10.0).fit(Xv_s[yv > 0], yv[yv > 0])
     reg_neg = Ridge(alpha=10.0).fit(Xv_s[yv <= 0], yv[yv <= 0])
-    p_tp_v = clf_pos.predict_proba(Xv_s)[:, 1]
-    sc_tp_v = p_tp_v * reg_pos.predict(Xv_s) + (1.0 - p_tp_v) * reg_neg.predict(Xv_s)
     p_tp_t = clf_pos.predict_proba(Xt_s)[:, 1]
     sc_tp_t = p_tp_t * reg_pos.predict(Xt_s) + (1.0 - p_tp_t) * reg_neg.predict(Xt_s)
 
-    # HGBR EV & Loss Prob & Variance & Q20 (strict <= t-1)
-    hgbr_ev = HistGradientBoostingRegressor(max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42)
-    hgbr_ev.fit(X_val.to_numpy(), yv)
-    ev_v = hgbr_ev.predict(X_val.to_numpy())
+    hgbr_ev = HistGradientBoostingRegressor(max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy(), yv)
     ev_t = hgbr_ev.predict(X_test.to_numpy())
 
-    hgbr_loss = HistGradientBoostingClassifier(max_depth=4, learning_rate=0.05, max_iter=150, min_samples_leaf=50, random_state=42)
-    hgbr_loss.fit(X_val.to_numpy(), (yv < 0).astype(int))
-    ploss_v = hgbr_loss.predict_proba(X_val.to_numpy())[:, 1]
+    hgbr_loss = HistGradientBoostingClassifier(max_depth=4, learning_rate=0.05, max_iter=150, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy(), (yv < 0).astype(int))
     ploss_t = hgbr_loss.predict_proba(X_test.to_numpy())[:, 1]
 
-    hgbr_q20 = HistGradientBoostingRegressor(loss="quantile", quantile=0.20, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42)
-    hgbr_q20.fit(X_val.to_numpy(), yv)
+    hgbr_q20 = HistGradientBoostingRegressor(loss="quantile", quantile=0.20, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy(), yv)
     q20_v = hgbr_q20.predict(X_val.to_numpy())
     q20_t = hgbr_q20.predict(X_test.to_numpy())
+    th_q20_5m_safematch = find_val_matched_threshold(val_purged, q20_v, age_vp13, safe_val_disp_tgt)
 
-    # Conditional residual variance for Vargas et al. (2026) style Mean-Variance model: E[y] - gamma * Var(y|X)
+    hgbr_q30 = HistGradientBoostingRegressor(loss="quantile", quantile=0.30, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy(), yv)
+    q30_t = hgbr_q30.predict(X_test.to_numpy())
+    hgbr_q35 = HistGradientBoostingRegressor(loss="quantile", quantile=0.35, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy(), yv)
+    q35_t = hgbr_q35.predict(X_test.to_numpy())
+
+    # Legacy 43d Mean-Var retained for backward comparability + flagged as strawman
     hgbr_ev_in = HistGradientBoostingRegressor(max_depth=5, learning_rate=0.05, max_iter=150, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy()[v_fit], y_vfit)
-    sq_res_cal = np.square(y_vcal - hgbr_ev_in.predict(X_val.to_numpy()[v_cal]))
+    ev_in_cal = hgbr_ev_in.predict(X_val.to_numpy()[v_cal])
+    ev_in_t = hgbr_ev_in.predict(X_test.to_numpy())
+    sq_res_cal = np.square(y_vcal - ev_in_cal)
     hgbr_var = HistGradientBoostingRegressor(max_depth=4, learning_rate=0.05, max_iter=120, min_samples_leaf=80, random_state=42).fit(X_val.to_numpy()[v_cal], sq_res_cal)
     var_t = np.maximum(1.0, hgbr_var.predict(X_test.to_numpy()))
 
-    # Intact MG_T1_T2_T3_T4_Conformal (<= t-1 strictly split conformal!):
-    # Fit base regressor on v_fit; calibrate q_conf80 and dispatch threshold th_t4_match strictly out-of-sample on v_cal;
-    # score test episodes using the SAME split-fitted hgbr_ev_in regressor (never full-val hgbr_ev!).
-    pred_in_cal = hgbr_ev_in.predict(X_val.to_numpy()[v_cal])
-    abs_res_cal = pred_in_cal - y_vcal  # one-sided shortfall residual (E - y)
-    q_conf80 = float(np.quantile(abs_res_cal, 0.80))
-    lcb_conf_cal = pred_in_cal - q_conf80
-    lcb_conf_t = hgbr_ev_in.predict(X_test.to_numpy()) - q_conf80
+    # TRUE Heteroscedastic Split Conformalized Quantile Regression (MG_T1..T4_Intact):
+    # Scale one-sided residual (EV - y) by conditional IQR (q80 - q20) so conformal width adapts per corridor and re-ranks candidates!
+    hgbr_q20_in = HistGradientBoostingRegressor(loss="quantile", quantile=0.20, max_depth=5, learning_rate=0.05, max_iter=150, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy()[v_fit], y_vfit)
+    hgbr_q80_in = HistGradientBoostingRegressor(loss="quantile", quantile=0.80, max_depth=5, learning_rate=0.05, max_iter=150, min_samples_leaf=50, random_state=42).fit(X_val.to_numpy()[v_fit], y_vfit)
+    sig_in_cal = np.maximum(50.0, hgbr_q80_in.predict(X_val.to_numpy()[v_cal]) - hgbr_q20_in.predict(X_val.to_numpy()[v_cal]))
+    sig_in_t = np.maximum(50.0, hgbr_q80_in.predict(X_test.to_numpy()) - hgbr_q20_in.predict(X_test.to_numpy()))
+    scaled_res_cal = (ev_in_cal - y_vcal) / sig_in_cal
+    q_conf80 = float(np.quantile(scaled_res_cal, min(0.999, 0.80 * (1.0 + 1.0 / max(1, len(scaled_res_cal))))))
+    lcb_conf_cal = ev_in_cal - q_conf80 * sig_in_cal
+    lcb_conf_t = ev_in_t - q_conf80 * sig_in_t
+
     val_cal_df = val_purged.loc[v_cal].reset_index(drop=True)
     t13_v_all = (val_purged["dest_lag_age"].between(1, 3)) & (val_purged["dest_exact_rep_14d"] >= 0.50) & (val_purged["dest_dow_exact_rep_8w"] >= 0.35) & (compute_decision_features(val_purged)["net_road_fee_spoil"] > 0.0)
     t13_v_cal = t13_v_all.to_numpy()[v_cal]
     t13_t = age_t13 & (tf["rep14"] >= 0.50) & (tf["dow8"] >= 0.35) & (tf["net_road_fee_spoil"] > 0.0)
     th_t4_match = find_val_matched_threshold(val_cal_df, lcb_conf_cal, t13_v_cal, cal_purged["tgt"])
+    ch_raw_in_5m = pick_episode(test, ev_in_t, t13_t & (ev_in_t > find_val_matched_threshold(val_cal_df, ev_in_cal, t13_v_cal, cal_purged["tgt"])))
+    ch_cqr_5m = pick_episode(test, lcb_conf_t, t13_t & (lcb_conf_t > th_t4_match))
+    cqr5m_dest_switches = int((ch_cqr_5m["eligible"] & (ch_cqr_5m["dest_market"] != ch_raw_in_5m["dest_market"])).sum())
+
+    # 2B) Full-Season 17-Month Leak-Free Training (2024-02-01..2025-05-28, arrival_date + 2d <= 2025-05-31)
+    df_17m_raw, _ = build_lagged_candidates_from_frames(
+        raw_171, cor, fees, clim_df=None, grade_explicit=False, min_origin_date="2024-02-01", max_origin_date="2025-05-31"
+    )
+    df_17m_raw["date"] = pd.to_datetime(df_17m_raw["date"])
+    df_17m_raw["y"] = settle_candidates(df_17m_raw, how="sequential", weather="none", div=1.5, disc=0.10)
+    ep17_max = df_17m_raw.groupby("episode_id")["arrival_date"].transform(lambda s: (pd.to_datetime(s) + pd.Timedelta(days=2)).max())
+    train_17m = df_17m_raw[ep17_max <= pd.Timestamp("2025-05-31")].copy().reset_index(drop=True)
+    n_ep_17m = int(train_17m["episode_id"].nunique())
+
+    f17 = compute_decision_features(train_17m)
+    age17_13 = (f17["age"] >= 1) & (f17["age"] <= 3)
+    ch17_safe = pick_episode(train_17m, score_safe_ev_sunk(train_17m), age17_13 & (score_safe_ev_sunk(train_17m) > 0.0))
+    safe_17m_disp_tgt = float(ch17_safe["eligible"].mean())
+
+    X_17m, dcols_17m = _ml_design_matrix(train_17m, include_safe_ev=True)
+    X_t_17m, _ = _ml_design_matrix(test, dummy_cols=dcols_17m, include_safe_ev=True)
+    y_17m = train_17m["y"].to_numpy(dtype=np.float64)
+    y_rel_17m = y_17m / np.maximum(train_17m["origin_lag_price"].to_numpy(dtype=np.float64), 100.0)
+    p_orig_t = np.maximum(test["origin_lag_price"].to_numpy(dtype=np.float64), 100.0)
+
+    ev_17m_m = HistGradientBoostingRegressor(max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy(), y_17m)
+    q10_17m_m = HistGradientBoostingRegressor(loss="quantile", quantile=0.10, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy(), y_17m)
+    q20_17m_m = HistGradientBoostingRegressor(loss="quantile", quantile=0.20, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy(), y_17m)
+    q35_17m_m = HistGradientBoostingRegressor(loss="quantile", quantile=0.35, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy(), y_17m)
+    q80_17m_m = HistGradientBoostingRegressor(loss="quantile", quantile=0.80, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy(), y_17m)
+    relq20_17m_m = HistGradientBoostingRegressor(loss="quantile", quantile=0.20, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy(), y_rel_17m)
+
+    ev17_v, ev17_t = ev_17m_m.predict(X_17m.to_numpy()), ev_17m_m.predict(X_t_17m.to_numpy())
+    q10_17_v, q10_17_t = q10_17m_m.predict(X_17m.to_numpy()), q10_17m_m.predict(X_t_17m.to_numpy())
+    q20_17_v, q20_17_t = q20_17m_m.predict(X_17m.to_numpy()), q20_17m_m.predict(X_t_17m.to_numpy())
+    q35_17_t = q35_17m_m.predict(X_t_17m.to_numpy())
+    q80_17_v, q80_17_t = q80_17m_m.predict(X_17m.to_numpy()), q80_17m_m.predict(X_t_17m.to_numpy())
+    relq20_v = relq20_17m_m.predict(X_17m.to_numpy()) * np.maximum(train_17m["origin_lag_price"].to_numpy(dtype=np.float64), 100.0)
+    relq20_t = relq20_17m_m.predict(X_t_17m.to_numpy()) * p_orig_t
+
+    hyb_17_v = 0.4 * ev17_v + 0.6 * q10_17_v
+    hyb_17_t = 0.4 * ev17_t + 0.6 * q10_17_t
+    th_q20_17_vm = find_val_matched_threshold(train_17m, q20_17_v, age17_13, safe_17m_disp_tgt)
+    th_relq20_17_vm = find_val_matched_threshold(train_17m, relq20_v, age17_13, safe_17m_disp_tgt)
+    th_hyb_17_vm = find_val_matched_threshold(train_17m, hyb_17_v, age17_13, safe_17m_disp_tgt)
+    # Also compute exact 63.23% test-rate match strictly from ranking (for equal-coverage slope comparison)
+    safe_test_disp = float(pick_episode(test, score_safe_ev_sunk(test), age_t13 & (score_safe_ev_sunk(test) > 0.0))["eligible"].mean())
+    th_hyb_17_eq63 = find_val_matched_threshold(test, hyb_17_t, age_t13, safe_test_disp)
+
+    # Stylized Mean-SD (scale-invariant IQR spread proxy, replacing 43d variance strawman)
+    iqr17_v = np.maximum(50.0, q80_17_v - q20_17_v)
+    iqr17_t = np.maximum(50.0, q80_17_t - q20_17_t)
+    meansd_v = ev17_v - 0.35 * iqr17_v
+    meansd_t = ev17_t - 0.35 * iqr17_t
+    th_meansd_vm = find_val_matched_threshold(train_17m, meansd_v, age17_13, safe_17m_disp_tgt)
+
+    # Physics-informed ablation: IDENTICAL 17-month Mean-Q10 MINUS safe_ev_feat
+    X_17m_ns, dcols_ns = _ml_design_matrix(train_17m, include_safe_ev=False)
+    X_t_17m_ns, _ = _ml_design_matrix(test, dummy_cols=dcols_ns, include_safe_ev=False)
+    ev17_ns = HistGradientBoostingRegressor(max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m_ns.to_numpy(), y_17m)
+    q10_17_ns = HistGradientBoostingRegressor(loss="quantile", quantile=0.10, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m_ns.to_numpy(), y_17m)
+    hyb_ns_v = 0.4 * ev17_ns.predict(X_17m_ns.to_numpy()) + 0.6 * q10_17_ns.predict(X_17m_ns.to_numpy())
+    hyb_ns_t = 0.4 * ev17_ns.predict(X_t_17m_ns.to_numpy()) + 0.6 * q10_17_ns.predict(X_t_17m_ns.to_numpy())
+    th_hyb_ns_vm = find_val_matched_threshold(train_17m, hyb_ns_v, age17_13, safe_17m_disp_tgt)
+    th_hyb_ns_eq63 = find_val_matched_threshold(test, hyb_ns_t, age_t13, safe_test_disp)
+
+    # True 17-month Heteroscedastic CQR (fit <= 2025-03-31, cal = 2025-04-01..2025-05-28)
+    d17 = pd.to_datetime(train_17m["date"])
+    f17_in = (d17 <= pd.Timestamp("2025-03-31")).to_numpy()
+    c17_in = ~f17_in
+    ev_17_in = HistGradientBoostingRegressor(max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy()[f17_in], y_17m[f17_in])
+    q20_17_in = HistGradientBoostingRegressor(loss="quantile", quantile=0.20, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy()[f17_in], y_17m[f17_in])
+    q80_17_in = HistGradientBoostingRegressor(loss="quantile", quantile=0.80, max_depth=5, learning_rate=0.05, max_iter=180, min_samples_leaf=50, random_state=42).fit(X_17m.to_numpy()[f17_in], y_17m[f17_in])
+    pred_17_cal = ev_17_in.predict(X_17m.to_numpy()[c17_in])
+    sig_17_cal = np.maximum(50.0, q80_17_in.predict(X_17m.to_numpy()[c17_in]) - q20_17_in.predict(X_17m.to_numpy()[c17_in]))
+    s_17_cal = (pred_17_cal - y_17m[c17_in]) / sig_17_cal
+    q_cqr17 = float(np.quantile(s_17_cal, min(0.999, 0.80 * (1.0 + 1.0 / max(1, len(s_17_cal))))))
+    cqr_17_cal = pred_17_cal - q_cqr17 * sig_17_cal
+    sig_17_t = np.maximum(50.0, q80_17_in.predict(X_t_17m.to_numpy()) - q20_17_in.predict(X_t_17m.to_numpy()))
+    raw_17_in_t = ev_17_in.predict(X_t_17m.to_numpy())
+    cqr_17_t = raw_17_in_t - q_cqr17 * sig_17_t
+    t17_cal_df = train_17m.loc[c17_in].reset_index(drop=True)
+    a17_cal = age17_13[c17_in]
+    th_cqr17_vm = find_val_matched_threshold(t17_cal_df, cqr_17_cal, a17_cal, safe_17m_disp_tgt)
+    ch_raw17_tmp = pick_episode(test, raw_17_in_t, age_t13 & (raw_17_in_t > find_val_matched_threshold(t17_cal_df, pred_17_cal, a17_cal, safe_17m_disp_tgt)))
+    ch_cqr17_tmp = pick_episode(test, cqr_17_t, age_t13 & (cqr_17_t > th_cqr17_vm))
+    cqr17m_dest_switches = int((ch_cqr17_tmp["eligible"] & (ch_cqr17_tmp["dest_market"] != ch_raw17_tmp["dest_market"])).sum())
 
     ml_candidates = [
-        ("ML_Ridge_EV_m0", pred_ridge_test, pred_ridge_test > 0.0, "Ridge > 0"),
-        ("ML_TwoPart_LogitRidge_m0", sc_tp_t, sc_tp_t > 0.0, "Logit*Pos + (1-p)*Neg > 0"),
-        ("ML_HGBR_EV_TV_m0", ev_t, ev_t > 0.0, "Unconstrained <=t-1 HGBR > 0"),
-        ("ML_HGBR_EV_TV_age13_m0", ev_t, age_t13 & (ev_t > 0.0), "age 1..3 HGBR > 0"),
-        ("ML_HGBR_RiskAverse_L250", ev_t - 250.0 * ploss_t, age_t13 & ((ev_t - 250.0 * ploss_t) > 0.0), "HGBR EV - 250*P(loss) > 0"),
-        ("ML_HGBR_RiskAverse_L500", ev_t - 500.0 * ploss_t, age_t13 & ((ev_t - 500.0 * ploss_t) > 0.0), "HGBR EV - 500*P(loss) > 0"),
-        ("ML_HGBR_Q20_m0", q20_t, age_t13 & (q20_t > 0.0), "20th percentile regressor > 0"),
-        ("OR_Vargas_MeanVar_g0002", ev_t - 0.0002 * var_t, age_t13 & ((ev_t - 0.0002 * var_t) > 0.0), "Mean - 0.0002*Var > 0"),
-        ("OR_Vargas_MeanVar_g0005", ev_t - 0.0005 * var_t, age_t13 & ((ev_t - 0.0005 * var_t) > 0.0), "Mean - 0.0005*Var > 0"),
-        ("MG_T1_T2_T3_T4_Intact_m0", lcb_conf_t, t13_t & (lcb_conf_t > 0.0), f"Intact T1..T4 conformal LCB q80={q_conf80:.1f} > 0"),
-        ("MG_T1_T2_T3_T4_Intact_matched", lcb_conf_t, t13_t & (lcb_conf_t > th_t4_match), f"Intact T1..T4 val-matched th={th_t4_match:.1f}"),
+        ("ML_Ridge_EV_m0", pred_ridge_test, pred_ridge_test > 0.0, "5m Ridge > 0"),
+        ("ML_TwoPart_LogitRidge_m0", sc_tp_t, sc_tp_t > 0.0, "5m Logit*Pos + (1-p)*Neg > 0"),
+        ("ML_HGBR_EV_TV_m0", ev_t, ev_t > 0.0, "5m Unconstrained <=t-1 HGBR > 0"),
+        ("ML_HGBR_EV_TV_age13_m0", ev_t, age_t13 & (ev_t > 0.0), "5m age 1..3 HGBR EV > 0"),
+        ("ML_HGBR_RiskAverse_L250", ev_t - 250.0 * ploss_t, age_t13 & ((ev_t - 250.0 * ploss_t) > 0.0), "5m HGBR EV - 250*P(loss) > 0"),
+        ("ML_HGBR_RiskAverse_L500", ev_t - 500.0 * ploss_t, age_t13 & ((ev_t - 500.0 * ploss_t) > 0.0), "5m HGBR EV - 500*P(loss) > 0"),
+        ("ML_HGBR_Q20_m0", q20_t, age_t13 & (q20_t > 0.0), "5m 20th percentile regressor > 0"),
+        ("ML_5m_HGBR_Q20_matched63", q20_t, age_t13 & (q20_t > th_q20_5m_safematch), f"5m Q20 val-matched to Safe_EV disp (th={th_q20_5m_safematch:.1f})"),
+        ("ML_5m_HGBR_Q30_m0", q30_t, age_t13 & (q30_t > 0.0), "5m 30th percentile regressor > 0"),
+        ("ML_5m_HGBR_Q35_m0", q35_t, age_t13 & (q35_t > 0.0), "5m 35th percentile regressor > 0"),
+        ("OR_Vargas_MeanVar_g0002", ev_t - 0.0002 * var_t, age_t13 & ((ev_t - 0.0002 * var_t) > 0.0), "Legacy 43d Mean - 0.0002*Var > 0"),
+        ("OR_Vargas_MeanVar_g0005", ev_t - 0.0005 * var_t, age_t13 & ((ev_t - 0.0005 * var_t) > 0.0), "Legacy 43d Mean - 0.0005*Var > 0"),
+        ("MG_T1_T2_T3_T4_Intact_m0", lcb_conf_t, t13_t & (lcb_conf_t > 0.0), f"5m Heteroscedastic CQR LCB (s80={q_conf80:.2f}) > 0"),
+        ("MG_T1_T2_T3_T4_Intact_matched", lcb_conf_t, t13_t & (lcb_conf_t > th_t4_match), f"5m Heteroscedastic CQR val-matched th={th_t4_match:.1f}, switches={cqr5m_dest_switches}"),
+        ("ML_17m_HGBR_EV_m0", ev17_t, age_t13 & (ev17_t > 0.0), f"Full-season 17m (n={n_ep_17m}) HGBR EV > 0"),
+        ("ML_17m_HGBR_Q20_valmatch", q20_17_t, age_t13 & (q20_17_t > th_q20_17_vm), f"17m HGBR Q20 val-matched th={th_q20_17_vm:.1f}"),
+        ("ML_17m_HGBR_Q35_m0", q35_17_t, age_t13 & (q35_17_t > 0.0), "17m HGBR Q35 > 0"),
+        ("ML_17m_RelQ20_valmatch", relq20_t, age_t13 & (relq20_t > th_relq20_17_vm), f"17m Scale-normalized y/P_orig Q20 valmatch th={th_relq20_17_vm:.1f}"),
+        ("ML_17m_MeanQ10_Hybrid_valmatch", hyb_17_t, age_t13 & (hyb_17_t > th_hyb_17_vm), f"17m 0.4*EV+0.6*Q10 (with safe_ev_feat) valmatch th={th_hyb_17_vm:.1f}"),
+        ("ML_17m_MeanQ10_Hybrid_eq63", hyb_17_t, age_t13 & (hyb_17_t > th_hyb_17_eq63), f"17m 0.4*EV+0.6*Q10 (with safe_ev_feat) eq 63.23% th={th_hyb_17_eq63:.1f}"),
+        ("ML_17m_MeanQ10_NoSafeEV_valmatch", hyb_ns_t, age_t13 & (hyb_ns_t > th_hyb_ns_vm), f"17m 0.4*EV+0.6*Q10 WITHOUT safe_ev_feat valmatch th={th_hyb_ns_vm:.1f}"),
+        ("ML_17m_MeanQ10_NoSafeEV_eq63", hyb_ns_t, age_t13 & (hyb_ns_t > th_hyb_ns_eq63), f"17m 0.4*EV+0.6*Q10 WITHOUT safe_ev_feat eq 63.23% th={th_hyb_ns_eq63:.1f}"),
+        ("ML_17m_CQR80_m0", cqr_17_t, age_t13 & (cqr_17_t > 0.0), f"17m Heteroscedastic Split-CQR (s80={q_cqr17:.2f}) > 0"),
+        ("ML_17m_CQR80_valmatch", cqr_17_t, age_t13 & (cqr_17_t > th_cqr17_vm), f"17m Heteroscedastic CQR valmatch th={th_cqr17_vm:.1f}, switches={cqr17m_dest_switches}"),
+        ("OR_Stylized_MeanSD_17m_m0", meansd_t, age_t13 & (meansd_t > 0.0), "17m Scale-invariant EV - 0.35*IQR > 0"),
+        ("OR_Stylized_MeanSD_17m_valmatch", meansd_t, age_t13 & (meansd_t > th_meansd_vm), f"17m EV - 0.35*IQR valmatch th={th_meansd_vm:.1f}"),
         ("ZeroParam_Safe_EV_Sunk_m0", score_safe_ev_sunk(test), age_t13 & (score_safe_ev_sunk(test) > 0.0), "Reference 0-tuned-param"),
         ("ZeroParam_RT_2F_Min_m0", score_rt2f_min(test), age_t13 & (score_rt2f_min(test) > 0.0), "Reference calculator 0-tuned-param"),
     ]
@@ -848,8 +1044,7 @@ def run_exp4_ml_pareto_and_formula(raw_171: pd.DataFrame, cor: pd.DataFrame, fee
         r["note"] = note
         rows.append(r)
 
-    # 3) Formula, cv28==0 bug, ratio-argmax, and unrestricted top_k=None checks
-    # cv28 == 0 bug fix: set cv28 = 0.05 whenever cnt28 < 5 OR cv28 <= 0 (stale flat quotes get 0.05 floor!)
+    # 3) Formula, cv28==0 bug, ratio-argmax, 2x2 Orthogonal Decomposition, Scale-Invariance, & unrestricted top_k=None checks
     cv28_raw = test["dest_price_cv_28d"].to_numpy(dtype=np.float64)
     cnt28_raw = test["dest_obs_cnt_28d"].to_numpy(dtype=np.float64)
     cv28_fixed = np.where((cnt28_raw < 5) | (cv28_raw <= 0.0), 0.05, cv28_raw)
@@ -858,18 +1053,20 @@ def run_exp4_ml_pareto_and_formula(raw_171: pd.DataFrame, cor: pd.DataFrame, fee
     sc_safe_cvfix = score_safe_ev_sunk(test_cvfix)
     n_cv0_affected = int(((cv28_raw == 0.0) & (cnt28_raw >= 2)).sum())
 
-    # Spoil-aware Safe_EV & z in {0.5, 1.5}
     p_dow = test["dest_dow_exact_rep_8w"].to_numpy(dtype=np.float64)
     p_d = test["dest_lag_price"].to_numpy(dtype=np.float64)
     p_o = test["origin_lag_price"].to_numpy(dtype=np.float64)
-    fee_r = test["fee_rate"].to_numpy(dtype=np.float64)
+    same_t = test["same_district"].to_numpy(dtype=bool)
+    fee_r = np.where(same_t, 0.0, test["fee_rate"].to_numpy(dtype=np.float64))
     f_rd = test["freight_road"].to_numpy(dtype=np.float64)
     sp0_t = test["spoil_ref_0"].to_numpy(dtype=np.float64)
+    tau_t = test["tau_days"].to_numpy(dtype=np.float64)
+    hrs_t = test["truck_hours"].to_numpy(dtype=np.float64)
+    sp_24tau_t = np.minimum(0.55, np.array([BASE_SPOIL_24H.get(str(c), 0.02) for c in test["Commodity"]]) * (24.0 * tau_t + hrs_t) / 24.0)
 
     sc_safe_spoil = p_dow * (p_d * (1.0 - cv28_raw) * (1.0 - sp0_t) * (1.0 - fee_r) - p_o) - f_rd
     sc_safe_z05 = p_dow * (p_d * (1.0 - 0.5 * cv28_raw) * (1.0 - fee_r) - p_o) - f_rd
     sc_safe_z15 = p_dow * (p_d * np.maximum(0.0, 1.0 - 1.5 * cv28_raw) * (1.0 - fee_r) - p_o) - f_rd
-    # Jeffreys Beta(0.5, 0.5) approximation on dow8 vs Laplace Beta(1,1): k = round(dow8*10 - 1), r_jef = (k + 0.5)/9
     p_dow_jef = np.clip((p_dow * 10.0 - 0.5) / 9.0, 0.05, 0.95)
     sc_safe_jef = p_dow_jef * (p_d * (1.0 - cv28_raw) * (1.0 - fee_r) - p_o) - f_rd
 
@@ -901,6 +1098,32 @@ def run_exp4_ml_pareto_and_formula(raw_171: pd.DataFrame, cor: pd.DataFrame, fee
         r["note"] = note
         rows.append(r)
 
+    # 2x2 Orthogonal Decomposition (p_dow vs cv28) under both Closed-Yard and Open-MAR + Scale-Invariant EV
+    g1_fix = p_d * (1.0 - cv28_fixed) * (1.0 - fee_r) - p_o
+    sc_pure_cv28 = g1sd_s = g_1sd - f_rd
+    sc_pure_pdow = p_dow * g_plain - f_rd
+    sc_scale_24tau = p_dow * (g1_fix - f_rd - p_d * sp_24tau_t) - (1.0 - p_dow) * (1.5 * f_rd + p_o * sp_24tau_t)
+    div_mask_t = np.char.startswith(test_ot.astype(str), "no_comm_divert")
+    y_open_t = np.where(div_mask_t, p_d * (1.0 - sp0_t) * (1.0 - fee_r) - f_rd - test["settle_local_price_d0"].to_numpy(dtype=np.float64), test["y"].to_numpy(dtype=np.float64))
+    ot_open_t = np.where(div_mask_t, "open_yard_mar_silent", test_ot.astype(str))
+    ortho_specs = [
+        ("B2_age_matched", tf["net_road_fee"], age_t13 & (tf["net_road_fee"] > 200.0), "B2 reference (th=200)"),
+        ("Safe_EV_Sunk_m0", score_safe_ev_sunk(test), age_t13 & (score_safe_ev_sunk(test) > 0.0), "Combined p_dow + cv28"),
+        ("Ortho_Pure_cv28_only", sc_pure_cv28, age_t13 & (sc_pure_cv28 > 0.0), "p_dow=1.0 (G_1SD - F > 0): isolates volatility haircut"),
+        ("Ortho_Pure_pdow_only", sc_pure_pdow, age_t13 & (sc_pure_pdow > 0.0), "cv28=0.0 (p_dow*G - F > 0): isolates clerk-blank screen"),
+        ("ScaleInv_Safe_EV_24tau", sc_scale_24tau, age_t13 & (sc_scale_24tau > 0.0), "Full 24*tau return/sell spoilage + 1.5F + cv28_fix"),
+        ("ScaleInv_Safe_EV_pFloor50", score_safe_ev_sunk(test), age_t13 & (score_safe_ev_sunk(test) > 0.0) & (p_dow >= 0.50), "Safe_EV + hard p_dow >= 0.50 reliability floor"),
+    ]
+    for settle_lbl, y_eval, ot_eval in (("closed_yard_ortho", test["y"].to_numpy(dtype=np.float64), test_ot), ("open_mar_ortho", y_open_t, ot_open_t)):
+        test_tmp = test.copy()
+        test_tmp["y"] = y_eval
+        for pname, sc_o, el_o, note in ortho_specs:
+            ch_o = pick_episode(test_tmp, sc_o, el_o)
+            r = _extended_metrics_v7(pname, ch_o, ot_eval)
+            r["group"] = settle_lbl
+            r["note"] = note
+            rows.append(r)
+
     # Unrestricted menus (top_k=None, min_lag_spread=100 vs min_lag_spread=0)
     for sp_lbl, min_sp in (("Unrestricted_topK_None_sp100", 100.0), ("Unrestricted_topK_None_sp0", 0.0)):
         df_un, _ = build_lagged_candidates_from_frames(raw_171, cor, fees, clim_df=None, grade_explicit=False, min_lag_spread=min_sp, top_k=None)
@@ -928,7 +1151,11 @@ def run_exp4_ml_pareto_and_formula(raw_171: pd.DataFrame, cor: pd.DataFrame, fee
         "val_purged_episodes_dropped": n_spilled,
         "cal_full": cal_full,
         "cal_purged": cal_purged,
-        "intact_t4_q_conf80": round(q_conf80, 2),
+        "intact_t4_q_conf80": round(q_conf80, 4),
+        "cqr5m_dest_switches_vs_raw": cqr5m_dest_switches,
+        "cqr17m_q_scale80": round(q_cqr17, 4),
+        "cqr17m_dest_switches_vs_raw": cqr17m_dest_switches,
+        "train_17m_episodes": n_ep_17m,
         "safe_ev_ratio_dest_switches": n_ratio_switches,
         "rt2f_ratio_dest_switches": n_rt_ratio_switches,
         "cv28_zero_bug_candidate_rows": n_cv0_affected,
@@ -1013,8 +1240,8 @@ def run_exp5_hygiene_sutva_inference(
         r["slice_check"] = "GradeExplicit_6State"
         rows.append(r)
 
-    # 3) Pure all-5 exact-geocode subset (N = 19,362) with R=2,000 CIs
-    mc = coords[["State", "Market", "geocode_precision"]].drop_duplicates(["State", "Market"])
+    # 3) Pure all-5 exact-geocode subset (N = 19,362) + Non-Collided Exact-Geocode audit (excluding clean_market_query parent collisions)
+    mc = coords[["State", "Market", "geocode_precision", "lat", "lon"]].drop_duplicates(["State", "Market"]).copy()
     exact_set = set(zip(mc.loc[mc["geocode_precision"] == "market_exact", "State"], mc.loc[mc["geocode_precision"] == "market_exact", "Market"]))
     t_exact = np.array([((s, om) in exact_set) and ((s, dm) in exact_set) for s, om, dm in zip(test["State"], test["origin_market"], test["dest_market"])], dtype=bool)
     ep_all5 = pd.Series(t_exact).groupby(test["episode_id"]).transform("all").to_numpy()
@@ -1039,6 +1266,152 @@ def run_exp5_hygiene_sutva_inference(
             "p_vs_B2_es10": round(boot_a5["es10"]["p_value_two_sided"], 6) if p == "Safe_EV_Sunk_m0" else np.nan,
             "p_vs_B2_cond_es10": round(boot_a5["cond_es10"]["p_value_two_sided"], 6) if p == "Safe_EV_Sunk_m0" else np.nan,
         })
+
+    # Coordinate-uniqueness audit across the 171 primary markets (exposing parent-town collisions in legacy geocoding)
+    mc171 = mc[[(str(s), str(m)) in mkt_set_171 for s, m in zip(mc["State"], mc["Market"])]].copy()
+    mc171["coord_mult"] = mc171.groupby(["State", "lat", "lon"])["Market"].transform("count")
+    collided_171 = int((mc171["coord_mult"] > 1).sum())
+    falsely_exact_171 = int(((mc171["coord_mult"] > 1) & (mc171["geocode_precision"] == "market_exact")).sum())
+    nc_exact_set = set(zip(
+        mc171.loc[(mc171["geocode_precision"] == "market_exact") & (mc171["coord_mult"] == 1), "State"],
+        mc171.loc[(mc171["geocode_precision"] == "market_exact") & (mc171["coord_mult"] == 1), "Market"],
+    ))
+    t_exact_nc = np.array([((s, om) in nc_exact_set) and ((s, dm) in nc_exact_set) for s, om, dm in zip(test["State"], test["origin_market"], test["dest_market"])], dtype=bool)
+    non_collided_exact_row_pct = round(float(t_exact_nc.mean() * 100.0), 2)
+    ep_all5_nc = pd.Series(t_exact_nc).groupby(test["episode_id"]).transform("all").to_numpy()
+    ep_set_nc = set(test.loc[ep_all5_nc, "episode_id"].unique())
+    m_nc = chosen["B2_age_matched"]["episode_id"].isin(ep_set_nc).to_numpy()
+    bdf_nc = chosen["B2_age_matched"].loc[m_nc, ["episode_id", "date", "origin_market_key"]].copy().reset_index(drop=True)
+    for p in ("B1_lagged_screen", "B2_age_matched", "Safe_EV_Sunk_m0", "RT_2F_Min_m0"):
+        bdf_nc[p] = chosen[p].loc[m_nc, "y"].to_numpy()
+        bdf_nc[f"{p}_disp"] = chosen[p].loc[m_nc, "eligible"].to_numpy()
+    boot_nc = two_way_cluster_bootstrap_extended(bdf_nc, "Safe_EV_Sunk_m0", "B2_age_matched", "Safe_EV_Sunk_m0_disp", "B2_age_matched_disp", reps=2000, seed=20261117)
+    for p in ("B1_lagged_screen", "B2_age_matched", "Safe_EV_Sunk_m0", "RT_2F_Min_m0"):
+        vals_nc = bdf_nc[p].to_numpy()
+        disp_nc = bdf_nc[f"{p}_disp"].to_numpy()
+        rows.append({
+            "policy": p, "n": len(vals_nc), "dispatch_rate": round(float(disp_nc.mean()), 4),
+            "mean": round(float(vals_nc.mean()), 2), "ep_loss_rate": round(float((vals_nc < 0).mean()), 4),
+            "es10": round(float(es10(vals_nc)), 2),
+            "cond_es10": round(float(es_alpha(vals_nc[disp_nc], 0.10)), 2),
+            "slice_check": f"PureAll5_NonCollided_Exact_N{len(vals_nc)}",
+            "p_vs_B2_es10": round(boot_nc["es10"]["p_value_two_sided"], 6) if p == "Safe_EV_Sunk_m0" else np.nan,
+            "p_vs_B2_cond_es10": round(boot_nc["cond_es10"]["p_value_two_sided"], 6) if p == "Safe_EV_Sunk_m0" else np.nan,
+        })
+
+    # 3B) Compositional vs Routing Decomposition on Common Dispatched Intersection (D_S ∩ D_B),
+    # 6 a.m. Phone-Call Counterfactual, Outsider Min_Price + LCV + Arhtiya Stress, & HP Apple Scale Non-Invariance
+    el_s_e = chosen["Safe_EV_Sunk_m0"]["eligible"].to_numpy(dtype=bool)
+    el_b_e = chosen["B2_age_matched"]["eligible"].to_numpy(dtype=bool)
+    y_s_raw = chosen["Safe_EV_Sunk_m0"]["y_raw"].to_numpy(dtype=np.float64)
+    y_b_raw = chosen["B2_age_matched"]["y_raw"].to_numpy(dtype=np.float64)
+    both_el = el_s_e & el_b_e
+    b_only_el = el_b_e & (~el_s_e)
+    s_only_el = el_s_e & (~el_b_e)
+    common_decomp = {
+        "n_common_intersection": int(both_el.sum()),
+        "safe_common_mean": round(float(y_s_raw[both_el].mean()), 2),
+        "b2_common_mean": round(float(y_b_raw[both_el].mean()), 2),
+        "common_mean_diff": round(float(y_s_raw[both_el].mean() - y_b_raw[both_el].mean()), 2),
+        "safe_common_es10": round(float(es_alpha(y_s_raw[both_el], 0.10)), 2),
+        "b2_common_es10": round(float(es_alpha(y_b_raw[both_el], 0.10)), 2),
+        "common_es10_diff": round(float(es_alpha(y_s_raw[both_el], 0.10) - es_alpha(y_b_raw[both_el], 0.10)), 2),
+        "pruned_b2_only_n": int(b_only_el.sum()),
+        "pruned_b2_only_mean": round(float(y_b_raw[b_only_el].mean()), 2),
+        "pruned_b2_only_loss_rate": round(float((y_b_raw[b_only_el] < 0).mean()), 4),
+        "pruned_b2_only_es10": round(float(es_alpha(y_b_raw[b_only_el], 0.10)), 2),
+        "added_safe_only_n": int(s_only_el.sum()),
+        "added_safe_only_mean": round(float(y_s_raw[s_only_el].mean()), 2),
+        "added_safe_only_es10": round(float(es_alpha(y_s_raw[s_only_el], 0.10)), 2),
+    }
+    rows.append({
+        "policy": "Safe_EV_Sunk_m0", "n": int(both_el.sum()), "dispatch_rate": 1.0,
+        "mean": common_decomp["safe_common_mean"], "ep_loss_rate": round(float((y_s_raw[both_el] < 0).mean()), 4),
+        "es10": common_decomp["safe_common_es10"], "cond_es10": common_decomp["safe_common_es10"],
+        "slice_check": "CommonIntersection_DS_cap_DB",
+    })
+    rows.append({
+        "policy": "B2_age_matched", "n": int(both_el.sum()), "dispatch_rate": 1.0,
+        "mean": common_decomp["b2_common_mean"], "ep_loss_rate": round(float((y_b_raw[both_el] < 0).mean()), 4),
+        "es10": common_decomp["b2_common_es10"], "cond_es10": common_decomp["b2_common_es10"],
+        "slice_check": "CommonIntersection_DS_cap_DB",
+    })
+
+    # PhoneCall_TopK_Open counterfactual: skip no_comm_divert candidates via 6 a.m. arhtiya confirmation call
+    tf_ph = compute_decision_features(test)
+    age_ph = (tf_ph["age"] >= 1) & (tf_ph["age"] <= 3)
+    not_div = ~np.char.startswith(test_ot.astype(str), "no_comm_divert")
+    fee_ph = np.where(test["same_district"].to_numpy(dtype=bool), 0.0, test["fee_rate"].to_numpy(dtype=np.float64))
+    g1_ph = test["dest_lag_price"].to_numpy(dtype=np.float64) * (1.0 - test["dest_price_cv_28d"].fillna(0.05).to_numpy(dtype=np.float64)) * (1.0 - fee_ph) - test["origin_lag_price"].to_numpy(dtype=np.float64)
+    sc_pure_cv_ph = g1_ph - test["freight_road"].to_numpy(dtype=np.float64)
+    for ph_name, ph_sc, ph_el in (
+        ("B2_age_matched", tf_ph["net_road_fee"], age_ph & (tf_ph["net_road_fee"] > 200.0) & not_div),
+        ("Pure_cv28_only", sc_pure_cv_ph, age_ph & (sc_pure_cv_ph > 0.0) & not_div),
+        ("Safe_EV_Sunk_m0", score_safe_ev_sunk(test), age_ph & (score_safe_ev_sunk(test) > 0.0) & not_div),
+    ):
+        ch_ph = pick_episode(test, ph_sc, ph_el)
+        r_ph = _extended_metrics_v7(ph_name, ch_ph, test_ot)
+        r_ph["slice_check"] = "PhoneCall_TopK_Open"
+        rows.append(r_ph)
+
+    # Outsider Min_Price / Mid(Modal,Min) discrimination + LCV freight (₹60 + ₹0.75/km) + 4% arhtiya commission
+    for out_lbl, mix_w in (("Outsider_Mid_LCV_4pctArh", 0.50), ("Outsider_MinPrice_LCV_4pctArh", 0.00)):
+        test_out = test.copy()
+        same_o = test_out["same_district"].to_numpy(dtype=bool)
+        for d_i in (0, 1, 2):
+            m_col, mn_col = f"settle_dest_modal_d{d_i}", f"settle_dest_min_d{d_i}"
+            mod_v = test_out[m_col].to_numpy(dtype=np.float64)
+            min_v = np.where(np.isfinite(test_out[mn_col].to_numpy(dtype=np.float64)), test_out[mn_col].to_numpy(dtype=np.float64), mod_v)
+            adj_v = np.where(same_o, mod_v, mix_w * mod_v + (1.0 - mix_w) * min_v)
+            test_out[m_col] = np.where(np.isfinite(mod_v), adj_v, np.nan)
+        y_out, ot_out = settle_candidates(test_out, how="sequential", weather="none", div=1.5, disc=0.10, freight_base=60.0, freight_per_km=0.75, arhtiya_rate=0.04, return_outcomes=True)
+        test_out["y"] = y_out
+        sc_o = _score_core_subset(test_out, cal_base_th := 200.0, 0.0, kappa_star, 0.0, 0.0)
+        for p in ("B1_lagged_screen", "B2_age_matched", "Safe_EV_Sunk_m0", "RT_2F_Min_m0"):
+            sc_v, el_v = sc_o[p]
+            r_o = _extended_metrics_v7(p, pick_episode(test_out, sc_v, el_v), ot_out)
+            r_o["slice_check"] = out_lbl
+            rows.append(r_o)
+
+    # Winner's Curse, cv28 small-n diagnostic, & HP Apple Scale Non-Invariance
+    ex0_b1 = chosen["B1_lagged_screen"]["_i"].to_numpy()[test_ot[chosen["B1_lagged_screen"]["_i"].to_numpy()] == "exact_d0"]
+    wc_orig = float((test["settle_local_price_d0"].to_numpy(dtype=np.float64) - test["origin_lag_price"].to_numpy(dtype=np.float64)).mean())
+    wc_dest = float((test["settle_dest_modal_d0"].to_numpy(dtype=np.float64)[ex0_b1] - test["dest_lag_price"].to_numpy(dtype=np.float64)[ex0_b1]).mean())
+    cnt28_s = test["dest_obs_cnt_28d"].to_numpy(dtype=np.float64)[chosen["Safe_EV_Sunk_m0"]["_i"].to_numpy()][el_s_e]
+    ys_d_s = y_s_raw[el_s_e]
+    m_le4 = cnt28_s <= 4.0
+
+    # HP Graded Apple scale non-invariance audit
+    hp_df = pd.read_parquet(OUT_DIR / "lagged_hp_apple_candidates.parquet").reset_index(drop=True)
+    y_hp, ot_hp = settle_candidates(hp_df, how="sequential", weather="none", div=1.5, disc=0.10, return_outcomes=True)
+    hp_df["y"] = y_hp
+    f_hp = compute_decision_features(hp_df)
+    a_hp = (f_hp["age"] >= 1) & (f_hp["age"] <= 3)
+    p_dow_hp = hp_df["dest_dow_exact_rep_8w"].to_numpy(dtype=np.float64)
+    fee_hp = np.where(hp_df["same_district"].to_numpy(dtype=bool), 0.0, hp_df["fee_rate"].to_numpy(dtype=np.float64))
+    cv_hp = hp_df["dest_price_cv_28d"].fillna(0.05).to_numpy(dtype=np.float64)
+    cnt_hp = hp_df["dest_obs_cnt_28d"].fillna(0.0).to_numpy(dtype=np.float64)
+    cv_hp_fix = np.where((cnt_hp < 5.0) | (cv_hp <= 0.0), 0.05, cv_hp)
+    p_d_hp = hp_df["dest_lag_price"].to_numpy(dtype=np.float64)
+    p_o_hp = hp_df["origin_lag_price"].to_numpy(dtype=np.float64)
+    fr_hp = hp_df["freight_road"].to_numpy(dtype=np.float64)
+    g1_hp = p_d_hp * (1.0 - cv_hp) * (1.0 - fee_hp) - p_o_hp
+    g1_hp_fix = p_d_hp * (1.0 - cv_hp_fix) * (1.0 - fee_hp) - p_o_hp
+    sp_24_hp = np.minimum(0.55, 0.0164 * (24.0 * hp_df["tau_days"].to_numpy(dtype=np.float64) + hp_df["truck_hours"].to_numpy(dtype=np.float64)) / 24.0)
+    sc_hp_scale = p_dow_hp * (g1_hp_fix - fr_hp - p_d_hp * sp_24_hp) - (1.0 - p_dow_hp) * (1.5 * fr_hp + p_o_hp * sp_24_hp)
+    ch_hp_safe = pick_episode(hp_df, score_safe_ev_sunk(hp_df), a_hp & (score_safe_ev_sunk(hp_df) > 0.0))
+    idx_hp_s = ch_hp_safe["_i"].to_numpy()[ch_hp_safe["eligible"].to_numpy(dtype=bool)]
+    hp_frac_lt_010 = round(float((fr_hp[idx_hp_s] / np.maximum(g1_hp[idx_hp_s], 1e-6) < 0.10).mean() * 100.0), 2)
+    for hp_lbl, hp_sc, hp_el in (
+        ("B2_age_matched", f_hp["net_road_fee"], a_hp & (f_hp["net_road_fee"] > 200.0)),
+        ("Safe_EV_Sunk_m0", score_safe_ev_sunk(hp_df), a_hp & (score_safe_ev_sunk(hp_df) > 0.0)),
+        ("Pure_cv28_only", g1_hp - fr_hp, a_hp & ((g1_hp - fr_hp) > 0.0)),
+        ("Safe_EV_Sunk_pFloor50", score_safe_ev_sunk(hp_df), a_hp & (score_safe_ev_sunk(hp_df) > 0.0) & (p_dow_hp >= 0.50)),
+        ("ScaleInv_Safe_EV_24tau", sc_hp_scale, a_hp & (sc_hp_scale > 0.0)),
+    ):
+        r_hp = _extended_metrics_v7(hp_lbl, pick_episode(hp_df, hp_sc, hp_el), ot_hp)
+        r_hp["slice_check"] = "HP_Apple_ScaleNonInv"
+        rows.append(r_hp)
 
     # 4) SUTVA Crowding & Price-Impact Elasticity Stress on primary chosen policies
     arr_dates = pd.to_datetime(test["arrival_date"])
@@ -1229,6 +1602,22 @@ def run_exp5_hygiene_sutva_inference(
         "outliers_dropped_raw": n_ext_dropped,
         "clean_test_episodes": int(test_cl["episode_id"].nunique()),
         "all5_exact_geocode_episodes": len(bdf_a5),
+        "collided_markets_171": collided_171,
+        "falsely_exact_markets_171": falsely_exact_171,
+        "non_collided_exact_row_pct": non_collided_exact_row_pct,
+        "non_collided_all5_exact_episodes": len(bdf_nc),
+        "common_intersection_decomp": common_decomp,
+        "winners_curse_lagspread100": {
+            "origin_rebound_mean": round(wc_orig, 2),
+            "b1_exact_d0_dest_reversion_mean": round(wc_dest, 2),
+            "total_winners_curse_gap": round(wc_orig - wc_dest, 2),
+        },
+        "cv28_cnt_le_4_safe_dispatches": {
+            "n": int(m_le4.sum()),
+            "cond_loss_rate": round(float((ys_d_s[m_le4] < 0).mean()), 4) if m_le4.any() else 0.0,
+            "cond_es10": round(float(es_alpha(ys_d_s[m_le4], 0.10)), 2) if m_le4.any() else 0.0,
+        },
+        "hp_apple_frac_f_over_g1sd_lt_010_pct": hp_frac_lt_010,
         "decade_166_2017_tuned_b2_threshold": float(th_2017_b2),
         "joint_val_test_H_A18_2": {
             "estimate": round(est_ha18_2, 2),
