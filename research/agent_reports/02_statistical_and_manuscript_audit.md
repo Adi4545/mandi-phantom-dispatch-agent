@@ -3,7 +3,7 @@
 # MandiGuard Independent Statistical, Red-Team & Manuscript Audit (Final Verification Including `Exp 14` & `Exp 15`)
 
 **Auditor Role:** Independent Statistical & Red-Team Reviewer  
-**Repository:** `/Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent`  
+**Repository:** `<repo_root>`  
 **Audit Date:** 2026-11-17  
 **Overall Verdict:** **PASS** *(`0` numeric discrepancies `> 0.1` across all 8 updated documents; `Exp 14` `.gov.in` XML SHA-256 + price parity verified; `Exp 15` clerk-upload-lag & 100%-observed `d0` open-yard results verified; `0` secrets/API keys; `0` manuscript jargon hits; `31/31` BibTeX citations; `8/8` figures; `0` trackable files `> 10 MB`; `19/19` pytest passing; only non-blocking label note: `README.md:29` text says `exp1–exp13b` while `results/` now spans `exp1`–`exp15`)*
 
@@ -51,4 +51,4 @@
 2. **File-Size Cap & `.gitignore` (`<= 10 MB`):**
    - Verified `git ls-files -co --exclude-standard`: **`0` trackable files `> 10 MB`**. Largest non-ignored artifact is `data/processed/colab_data_pack.tar.gz` (`4.815 MiB` / `4.82 MB`); `data/raw/official_datagov_datewise_prices.xml` is `2.3M`.
 3. **Pytest Suite Verification:**
-   - Re-ran `PYTHONPATH=. /Users/adityasharma/anaconda3/bin/python3 -m pytest -v tests` $\to$ **`19 passed in 2.73s`**, matching `results/pytest_execution.log` (`19 passed in 3.69s`), including `test_official_datagov_parity_and_open_yard_sensitivity`.
+   - Re-ran `PYTHONPATH=. python3 -m pytest -v tests` $\to$ **`19 passed in 2.73s`**, matching `results/pytest_execution.log` (`19 passed in 3.69s`), including `test_official_datagov_parity_and_open_yard_sensitivity`.

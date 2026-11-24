@@ -1,0 +1,17 @@
+panel,policy_a,policy_b,mean_diff_closed,mean_diff_open_mar,divert_share_a_pct,divert_share_b_pct,breakeven_silent_extra_inr,breakeven_silent_abs_payoff_inr,breakeven_open_mar_share_pct,verification_resid
+strict2024_171_20C_closed,Safe_EV_Sunk_m0,B2_age_matched,33.12,-97.01,10.37,19.87,348.61,117.97,25.45,0.0
+strict2024_171_20C_closed,Safe_EV_Phys_m0,B2_age_matched,29.9,-109.12,9.46,19.87,287.2,58.2,21.51,0.0
+strict2024_171_20C_closed,RT_2F_Min_m0,B2_age_matched,44.36,-86.29,9.65,19.87,434.1,194.85,33.96,0.0
+strict2024_171_20C_closed,Safe_EV_Sunk_m0,B1_lagged_screen,68.12,-115.82,10.37,28.67,372.18,136.56,37.03,0.0
+strict2024_171_ERA5_closed,Safe_EV_Sunk_m0,B2_age_matched,34.55,-95.1,10.37,19.87,363.74,119.16,26.65,0.0
+strict2024_171_ERA5_closed,Safe_EV_Phys_m0,B2_age_matched,31.58,-106.92,9.46,19.87,303.39,60.9,22.8,0.0
+strict2024_171_ERA5_closed,RT_2F_Min_m0,B2_age_matched,44.84,-85.31,9.65,19.87,438.73,186.85,34.45,0.0
+strict2024_171_ERA5_closed,Safe_EV_Sunk_m0,B1_lagged_screen,73.57,-109.97,10.37,28.67,401.95,153.61,40.08,0.0
+decade_2018_2023_166clean_closed,Safe_EV_Sunk_m0,B2_age_matched,35.0,-111.53,8.49,19.48,318.37,86.44,23.89,0.0
+decade_2018_2023_166clean_closed,Safe_EV_Phys_m0,B2_age_matched,31.76,-124.13,7.62,19.48,267.87,37.08,20.37,0.0
+decade_2018_2023_166clean_closed,RT_2F_Min_m0,B2_age_matched,49.29,-96.7,8.32,19.48,441.54,199.51,33.77,0.0
+decade_2018_2023_166clean_closed,Safe_EV_Sunk_m0,B1_lagged_screen,67.72,-158.62,8.49,29.75,318.44,79.27,29.92,0.0
+decade_2018_2023_173legacy_closed,Safe_EV_Sunk_m0,B2_age_matched,37.14,-114.18,8.67,19.96,329.06,97.4,24.55,0.0
+decade_2018_2023_173legacy_closed,Safe_EV_Phys_m0,B2_age_matched,33.89,-127.2,7.79,19.96,278.38,47.82,21.04,0.0
+decade_2018_2023_173legacy_closed,RT_2F_Min_m0,B2_age_matched,51.47,-100.0,8.46,19.96,447.66,205.91,33.98,0.0
+decade_2018_2023_173legacy_closed,Safe_EV_Sunk_m0,B1_lagged_screen,70.85,-164.75,8.67,30.3,327.62,88.49,30.07,0.0

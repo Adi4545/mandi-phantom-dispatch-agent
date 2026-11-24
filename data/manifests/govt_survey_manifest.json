@@ -67,7 +67,7 @@
     }
   },
   "hp_economic_survey_verified": {
-    "source_pdf": "/Users/adityasharma/himachal_agri_fetch/raw/hp_des/en-economic_survey_2025-26.pdf",
+    "source_pdf": "GoHP_DES_Economic_Survey_2025-26.pdf (external official GoHP DES PDF; SHA-256 verified)",
     "sha256": "35c2394d0e12f5e570163996633a721c3bde213c4464a8b46897446a00bd5f92",
     "small_marginal_farmers_pct": 88.86,
     "avg_landholding_ha": 0.95,
@@ -82,11 +82,11 @@
   "outputs": {
     "official_govt_survey_parameters_json": {
       "path": "data/raw/official_govt_survey_parameters.json",
-      "sha256": "5931fd28edb02cf2f6e6cc3d7aa5c9cc5a20cac25db45fdad2899c5f8d2af8c8"
+      "sha256": "ae2517da9457fc6f70aeec2881abbb4bf5f6a71ab60172a7d1cc6e95cc4e8514"
     },
     "state_apmc_and_loss_parameters_csv": {
       "path": "data/processed/state_apmc_and_loss_parameters.csv",
-      "sha256": "77281ad096170c6bf7a61638d69a1e097c164230f488415f667a2b5f8994d048"
+      "sha256": "bad9a666075438d8ba486339840f57caaf8ebc8cb378d924443900c1fd9eb0da"
     }
   }
 }

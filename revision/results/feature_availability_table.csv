@@ -13,10 +13,10 @@ road_km,static,decision_allowed,OSRM road distance (km)
 euclid_km,static,decision_allowed,Great-circle distance (km)
 truck_hours,static,decision_allowed,OSRM corridor truck hours
 same_district,static,decision_allowed,True iff origin_district == dest_district
-fee_rate,static,decision_allowed,"Statutory APMC seller rate (0 if same_district, else PIB 154554 state rate)"
+fee_rate,static,decision_allowed,"Stylized state seller-fee tier (0 if same_district, else 0.5-1.5%; statutory APMC fees are buyer-paid and PIB 154554 omits UP)"
 freight_road,static,decision_allowed,Assumed transport freight (35 + 0.45 * hp_mult * road_km)
 freight_euclid,static,decision_allowed,Euclidean distance freight ablation (35 + 0.45 * hp_mult * 1.2 * euclid_km)
-spoil_ref_0,static_20C,decision_allowed,NABCONS (2022) 20C reference spoilage fraction at wait=0
+spoil_ref_0,static_20C,decision_allowed,Stylized 24h transit decay benchmark calibrated numerically from NABCONS (2022) cumulative market-stage shares at wait=0
 origin_quote_date,<= t - 1,decision_allowed,Latest exact-variety origin modal quote date strictly before t
 origin_lag_age,>= 1,decision_allowed,"(date - origin_quote_date).days in [1, 7]"
 origin_lag_price,<= t - 1,decision_allowed,Latest exact-variety origin modal price strictly before t

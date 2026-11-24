@@ -1,25 +1,25 @@
 State,Commodity,statutory_seller_fee_pct,apmc_fv_regulatory_status,nabcons2022_farm_loss_pct,nabcons2022_market_loss_pct,nabcons2022_total_loss_pct,cold_storage_units_nov2023,cold_storage_capacity_mt_nov2023,enam_integrated_mandis_oct2024,nss77_avg_monthly_crop_income_inr,nss77_smallholder_lot_qtl
-Maharashtra,Onion,0.01,Deregulated outside notified yards (Jul 2016 Ordinance); regulated yard supervision/weighment inside APMC,5.31,1.96,7.27,656,1176499,133,3798,30.0
-Maharashtra,Potato,0.01,Deregulated outside notified yards (Jul 2016 Ordinance); regulated yard supervision/weighment inside APMC,5.1,0.86,5.96,656,1176499,133,3798,30.0
-Maharashtra,Tomato,0.01,Deregulated outside notified yards (Jul 2016 Ordinance); regulated yard supervision/weighment inside APMC,8.37,3.25,11.62,656,1176499,133,3798,30.0
-Maharashtra,Apple,0.01,Deregulated outside notified yards (Jul 2016 Ordinance); regulated yard supervision/weighment inside APMC,7.87,1.64,9.51,656,1176499,133,3798,30.0
-Uttar Pradesh,Onion,0.015,Regulated under UP Krishi Utpadan Mandi Adhiniyam (standard yard fee/user friction),5.31,1.96,7.27,2472,15045874,125,3798,30.0
-Uttar Pradesh,Potato,0.015,Regulated under UP Krishi Utpadan Mandi Adhiniyam (standard yard fee/user friction),5.1,0.86,5.96,2472,15045874,125,3798,30.0
-Uttar Pradesh,Tomato,0.015,Regulated under UP Krishi Utpadan Mandi Adhiniyam (standard yard fee/user friction),8.37,3.25,11.62,2472,15045874,125,3798,30.0
-Uttar Pradesh,Apple,0.015,Regulated under UP Krishi Utpadan Mandi Adhiniyam (standard yard fee/user friction),7.87,1.64,9.51,2472,15045874,125,3798,30.0
-Karnataka,Onion,0.005,Market fee exempted; yard user charges permitted (Jan 2014 APMC Amendment),5.31,1.96,7.27,250,838940,5,3798,30.0
-Karnataka,Potato,0.005,Market fee exempted; yard user charges permitted (Jan 2014 APMC Amendment),5.1,0.86,5.96,250,838940,5,3798,30.0
-Karnataka,Tomato,0.005,Market fee exempted; yard user charges permitted (Jan 2014 APMC Amendment),8.37,3.25,11.62,250,838940,5,3798,30.0
-Karnataka,Apple,0.005,Market fee exempted; yard user charges permitted (Jan 2014 APMC Amendment),7.87,1.64,9.51,250,838940,5,3798,30.0
-Madhya Pradesh,Onion,0.015,Exempted outside notified yards (except banana); regulated inside notified yards (PIB relid=154554),5.31,1.96,7.27,315,1364003,139,3798,30.0
-Madhya Pradesh,Potato,0.015,Exempted outside notified yards (except banana); regulated inside notified yards (PIB relid=154554),5.1,0.86,5.96,315,1364003,139,3798,30.0
-Madhya Pradesh,Tomato,0.015,Exempted outside notified yards (except banana); regulated inside notified yards (PIB relid=154554),8.37,3.25,11.62,315,1364003,139,3798,30.0
-Madhya Pradesh,Apple,0.015,Exempted outside notified yards (except banana); regulated inside notified yards (PIB relid=154554),7.87,1.64,9.51,315,1364003,139,3798,30.0
-Gujarat,Onion,0.005,Market fee exempted on F&V; user charges permitted (PIB relid=154554),5.31,1.96,7.27,1014,3974593,144,3798,30.0
-Gujarat,Potato,0.005,Market fee exempted on F&V; user charges permitted (PIB relid=154554),5.1,0.86,5.96,1014,3974593,144,3798,30.0
-Gujarat,Tomato,0.005,Market fee exempted on F&V; user charges permitted (PIB relid=154554),8.37,3.25,11.62,1014,3974593,144,3798,30.0
-Gujarat,Apple,0.005,Market fee exempted on F&V; user charges permitted (PIB relid=154554),7.87,1.64,9.51,1014,3974593,144,3798,30.0
-Himachal Pradesh,Onion,0.005,Market fee exempted on F&V EXCEPT Apple; service charge on others (PIB relid=154554),5.31,1.96,7.27,89,174072,38,3798,30.0
-Himachal Pradesh,Potato,0.005,Market fee exempted on F&V EXCEPT Apple; service charge on others (PIB relid=154554),5.1,0.86,5.96,89,174072,38,3798,30.0
-Himachal Pradesh,Tomato,0.005,Market fee exempted on F&V EXCEPT Apple; service charge on others (PIB relid=154554),8.37,3.25,11.62,89,174072,38,3798,30.0
-Himachal Pradesh,Apple,0.01,Market fee exempted on F&V EXCEPT Apple; service charge on others (PIB relid=154554),7.87,1.64,9.51,89,174072,38,3798,30.0
+Maharashtra,Onion,0.01,Stylized 1.0% friction tier anchored qualitatively to Jul 2016 F&V deregulation outside notified yards (statutory APMC fees generally buyer-paid),5.31,1.96,7.27,656,1176499,133,3798,30.0
+Maharashtra,Potato,0.01,Stylized 1.0% friction tier anchored qualitatively to Jul 2016 F&V deregulation outside notified yards (statutory APMC fees generally buyer-paid),5.1,0.86,5.96,656,1176499,133,3798,30.0
+Maharashtra,Tomato,0.01,Stylized 1.0% friction tier anchored qualitatively to Jul 2016 F&V deregulation outside notified yards (statutory APMC fees generally buyer-paid),8.37,3.25,11.62,656,1176499,133,3798,30.0
+Maharashtra,Apple,0.01,Stylized 1.0% friction tier anchored qualitatively to Jul 2016 F&V deregulation outside notified yards (statutory APMC fees generally buyer-paid),7.87,1.64,9.51,656,1176499,133,3798,30.0
+Uttar Pradesh,Onion,0.015,Stylized 1.5% friction tier under UP Krishi Utpadan Mandi Adhiniyam (PIB 154554 omits UP; statutory market fees generally buyer-paid),5.31,1.96,7.27,2472,15045874,125,3798,30.0
+Uttar Pradesh,Potato,0.015,Stylized 1.5% friction tier under UP Krishi Utpadan Mandi Adhiniyam (PIB 154554 omits UP; statutory market fees generally buyer-paid),5.1,0.86,5.96,2472,15045874,125,3798,30.0
+Uttar Pradesh,Tomato,0.015,Stylized 1.5% friction tier under UP Krishi Utpadan Mandi Adhiniyam (PIB 154554 omits UP; statutory market fees generally buyer-paid),8.37,3.25,11.62,2472,15045874,125,3798,30.0
+Uttar Pradesh,Apple,0.015,Stylized 1.5% friction tier under UP Krishi Utpadan Mandi Adhiniyam (PIB 154554 omits UP; statutory market fees generally buyer-paid),7.87,1.64,9.51,2472,15045874,125,3798,30.0
+Karnataka,Onion,0.005,Stylized 0.5% user-charge tier anchored qualitatively to Jan 2014 APMC Amendment (statutory market fees generally buyer-paid),5.31,1.96,7.27,250,838940,5,3798,30.0
+Karnataka,Potato,0.005,Stylized 0.5% user-charge tier anchored qualitatively to Jan 2014 APMC Amendment (statutory market fees generally buyer-paid),5.1,0.86,5.96,250,838940,5,3798,30.0
+Karnataka,Tomato,0.005,Stylized 0.5% user-charge tier anchored qualitatively to Jan 2014 APMC Amendment (statutory market fees generally buyer-paid),8.37,3.25,11.62,250,838940,5,3798,30.0
+Karnataka,Apple,0.005,Stylized 0.5% user-charge tier anchored qualitatively to Jan 2014 APMC Amendment (statutory market fees generally buyer-paid),7.87,1.64,9.51,250,838940,5,3798,30.0
+Madhya Pradesh,Onion,0.015,Stylized 1.5% regulated-yard tier anchored qualitatively to PIB relid=154554 F&V exemption outside yards (statutory fees generally buyer-paid),5.31,1.96,7.27,315,1364003,139,3798,30.0
+Madhya Pradesh,Potato,0.015,Stylized 1.5% regulated-yard tier anchored qualitatively to PIB relid=154554 F&V exemption outside yards (statutory fees generally buyer-paid),5.1,0.86,5.96,315,1364003,139,3798,30.0
+Madhya Pradesh,Tomato,0.015,Stylized 1.5% regulated-yard tier anchored qualitatively to PIB relid=154554 F&V exemption outside yards (statutory fees generally buyer-paid),8.37,3.25,11.62,315,1364003,139,3798,30.0
+Madhya Pradesh,Apple,0.015,Stylized 1.5% regulated-yard tier anchored qualitatively to PIB relid=154554 F&V exemption outside yards (statutory fees generally buyer-paid),7.87,1.64,9.51,315,1364003,139,3798,30.0
+Gujarat,Onion,0.005,Stylized 0.5% user-charge tier anchored qualitatively to PIB relid=154554 F&V fee exemption (statutory fees generally buyer-paid),5.31,1.96,7.27,1014,3974593,144,3798,30.0
+Gujarat,Potato,0.005,Stylized 0.5% user-charge tier anchored qualitatively to PIB relid=154554 F&V fee exemption (statutory fees generally buyer-paid),5.1,0.86,5.96,1014,3974593,144,3798,30.0
+Gujarat,Tomato,0.005,Stylized 0.5% user-charge tier anchored qualitatively to PIB relid=154554 F&V fee exemption (statutory fees generally buyer-paid),8.37,3.25,11.62,1014,3974593,144,3798,30.0
+Gujarat,Apple,0.005,Stylized 0.5% user-charge tier anchored qualitatively to PIB relid=154554 F&V fee exemption (statutory fees generally buyer-paid),7.87,1.64,9.51,1014,3974593,144,3798,30.0
+Himachal Pradesh,Onion,0.005,Stylized 0.5% service-charge tier anchored qualitatively to PIB relid=154554 F&V exemption except Apple (statutory fees generally buyer-paid),5.31,1.96,7.27,89,174072,38,3798,30.0
+Himachal Pradesh,Potato,0.005,Stylized 0.5% service-charge tier anchored qualitatively to PIB relid=154554 F&V exemption except Apple (statutory fees generally buyer-paid),5.1,0.86,5.96,89,174072,38,3798,30.0
+Himachal Pradesh,Tomato,0.005,Stylized 0.5% service-charge tier anchored qualitatively to PIB relid=154554 F&V exemption except Apple (statutory fees generally buyer-paid),8.37,3.25,11.62,89,174072,38,3798,30.0
+Himachal Pradesh,Apple,0.01,Stylized 1.0% Apple tier anchored qualitatively to PIB relid=154554 F&V exemption except Apple (statutory fees generally buyer-paid),7.87,1.64,9.51,89,174072,38,3798,30.0

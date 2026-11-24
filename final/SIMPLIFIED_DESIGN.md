@@ -1,38 +1,24 @@
-# Simplified Design Audit (`SIMPLIFIED_DESIGN.md` — Revision v6 Verified)
+# Simplified Two-Stage Design — Zero-Tuned-Parameter Decision Architecture (Revision v8)
 
-## A. How Complexity & Magic Constants Were Eliminated Across Audits
+This architecture avoids opaque parameter overfitting (`PREREG_A10` `H2` inconclusive at `+₹6.13/qtl`, Holm `p = 0.2699`) via transparent, zero-validation-tuned-parameter arithmetic (`9` fixed structural choices incl. `z = 1.0`) evaluated strictly on `<= t - 1` public features across Candidate menus of `K <= 5` reachable destination mandis (`lag_spread > ₹100/qtl`, `dest_lag_age in 1..3` days; loosening `top_k = None` yields `Mean ₹454.37`, `ES10 −₹344.47`, `v7_exp4`). While full-season `17m` quantile-hybrid ML and heteroscedastic Split-CQR reach `cond_ES10 −₹367.09` to `−₹423.88`, `Safe_EV_Sunk_m0` captures `~98.8%` of `17m MeanQ10` Mean and `~94%` of `cond_ES10` with zero training history and pocket-calculator portability.
 
-1. **Legacy Baseline (`4.3 / 5` Difficulty):** Relied on gitignored caches (`candidates_6state.parquet`), same-day price/weather leaks (`98.64%` ERA5 match), deprecated GBDT pickles (`scikit-learn 1.3.0`), pseudo-conformal theorems, unweighted quantile means (legacy tail proxy), and unmatched baselines (`H2 +₹6.13`, `p = 0.2699`).
-2. **Audit Remediation (`A10` `RR-Abstain`, `1.6 / 5`):** Fixed timing/fee/ES10/age-matching bugs cleanly, yet `A17` + `A18` uncovered remaining defects: a bare `dest_market` string-prefix bug (`336` split clusters instead of `172`), one-sided Holm labels, grid-wall collision at $\kappa^* = 5.0$, Sunday holiday pollution inside `rep28`, missing price-volatility defense (`cv28`), and `div = 0.0` hidden spoilage losses.
-3. **Final Zero-Parameter Design (`PREREG_A18.md` + `Revision v6`, `1.2 / 5` Difficulty):** Removed **ALL** tuned thresholds, $\kappa$ grids, dual lookbacks, and Q10 biology parameters from 6 a.m. dispatch rules.
+## 1. Closed-Form Zero-Tuned-Parameter Policy Family (`m = 0`)
+For every eligible corridor `c = (o -> d)` in state `s` and commodity `k`, define road freight `F_road(c) = 35.0 + 0.45 * h_s * road_km(c)` (`h_s = 1.45` in Himachal Pradesh, `1.0` elsewhere; `30 qtl` load tier) and plain fee-adjusted lagged spread `G(c, t) = P_dest,lag * (1 - tau_fee) - P_orig,lag`:
 
----
+1. **Historical Arrival-Weekday Reliability & 1-SD Volatility Haircut:**
+   - `p_dow = dest_dow_exact_rep_8w`: `8`-week arrival-weekday Laplace reporting frequency (`(k + 1) / (n + 2)` in `{1/10, ..., 9/10}`), preventing `rep28` Sunday smoothing.
+   - `G_1SD(c, t) = P_dest,lag * (1 - cv28) * (1 - tau_fee) - P_orig,lag`, where `cv28` is the `28`-day coefficient of variation (`0.05` fallback when `cnt28 < 2`, affecting only `77 / 36,441 = 0.21%` of dispatched test episodes; extending the `0.05` guard to `cv28 == 0` adjusts `5,274` rows cleanly to `452.10 / -345.52 / -447.65`, `v7_exp4`).
+2. **`Safe_EV_Sunk_m0` (`0` fitted parameters — Primary Tail-Risk Filter):**
+   - Dispatch rule (selecting best `c*` by INR surplus `p_dow * G_1SD - F_road` > `0`; note ratio argmax changes `5,113` destinations at Mean `₹437.28`, `v7_exp4`): threshold check `p_dow * G_1SD - F == p_dow*(G_1SD - F) + (1 - p_dow)*(-1.0*F) > 0` (sunk freight `-1.0F` on closure, not literal `0`; boundary `G_1SD / F_road > 1 / p_dow`).
+   - Achieves `63.23%` dispatch on `171` zero-lookahead markets (`N = 57,634`), cutting EpLoss from `26.43%` (`B2_age_matched`) to `14.88%` (`−11.56 pp`), improving `ES10` from `−₹524.78` to `−₹345.53/qtl` (`+₹179.24/qtl`), improving conditional `cond_ES10` from `−₹628.37` to `−₹447.48/qtl` (`+₹180.89`), and reaching Mean `₹452.74/qtl` (`+₹33.12/qtl`).
+   - **`2×2` Orthogonal Mechanism (`v7_exp4` `closed_yard_ortho`):** `Ortho_Pure_cv28_only` (`71.91%`, matched to `B2` `71.73%`) attains `Mean ₹421.62`, `ES10 −₹387.46`, `cond_ES10 −₹447.13` (`cv28` alone drives ~100% of `cond_ES10` truncation); `Ortho_Pure_pdow_only` (`84.10%`) attains `Mean ₹466.68`, `ES10 −₹546.75`, `cond_ES10 −₹607.18` (`p_dow` drives Mean lift & diversion avoidance); `ScaleInv_Safe_EV_24tau` (`53.19%`) reaches `Mean ₹431.30`, `EpLoss 11.33%`, `ES10 −₹288.61`, `cond_ES10 −₹421.27`.
+3. **`Safe_EV_Phys_m0` (`0` fitted parameters — Settlement-Matched `1.5F` Variant):**
+   - Score: `p_dow * (G_1SD - F_road) - (1 - p_dow) * 1.5 * F_road > 0`.
+   - Tightens EpLoss to `13.70%` and `ES10` to `−₹334.80/qtl` (`+₹189.97/qtl` vs `B2`) at `60.84%` dispatch (`Mean ₹449.52/qtl`, `cond_ES10 −₹447.33/qtl`).
+4. **`RT_2F_Min_m0` (`0` fitted parameters — Class-8 Phone-Calculator Rule, NO `cv28`, NO spoilage):**
+   - Score: `p_min * G(c, t) - 2 * F_road(c) > 0` where `p_min = min(rep28, p_dow)`.
+   - Leads Mean payoff at `₹463.98/qtl` (`+₹44.36/qtl` vs `B2`) with positive 95% Mean CIs across `6/6` states & `5/5` crop slices (`Tomato ₹501.08/qtl`), at higher tail exposure (`ES10 −₹464.84/qtl`, `cond_ES10 −₹618.35/qtl`, EpLoss `16.21%`) and loses `cond_ES10` significance under `<= t-2` latency (`p = 0.9805`) and `166`-mkt pooled `b2dest` (`p = 0.079`).
 
-## B. The Minimal Zero-Parameter Formulas (`S > 0`, Zero Tuning)
-
-Using strictly `<= t - 1` quotes (`dest_lag_age in 1..3`), plain fee-adjusted spread $G = P_{\text{dest,lag}}(1 - \tau_{\text{fee}}) - P_{\text{orig,lag}}$, 1-SD conservative spread $G_{\text{1SD}} = P_{\text{dest,lag}}(1 - \text{cv}_{28})(1 - \tau_{\text{fee}}) - P_{\text{orig,lag}}$, weekday reporting frequency $p_{\text{dow}} = \text{dest\_dow\_exact\_rep\_8w}$, and $p_{\min} = \min(\text{rep}_{28}, p_{\text{dow}})$:
-
-- **`Safe_EV_Sunk_m0` (Primary Zero-Parameter Tail-Risk Rule, 0 Free Params):**
-
-$$S_{\text{Safe-EV}} = p_{\text{dow}}\cdot G_{\text{1SD}} - F_{\text{road}} > 0 \quad \Longleftrightarrow \quad \frac{G_{\text{1SD}}}{F_{\text{road}}} > \frac{1}{p_{\text{dow}}}$$
-
-- **`Safe_EV_Phys_m0` (Settlement-Matched `1.5F` Variant, 0 Tuned Params):**
-
-$$S_{\text{Safe-EV-Phys}} = p_{\text{dow}}\cdot (G_{\text{1SD}} - F_{\text{road}}) - (1 - p_{\text{dow}})\cdot 1.5\,F_{\text{road}} > 0$$
-
-- **`RT_2F_Min_m0` (Class-8 4-Function Phone Calculator, NO `cv28`, NO Spoilage):**
-
-$$S_{\text{RT-2F-Min}} = p_{\min}\cdot G - 2\,F_{\text{road}} > 0$$
-
----
-
-## C. Verified Headline Progression (`N = 58,676`, `exploratory: true`, `R = 5,000` Two-Sided Holm)
-
-- **`B1_lagged_screen`** (`100.00%` disp): Mean `₹397.87/qtl`, EpLoss `45.21%`, `ES10 −₹641.26/qtl` (`28.98%` / `17,005` turn back sequentially).
-- **`B2_age_matched`** (`72.03%` disp, `lag 1..3`, val `₹200`): Mean `₹433.56/qtl`, EpLoss `26.72%`, `ES10 −₹525.25/qtl`.
-- **`MG_matched`** (`69.51%` disp, hard `T1..T4` gates): Mean `₹467.90/qtl`, EpLoss `18.57%`, `ES10 −₹512.78/qtl` (`p_holm_2s = 1.000` on `ES10` — fails tail risk).
-- **`RR_Abstain_matched`** (`69.02%` disp, `kappa* = 5.0`, `m* = ₹3.73`): Mean `₹475.36/qtl`, EpLoss `17.23%`, `ES10 −₹460.72/qtl` (`p_holm_2s = 0.0040` in `R = 2,000` `a10_bootstrap.csv`; fails NS at `div = 0` on `ES10`, `p_2s = 0.603`).
-- **`Safe_EV_Sunk_m0`** (**`0` free params**, `63.27%` disp): Mean **`₹465.59/qtl`** (`+₹32.03` vs `B2`, `p_holm_2s = 0.0028` origin / `0.0436` B2-dest / `0.0160` policy-dest at `R = 5,000`), EpLoss **`14.93%`** (`−11.79 pp`, `p_holm_2s = 0.0024`), **`ES10 −₹344.09/qtl`** (**`+₹181.17` vs `B2_age_matched`**, `p_holm_2s = 0.0024` across all 3 `State|` clusterings and 1-, 2-, 4-week blocks; validation-matched `Safe_EV_Sunk_matched` improves `ES10` over `RR_Abstain_matched` by `+₹94.31/qtl`, `p_holm_2s = 0.0024..0.0040`). Outperforms `B2` across every state (`6/6`) and crop (`5/5`) on `ES10`, all `36/36` tornado cells, `N = 88,014` unconditional origin panel (`−₹335.04` vs `−₹515.93`), `exact_zero_divert_payoff_0` (`+₹169.79`), realized ERA5 arrival-weather settlement (`+₹190.43`), strict `2024`-only `171` markets (`N = 57,634`), and HP Graded Apples (`₹1,354.85 / −₹1,454.86`).
-- **`Safe_EV_Phys_m0`** (**`0` tuned params**, `60.85%` disp): Mean `₹462.16/qtl`, EpLoss **`13.73%`**, **`ES10 −₹333.57/qtl`** (`+₹191.69` vs `B2`, `p_holm_2s = 0.0024` at `R = 5,000`; `+₹201.55` under realized ERA5).
-- **`RT_2F_Min_m0`** (**`0` free params**, NO `cv28`, `64.92%` disp): Mean **`₹478.38/qtl`** (`+₹44.82` vs `B2`, `p_holm_2s = 0.0024` at `R = 5,000`), EpLoss `16.26%`, `ES10 −₹468.32/qtl`.
-- **Open Disclosures (`R6`, `R7`):** Acts strictly as 6 a.m. portal-alert triage ahead of live *arhtiya* phone confirmation; under Open-MAR portal omissions, `B2` earns `+₹102.58` (`+₹100.57` ERA5) higher mean while `Safe_EV_Sunk_m0` keeps `+₹190.00` (`+₹196.38` ERA5) `ES10` gain; Gate J future holdout remains `BLOCKED (disclosed)`.
+## 2. Clean Non-Lookahead & Multi-Year Generalization
+- **Specification-Locked Exploratory Panel:** Using `171` markets filtered strictly on `2024` history (`>= 80` days, `<= 30`/state) removes future market-survival lookahead while passing all four `PREREG_A18` hypotheses at `p_holm_2s_prereg4 = 0.0040` (`R = 2,000`) across `3` clusterings; purged `val` (`−939` eps, `v7_exp4`) preserves `th_b2 = 200.0` identically.
+- **Clean `166`-Mkt `2018–2023` Validation (`N = 383,952`):** Reverse-survivorship removes `481/647` historical yards absent from the `2024` frame and drops all 7 post-2024 lookahead yards (`171 ∩ 173`), yielding `N = 383,952` (`115`-mkt `2017`-active `N = 325,993`), where frozen `Safe_EV_Sunk_m0` gains `+₹169.27 ES10` (`−₹304.29` vs `−₹473.56`), `+₹155.08 cond_ES10` (`−₹421.35` vs `−₹576.44`, `+₹174.27` vs equal-dispatch `B2_eq_SafeM0`), and passes `ES10` & `cond_ES10` in all `6/6` individual years (`p = 0.001`; `2020/2023` Means NS).

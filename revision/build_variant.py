@@ -176,10 +176,10 @@ def build_feature_availability_table() -> pd.DataFrame:
         ("euclid_km", "static", "decision_allowed", "Great-circle distance (km)"),
         ("truck_hours", "static", "decision_allowed", "OSRM corridor truck hours"),
         ("same_district", "static", "decision_allowed", "True iff origin_district == dest_district"),
-        ("fee_rate", "static", "decision_allowed", "Statutory APMC seller rate (0 if same_district, else PIB 154554 state rate)"),
+        ("fee_rate", "static", "decision_allowed", "Stylized state seller-fee tier (0 if same_district, else 0.5-1.5%; statutory APMC fees are buyer-paid and PIB 154554 omits UP)"),
         ("freight_road", "static", "decision_allowed", "Assumed transport freight (35 + 0.45 * hp_mult * road_km)"),
         ("freight_euclid", "static", "decision_allowed", "Euclidean distance freight ablation (35 + 0.45 * hp_mult * 1.2 * euclid_km)"),
-        ("spoil_ref_0", "static_20C", "decision_allowed", "NABCONS (2022) 20C reference spoilage fraction at wait=0"),
+        ("spoil_ref_0", "static_20C", "decision_allowed", "Stylized 24h transit decay benchmark calibrated numerically from NABCONS (2022) cumulative market-stage shares at wait=0"),
         ("origin_quote_date", "<= t - 1", "decision_allowed", "Latest exact-variety origin modal quote date strictly before t"),
         ("origin_lag_age", ">= 1", "decision_allowed", "(date - origin_quote_date).days in [1, 7]"),
         ("origin_lag_price", "<= t - 1", "decision_allowed", "Latest exact-variety origin modal price strictly before t"),
@@ -215,12 +215,14 @@ def _compute_strictly_past_history(
     canon_df: pd.DataFrame,
     min_date: pd.Timestamp,
     max_date: pd.Timestamp,
+    lag_offset_days: int = 1,
 ) -> pd.DataFrame:
-    """Compute strictly <= t-1 reporting reliability & volatility features per (State, Market, Commodity, Variety_Key, date)."""
+    """Compute strictly <= t - lag_offset_days reporting reliability & volatility features."""
     all_dates = pd.date_range(min_date, max_date, freq="D")
     n_days = len(all_dates)
     dows = all_dates.dayofweek.to_numpy()
     date_to_idx = {d: i for i, d in enumerate(all_dates)}
+    off = max(1, int(lag_offset_days)) - 1
 
     # Precompute any-variety daily existence matrix per (State, Commodity)
     any_rates: Dict[Tuple[str, str], Tuple[Dict[str, int], np.ndarray, np.ndarray]] = {}
@@ -235,7 +237,7 @@ def _compute_strictly_past_history(
         obs_any[r_idx, c_idx] = 1.0
         cs = np.zeros((n_days + 1, len(u_mkts)), dtype=np.float64)
         cs[1:] = np.cumsum(obs_any, axis=0)
-        t_arr = np.arange(n_days)
+        t_arr = np.maximum(0, np.arange(n_days) - off)
         t14 = np.maximum(0, t_arr - 14)
         t28 = np.maximum(0, t_arr - 28)
         den14 = np.minimum(t_arr, 14)[:, None] + 2.0
@@ -268,7 +270,7 @@ def _compute_strictly_past_history(
         cs_x[1:] = np.cumsum(price, axis=0)
         cs_x2[1:] = np.cumsum(price2, axis=0)
 
-        t_arr = np.arange(n_days)
+        t_arr = np.maximum(0, np.arange(n_days) - off)
         t14 = np.maximum(0, t_arr - 14)
         t28 = np.maximum(0, t_arr - 28)
         ex14 = (cs_n[t_arr] - cs_n[t14] + 1.0) / (np.minimum(t_arr, 14)[:, None] + 2.0)
@@ -283,7 +285,7 @@ def _compute_strictly_past_history(
             cv28 = np.where((cnt28 >= 2) & (mu28 > 0), np.clip(np.sqrt(var28) / mu28, 0.0, 1.0), 0.05)
 
         # Strictly past arrival-weekday rates for arrival_dow w in 0..6:
-        # Place rate inclusive of d_occ onto day d_occ + 1 and ffill, so on day t we ONLY ever read <= t - 1!
+        # Place rate inclusive of d_occ onto day d_occ + lag_offset_days and ffill, so on day t we ONLY ever read <= t - lag_offset_days!
         dow_rates = np.full((7, n_days, n_m), 0.5, dtype=np.float64)
         for w in range(7):
             occ = np.flatnonzero(dows == w)
@@ -298,7 +300,7 @@ def _compute_strictly_past_history(
             n_incl = (u - u0 + 1)[:, None]
             r_incl = (k_incl + 1.0) / (n_incl + 2.0)
             tmp = np.full((n_days, n_m), np.nan, dtype=np.float64)
-            nxt = occ + 1
+            nxt = occ + max(1, int(lag_offset_days))
             valid_nxt = nxt < n_days
             if valid_nxt.any():
                 tmp[nxt[valid_nxt]] = r_incl[valid_nxt]
@@ -324,9 +326,10 @@ def build_lagged_candidates_from_frames(
     max_origin_date: str = "2026-04-08",
     max_lag_age: int = 7,
     min_lag_spread: float = 100.0,
-    top_k: int = 5,
+    top_k: int | None = 5,
     params: SimParams = SimParams(),
     include_unreported_origin_days: bool = False,
+    lag_offset_days: int = 1,
 ) -> Tuple[pd.DataFrame, dict]:
     """Pure, leak-free builder turning raw price rows + static corridors into Top-K lagged candidates."""
     panel = raw_df.copy()
@@ -338,7 +341,7 @@ def build_lagged_candidates_from_frames(
 
     min_d = canon_df["Arrival_Date"].min()
     max_d = canon_df["Arrival_Date"].max()
-    all_dates, date_to_idx, hist_chunks = _compute_strictly_past_history(canon_df, min_d, max_d)
+    all_dates, date_to_idx, hist_chunks = _compute_strictly_past_history(canon_df, min_d, max_d, lag_offset_days=lag_offset_days)
 
     # Map history lookups for fast vectorized indexing
     hist_lookup = {(st, cm, vk): (mkts, ex14, ex28, any14, any28, cv28, cnt28, dow_r) for (st, cm, vk, mkts, ex14, ex28, any14, any28, cv28, cnt28, dow_r) in hist_chunks}
@@ -361,8 +364,8 @@ def build_lagged_candidates_from_frames(
         orig = win_canon
     counts["origin_variety_days_in_window"] = int(len(orig))
 
-    # Origin lagged quote strictly <= t - 1
-    orig["lag_deadline"] = orig["date"] - pd.Timedelta(days=1)
+    # Origin lagged quote strictly <= t - lag_offset_days
+    orig["lag_deadline"] = orig["date"] - pd.Timedelta(days=int(lag_offset_days))
     orig_lag_src = canon_df[["State", "Market", "Commodity", "Variety_Key", "Arrival_Date", "Modal_Price"]].rename(
         columns={"Market": "origin_market", "Arrival_Date": "origin_quote_date", "Modal_Price": "origin_lag_price"}
     ).sort_values("origin_quote_date")
@@ -376,7 +379,7 @@ def build_lagged_candidates_from_frames(
         direction="backward",
     )
     orig["origin_lag_age"] = (orig["date"] - orig["origin_quote_date"]).dt.days
-    orig = orig[(orig["origin_lag_age"] >= 1) & (orig["origin_lag_age"] <= max_lag_age)].copy()
+    orig = orig[(orig["origin_lag_age"] >= int(lag_offset_days)) & (orig["origin_lag_age"] <= max_lag_age)].copy()
     counts["origin_days_with_lag_1_7d"] = int(len(orig))
 
     # Deterministic episode order
@@ -393,7 +396,7 @@ def build_lagged_candidates_from_frames(
     cands = cands.rename(columns={"arrival_lag_days": "tau_days"})
     counts["reachable_corridor_pairs"] = int(len(cands))
 
-    # Strictly <= t - 1 destination exact-variety quote via merge_asof
+    # Strictly <= t - lag_offset_days destination exact-variety quote via merge_asof
     dest_lag_src = canon_df[["State", "Market", "Commodity", "Variety_Key", "Arrival_Date", "Modal_Price"]].rename(
         columns={"Market": "dest_market", "Arrival_Date": "dest_quote_date", "Modal_Price": "dest_lag_price"}
     ).sort_values("dest_quote_date")
@@ -407,7 +410,7 @@ def build_lagged_candidates_from_frames(
         direction="backward",
     )
     cands["dest_lag_age"] = (cands["date"] - cands["dest_quote_date"]).dt.days
-    cands = cands[(cands["dest_lag_age"] >= 1) & (cands["dest_lag_age"] <= max_lag_age)].copy()
+    cands = cands[(cands["dest_lag_age"] >= int(lag_offset_days)) & (cands["dest_lag_age"] <= max_lag_age)].copy()
     cands["lag_spread"] = cands["dest_lag_price"] - cands["origin_lag_price"]
     counts["corridor_pairs_with_dest_lag_1_7d"] = int(len(cands))
     counts["episodes_with_dest_lag_1_7d"] = int(cands["episode_id"].nunique())
@@ -421,8 +424,11 @@ def build_lagged_candidates_from_frames(
         ["episode_id", "lag_spread", "road_km", "dest_market"],
         ascending=[True, False, True, True],
     )
-    cands["_rk"] = cands.groupby("episode_id").cumcount()
-    cands = cands[cands["_rk"] < top_k].drop(columns=["_rk"]).reset_index(drop=True)
+    if top_k is not None:
+        cands["_rk"] = cands.groupby("episode_id").cumcount()
+        cands = cands[cands["_rk"] < int(top_k)].drop(columns=["_rk"]).reset_index(drop=True)
+    else:
+        cands = cands.reset_index(drop=True)
     counts["shortlist_top5_rows"] = int(len(cands))
     counts["shortlist_val_episodes"] = int(cands.loc[cands["date"] <= "2025-05-31", "episode_id"].nunique())
     counts["shortlist_test_episodes"] = int(cands.loc[cands["date"] > "2025-05-31", "episode_id"].nunique())

@@ -4,7 +4,7 @@
 
 ## 1. Independent Multi-Agent Review Sign-Off Summary
 
-Two independent post-remediation review agents completed three full adversarial verification rounds over code, raw/processed data manifests, CSV outputs, figures, BibTeX sources, manuscript, viva materials, and the HTML/PDF handbook inside `/Users/adityasharma/.gemini/antigravity/scratch/mandi-phantom-dispatch-agent`:
+Two independent post-remediation review agents completed three full adversarial verification rounds over code, raw/processed data manifests, CSV outputs, figures, BibTeX sources, manuscript, viva materials, and the HTML/PDF handbook inside `<repo_root>`:
 
 | Reviewer Role | Conversation ID | Round 1 | Round 2 | Round 3 Final Verdict |
 |:---|:---|:---|:---|:---|
@@ -35,5 +35,5 @@ Two independent post-remediation review agents completed three full adversarial 
 
 - **Stage-I CSV Immutability:** `git diff --name-only HEAD --` across `results/confirmatory_holm_summary.csv`, `results/exp1..exp13b*.csv`, and `results/exp15_missing_data_open_yard_sensitivity.csv` is empty — Stage I (`e421d15`) remains completely frozen.
 - **Stage-II Boundary:** `Exp 16`–`Exp 17` and `MandiGuard-CRC` are quarantined as **`[POST-DIAGNOSTIC / VALIDATION-CALIBRATED]`**, calibrated solely on `Val_2025H1` (`N = 42,794`) with zero holdout tuning and zero distribution-free exchangeability Theorem 1 claims.
-- **Automated Test Suite:** `PYTHONPATH=. /Users/adityasharma/anaconda3/bin/python3 -m pytest -v tests` passed **`22/22`** cleanly (`results/pytest_execution.log`) after all code and documentation edits.
+- **Automated Test Suite:** `PYTHONPATH=. python3 -m pytest -v tests` passed **`22/22`** cleanly (`results/pytest_execution.log`) after all code and documentation edits.
 - **Citation, Size & Secret Checks:** `37/37` BibTeX parity (`missing=set()`, `unused=set()`), `9/9` figure paths resolve on disk, zero non-gitignored files `>= 10 MB` (`colab_data_pack.tar.gz` = `4.83 MB`, Handbook PDF = `5.41 MB`), and zero leaked tokens.

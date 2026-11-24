@@ -95,19 +95,19 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 def clean_market_query(market: str) -> List[str]:
     m = market.strip()
     cands = []
-    # Check inside parentheses if e.g. "Kangra(Jassour)" -> try Jassour and Kangra
+    # Check inside parentheses FIRST if e.g. "Kangra(Jassour)" -> try Jassour before parent Kangra to avoid sub-yard collisions
     paren = re.findall(r"\(([^)]+)\)", m)
+    for p in paren:
+        p_clean = re.sub(r"\s+(APMC|Mandi|Yard|Sub Yard)$", "", p.strip(), flags=re.I).strip()
+        if p_clean and p_clean.lower() not in {"f&v", "veg", "fruit", "grain", "new", "old"} and p_clean not in cands:
+            cands.append(p_clean)
     base = re.sub(r"\([^)]*\)", "", m).strip()
     for prefix in ("PMY ", "SMY ", "F&V ", "F & V ", "APMC "):
         if base.upper().startswith(prefix):
             base = base[len(prefix) :].strip()
     base = re.sub(r"\s+(APMC|Mandi|Yard|Sub Yard|Market|Sabzi Mandi|Uzhavar Sandhai)$", "", base, flags=re.I).strip()
-    if base:
+    if base and base not in cands:
         cands.append(base)
-    for p in paren:
-        p_clean = re.sub(r"\s+(APMC|Mandi|Yard|Sub Yard)$", "", p.strip(), flags=re.I).strip()
-        if p_clean and p_clean.lower() not in {"f&v", "veg", "fruit", "grain", "new", "old"}:
-            cands.append(p_clean)
     return cands
 
 
